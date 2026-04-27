@@ -1,50 +1,128 @@
+
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Duyệt Expert</title>
     <style>
-        /* Page-specific only */
-        .page-title { font-size: 22px; font-weight: 800; margin-bottom: 24px; }
+        .page-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 24px;
+        }
 
-        .expert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .table-wrapper {
+            background: var(--color-surface, #fff);
+            border-radius: var(--radius-card, 12px);
+            border: 1px solid #eee;
+            overflow: hidden;
+        }
 
-        .expert-card { background: var(--color-surface); border-radius: var(--radius-card); padding: 20px; border: 1px solid #eee; }
-        .expert-header { display: flex; gap: 16px; margin-bottom: 14px; }
-        .expert-photo { width: 80px; height: 80px; border-radius: 10px; overflow: hidden; flex-shrink: 0; background: #eee; }
-        .expert-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .seller-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
 
-        .expert-name-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
-        .expert-name  { font-size: 16px; font-weight: 700; }
-        .expert-role  { font-size: 12px; color: var(--color-primary); font-weight: 600; margin-bottom: 8px; }
-        .expert-quote { font-size: 12px; color: var(--color-text-muted); line-height: 1.6; }
+        .seller-table thead {
+            background: #f7f8fa;
+        }
 
-        .doc-label { font-size: 10px; font-weight: 700; color: var(--color-text-faint); text-transform: uppercase; letter-spacing: .5px; margin: 14px 0 8px; }
-        .doc-chips  { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-        .doc-chip   { display: flex; align-items: center; gap: 5px; background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 7px; padding: 5px 10px; font-size: 11px; color: #444; font-weight: 500; }
+        .seller-table thead th {
+            padding: 13px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .seller-table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            transition: background .12s;
+        }
+
+        .seller-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .seller-table tbody tr:hover {
+            background: #fafbff;
+        }
+
+        .seller-table td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            color: #333;
+        }
+
+        .seller-name {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .seller-location {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .badge-new {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #3b6be8;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 5px;
+            padding: 2px 8px;
+            letter-spacing: 0.3px;
+        }
 
         .btn-detail {
-            width: 100%;
-            background: var(--color-primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--color-primary, #3b6be8);
             color: #fff;
             border: none;
-            border-radius: var(--radius-btn);
-            padding: 11px;
-            font-size: 13px;
+            border-radius: var(--radius-btn, 8px);
+            padding: 8px 16px;
+            font-size: 12px;
             font-weight: 600;
-            font-family: var(--font-body);
             cursor: pointer;
+            text-decoration: none;
+            transition: background .15s;
+            white-space: nowrap;
+        }
+
+        .btn-detail:hover {
+            background: var(--color-primary-dark, #2a55cc);
+            color: #fff;
+        }
+
+        .list-footer {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 7px;
-            transition: background .15s;
-            text-decoration: none;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 14px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #aaa;
         }
-        .btn-detail:hover { background: var(--color-primary-dark); color: #fff; }
 
-        .list-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; padding-top: 16px; border-top: 1px solid #eee; font-size: 12px; color: #aaa; }
-        .list-footer .footer-right { display: flex; gap: 16px; font-weight: 600; color: #666; cursor: pointer; }
-        .list-footer .footer-right span:hover { color: var(--color-primary); }
+        .list-footer .footer-right {
+            display: flex;
+            gap: 16px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .list-footer .footer-right span:hover {
+            color: var(--color-primary, #3b6be8);
+        }
     </style>
 </head>
 <body>
@@ -53,97 +131,54 @@
     <main>
         <div class="page-title">Danh sách yêu cầu phê duyệt Expert</div>
 
-        <div class="expert-grid">
-            <div class="expert-card">
-                <div class="expert-header">
-                    <div class="expert-photo"><img src="https://i.pravatar.cc/80?img=51" alt="Dr. Julianne"></div>
-                    <div>
-                        <div class="expert-name-row">
-                            <span class="expert-name">Dr. Julianne De Silva</span>
-                            <span class="badge-blue">NEW</span>
-                        </div>
-                        <div class="expert-role">Chuyên gia dinh dưỡng lâm sàng &amp; nhà khoa học đất</div>
-                    </div>
-                </div>
-                <div class="expert-quote">"Ủng hộ mối liên hệ giữa nông nghiệp tái tạo và sức khỏe đường ruột của con người. Chuyên về lập bản đồ mật độ dinh dưỡng cho các loại rau củ."</div>
-                <div class="doc-label">THÔNG TIN CẦN ĐƯỢC XÁC THỰC</div>
-                <div class="doc-chips">
-                    <span class="doc-chip">📄 Ph.D. Agronomy.pdf</span>
-                    <span class="doc-chip">🏅 Board Cert. 2024</span>
-                </div>
-                <a th:href="@{/admin/expert-approve-detail}" class="btn-detail">ℹ️ Xem chi tiết</a>
-            </div>
+        <div th:if="${param.approved}" style="background: #e8f5e9; color: #2e7d32; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; border: 1px solid #c8e6c9;">
+            Đã phê duyệt yêu cầu thành công! Expert hiện đã ở trạng thái ACTIVE.
+        </div>
+        <div th:if="${param.rejected}" style="background: #fce4ec; color: #c62828; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; border: 1px solid #f8bbd0;">
+            Đã từ chối yêu cầu đăng ký của Expert.
+        </div>
 
-            <div class="expert-card">
-                <div class="expert-header">
-                    <div class="expert-photo"><img src="https://i.pravatar.cc/80?img=57" alt="Marcus"></div>
-                    <div>
-                        <div class="expert-name-row">
-                            <span class="expert-name">Marcus O'Reilly</span>
-                            <span class="badge-green">2 NGÀY QUA</span>
-                        </div>
-                        <div class="expert-role">Chuyên gia nông nghiệp bậc thầy &amp; Tư vấn bền vững</div>
-                    </div>
-                </div>
-                <div class="expert-quote">"15 năm kinh nghiệm trong canh tác hữu cơ năng suất cao không sử dụng phân bón tổng hợp."</div>
-                <div class="doc-label">THÔNG TIN CẦN ĐƯỢC XÁC THỰC</div>
-                <div class="doc-chips">
-                    <span class="doc-chip">📷 Permaculture Master.jpg</span>
-                    <span class="doc-chip">📄 Organic Cert 091.pdf</span>
-                </div>
-                <a th:href="@{/admin/expert-approve-detail}" class="btn-detail">ℹ️ Xem chi tiết</a>
-            </div>
-
-            <div class="expert-card">
-                <div class="expert-header">
-                    <div class="expert-photo"><img src="https://i.pravatar.cc/80?img=60" alt="Linh Nguyen"></div>
-                    <div>
-                        <div class="expert-name-row">
-                            <span class="expert-name">Linh Nguyễn</span>
-                            <span class="badge-blue">NEW</span>
-                        </div>
-                        <div class="expert-role">Chuyên gia thực phẩm hữu cơ &amp; An toàn thực phẩm</div>
-                    </div>
-                </div>
-                <div class="expert-quote">"Nghiên cứu chuyên sâu về tiêu chuẩn VietGAP và GlobalGAP trong chuỗi cung ứng thực phẩm hữu cơ tại Việt Nam."</div>
-                <div class="doc-label">THÔNG TIN CẦN ĐƯỢC XÁC THỰC</div>
-                <div class="doc-chips">
-                    <span class="doc-chip">📄 MSc Food Science.pdf</span>
-                    <span class="doc-chip">🏅 VietGAP Auditor</span>
-                </div>
-                <a th:href="@{/admin/expert-approve-detail}" class="btn-detail">ℹ️ Xem chi tiết</a>
-            </div>
-
-            <div class="expert-card">
-                <div class="expert-header">
-                    <div class="expert-photo"><img src="https://i.pravatar.cc/80?img=65" alt="Tran Minh"></div>
-                    <div>
-                        <div class="expert-name-row">
-                            <span class="expert-name">Trần Minh Khoa</span>
-                            <span class="badge-green">3 NGÀY QUA</span>
-                        </div>
-                        <div class="expert-role">Kỹ sư nông nghiệp &amp; Chuyên gia canh tác thủy canh</div>
-                    </div>
-                </div>
-                <div class="expert-quote">"Phát triển hệ thống thủy canh tuần hoàn cho rau sạch đô thị. Đã triển khai hơn 50 dự án tại TP.HCM và Hà Nội."</div>
-                <div class="doc-label">THÔNG TIN CẦN ĐƯỢC XÁC THỰC</div>
-                <div class="doc-chips">
-                    <span class="doc-chip">📄 B.Eng Agriculture.pdf</span>
-                    <span class="doc-chip">📷 Project Portfolio.jpg</span>
-                </div>
-                <a th:href="@{/admin/expert-approve-detail}" class="btn-detail">ℹ️ Xem chi tiết</a>
-            </div>
+        <div class="table-wrapper">
+            <table class="seller-table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tài khoản</th>
+                    <th>Họ và tên</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="expert, iterStat : ${experts}">
+                    <td th:text="${iterStat.count}">1</td>
+                    <td>
+                        <div class="seller-name" th:text="${expert.username}">Tài khoản</div>
+                    </td>
+                    <td>
+                        <div class="seller-location" th:text="${expert.fullName}">Họ và tên</div>
+                    </td>
+                    <td>
+                        <span class="badge-new" th:text="${expert.status}">NEW</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/admin/expert-pending-list/expert-approve-detail(id=${expert.id})}" class="btn-detail">
+                            Xem chi tiết
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
 
         <div class="list-footer">
-            <span>🕐 Last updated: Just now</span>
+            <span th:text="'Tổng: ' + ${#lists.size(experts)} + ' yêu cầu'">Tổng: 0 yêu cầu</span>
             <div class="footer-right">
-                <span>ARCHIVE</span>
-                <span>EXPORT REPORT</span>
+                <span>← Trước</span>
+                <span>Tiếp →</span>
             </div>
         </div>
     </main>
 </div>
-
 </body>
 </html>
