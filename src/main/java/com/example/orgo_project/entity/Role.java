@@ -1,5 +1,6 @@
 package com.example.orgo_project.entity;
 
+import com.example.orgo_project.enums.RoleName;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,8 +19,9 @@ public class Role {
     @Column(name = "id_vai_tro")
     private Integer id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "ten_vai_tro", columnDefinition = "NVARCHAR(255)")
-    private String roleName;
+    private RoleName roleName;
 
     @jakarta.persistence.OneToMany(mappedBy = "role")
     private java.util.List<Account> accounts;

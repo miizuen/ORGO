@@ -33,8 +33,8 @@ public class UserProfile {
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     private com.example.orgo_project.enums.UserStatus status;
 
-    @jakarta.persistence.OneToOne(fetch = jakarta.persistence.FetchType.LAZY)
-    @jakarta.persistence.JoinColumn(name = "id_tai_khoan")
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "id_tai_khoan")
     private Account account;
 
     @Column(name = "reset_otp", length=6)
