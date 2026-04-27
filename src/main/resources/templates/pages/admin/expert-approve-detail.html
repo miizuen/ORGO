@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chi tiết Expert</title>
+    <style>
+        /* Page-specific only */
+
+        /* Layout */
+        .layout { display: grid; grid-template-columns: 1fr 260px; gap: 22px; }
+
+        /* Profile card */
+        .profile-card  { background: var(--color-surface); border-radius: var(--radius-card); padding: 22px; margin-bottom: 18px; }
+        .profile-top   { display: flex; gap: 20px; align-items: flex-start; }
+        .profile-photo { width: 100px; height: 110px; border-radius: 12px; overflow: hidden; flex-shrink: 0; position: relative; background: #eee; }
+        .profile-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .verified-stamp {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(46,125,50,.9); color: #fff;
+            font-size: 9px; font-weight: 700; text-align: center;
+            padding: 4px; letter-spacing: .3px;
+        }
+        .profile-name      { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .profile-specialty { font-size: 13px; color: var(--color-primary); font-weight: 600; margin-top: 4px; }
+        .profile-stats     { display: flex; gap: 24px; margin-top: 16px; }
+        .ps-item label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: .5px; }
+        .ps-item span  { display: block; font-size: 14px; font-weight: 700; margin-top: 2px; }
+
+        /* Bio */
+        .bio-card { background: var(--color-surface); border-radius: var(--radius-card); padding: 22px; margin-bottom: 18px; }
+        .bio-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+        .bio-text { font-size: 13px; color: var(--color-text-muted); line-height: 1.7; }
+
+        /* Credentials */
+        .creds-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .cred-section { background: var(--color-surface); border-radius: var(--radius-card); padding: 20px; }
+        .cred-section h3 { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+        .cred-item { border: 1px solid #eee; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; gap: 10px; align-items: flex-start; }
+        .cred-item:last-child { margin-bottom: 0; }
+        .cred-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .cred-icon.red    { background: #fce4ec; }
+        .cred-icon.green  { background: #e8f5e9; }
+        .cred-icon.purple { background: #f3e5f5; }
+        .cred-name { font-size: 13px; font-weight: 600; }
+        .cred-org  { font-size: 11px; color: var(--color-text-faint); margin-top: 2px; }
+        .cred-status { font-size: 10px; font-weight: 700; margin-top: 4px; padding: 2px 7px; border-radius: 4px; display: inline-block; }
+        .status-verified { background: #e8f5e9; color: #2e7d32; }
+        .status-exp      { background: #e3f2fd; color: #1565c0; }
+        .status-awaiting { background: #fff3e0; color: #e65100; }
+
+        /* Right panel cards */
+        .decision-card { background: var(--color-surface); border-radius: var(--radius-card); padding: 20px; margin-bottom: 18px; }
+        .decision-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .confidence { font-size: 11px; color: var(--color-text-faint); margin-bottom: 14px; }
+
+        .notes-card  { background: var(--color-surface); border-radius: var(--radius-card); padding: 18px; margin-bottom: 18px; }
+        .notes-card h4 { font-size: 10px; font-weight: 700; color: var(--color-text-faint); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+        .notes-textarea { width: 100%; border: 1px solid var(--color-border); border-radius: 8px; padding: 10px; font-size: 12px; font-family: var(--font-body); color: var(--color-text-muted); resize: none; height: 80px; outline: none; }
+
+        .portfolio-card { background: var(--color-surface); border-radius: var(--radius-card); padding: 18px; }
+        .portfolio-card h4 { font-size: 11px; font-weight: 700; color: var(--color-text-faint); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px; }
+        .pub-title   { font-size: 10px; font-weight: 700; color: var(--color-primary); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; }
+        .pub-name    { font-size: 13px; font-weight: 600; }
+        .pub-meta    { font-size: 11px; color: var(--color-text-faint); margin-top: 2px; margin-bottom: 14px; }
+        .port-link   { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-primary); font-weight: 600; }
+        .port-desc   { font-size: 11px; color: var(--color-text-faint); margin-top: 3px; margin-bottom: 14px; }
+        .social-row  { display: flex; gap: 10px; margin-top: 8px; }
+        .social-btn  { width: 32px; height: 32px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/admin-layout :: adminLayout('Chi tiết Expert', 'expert', ~{::main})}">
+    <main>
+        <div class="adm-breadcrumb">
+            <a th:href="@{/admin/expert-pending-list}">← Quay lại danh sách</a>
+            <span>/</span>
+            <span>ĐƠN #XP-9921</span>
+        </div>
+
+        <div class="layout">
+            <!-- Left column -->
+            <div>
+                <div class="profile-card">
+                    <div class="profile-top">
+                        <div class="profile-photo">
+                            <img src="https://i.pravatar.cc/100?img=69" alt="Dr. Tuấn Anh">
+                            <div class="verified-stamp">ĐÃ XÁC MINH DANH TÍNH</div>
+                        </div>
+                        <div>
+                            <div class="profile-name">Dr. Tuấn Anh <span style="color:var(--color-primary);font-size:18px">✅</span></div>
+                            <div class="profile-specialty">Chuyên gia dinh dưỡng lâm sàng</div>
+                            <div class="profile-stats">
+                                <div class="ps-item"><label>KINH NGHIỆM</label><span>12+ Years</span></div>
+                                <div class="ps-item"><label>VỊ TRÍ</label><span>TP. Hồ Chí Minh</span></div>
+                                <div class="ps-item"><label>NGÔN NGỮ</label><span>Tiếng Việt, English</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bio-card">
+                    <h3>📋 Tổng quan chuyên môn</h3>
+                    <p class="bio-text">Chuyên về dinh dưỡng nội tiết và sức khỏe chuyển hóa, TS. Tuấn Anh đã dành hơn một thập kỷ phát triển các phác đồ dinh dưỡng cá nhân hóa cho vận động viên hiệu suất cao và bệnh nhân mắc các tình trạng viêm mãn tính. Hiện ông đang là cố vấn cho Viện Thể thao Quốc gia.</p>
+                </div>
+
+                <div class="creds-row">
+                    <div class="cred-section">
+                        <h3>🎓 Bằng cấp học thuật</h3>
+                        <div class="cred-item">
+                            <div class="cred-icon red">📄</div>
+                            <div>
+                                <div class="cred-name">PhD in Nutritional Sciences</div>
+                                <div class="cred-org">Medical University of Tokyo</div>
+                                <span class="cred-status status-verified">VERIFIED: 2018</span>
+                            </div>
+                        </div>
+                        <div class="cred-item">
+                            <div class="cred-icon red">📄</div>
+                            <div>
+                                <div class="cred-name">Master of Medicine</div>
+                                <div class="cred-org">Vietnam Military Medical University</div>
+                                <span class="cred-status status-verified">VERIFIED: 2012</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cred-section">
+                        <h3>🏅 Chứng chỉ chuyên môn</h3>
+                        <div class="cred-item">
+                            <div class="cred-icon green">🖼️</div>
+                            <div>
+                                <div class="cred-name">Registered Dietitian (RD)</div>
+                                <div class="cred-org">Global Health Council</div>
+                                <span class="cred-status status-exp">EXP: 2026</span>
+                            </div>
+                        </div>
+                        <div class="cred-item">
+                            <div class="cred-icon purple">✅</div>
+                            <div>
+                                <div class="cred-name">Functional Nutrition Spec.</div>
+                                <div class="cred-org">IFN Academy</div>
+                                <span class="cred-status status-awaiting">AWAITING REVIEW</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right column -->
+            <div>
+                <div class="decision-card">
+                    <h3>Quyết định phê duyệt</h3>
+                    <div class="confidence">System confidence: 98% Match</div>
+                    <button class="btn-adm-primary">✅ Xác nhận và phê duyệt</button>
+                    <button class="btn-adm-outline">❓ Yêu cầu thêm thông tin</button>
+                    <button class="btn-adm-danger">🚫 Từ chối</button>
+                </div>
+
+                <div class="notes-card">
+                    <h4>GHI CHÚ CỦA NGƯỜI DUYỆT</h4>
+                    <textarea class="notes-textarea" placeholder="Thêm ghi chú nội bộ về expert này..."></textarea>
+                </div>
+
+                <div class="portfolio-card">
+                    <h4>📚 Hồ sơ làm việc</h4>
+                    <div class="pub-title">PUBLICATION</div>
+                    <div class="pub-name">The Role of Phyto-nutrients in Post-Covid Recovery</div>
+                    <div class="pub-meta">Journal of Clinical Wellness • 2023</div>
+                    <div class="pub-title">PORTFOLIO</div>
+                    <div class="port-link">🔗 tuananh-nutrition.com</div>
+                    <div class="port-desc">Official professional consulting landing page</div>
+                    <div class="pub-title">SOCIAL PRESENCE</div>
+                    <div class="social-row">
+                        <div class="social-btn">↗</div>
+                        <div class="social-btn">🎬</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

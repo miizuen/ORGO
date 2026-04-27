@@ -26,11 +26,6 @@ public class HomeController {
         return "pages/public/home";
     }
 
-    @GetMapping("admin/dashboard")
-    public String showAdminDashboard() {
-        return "pages/admin/dashboard";
-    }
-
     @GetMapping("seller/dashboard")
     public String showSellerDashboard() {
         return "pages/seller/dashboard";

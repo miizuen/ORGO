@@ -1,10 +1,245 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout('Admin Dashboard - ORGO', ~{::#admin-content})}">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tổng quan</title>
+    <style>
+        /* --- Page-specific styles only --- */
+        .page-title h1 { font-size: 22px; font-weight: 700; }
+        .page-title p  { font-size: 13px; color: var(--color-text-muted); margin-top: 4px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-top: 24px; }
+
+        .stat-card { background: var(--color-surface); border-radius: var(--radius-card); padding: 20px; position: relative; overflow: hidden; }
+        .stat-card .badge { position: absolute; top: 14px; right: 14px; }
+        .stat-card .card-icon  { font-size: 22px; margin-bottom: 10px; }
+        .stat-card .card-label { font-size: 10.5px; font-weight: 700; color: var(--color-text-faint); letter-spacing: .5px; text-transform: uppercase; }
+        .stat-card .card-value { font-size: 26px; font-weight: 800; margin-top: 4px; }
+        .stat-card .card-value.red { color: #e53935; }
+        .stat-card .card-sub { font-size: 12px; color: var(--color-text-muted); margin-top: 6px; }
+
+        .sub-list { margin-top: 10px; }
+        .sub-row  { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; }
+        .sub-row span:last-child { font-weight: 600; }
+        .sub-bar  { height: 3px; border-radius: 2px; margin-bottom: 10px; }
+        .bar-blue  { background: #1565C0; } .bar-green { background: #2e7d32; } .bar-light { background: #a5d6a7; }
+
+        .mini-chart { display: flex; align-items: flex-end; gap: 4px; margin-top: 12px; height: 40px; }
+        .mini-bar        { flex: 1; border-radius: 3px 3px 0 0; background: #c8e6c9; }
+        .mini-bar.active { background: #2e7d32; }
+
+        .joined-avatars { display: flex; align-items: center; margin-top: 14px; }
+        .joined-avatars .av { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff; margin-left: -8px; background: #aaa; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; font-weight: 700; overflow: hidden; }
+        .joined-avatars .av:first-child { margin-left: 0; }
+        .joined-avatars .av.more  { background: #555; font-size: 9px; }
+        .joined-text { font-size: 11px; color: var(--color-text-faint); margin-left: 8px; }
+
+        .waiting-link { color: var(--color-primary); font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 20px; display: block; text-decoration: none; }
+
+        /* Bottom section */
+        .bottom-grid { display: grid; grid-template-columns: 1fr 280px; gap: 20px; margin-top: 24px; }
+
+        .activity-card { background: var(--color-surface); border-radius: var(--radius-card); padding: 22px; }
+        .activity-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+        .activity-header h3 { font-size: 16px; font-weight: 700; }
+        .activity-header .icons { display: flex; gap: 10px; color: #aaa; cursor: pointer; font-size: 16px; }
+
+        .activity-item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+        .activity-item:last-child { border-bottom: none; }
+        .act-avatar { width: 42px; height: 42px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .act-avatar.warning  { background: #fff3e0; }
+        .act-avatar.cart     { background: #e3f2fd; }
+        .act-info { flex: 1; }
+        .act-info .act-title { font-size: 13px; }
+        .act-info .act-meta  { font-size: 11px; color: #aaa; margin-top: 2px; }
+        .act-tags { display: flex; gap: 6px; flex-shrink: 0; }
+        .tag { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 500; cursor: pointer; }
+        .tag.outline { border: 1px solid #ddd; color: #555; }
+        .tag.green   { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+        .tag.red-bg  { background: #fce4ec; color: #c62828; border: 1px solid #f8bbd0; font-weight: 700; }
+        .view-all { text-align: center; margin-top: 14px; font-size: 13px; color: var(--color-primary); cursor: pointer; font-weight: 600; }
+
+        /* Right panel */
+        .right-panel { display: flex; flex-direction: column; gap: 20px; }
+        .panel-card { background: var(--color-surface); border-radius: var(--radius-card); padding: 20px; }
+        .panel-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+
+        .cat-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .cat-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .cat-icon.green-bg  { background: #e8f5e9; } .cat-icon.orange-bg { background: #fff3e0; } .cat-icon.blue-bg { background: #e3f2fd; }
+        .cat-info { flex: 1; }
+        .cat-info .cat-name { font-size: 12.5px; font-weight: 500; }
+        .cat-info .cat-bar-wrap { background: #eee; border-radius: 3px; height: 4px; margin-top: 4px; }
+        .cat-info .cat-bar { height: 4px; border-radius: 3px; }
+        .cat-pct { font-size: 12px; font-weight: 600; }
+
+        .queue-item { display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+        .queue-item:last-child { margin-bottom: 0; }
+        .queue-left { display: flex; align-items: center; gap: 10px; }
+        .queue-left .q-icon  { font-size: 16px; }
+        .queue-left .q-label { font-size: 13px; font-weight: 500; }
+        .queue-badge { background: #e8f5e9; color: #2e7d32; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+    </style>
+</head>
 <body>
-<div id="admin-content" class="p-8">
-    <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-    <p class="mt-4 text-gray-600">Placeholder for Admin Dashboard</p>
+
+<div th:replace="~{fragments/admin-layout :: adminLayout('Tổng quan', 'dashboard', ~{::main})}">
+    <main>
+        <div class="page-title">
+            <h1>Tổng quan hệ thống</h1>
+            <p>Chào mừng trở lại. Sau đây là những sự kiện đang diễn ra tại ORGO hôm nay.</p>
+        </div>
+
+        <div class="stats-grid">
+            <!-- Doanh thu -->
+            <div class="stat-card">
+                <span class="badge badge-green">+12.4%</span>
+                <div class="card-icon">💵</div>
+                <div class="card-label">DOANH THU TOÀN SÀN</div>
+                <div class="card-value">$142,384.50</div>
+                <div class="mini-chart">
+                    <div class="mini-bar" style="height:40%"></div>
+                    <div class="mini-bar" style="height:55%"></div>
+                    <div class="mini-bar" style="height:45%"></div>
+                    <div class="mini-bar" style="height:65%"></div>
+                    <div class="mini-bar" style="height:50%"></div>
+                    <div class="mini-bar active" style="height:80%"></div>
+                    <div class="mini-bar active" style="height:100%"></div>
+                </div>
+                <div class="card-sub">Last 7 days performance</div>
+            </div>
+
+            <!-- Người dùng -->
+            <div class="stat-card">
+                <div class="card-icon">👤</div>
+                <div class="card-label">TỔNG SỐ NGƯỜI DÙNG</div>
+                <div class="card-value">24,892</div>
+                <div class="sub-list">
+                    <div class="sub-row"><span>Người mua</span><span>18,201</span></div>
+                    <div class="sub-bar bar-blue" style="width:80%"></div>
+                    <div class="sub-row"><span>Sellers</span><span>5,440</span></div>
+                    <div class="sub-bar bar-green" style="width:50%"></div>
+                    <div class="sub-row"><span>Experts</span><span>1,251</span></div>
+                    <div class="sub-bar bar-light" style="width:25%"></div>
+                </div>
+            </div>
+
+            <!-- Người bán -->
+            <div class="stat-card">
+                <div class="card-icon">🏪</div>
+                <div class="card-label">TỔNG SỐ NGƯỜI BÁN</div>
+                <div class="card-value">4,812</div>
+                <div class="joined-avatars">
+                    <div class="av" style="background:#e57373">JD</div>
+                    <div class="av" style="background:#64b5f6">MK</div>
+                    <div class="av" style="background:#81c784">SR</div>
+                    <div class="av more">+12</div>
+                </div>
+                <div class="joined-text" style="margin-top:6px">Joined this hour</div>
+            </div>
+
+            <!-- Chờ phê duyệt -->
+            <div class="stat-card">
+                <span class="badge badge-red">🔴</span>
+                <div class="card-icon" style="color:#e53935">📅</div>
+                <div class="card-label">ĐANG CHỜ PHÊ DUYỆT</div>
+                <div class="card-value red">128</div>
+                <a th:href="@{/admin/seller-pending-list}" class="waiting-link">Xem hàng đợi →</a>
+            </div>
+        </div>
+
+        <div class="bottom-grid">
+            <!-- Hoạt động gần đây -->
+            <div class="activity-card">
+                <div class="activity-header">
+                    <h3>Hoạt động gần đây</h3>
+                    <div class="icons"><span>≡</span><span>⋮</span></div>
+                </div>
+                <div class="activity-item">
+                    <div class="act-avatar"><img src="https://i.pravatar.cc/42?img=11" alt=""></div>
+                    <div class="act-info">
+                        <div class="act-title"><strong>Organic Roots Farm</strong> đã nộp đơn Seller</div>
+                        <div class="act-meta">2 phút trước • San Francisco, CA</div>
+                    </div>
+                    <div class="act-tags">
+                        <span class="tag outline">Đánh giá</span>
+                        <span class="tag green">Phê duyệt</span>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="act-avatar warning">⚠️</div>
+                    <div class="act-info">
+                        <div class="act-title"><strong>System Alert:</strong> Inventory Sync Delay</div>
+                        <div class="act-meta">14 phút trước • Region: US-EAST-1</div>
+                    </div>
+                    <div class="act-tags"><span class="tag red-bg">RỦI RO TRUNG BÌNH</span></div>
+                </div>
+                <div class="activity-item">
+                    <div class="act-avatar"><img src="https://i.pravatar.cc/42?img=33" alt=""></div>
+                    <div class="act-info">
+                        <div class="act-title"><strong>Dr. Julian Reed</strong> đã hoàn thành bằng Expert</div>
+                        <div class="act-meta">45 phút trước • Nutrition &amp; Soil Science</div>
+                    </div>
+                    <div class="act-tags"><span class="tag outline">Xem hồ sơ</span></div>
+                </div>
+                <div class="activity-item">
+                    <div class="act-avatar cart">🛒</div>
+                    <div class="act-info">
+                        <div class="act-title"><strong>High Volume Transaction:</strong> Order #OR-99211</div>
+                        <div class="act-meta">1 giờ trước • Total: $1,240.00</div>
+                    </div>
+                    <div class="act-tags"><span class="tag outline">Xử lý</span></div>
+                </div>
+                <div class="view-all">Xem nhật ký kiểm toán đầy đủ</div>
+            </div>
+
+            <!-- Right panel -->
+            <div class="right-panel">
+                <div class="panel-card">
+                    <h3>Các danh mục hàng đầu</h3>
+                    <div class="cat-item">
+                        <div class="cat-icon green-bg">🌿</div>
+                        <div class="cat-info">
+                            <div class="cat-name">Sản phẩm hữu cơ</div>
+                            <div class="cat-bar-wrap"><div class="cat-bar" style="width:42%;background:#2e7d32"></div></div>
+                        </div>
+                        <span class="cat-pct">42%</span>
+                    </div>
+                    <div class="cat-item">
+                        <div class="cat-icon orange-bg">🥛</div>
+                        <div class="cat-info">
+                            <div class="cat-name">Sản phẩm từ sữa và gia cầm</div>
+                            <div class="cat-bar-wrap"><div class="cat-bar" style="width:28%;background:#fb8c00"></div></div>
+                        </div>
+                        <span class="cat-pct">28%</span>
+                    </div>
+                    <div class="cat-item">
+                        <div class="cat-icon blue-bg">🫖</div>
+                        <div class="cat-info">
+                            <div class="cat-name">Trà thảo mộc và mật ong</div>
+                            <div class="cat-bar-wrap"><div class="cat-bar" style="width:18%;background:#1565c0"></div></div>
+                        </div>
+                        <span class="cat-pct">18%</span>
+                    </div>
+                </div>
+                <div class="panel-card">
+                    <h3>Hàng đợi phê duyệt</h3>
+                    <div class="queue-item">
+                        <div class="queue-left"><span class="q-icon">🗂️</span><span class="q-label">Đơn đăng ký Seller</span></div>
+                        <span class="queue-badge">42 mới</span>
+                    </div>
+                    <div class="queue-item">
+                        <div class="queue-left"><span class="q-icon">⏱️</span><span class="q-label">Hồ sơ Expert</span></div>
+                        <span class="queue-badge">12 mới</span>
+                    </div>
+                    <div class="queue-item">
+                        <div class="queue-left"><span class="q-icon">📄</span><span class="q-label">Nội dung sản phẩm</span></div>
+                        <span class="queue-badge">74 mới</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 </div>
+
 </body>
 </html>
