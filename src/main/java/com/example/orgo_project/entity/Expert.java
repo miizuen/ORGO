@@ -1,11 +1,6 @@
 package com.example.orgo_project.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,8 +20,9 @@ public class Expert {
     @Column(name = "id")
     private Integer id;
 
+    @ManyToOne
     @Column(name = "id_tai_khoan")
-    private Integer accountId;
+    private Account account;
 
     @Column(name = "linh_vuc_chuyen_mon", columnDefinition = "NVARCHAR(255)")
     private String expertiseField;

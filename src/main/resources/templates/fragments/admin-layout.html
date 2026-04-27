@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!--
+        admin-layout.html
+        Fragment dùng chung cho tất cả trang admin.
+        Cung cấp: <head> với CSS chuẩn, sidebar, topbar, wrapper .admin-main
+        Sử dụng: th:replace="~{fragments/admin-layout :: adminLayout(title='...', activePage='...', content=~{::main})}"
+    -->
+</head>
+<body>
+
+<!-- ===== ADMIN LAYOUT FRAGMENT ===== -->
+<th:block th:fragment="adminLayout(title, activePage, content)">
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' – ORGO Admin'">ORGO Admin</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <!-- Inter font (đồng bộ với layout user/guest) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap"
+          rel="stylesheet">
+
+    <style>
+        /* =====================================================
+           ORGO ADMIN – DESIGN TOKENS (đồng bộ với user/guest)
+           ===================================================== */
+        :root {
+            /* Màu chính – xanh lá hữu cơ (giống layout toàn trang) */
+            --color-primary:        #2e7d32;
+            --color-primary-dark:   #1a5c1a;
+            --color-primary-light:  #f0f9f0;
+            --color-primary-hover:  #f0f9f0;
+
+            /* Nền – nhất quán với body: #FAF8FF của layout user/guest */
+            --color-bg:             #F5F7FA;
+            --color-surface:        #ffffff;
+            --color-border:         #e8e8e8;
+
+            /* Văn bản */
+            --color-text:           #1a1a2e;
+            --color-text-muted:     #6b7280;
+            --color-text-faint:     #9ca3af;
+
+            /* Accent */
+            --color-danger:         #d32f2f;
+            --color-danger-light:   #fce4ec;
+            --color-warning:        #f59e0b;
+            --color-info:           #1565c0;
+            --color-info-light:     #e3f2fd;
+
+            /* Layout */
+            --sidebar-width:        210px;
+            --topbar-height:        54px;
+            --radius-card:          14px;
+            --radius-btn:           10px;
+
+            /* Font */
+            --font-body:            'Inter', sans-serif;
+        }
+
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .adm-sidebar {
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width);
+            background: var(--color-surface);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--color-border);
+            height: 100vh;
+            padding: 20px 0;
+        }
+
+        .adm-sidebar-logo { padding: 0 18px 22px; }
+        .adm-sidebar-logo h2 {
+            color: var(--color-primary);
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: -.3px;
+        }
+        .adm-sidebar-logo p {
+            font-size: 10px;
+            color: var(--color-text-faint);
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .adm-sidebar-nav { flex: 1; }
+
+        .adm-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--color-text-muted);
+            border-left: 3px solid transparent;
+            text-decoration: none;
+            transition: background .15s, color .15s;
+        }
+        .adm-nav-item:hover {
+            background: var(--color-primary-hover);
+            color: var(--color-primary);
+        }
+        .adm-nav-item.active {
+            color: var(--color-primary);
+            font-weight: 600;
+            border-left-color: var(--color-primary);
+            background: var(--color-primary-hover);
+        }
+        .adm-nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
+
+        .adm-sidebar-bottom {
+            padding: 14px 18px;
+            border-top: 1px solid var(--color-border);
+        }
+        .adm-sidebar-bottom .adm-nav-item { padding: 7px 0; }
+
+        /* System status pill */
+        .adm-system-status {
+            margin: 10px 18px 0;
+            background: var(--color-primary);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+        .adm-system-status .ss-title {
+            font-size: 9px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+        .adm-system-status .ss-sub {
+            font-size: 10px;
+            color: #a5d6a7;
+            margin-top: 3px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .adm-system-status .ss-sub::before {
+            content: '●';
+            font-size: 8px;
+        }
+
+        /* ===== MAIN WRAPPER ===== */
+        .adm-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ===== TOPBAR ===== */
+        .adm-topbar {
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            height: var(--topbar-height);
+            gap: 16px;
+            flex-shrink: 0;
+        }
+
+        .adm-search-box {
+            flex: 1;
+            max-width: 340px;
+            display: flex;
+            align-items: center;
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 7px 12px;
+            gap: 8px;
+        }
+        .adm-search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+            font-family: var(--font-body);
+            color: var(--color-text-muted);
+            width: 100%;
+        }
+
+        .adm-topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .adm-topbar-icons { display: flex; gap: 10px; }
+        .adm-topbar-icons span { font-size: 17px; cursor: pointer; color: var(--color-text-muted); }
+
+        .adm-topbar-user { display: flex; align-items: center; gap: 10px; }
+        .adm-user-name { font-size: 13px; font-weight: 600; }
+        .adm-user-role { font-size: 10px; color: var(--color-text-faint); text-transform: uppercase; letter-spacing: .4px; }
+
+        .adm-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            overflow: hidden;
+        }
+        .adm-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ===== CONTENT AREA ===== */
+        .adm-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 32px;
+        }
+
+        /* ===== REUSABLE CARD ===== */
+        .adm-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-card);
+            padding: 22px;
+        }
+
+        /* ===== BREADCRUMB ===== */
+        .adm-breadcrumb {
+            font-size: 12px;
+            color: var(--color-text-faint);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .adm-breadcrumb a { color: var(--color-primary); text-decoration: none; }
+        .adm-breadcrumb a:hover { text-decoration: underline; }
+
+        /* ===== BUTTONS (admin-specific) ===== */
+        .btn-adm-primary {
+            width: 100%;
+            background: var(--color-primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-btn);
+            padding: 13px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: var(--font-body);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: background .15s;
+            margin-bottom: 10px;
+        }
+        .btn-adm-primary:hover { background: var(--color-primary-dark); }
+
+        .btn-adm-outline {
+            width: 100%;
+            background: #fff;
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-btn);
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: var(--font-body);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: border-color .15s, color .15s;
+            margin-bottom: 10px;
+        }
+
+        .btn-adm-danger {
+            width: 100%;
+            background: #fff;
+            color: var(--color-danger);
+            border: 2px solid #e57373;
+            border-radius: var(--radius-btn);
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: var(--font-body);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: background .15s;
+        }
+        .btn-adm-danger:hover { background: var(--color-danger-light); }
+
+        /* ===== STATUS BADGES ===== */
+        .badge-green  { background: #e8f5e9; color: var(--color-primary); font-weight: 700; padding: 2px 8px; border-radius: 20px; font-size: 11px; }
+        .badge-red    { background: var(--color-danger-light); color: var(--color-danger); font-weight: 700; padding: 2px 8px; border-radius: 20px; font-size: 11px; }
+        .badge-blue   { background: var(--color-info-light); color: var(--color-info); font-weight: 700; padding: 2px 8px; border-radius: 20px; font-size: 11px; }
+        .badge-orange { background: #fff3e0; color: #e65100; font-weight: 700; padding: 2px 8px; border-radius: 20px; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="adm-sidebar">
+        <div class="adm-sidebar-logo">
+            <h2>ORGO Admin</h2>
+            <p>Quản lý hệ thống</p>
+        </div>
+        <nav class="adm-sidebar-nav">
+            <a th:href="@{/admin/dashboard}"
+               th:classappend="${activePage == 'dashboard'} ? 'active' : ''"
+               class="adm-nav-item">
+                <span class="icon">⊞</span> Tổng quan
+            </a>
+            <a th:href="@{/admin/users}"
+               th:classappend="${activePage == 'users'} ? 'active' : ''"
+               class="adm-nav-item">
+                <span class="icon">👥</span> Người dùng
+            </a>
+            <a th:href="@{/admin/seller-pending-list}"
+               th:classappend="${activePage == 'seller'} ? 'active' : ''"
+               class="adm-nav-item">
+                <span class="icon">🛒</span> Duyệt Seller
+            </a>
+            <a th:href="@{/admin/expert-pending-list}"
+               th:classappend="${activePage == 'expert'} ? 'active' : ''"
+               class="adm-nav-item">
+                <span class="icon">🔰</span> Duyệt Expert
+            </a>
+            <a th:href="@{/admin/content}"
+               th:classappend="${activePage == 'content'} ? 'active' : ''"
+               class="adm-nav-item">
+                <span class="icon">📋</span> Duyệt nội dung
+            </a>
+            <a th:href="@{/admin/orders}"
+               th:classappend="${activePage == 'orders'} ? 'active' : ''"
+               class="adm-nav-item">
+                <span class="icon">📦</span> Đơn hàng
+            </a>
+            <a th:href="@{/admin/reports}"
+               th:classappend="${activePage == 'reports'} ? 'active' : ''"
+               class="adm-nav-item">
+                <span class="icon">📊</span> Báo cáo
+            </a>
+        </nav>
+        <div class="adm-sidebar-bottom">
+            <a th:href="@{/admin/settings}"
+               th:classappend="${activePage == 'settings'} ? 'active' : ''"
+               class="adm-nav-item">
+                <span class="icon">⚙️</span> Cài đặt
+            </a>
+            <a th:href="@{/logout}" class="adm-nav-item" style="color:#d32f2f">
+                <span class="icon">🚪</span> Đăng xuất
+            </a>
+        </div>
+        <div class="adm-system-status">
+            <div class="ss-title">SYSTEM STATUS</div>
+            <div class="ss-sub">ALL SYSTEMS OPTIMAL</div>
+        </div>
+    </aside>
+
+    <!-- MAIN AREA -->
+    <div class="adm-main">
+        <!-- TOPBAR -->
+        <header class="adm-topbar">
+            <div class="adm-search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="Tìm kiếm...">
+            </div>
+            <div class="adm-topbar-right">
+                <div class="adm-topbar-icons">
+                    <span title="Thông báo">🔔</span>
+                    <span title="Tin nhắn">✉️</span>
+                </div>
+                <div class="adm-topbar-user">
+                    <div>
+                        <div class="adm-user-name"
+                             th:text="${session.currentUser != null ? session.currentUser : 'Admin'}">Admin</div>
+                        <div class="adm-user-role">SUPER ADMIN</div>
+                    </div>
+                    <div class="adm-avatar">A</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <div class="adm-content">
+            <div th:replace="${content}"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmxc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+</body>
+</html>
+</th:block>
+
+</body>
+</html>

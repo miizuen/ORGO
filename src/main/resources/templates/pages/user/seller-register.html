@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Đăng ký Seller - ORGO', ~{::#seller-register-content})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div id="seller-register-content">
+
+    <!-- HERO -->
+    <div style="background: linear-gradient(160deg, #e8f5ee 0%, #eef7f1 40%, #f0f8ff 100%); padding: 48px 60px 0 60px; display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; min-height: 250px; overflow: hidden;">
+        <div style="padding-bottom: 40px; max-width: 420px;">
+            <h1 class="fw-black text-success mb-2" style="font-size: 30px; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.2;">
+                Cộng tác với<br>chúng tôi
+            </h1>
+            <h2 class="fw-semibold mb-2" style="font-size: 15px; color: #1a1a1a;">Phát triển doanh nghiệp của bạn với ORGO</h2>
+            <p class="text-secondary" style="font-size: 13px; line-height: 1.65; max-width: 340px;">
+                Kết nối với người tiêu dùng hữu cơ và mở rộng quy mô nông trại hoặc doanh nghiệp thủ công của bạn.
+            </p>
+        </div>
+        <div style="width: 340px; flex-shrink: 0; border-radius: 14px 14px 0 0; overflow: hidden; box-shadow: 0 -4px 24px rgba(0,0,0,0.10);">
+            <svg viewBox="0 0 380 220" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:200px;">
+                <rect width="380" height="220" fill="#87CEEB"/>
+                <ellipse cx="60" cy="45" rx="38" ry="20" fill="#fff"/>
+                <ellipse cx="88" cy="38" rx="28" ry="18" fill="#fff"/>
+                <ellipse cx="200" cy="35" rx="34" ry="18" fill="#fff"/>
+                <ellipse cx="310" cy="50" rx="28" ry="15" fill="#fff" opacity="0.85"/>
+                <ellipse cx="190" cy="230" rx="220" ry="90" fill="#4caf50"/>
+                <rect x="0" y="155" width="380" height="65" fill="#558b2f"/>
+                <rect x="0" y="158" width="380" height="8" fill="#7cb342" opacity="0.5"/>
+                <rect x="30" y="148" width="4" height="24" rx="2" fill="#8d6e63"/>
+                <rect x="80" y="148" width="4" height="24" rx="2" fill="#8d6e63"/>
+                <rect x="130" y="148" width="4" height="24" rx="2" fill="#8d6e63"/>
+                <rect x="28" y="153" width="106" height="4" rx="2" fill="#a1887f"/>
+                <rect x="260" y="100" width="12" height="60" rx="3" fill="#5d4037"/>
+                <ellipse cx="266" cy="85" rx="32" ry="36" fill="#2e7d32"/>
+                <ellipse cx="282" cy="92" rx="24" ry="28" fill="#43a047"/>
+                <rect x="290" y="128" width="50" height="38" rx="2" fill="#efebe9"/>
+                <polygon points="285,130 315,105 345,130" fill="#d32f2f"/>
+                <rect x="302" y="140" width="14" height="18" rx="2" fill="#8d6e63"/>
+                <ellipse cx="150" cy="160" rx="14" ry="9" fill="#fff"/>
+                <ellipse cx="150" cy="154" rx="8" ry="7" fill="#fff"/>
+                <rect x="143" y="167" width="3" height="7" rx="1" fill="#9e9e9e"/>
+                <rect x="153" y="167" width="3" height="7" rx="1" fill="#9e9e9e"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- PAGE CONTENT -->
+    <form th:action="@{/user/register-seller}" method="POST" enctype="multipart/form-data">
+    <div class="mx-auto py-4 px-3" style="max-width: 720px;">
+
+        <!-- HEADER -->
+        <div class="mb-4">
+            <div class="d-flex gap-2 mb-2">
+                <span class="badge rounded-pill fw-semibold" style="background:#d8f0e2; color:#2d8c4e; font-size:11px;">ENROLLMENT 2024</span>
+                <span class="badge rounded-pill fw-semibold" style="background:#e8f5e2; color:#5aaa5a; border:1.5px solid #b2dbb2; font-size:11px;">PENDING</span>
+            </div>
+            <h2 class="fw-black" style="font-size: 26px; letter-spacing: -0.5px; color: #1a1a1a;">Đơn ứng tuyển Seller</h2>
+        </div>
+
+        <!-- SECTION 1: Thông tin người đại diện -->
+        <div class="card border rounded-3 mb-3" style="border-color: #e4ece4 !important; overflow: hidden;">
+            <div class="d-flex align-items-center gap-2 px-4 py-3" style="border-bottom: 1px solid #f0f4f0;">
+                <span>👤</span>
+                <span class="fw-bold" style="font-size:15px;">Thông tin người đại diện</span>
+            </div>
+            <div class="p-4">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-secondary text-uppercase" for="ownerName">
+                            Họ tên chủ shop <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="ownerName" name="ownerName"
+                               placeholder="Nguyễn Văn A" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-secondary text-uppercase" for="ownerPhoneNumber">
+                            Số điện thoại <span class="text-danger">*</span>
+                        </label>
+                        <input type="tel" class="form-control" id="ownerPhoneNumber" name="ownerPhoneNumber"
+                               placeholder="090 123 4567" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold text-secondary text-uppercase" for="ownerEmail">
+                        Email chủ shop <span class="text-danger">*</span>
+                    </label>
+                    <input type="email" class="form-control" id="ownerEmail" name="ownerEmail"
+                           placeholder="owner@yourshop.vn" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: Thông tin cửa hàng -->
+        <div class="card border rounded-3 mb-3" style="border-color: #e4ece4 !important; overflow: hidden;">
+            <div class="d-flex align-items-center gap-2 px-4 py-3" style="border-bottom: 1px solid #f0f4f0;">
+                <span>🏪</span>
+                <span class="fw-bold" style="font-size:15px;">Thông tin cửa hàng</span>
+            </div>
+            <div class="p-4">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-secondary text-uppercase" for="shopName">
+                            Tên cửa hàng <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="shopName" name="shopName"
+                               placeholder="Green Valley Organic" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-secondary text-uppercase" for="shopEmail">
+                            Email cửa hàng <span class="text-danger">*</span>
+                        </label>
+                        <input type="email" class="form-control" id="shopEmail" name="shopEmail"
+                               placeholder="contact@greenvalley.vn" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold text-secondary text-uppercase" for="shopAddress">
+                        Địa chỉ cửa hàng <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" id="shopAddress" name="shopAddress"
+                           placeholder="123 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh" required>
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold text-secondary text-uppercase" for="shopDescription">
+                        Mô tả cửa hàng <span class="text-danger">*</span>
+                    </label>
+                    <textarea class="form-control" id="shopDescription" name="shopDescription"
+                              rows="4" required
+                              placeholder="Giới thiệu về cửa hàng, sản phẩm kinh doanh, cam kết chất lượng..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: Pháp lý -->
+        <div class="card border rounded-3 mb-4" style="border-color: #e4ece4 !important; overflow: hidden;">
+            <div class="d-flex align-items-center gap-2 px-4 py-3" style="border-bottom: 1px solid #f0f4f0;">
+                <span>⚖️</span>
+                <span class="fw-bold" style="font-size:15px;">Pháp lý &amp; thuế</span>
+            </div>
+            <div class="p-4">
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label small fw-semibold text-secondary text-uppercase" for="taxCode">
+                            Mã số thuế <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="taxCode" name="taxCode"
+                               placeholder="8123456789-001" required>
+                    </div>
+                    <div class="col-md-7">
+                        <label class="form-label small fw-semibold text-secondary text-uppercase" for="businessRegistrationFile">
+                            Giấy đăng ký kinh doanh <span class="text-danger">*</span>
+                        </label>
+                        <div class="border rounded-3 d-flex flex-column align-items-center justify-content-center gap-1 py-3 text-center"
+                             style="border-style:dashed!important; border-color:#c5d8c5!important; background:#f7faf7; cursor:pointer;"
+                             onclick="document.getElementById('businessRegistrationFile').click()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.8">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            <span class="small text-secondary">Nhấn để tải lên PDF hoặc JPG</span>
+                        </div>
+                        <input type="file" id="businessRegistrationFile" name="businessRegistrationFile"
+                               accept=".pdf,.jpg,.jpeg,.png" style="display:none" required
+                               onchange="document.getElementById('bizFileDisplay').textContent = this.files[0]?.name || ''">
+                        <div id="bizFileDisplay" class="mt-1 small text-success fw-medium"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 pb-5">
+            <label class="d-flex align-items-start gap-2 text-secondary" style="font-size:12px; max-width:360px; line-height:1.55; cursor:pointer;">
+                <input type="checkbox" class="form-check-input flex-shrink-0 mt-1" required style="accent-color:#2d8c4e;">
+                <span>Tôi cam kết thông tin cung cấp là chính xác và đồng ý với <a href="#" class="text-success">Điều khoản</a> và <a href="#" class="text-success">Chính sách</a> của ORGO.</span>
+            </label>
+            <button type="submit" class="btn btn-success fw-bold px-5 py-3" style="font-size:15px; border-radius:10px; min-width:220px;">
+                Gửi đơn ứng tuyển Seller
+            </button>
+        </div>
+    </div>
+    </form>
+
+</div>
+</body>
+</html>
