@@ -72,72 +72,15 @@
         <div class="page-title">Danh sách yêu cầu phê duyệt Seller</div>
 
         <div class="seller-grid">
-            <div class="seller-card">
+            <div class="seller-card" th:each="seller : ${sellers}">
                 <div class="seller-header">
-                    <div class="seller-logo">GREEN<br>VALLEY<br>FARM</div>
                     <div>
-                        <div class="seller-name">Green Valley Organic</div>
-                        <div class="seller-location">📍 Đà Lạt, Lâm Đồng</div>
+                        <div class="seller-name" th:text="${seller.getShopName()}"></div>
+                        <div class="seller-location" th:text="${seller.getShopAddress()}"></div>
                         <span class="badge-blue" style="display:inline-block;margin-top:4px">NEW</span>
                     </div>
                 </div>
-                <div class="seller-desc">Nhà sản xuất hữu cơ chuyên về quả mọng cao nguyên và rau thủy canh. Đã hoạt động 5 năm với quy trình VietGAP.</div>
-                <div class="cert-chips">
-                    <span class="cert-chip">✅ USDA Organic</span>
-                    <span class="cert-chip">🌿 VietGAP</span>
-                </div>
-                <a th:href="@{/admin/seller-approve-detail}" class="btn-detail">ℹ️ Xem chi tiết</a>
-            </div>
-
-            <div class="seller-card">
-                <div class="seller-header">
-                    <div class="seller-logo" style="background:#1565c0">BIO<br>FRESH<br>VN</div>
-                    <div>
-                        <div class="seller-name">BioFresh Vietnam</div>
-                        <div class="seller-location">📍 TP. Hồ Chí Minh</div>
-                        <span class="badge-green" style="display:inline-block;margin-top:4px">2 NGÀY QUA</span>
-                    </div>
-                </div>
-                <div class="seller-desc">Trang trại thủy canh nội thất cung cấp rau sạch cho các hệ thống siêu thị và nhà hàng cao cấp tại TP.HCM.</div>
-                <div class="cert-chips">
-                    <span class="cert-chip">🏅 GlobalGAP</span>
-                    <span class="cert-chip">📄 Giấy phép ATTP</span>
-                </div>
-                <a th:href="@{/admin/seller-approve-detail}" class="btn-detail">ℹ️ Xem chi tiết</a>
-            </div>
-
-            <div class="seller-card">
-                <div class="seller-header">
-                    <div class="seller-logo" style="background:#e65100">MEKONG<br>AGRI</div>
-                    <div>
-                        <div class="seller-name">Mekong Agri Coop</div>
-                        <div class="seller-location">📍 Cần Thơ, Đồng bằng SCL</div>
-                        <span class="badge-blue" style="display:inline-block;margin-top:4px">NEW</span>
-                    </div>
-                </div>
-                <div class="seller-desc">Hợp tác xã nông nghiệp 120 thành viên chuyên canh gạo hữu cơ và rau quả nhiệt đới vùng đồng bằng sông Cửu Long.</div>
-                <div class="cert-chips">
-                    <span class="cert-chip">🌾 Hữu cơ VN</span>
-                    <span class="cert-chip">📷 Farm Portfolio</span>
-                </div>
-                <a th:href="@{/admin/seller-approve-detail}" class="btn-detail">ℹ️ Xem chi tiết</a>
-            </div>
-
-            <div class="seller-card">
-                <div class="seller-header">
-                    <div class="seller-logo" style="background:#4a148c">SAPA<br>HERBS</div>
-                    <div>
-                        <div class="seller-name">Sapa Herbs &amp; Spices</div>
-                        <div class="seller-location">📍 Sa Pa, Lào Cai</div>
-                        <span class="badge-green" style="display:inline-block;margin-top:4px">3 NGÀY QUA</span>
-                    </div>
-                </div>
-                <div class="seller-desc">Chuyên sản xuất thảo dược và gia vị cao nguyên theo phương pháp truyền thống H'Mông kết hợp tiêu chuẩn hữu cơ quốc tế.</div>
-                <div class="cert-chips">
-                    <span class="cert-chip">🌿 Organic EU</span>
-                    <span class="cert-chip">🏅 Fair Trade</span>
-                </div>
-                <a th:href="@{/admin/seller-approve-detail}" class="btn-detail">ℹ️ Xem chi tiết</a>
+                <a th:href="@{/admin/seller-approve-detail}" class="btn-detail">Xem chi tiết</a>
             </div>
         </div>
 

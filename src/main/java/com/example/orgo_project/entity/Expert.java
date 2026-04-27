@@ -21,7 +21,7 @@ public class Expert {
     private Integer id;
 
     @ManyToOne
-    @Column(name = "id_tai_khoan")
+    @JoinColumn(name = "id_tai_khoan")
     private Account account;
 
     @Column(name = "linh_vuc_chuyen_mon", columnDefinition = "NVARCHAR(255)")

@@ -94,14 +94,9 @@
 
         <!-- Hero -->
         <div class="hero-card">
-            <div class="hero-logo">
-                <div class="hero-logo-placeholder">GREEN<br>VALLEY<br>FARM</div>
-            </div>
             <div>
-                <span class="badge-blue">📋 ĐƠN #GVF-2024</span>&nbsp;
-                <span class="badge-orange">🔍 Đang xem xét</span>
-                <div class="hero-title">Green Valley Organic</div>
-                <div class="hero-desc">Nhà sản xuất hữu cơ artisan chuyên về quả mọng cao nguyên và rau thủy canh. Tọa lạc tại thung lũng màu mỡ Đà Lạt.</div>
+                <span class="badge-orange">Đang xem xét</span>
+                <div class="hero-title" th:text="${seller.getShopName()}">Green Valley Organic</div>
             </div>
         </div>
 
@@ -189,9 +184,9 @@
             <div class="notes-sub">Phản hồi của người đánh giá (Gửi cho Seller nếu bị từ chối)</div>
             <textarea class="notes-textarea" placeholder="Hãy đưa ra phản hồi chi tiết về những điểm cần điều chỉnh..."></textarea>
             <div class="action-row">
-                <button class="btn-approve">✅ Xác nhận và kích hoạt tài khoản Seller</button>
-                <button class="btn-clarify">💬 Yêu cầu làm rõ</button>
-                <button class="btn-reject">🚫 Từ chối</button>
+                <button class="btn-approve">Xác nhận và kích hoạt tài khoản Seller</button>
+                <button class="btn-clarify">Yêu cầu làm rõ</button>
+                <button class="btn-reject">Từ chối</button>
             </div>
             <div class="action-note">Khi phê duyệt, Seller sẽ được liệt kê trên sàn và nhận thông báo qua email.</div>
         </div>
