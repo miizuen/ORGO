@@ -43,6 +43,10 @@
                     <div th:if="${param.error}" class="alert alert-danger py-2 mb-3">Tài khoản hoặc mật khẩu
                         không đúng!</div>
                     <div th:if="${param.logout}" class="alert alert-success py-2 mb-3">Đã đăng xuất thành công!</div>
+                    <div th:if="${param.resetSuccess}" class="alert alert-success d-flex align-items-center gap-2 py-2 mb-3">
+                        <i data-lucide="check-circle" style="width:16px;height:16px;flex-shrink:0;"></i>
+                        Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập lại.
+                    </div>
 
                     <!-- Email / Phone Field -->
                     <div>
@@ -57,7 +61,7 @@
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <label class="form-label small fw-semibold text-secondary text-uppercase mb-0" for="password">Password</label>
-                            <a class="small fw-semibold text-success text-decoration-none" href="#">Quên mật khẩu?</a>
+                            <a class="small fw-semibold text-success text-decoration-none" th:href="@{/forgot-password}">Quên mật khẩu?</a>
                         </div>
                         <div class="position-relative">
                             <i data-lucide="lock" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" style="width: 20px; height: 20px;"></i>

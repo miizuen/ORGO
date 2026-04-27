@@ -39,16 +39,25 @@
                 </div>
 
                 <!-- Register Form -->
-                <form th:action="@{/register}" method="post" class="d-flex flex-column gap-3" id="registerForm">
+                <form th:action="@{/register}" method="POST" class="d-flex flex-column gap-3" id="registerForm">
                     <!-- Error Message -->
-                    <div th:if="${error != null}" class="alert alert-danger p-3 small mb-0">
-                        <span th:text="${error}"></span>
+                    <div th:if="${param.error}" class="alert alert-danger py-2 mb-3">
+                        <span th:if="${param.error[0] == 'UsernameExists'}">Tên tài khoản này đã được sử dụng, vui lòng chọn tên khác!</span>
+                        <span th:if="${param.error[0] == 'EmailExists'}">Email này đã được đăng ký, vui lòng sử dụng email khác!</span>
+                        <span th:if="${param.error[0] == 'PhoneExists'}">Số điện thoại này đã được đăng ký, vui lòng sử dụng số điện thoại khác!</span>
+                        <span th:if="${param.error[0] == 'InvalidPhone'}">Số điện thoại phải gồm đúng 10 chữ số!</span>
+                        <span th:if="${param.error[0] == 'PasswordMismatch'}">Mật khẩu và xác nhận mật khẩu phải giống nhau!</span>
                     </div>
 
                     <!-- Full Name -->
                     <div>
                         <label class="form-label small fw-semibold text-secondary text-uppercase" for="name">Họ và tên</label>
-                        <input class="form-control form-control-lg bg-white border-0 py-2 px-3 shadow-sm" id="name" name="name" th:value="${param.name}" placeholder="Nguyễn Văn A" type="text" required />
+                        <input class="form-control form-control-lg bg-white border-0 py-2 px-3 shadow-sm" id="name" name="fullName" placeholder="Nguyễn Văn A" type="text" required />
+                    </div>
+
+                    <div>
+                        <label class="form-label small fw-semibold text-secondary text-uppercase" for="name">Tên tài khoản</label>
+                        <input class="form-control form-control-lg bg-white border-0 py-2 px-3 shadow-sm" id="username" name="username" placeholder="Nguyễn Văn A" type="text" required />
                     </div>
 
                     <!-- Email & Phone -->

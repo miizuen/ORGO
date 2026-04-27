@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Xác minh OTP - ORGO', ~{::#otp-content})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div id="otp-content" class="container-fluid p-0 min-vh-100 overflow-hidden">
+    <div class="row g-0 min-vh-100">
+        <!-- Left Side: Visual Narrative -->
+        <section class="col-12 col-md-6 col-lg-7 position-relative d-flex flex-column justify-content-between p-4 p-md-5 bg-dark">
+            <!-- Background Image -->
+            <div class="position-absolute top-0 start-0 w-100 h-100 z-0">
+                <img class="w-100 h-100 object-fit-cover"
+                     alt="Fresh organic farm with morning light"
+                     th:src="'https://lh3.googleusercontent.com/aida-public/AB6AXuBzS7_CcQdDHnug-odmR_UD9yv5RCH9rOaSwUMf0LTOmca1JWxsDa17rodA4TjdBrQh1AQEIpJ0dHe1M2ybbn-UsYE-iyuSLGLRvSsnhZry4SjY8neoLDMx9uIsn8-t5VAF6vnQ9udS_6MGv4bHuct6CMmc7HQBWLFGfKhQ17eI7WnWmzAcZE-bVj8vN-n_3XpmAYv-ybOjXXeYkyhB58b-58rtrUxgihSmdMWaWvQtiRSVcDbYt1Y3QjhqHJeKZw4TXtrdrxCdXSWa'"
+                     referrerpolicy="no-referrer" />
+                <div class="position-absolute top-0 start-0 w-100 h-100 bg-black bg-opacity-50"></div>
+            </div>
+
+            <!-- Brand Identity -->
+            <div class="position-relative z-1 mb-auto">
+                <a class="display-6 fw-bolder text-white text-decoration-none mb-2" href="/">ORGO</a>
+                <div class="bg-success rounded-pill mt-2" style="height: 4px; width: 48px;"></div>
+            </div>
+
+            <!-- Tagline -->
+            <div class="position-relative z-1 mb-4 mt-5" style="max-width: 500px;">
+                <h2 class="display-5 fw-bold text-white mb-4">Bảo mật là tâm huyết của chúng tôi.</h2>
+                <p class="fs-5 text-light text-opacity-75">Mã OTP được gửi riêng đến bạn, đảm bảo chỉ bạn mới có thể truy cập tài khoản của mình.</p>
+            </div>
+        </section>
+
+        <!-- Right Side: OTP Form -->
+        <section class="col-12 col-md-6 col-lg-5 d-flex align-items-center justify-content-center p-4 p-md-5 bg-body-tertiary">
+            <div class="w-100" style="max-width: 450px;">
+                <!-- Back -->
+                <a th:href="@{/forgot-password}" class="d-inline-flex align-items-center gap-2 text-secondary text-decoration-none small fw-semibold mb-4">
+                    <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+                    Quay lại
+                </a>
+
+                <!-- Header -->
+                <div class="mb-4">
+                    <div class="d-flex align-items-center justify-content-center bg-success bg-opacity-10 rounded-circle mb-4" style="width: 64px; height: 64px;">
+                        <i data-lucide="shield-check" class="text-success" style="width: 32px; height: 32px;"></i>
+                    </div>
+                    <h3 class="fs-2 fw-bold text-dark mb-2">Nhập mã OTP</h3>
+                    <p class="text-secondary fs-5">
+                        Chúng tôi đã gửi mã xác minh gồm 6 chữ số đến email
+                        <strong class="text-dark" th:text="${email}">your@email.com</strong>.
+                        Mã có hiệu lực trong <span class="text-danger fw-bold" id="countdown">05:00</span>.
+                    </p>
+                </div>
+
+                <!-- Alert Messages -->
+                <div th:if="${successMessage}" class="alert alert-success d-flex align-items-center gap-2 py-3 mb-3">
+                    <i data-lucide="check-circle" style="width:18px;height:18px;flex-shrink:0;"></i>
+                    <span th:text="${successMessage}"></span>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger d-flex align-items-center gap-2 py-3 mb-3">
+                    <i data-lucide="alert-circle" style="width:18px;height:18px;flex-shrink:0;"></i>
+                    <span th:text="${errorMessage}"></span>
+                </div>
+
+                <!-- OTP Form -->
+                <form class="d-flex flex-column gap-3" th:action="@{/verify-otp}" method="POST" id="otpForm">
+                    <input type="hidden" name="email" th:value="${email}" />
+
+                    <!-- OTP Digit Inputs -->
+                    <div>
+                        <label class="form-label small fw-semibold text-secondary text-uppercase mb-3">Mã xác minh</label>
+                        <div class="d-flex gap-2 justify-content-between" id="otp-inputs">
+                            <input class="form-control form-control-lg bg-white border-0 shadow-sm text-center fw-bold fs-3 otp-digit"
+                                   maxlength="1" inputmode="numeric" pattern="[0-9]" type="text"
+                                   style="width: 60px; height: 64px; border-radius: 12px;" />
+                            <input class="form-control form-control-lg bg-white border-0 shadow-sm text-center fw-bold fs-3 otp-digit"
+                                   maxlength="1" inputmode="numeric" pattern="[0-9]" type="text"
+                                   style="width: 60px; height: 64px; border-radius: 12px;" />
+                            <input class="form-control form-control-lg bg-white border-0 shadow-sm text-center fw-bold fs-3 otp-digit"
+                                   maxlength="1" inputmode="numeric" pattern="[0-9]" type="text"
+                                   style="width: 60px; height: 64px; border-radius: 12px;" />
+                            <input class="form-control form-control-lg bg-white border-0 shadow-sm text-center fw-bold fs-3 otp-digit"
+                                   maxlength="1" inputmode="numeric" pattern="[0-9]" type="text"
+                                   style="width: 60px; height: 64px; border-radius: 12px;" />
+                            <input class="form-control form-control-lg bg-white border-0 shadow-sm text-center fw-bold fs-3 otp-digit"
+                                   maxlength="1" inputmode="numeric" pattern="[0-9]" type="text"
+                                   style="width: 60px; height: 64px; border-radius: 12px;" />
+                            <input class="form-control form-control-lg bg-white border-0 shadow-sm text-center fw-bold fs-3 otp-digit"
+                                   maxlength="1" inputmode="numeric" pattern="[0-9]" type="text"
+                                   style="width: 60px; height: 64px; border-radius: 12px;" />
+                        </div>
+                        <!-- Hidden combined OTP field -->
+                        <input type="hidden" name="otp" id="otp-combined" />
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button id="submitBtn" class="btn btn-success btn-lg w-100 fw-bold py-3 mt-3 shadow-sm d-flex align-items-center justify-content-center gap-2 border-0" type="submit">
+                        <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                        <span id="btnText">Xác minh</span>
+                    </button>
+                </form>
+
+                <!-- Resend OTP -->
+                <div class="text-center mt-4">
+                    <p class="text-secondary">Không nhận được mã?
+                        <form th:action="@{/resend-otp}" method="POST" style="display:inline;">
+                            <input type="hidden" name="email" th:value="${email}" />
+                            <button type="submit" class="btn btn-link text-success fw-bold text-decoration-none p-0 ms-1">Gửi lại</button>
+                        </form>
+                    </p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .otp-digit:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.25);
+            border-color: #198754 !important;
+        }
+        .otp-digit.filled {
+            background-color: #f0fdf4;
+            border: 2px solid #198754 !important;
+        }
+    </style>
+    <script>
+        lucide.createIcons();
+
+        /* ── OTP input auto-advance ── */
+        const digits = document.querySelectorAll('.otp-digit');
+        digits.forEach((input, idx) => {
+            input.addEventListener('input', e => {
+                e.target.value = e.target.value.replace(/\D/g, '').slice(-1);
+                if (e.target.value) {
+                    e.target.classList.add('filled');
+                    if (idx < digits.length - 1) digits[idx + 1].focus();
+                } else {
+                    e.target.classList.remove('filled');
+                }
+            });
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+                    digits[idx - 1].focus();
+                }
+            });
+            input.addEventListener('paste', e => {
+                e.preventDefault();
+                const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+                [...pasted].forEach((ch, i) => {
+                    if (digits[i]) { digits[i].value = ch; digits[i].classList.add('filled'); }
+                });
+                if (digits[pasted.length - 1]) digits[Math.min(pasted.length, digits.length - 1)].focus();
+            });
+        });
+
+        document.getElementById('otpForm').addEventListener('submit', function(e) {
+            const code = [...digits].map(d => d.value).join('');
+            if (code.length < 6) { e.preventDefault(); alert('Vui lòng nhập đủ 6 chữ số OTP.'); return; }
+            document.getElementById('otp-combined').value = code;
+            const btn = document.getElementById('submitBtn');
+            document.getElementById('btnText').textContent = 'Đang xác minh...';
+            btn.disabled = true;
+        });
+
+        /* ── Countdown timer ── */
+        let seconds = 5 * 60;
+        const cd = document.getElementById('countdown');
+        const timer = setInterval(() => {
+            seconds--;
+            const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            cd.textContent = m + ':' + s;
+            if (seconds <= 0) { clearInterval(timer); cd.textContent = 'Hết hạn'; cd.className = 'text-danger fw-bold'; }
+        }, 1000);
+    </script>
+</div>
+</body>
+</html>
