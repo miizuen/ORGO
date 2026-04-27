@@ -31,10 +31,10 @@ public class RefundRequest {
     @Column(name = "id_nguoi_dung")
     private Integer userId;
 
-    @Column(name = "ly_do")
+    @Column(name = "ly_do", columnDefinition = "NVARCHAR(MAX)")
     private String reason;
 
-    @Column(name = "anh_minh_chung")
+    @Column(name = "anh_minh_chung", columnDefinition = "NVARCHAR(255)")
     private String evidenceImage;
 
     @Column(name = "trang_thai")

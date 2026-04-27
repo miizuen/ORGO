@@ -26,10 +26,10 @@ public class DiscountCode {
     @Column(name = "id_ma_giam_gia")
     private Integer id;
 
-    @Column(name = "ma_code_giam_gia")
+    @Column(name = "ma_code_giam_gia", columnDefinition = "NVARCHAR(255)")
     private String code;
 
-    @Column(name = "loai_giam_gia")
+    @Column(name = "loai_giam_gia", columnDefinition = "NVARCHAR(255)")
     private String discountType;
 
     @Column(name = "gia_tri_giam")

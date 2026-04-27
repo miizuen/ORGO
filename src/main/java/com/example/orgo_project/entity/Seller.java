@@ -23,34 +23,34 @@ public class Seller {
     @Column(name = "id_nha_ban_hang")
     private Integer id;
 
-    @Column(name = "ten_shop")
+    @Column(name = "ten_shop", columnDefinition = "NVARCHAR(255)")
     private String shopName;
 
-    @Column(name = "dia_chi_shop")
+    @Column(name = "dia_chi_shop", columnDefinition = "NVARCHAR(255)")
     private String shopAddress;
 
-    @Column(name = "ma_so_thue")
+    @Column(name = "ma_so_thue", columnDefinition = "NVARCHAR(255)")
     private String taxCode;
 
-    @Column(name = "file_dang_ky_kinh_doanh")
+    @Column(name = "file_dang_ky_kinh_doanh", columnDefinition = "NVARCHAR(255)")
     private String businessRegistrationFile;
 
     @Column(name = "trang_thai")
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     private com.example.orgo_project.enums.SellerStatus status;
 
-    @Column(name = "ten_chu_shop")
+    @Column(name = "ten_chu_shop", columnDefinition = "NVARCHAR(255)")
     private String ownerName;
 
-    @Column(name = "so_dien_thoai_chu_shop")
+    @Column(name = "so_dien_thoai_chu_shop", columnDefinition = "NVARCHAR(255)")
     private String ownerPhoneNumber;
 
-    @Column(name = "email_chu_shop")
+    @Column(name = "email_chu_shop", columnDefinition = "NVARCHAR(255)")
     private String ownerEmail;
 
-    @Column(name = "email_shop")
+    @Column(name = "email_shop", columnDefinition = "NVARCHAR(255)")
     private String shopEmail;
 
-    @Column(name = "mo_ta_shop")
+    @Column(name = "mo_ta_shop", columnDefinition = "NVARCHAR(MAX)")
     private String shopDescription;
 }

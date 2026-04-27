@@ -32,7 +32,7 @@ public class ShipmentHistory {
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     private com.example.orgo_project.enums.ShipmentStatus status;
 
-    @Column(name = "mo_ta")
+    @Column(name = "mo_ta", columnDefinition = "NVARCHAR(255)")
     private String description;
 
     @Column(name = "thoi_gian")

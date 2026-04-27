@@ -18,6 +18,9 @@ public class Role {
     @Column(name = "id_vai_tro")
     private Integer id;
 
-    @Column(name = "ten_vai_tro")
+    @Column(name = "ten_vai_tro", columnDefinition = "NVARCHAR(255)")
     private String roleName;
+
+    @jakarta.persistence.OneToMany(mappedBy = "role")
+    private java.util.List<Account> accounts;
 }

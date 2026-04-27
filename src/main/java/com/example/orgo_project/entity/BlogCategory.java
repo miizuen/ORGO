@@ -23,15 +23,15 @@ public class BlogCategory {
     @Column(name = "id_chuyen_muc")
     private Integer id;
 
-    @Column(name = "ten_chuyen_muc")
+    @Column(name = "ten_chuyen_muc", columnDefinition = "NVARCHAR(255)")
     private String categoryName;
 
-    @Column(name = "slug")
+    @Column(name = "slug", columnDefinition = "NVARCHAR(255)")
     private String slug;
 
-    @Column(name = "mo_ta")
+    @Column(name = "mo_ta", columnDefinition = "NVARCHAR(255)")
     private String description;
 
-    @Column(name = "anh_dai_dien")
+    @Column(name = "anh_dai_dien", columnDefinition = "NVARCHAR(255)")
     private String imageUrl;
 }

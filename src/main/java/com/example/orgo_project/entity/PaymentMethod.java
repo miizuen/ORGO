@@ -23,6 +23,6 @@ public class PaymentMethod {
     @Column(name = "id_phuong_thuc")
     private Integer id;
 
-    @Column(name = "ten_phuong_thuc")
+    @Column(name = "ten_phuong_thuc", columnDefinition = "NVARCHAR(255)")
     private String methodName;
 }

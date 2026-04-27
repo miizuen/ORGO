@@ -23,19 +23,20 @@ public class UserProfile {
     @Column(name = "id_nguoi_dung")
     private Integer id;
 
-    @Column(name = "ho_ten")
+    @Column(name = "ho_ten", columnDefinition = "NVARCHAR(255)")
     private String fullName;
 
-    @Column(name = "so_dien_thoai")
+    @Column(name = "so_dien_thoai", columnDefinition = "NVARCHAR(255)")
     private String phoneNumber;
 
-    @Column(name = "email")
+    @Column(name = "email", columnDefinition = "NVARCHAR(255)")
     private String email;
 
     @Column(name = "trang_thai")
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     private com.example.orgo_project.enums.UserStatus status;
 
-    @Column(name = "id_tai_khoan")
-    private Integer accountId;
+    @jakarta.persistence.OneToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @jakarta.persistence.JoinColumn(name = "id_tai_khoan")
+    private Account account;
 }

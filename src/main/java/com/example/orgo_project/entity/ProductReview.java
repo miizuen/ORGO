@@ -34,10 +34,10 @@ public class ProductReview {
     @Column(name = "so_sao")
     private Integer stars;
 
-    @Column(name = "noi_dung")
+    @Column(name = "noi_dung", columnDefinition = "NVARCHAR(MAX)")
     private String content;
 
-    @Column(name = "hinh_anh")
+    @Column(name = "hinh_anh", columnDefinition = "NVARCHAR(255)")
     private String imageUrl;
 
     @Column(name = "ngay_danh_gia")
@@ -50,7 +50,7 @@ public class ProductReview {
     @Column(name = "huuIch")
     private Integer helpfulCount;
 
-    @Column(name = "phan_hoi")
+    @Column(name = "phan_hoi", columnDefinition = "NVARCHAR(MAX)")
     private String reply;
 
     @Column(name = "ngay_phan_hoi")

@@ -23,15 +23,15 @@ public class ProductCategory {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "tenDanhMuc")
+    @Column(name = "tenDanhMuc", columnDefinition = "NVARCHAR(255)")
     private String categoryName;
 
-    @Column(name = "slug")
+    @Column(name = "slug", columnDefinition = "NVARCHAR(255)")
     private String slug;
 
-    @Column(name = "moTa")
+    @Column(name = "moTa", columnDefinition = "NVARCHAR(255)")
     private String description;
 
-    @Column(name = "anhDaiDien")
+    @Column(name = "anhDaiDien", columnDefinition = "NVARCHAR(255)")
     private String imageUrl;
 }

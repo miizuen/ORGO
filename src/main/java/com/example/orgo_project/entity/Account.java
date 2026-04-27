@@ -18,15 +18,19 @@ public class Account {
     @Column(name = "id_tai_khoan")
     private Integer id;
 
-    @Column(name = "username", unique = true, nullable = false)
+    @Column(name = "username", unique = true, nullable = false, columnDefinition = "NVARCHAR(255)")
     private String username;
 
-    @Column(name = "mat_khau", nullable = false)
+    @Column(name = "mat_khau", nullable = false, columnDefinition = "NVARCHAR(255)")
     private String password;
 
-    @Column(name = "anhDaiDien")
+    @Column(name = "anhDaiDien", columnDefinition = "NVARCHAR(255)")
     private String avatarUrl;
 
-    @Column(name = "id_vai_tro")
-    private Integer roleId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_vai_tro")
+    private Role role;
+
+    @OneToOne(mappedBy = "account")
+    private UserProfile user;
 }

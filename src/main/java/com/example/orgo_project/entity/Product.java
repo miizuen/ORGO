@@ -29,28 +29,28 @@ public class Product {
     @Column(name = "id_danh_muc")
     private Integer categoryId;
 
-    @Column(name = "ten_san_pham")
+    @Column(name = "ten_san_pham", columnDefinition = "NVARCHAR(255)")
     private String productName;
 
-    @Column(name = "slug")
+    @Column(name = "slug", columnDefinition = "NVARCHAR(255)")
     private String slug;
 
-    @Column(name = "mo_ta_ngan")
+    @Column(name = "mo_ta_ngan", columnDefinition = "NVARCHAR(MAX)")
     private String shortDescription;
 
-    @Column(name = "mo_ta_chi_tiet")
+    @Column(name = "mo_ta_chi_tiet", columnDefinition = "NVARCHAR(MAX)")
     private String detailedDescription;
 
-    @Column(name = "thanh_phan")
+    @Column(name = "thanh_phan", columnDefinition = "NVARCHAR(MAX)")
     private String ingredients;
 
-    @Column(name = "nguon_goc")
+    @Column(name = "nguon_goc", columnDefinition = "NVARCHAR(255)")
     private String origin;
 
-    @Column(name = "loi_ich_suc_khoe")
+    @Column(name = "loi_ich_suc_khoe", columnDefinition = "NVARCHAR(MAX)")
     private String healthBenefits;
 
-    @Column(name = "huong_dan_su_dung")
+    @Column(name = "huong_dan_su_dung", columnDefinition = "NVARCHAR(MAX)")
     private String usageInstructions;
 
     @Column(name = "trang_thai")
