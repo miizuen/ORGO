@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="header" class="bg-white shadow-sm position-relative z-3">
+    <div class="container-xl d-flex align-items-center justify-content-between py-3">
+        <a th:href="@{/}" class="fs-4 fw-bold text-success text-decoration-none">ORGO</a>
+        
+        <nav class="d-none d-md-flex gap-4" th:if="${session.currentRole == 'buyer' or session.currentRole == null}">
+            <a th:href="@{/products}" class="text-secondary text-decoration-none fw-medium class-hover-success">Sản phẩm</a>
+            <a th:href="@{/blog}" class="text-secondary text-decoration-none fw-medium class-hover-success">Blog</a>
+            <a th:href="@{/experts}" class="text-secondary text-decoration-none fw-medium class-hover-success">Chuyên gia</a>
+        </nav>
+        
+        <div class="d-flex align-items-center gap-3">
+            <a th:href="@{/buyer/cart}" class="text-secondary text-decoration-none d-flex align-items-center gap-1"
+                th:if="${session.currentRole == 'buyer'}">
+                🛒
+            </a>
+            <div th:if="${session.currentUser == null}">
+                <a th:href="@{/login}" class="btn btn-outline-success btn-sm fw-semibold px-4">Đăng nhập</a>
+            </div>
+            <div th:if="${session.currentUser != null}" class="d-flex align-items-center gap-3">
+                <span class="small fw-medium text-secondary">Chào, <strong class="text-success" th:text="${session.currentRole}"></strong></span>
+                <a th:href="@{/logout}" class="btn btn-outline-danger btn-sm fw-medium px-3">Đăng xuất</a>
+            </div>
+        </div>
+    </div>
+</header>
+</body>
+</html>

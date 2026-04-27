@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="footer" class="bg-dark text-white mt-5">
+    <div class="container-xl py-5">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div>
+                <span class="fs-4 fw-bold text-success">ORGO</span>
+                <p class="mt-2 text-secondary">Nền tảng thương mại hữu cơ Việt Nam</p>
+            </div>
+            <div>
+                <h4 class="fs-5 fw-semibold mb-3 text-white">Khám phá</h4>
+                <div class="d-flex flex-column gap-2">
+                    <a th:href="@{/products}" class="text-secondary text-decoration-none">Sản phẩm</a>
+                    <a th:href="@{/blog}" class="text-secondary text-decoration-none">Blog</a>
+                    <a th:href="@{/experts}" class="text-secondary text-decoration-none">Chuyên gia</a>
+                </div>
+            </div>
+            <div>
+                <h4 class="fs-5 fw-semibold mb-3 text-white">Tài khoản</h4>
+                <div class="d-flex flex-column gap-2">
+                    <a th:href="@{/login}" class="text-secondary text-decoration-none">Đăng nhập</a>
+                    <a th:href="@{/register}" class="text-secondary text-decoration-none">Đăng ký</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-black py-4 text-center text-secondary small border-top border-secondary">
+        <p class="mb-0">© 2026 ORGO. All rights reserved.</p>
+    </div>
+</footer>
+</body>
+</html>

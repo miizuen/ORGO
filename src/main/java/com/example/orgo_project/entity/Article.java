@@ -1,0 +1,67 @@
+package com.example.orgo_project.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "BaiViet")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Article {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_chuyen_muc")
+    private Integer id;
+
+    @Column(name = "id_chuyen_gia")
+    private Integer expertId;
+
+    @Column(name = "id_nguoi_duyet")
+    private Integer reviewerAdminId;
+
+    @Column(name = "id_chuyen_muc", insertable = false, updatable = false)
+    private Integer blogCategoryId;
+
+    @Column(name = "tieu_de")
+    private String title;
+
+    @Column(name = "slug")
+    private String slug;
+
+    @Column(name = "anh_bia")
+    private String coverImage;
+
+    @Column(name = "tom_tat")
+    private String summary;
+
+    @Column(name = "noi_dung")
+    private String content;
+
+    @Column(name = "ngay_dang")
+    private LocalDateTime publishedAt;
+
+    @Column(name = "ngay_cap_nhat")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "luot_xem")
+    private Integer viewCount;
+
+    @Column(name = "trang_thai")
+    @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+    private com.example.orgo_project.enums.ArticleStatus status;
+
+    @Column(name = "ly_do_tu_choi")
+    private String rejectionReason;
+}

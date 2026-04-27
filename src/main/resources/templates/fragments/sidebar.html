@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside th:fragment="sidebar"
+       class="bg-dark d-flex flex-column" style="width: 240px; min-height: 100vh;">
+
+    <!-- Logo + User info -->
+    <div class="p-4 border-bottom border-secondary">
+        <a th:href="@{/}" class="fs-5 fw-medium text-success text-decoration-none">ORGO</a>
+        <div class="d-flex align-items-center gap-2 mt-3">
+            <div class="rounded-circle bg-success d-flex align-items-center justify-content-center text-white fw-medium" style="width: 28px; height: 28px; font-size: 11px;"
+                 th:text="${#strings.toUpperCase(#strings.substring(session.currentUser,0,1))}">U</div>
+            <div>
+                <p class="mb-0 fw-medium text-light" style="font-size: 12px;" th:text="${session.currentUser}"></p>
+                <p class="mb-0 text-secondary text-capitalize" style="font-size: 11px;" th:text="${session.currentRole}"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nav items -->
+    <nav class="flex-grow-1 p-3 d-flex flex-column gap-1">
+        <p class="text-secondary fw-medium text-uppercase px-2 pb-1 pt-2 mb-0" style="font-size: 10px; letter-spacing: 0.1em;">Menu</p>
+
+        <!-- Seller -->
+        <th:block th:if="${session.currentRole == 'seller'}">
+            <a th:href="@{/seller/dashboard}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Dashboard</a>
+            <a th:href="@{/seller/products}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Sản phẩm</a>
+            <a th:href="@{/seller/orders}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Đơn hàng</a>
+        </th:block>
+
+        <!-- Admin -->
+        <th:block th:if="${session.currentRole == 'admin'}">
+            <a th:href="@{/admin/dashboard}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Dashboard</a>
+            <a th:href="@{/admin/users}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Người dùng</a>
+            <a th:href="@{/admin/products}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Sản phẩm</a>
+        </th:block>
+
+        <!-- Expert -->
+        <th:block th:if="${session.currentRole == 'expert'}">
+            <a th:href="@{/expert/dashboard}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Dashboard</a>
+            <a th:href="@{/expert/blogs}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Bài viết</a>
+        </th:block>
+    </nav>
+
+    <!-- Logout -->
+    <div class="p-3 border-top border-secondary">
+        <a th:href="@{/logout}"
+           class="d-flex align-items-center gap-2 px-3 py-2 rounded text-danger text-decoration-none" style="font-size: 13px;">
+            Đăng xuất
+        </a>
+    </div>
+</aside>
+</body>
+</html>

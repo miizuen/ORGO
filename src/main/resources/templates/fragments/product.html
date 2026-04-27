@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="product-list" class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+
+    <!-- Product 1 -->
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden product-card">
+            <div class="position-relative overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80" 
+                     alt="Rau cải" 
+                     class="w-100 product-img"
+                     style="height: 260px; object-fit: cover;">
+                
+                <span class="position-absolute top-0 start-0 m-3 badge rounded-pill bg-success px-3 py-2 fw-bold">
+                    Organic
+                </span>
+            </div>
+
+            <div class="card-body p-4 d-flex flex-column">
+                <h3 class="fs-5 fw-bold text-dark mb-2 line-clamp-2">Rau cải hữu cơ Đà Lạt - Chuẩn GlobalGAP</h3>
+                
+                <div class="d-flex align-items-baseline gap-1 mb-3">
+                    <span class="fs-3 fw-bold text-success">45.000</span>
+                    <span class="text-secondary fw-medium">đ / 500g</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 text-muted small mb-4">
+                    <span class="badge bg-light text-dark">Đà Lạt</span>
+                    <span>•</span>
+                    <span>Còn 124kg</span>
+                </div>
+
+                <a th:href="@{/products/1}" 
+                   class="btn btn-success fw-bold mt-auto py-3 rounded-3">
+                    Xem chi tiết
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product 2 -->
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden product-card">
+            <div class="position-relative overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1561136594-7f68413baa99?w=600&q=80" 
+                     alt="Cà chua" 
+                     class="w-100 product-img"
+                     style="height: 260px; object-fit: cover;">
+                
+                <span class="position-absolute top-0 start-0 m-3 badge rounded-pill bg-success px-3 py-2 fw-bold">
+                    Organic
+                </span>
+            
+            </div>
+
+            <div class="card-body p-4 d-flex flex-column">
+                <h3 class="fs-5 fw-bold text-dark mb-2 line-clamp-2">Cà chua bi hữu cơ mọng nước</h3>
+                
+                <div class="d-flex align-items-baseline gap-1 mb-3">
+                    <span class="fs-3 fw-bold text-success">65.000</span>
+                    <span class="text-secondary fw-medium">đ / 300g</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 text-muted small mb-4">
+                    <span class="badge bg-light text-dark">Sun Valley</span>
+                    <span>•</span>
+                    <span>Còn 89kg</span>
+                </div>
+
+                <a th:href="@{/products/2}" 
+                   class="btn btn-success fw-bold mt-auto py-3 rounded-3">
+                    Xem chi tiết
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product 3 -->
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden product-card">
+            <div class="position-relative overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1519162808019-7de1683fa2ad?w=600&q=80" 
+                     alt="Bơ" 
+                     class="w-100 product-img"
+                     style="height: 260px; object-fit: cover;">
+                
+                <span class="position-absolute top-0 start-0 m-3 badge rounded-pill bg-success px-3 py-2 fw-bold">
+                    Organic
+                </span>
+            </div>
+
+            <div class="card-body p-4 d-flex flex-column">
+                <h3 class="fs-5 fw-bold text-dark mb-2 line-clamp-2">Bơ Hass hữu cơ loại 1 - Nhập khẩu</h3>
+                
+                <div class="d-flex align-items-baseline gap-1 mb-3">
+                    <span class="fs-3 fw-bold text-success">120.000</span>
+                    <span class="text-secondary fw-medium">đ / kg</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 text-muted small mb-4">
+                    <span class="badge bg-light text-dark">Premium Green</span>
+                    <span>•</span>
+                    <span>Còn 45kg</span>
+                </div>
+
+                <a th:href="@{/products/3}" 
+                   class="btn btn-success fw-bold mt-auto py-3 rounded-3">
+                    Xem chi tiết
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .product-img {
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .product-card:hover .product-img {
+        transform: scale(1.08);
+    }
+
+    .hover-overlay {
+        transition: all 0.4s ease;
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .badge {
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+</style>
+</body>
+</html>
