@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Tất cả sản phẩm hữu cơ - ORGO', ~{::#product-page})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div id="product-page" class="min-vh-100 bg-light text-dark">
+        <main class="container py-5">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-success">Trang chủ</a></li>
+                    <li class="breadcrumb-item active text-success fw-medium" aria-current="page">Sản phẩm</li>
+                </ol>
+            </nav>
+
+            <h1 class="display-5 fw-bold mb-2">Tất cả sản phẩm hữu cơ</h1>
+            <p class="text-secondary mb-5">Khám phá 500+ sản phẩm từ 100+ nông trại đạt chuẩn</p>
+
+            <div class="row g-4">
+                <!-- ==================== SIDEBAR ==================== -->
+                <aside class="col-12 col-lg-3">
+                    <div class="bg-white rounded-4 p-4 shadow-sm border border-light">
+                        <!-- Tìm kiếm -->
+                        <div class="position-relative mb-4">
+                            <input type="text" 
+                                   placeholder="Tìm kiếm sản phẩm..." 
+                                   class="form-control form-control-lg bg-light border-0 rounded-4 py-3 ps-5 text-dark shadow-none"/>
+                            <i data-lucide="search" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" style="width: 20px; height: 20px;"></i>
+                        </div>
+
+                        <!-- Danh mục -->
+                        <div class="mb-4">
+                            <h3 class="fw-bold fs-5 mb-3">Danh mục</h3>
+                            <div class="d-flex flex-column gap-2">
+                                <label class="d-flex align-items-center gap-2" style="cursor: pointer;">
+                                    <input type="checkbox" class="form-check-input flex-shrink-0 mt-0"/>
+                                    <span class="text-secondary">Rau xanh</span>
+                                </label>
+                                <label class="d-flex align-items-center gap-2" style="cursor: pointer;">
+                                    <input type="checkbox" class="form-check-input flex-shrink-0 mt-0"/>
+                                    <span class="text-secondary">Trái cây</span>
+                                </label>
+                                <label class="d-flex align-items-center gap-2" style="cursor: pointer;">
+                                    <input type="checkbox" class="form-check-input flex-shrink-0 mt-0"/>
+                                    <span class="text-secondary">Ngũ cốc</span>
+                                </label>
+                                <label class="d-flex align-items-center gap-2" style="cursor: pointer;">
+                                    <input type="checkbox" class="form-check-input flex-shrink-0 mt-0"/>
+                                    <span class="text-secondary">Thịt sạch</span>
+                                </label>
+                                <label class="d-flex align-items-center gap-2" style="cursor: pointer;">
+                                    <input type="checkbox" class="form-check-input flex-shrink-0 mt-0"/>
+                                    <span class="text-secondary">Sữa hữu cơ</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Giá -->
+                        <div class="mb-4">
+                            <h3 class="fw-bold fs-5 mb-3">Giá</h3>
+                            <div class="px-1">
+                                <input type="range" class="form-range" min="0" max="500000" value="250000" id="priceRange" />
+                                <div class="d-flex justify-content-between small text-secondary mt-1">
+                                    <span>0đ</span>
+                                    <span>500,000đ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Đánh giá -->
+                        <div class="mb-4">
+                            <h3 class="fw-bold fs-5 mb-3">Đánh giá</h3>
+                            <div class="d-flex flex-column gap-2">
+                                <label class="d-flex align-items-center gap-2" style="cursor: pointer;">
+                                    <input type="checkbox" class="form-check-input flex-shrink-0 mt-0"/>
+                                    <span class="text-warning">★★★★★</span>
+                                    <span class="text-secondary">5 sao</span>
+                                </label>
+                                <label class="d-flex align-items-center gap-2" style="cursor: pointer;">
+                                    <input type="checkbox" class="form-check-input flex-shrink-0 mt-0"/>
+                                    <span class="text-warning">★★★★☆</span>
+                                    <span class="text-secondary">Từ 4 sao</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Seller -->
+                        <div class="mb-4">
+                            <h3 class="fw-bold fs-5 mb-3">Seller</h3>
+                            <div class="d-flex flex-column gap-2">
+                                <label class="d-flex align-items-center gap-2" style="cursor: pointer;">
+                                    <input type="checkbox" class="form-check-input flex-shrink-0 mt-0"/>
+                                    <span class="text-secondary">Farm Đà Lạt</span>
+                                </label>
+                                <label class="d-flex align-items-center gap-2" style="cursor: pointer;">
+                                    <input type="checkbox" class="form-check-input flex-shrink-0 mt-0"/>
+                                    <span class="text-secondary">Green Garden</span>
+                                </label>
+                                <label class="d-flex align-items-center gap-2" style="cursor: pointer;">
+                                    <input type="checkbox" class="form-check-input flex-shrink-0 mt-0"/>
+                                    <span class="text-secondary">Bio Farm</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Nút áp dụng -->
+                        <button onclick="applyFilter()" class="btn btn-success fw-bold py-3 w-100 rounded-4">
+                            Áp dụng bộ lọc
+                        </button>
+                    </div>
+                </aside>
+
+                <div class="col-12 col-lg-9">
+                    <!-- Sort & View Bar -->
+                    <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-4">
+                        <div class="text-secondary">
+                            Hiển thị <span class="fw-semibold text-dark">24</span> sản phẩm
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="small text-secondary">Sắp xếp:</span>
+                                <div class="dropdown">
+                                    <button class="btn btn-link text-dark fw-semibold text-decoration-none p-0 d-flex align-items-center gap-1 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Phổ biến nhất
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li><a class="dropdown-item" href="#">Phổ biến nhất</a></li>
+                                        <li><a class="dropdown-item" href="#">Mới nhất</a></li>
+                                        <li><a class="dropdown-item" href="#">Giá giảm dần</a></li>
+                                        <li><a class="dropdown-item" href="#">Giá tăng dần</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center gap-1 small fw-medium text-secondary">
+                                <button class="btn btn-success btn-sm rounded-pill px-3">24</button>
+                                <button class="btn btn-light btn-sm rounded-pill px-3 text-secondary border">48</button>
+                                <button class="btn btn-light btn-sm rounded-pill px-3 text-secondary border">96</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div th:replace="~{fragments/product :: product-list}"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+        
+        function applyFilter() {
+            alert("Đang áp dụng bộ lọc...");
+            // Thực hiện filter thực tế ở đây (có thể dùng AJAX)
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Đăng nhập - ORGO', ~{::#login-content})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div id="login-content" class="container-fluid p-0 min-vh-100 overflow-hidden">
+    <div class="row g-0 min-vh-100">
+        <!-- Left Side: Visual Narrative -->
+        <section class="col-12 col-md-6 col-lg-7 position-relative d-flex flex-column justify-content-between p-4 p-md-5 bg-dark">
+            <!-- Background Image -->
+            <div class="position-absolute top-0 start-0 w-100 h-100 z-0">
+                <img class="w-100 h-100 object-fit-cover" alt="Cinematic shot of fresh morning harvest" th:src="'https://lh3.googleusercontent.com/aida-public/AB6AXuBzS7_CcQdDHnug-odmR_UD9yv5RCH9rOaSwUMf0LTOmca1JWxsDa17rodA4TjdBrQh1AQEIpJ0dHe1M2ybbn-UsYE-iyuSLGLRvSsnhZry4SjY8neoLDMx9uIsn8-t5VAF6vnQ9udS_6MGv4bHuct6CMmc7HQBWLFGfKhQ17eI7WnWmzAcZE-bVj8vN-n_3XpmAYv-ybOjXXeYkyhB58b-58rtrUxgihSmdMWaWvQtiRSVcDbYt1Y3QjhqHJeKZw4TXtrdrxCdXSWa'" referrerpolicy="no-referrer" />
+                <div class="position-absolute top-0 start-0 w-100 h-100 bg-black bg-opacity-50"></div>
+            </div>
+
+            <!-- Brand Identity -->
+            <div class="position-relative z-1 mb-auto">
+                <a class="display-6 fw-bolder text-white text-decoration-none mb-2" href="/">ORGO</a>
+                <div class="bg-success rounded-pill mt-2" style="height: 4px; width: 48px;"></div>
+            </div>
+
+            <!-- Tagline -->
+            <div class="position-relative z-1 mb-4 mt-5" style="max-width: 500px;">
+                <h2 class="display-5 fw-bold text-white mb-4">Thuần khiết từ thiên nhiên, nâng niu trao tận cửa.</h2>
+                <p class="fs-5 text-light text-opacity-75">Gia nhập hành trình ẩm thực tỉnh thức, và nâng niu những người nông dân hữu cơ bản địa trong từng vị giác.</p>
+            </div>
+        </section>
+
+        <!-- Right Side: Login Form -->
+        <section class="col-12 col-md-6 col-lg-5 d-flex align-items-center justify-content-center p-4 p-md-5 bg-body-tertiary">
+            <div class="w-100" style="max-width: 450px;">
+                <!-- Header Text -->
+                <div class="mb-4">
+                    <h3 class="fs-2 fw-bold text-dark mb-2">Chào mừng bạn trở lại</h3>
+                    <p class="text-secondary fs-5">Đăng nhập để bước vào không gian quản trị hữu cơ dành riêng cho bạn.</p>
+                </div>
+
+                <!-- Login Form -->
+                <form class="d-flex flex-column gap-3" th:action="@{/login}" method="post" id="loginForm">
+                    <!-- Error Message -->
+                    <div th:if="${error != null or param.error != null}" class="alert alert-danger p-3 small mb-0">
+                        <span th:text="${error != null ? error : 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.'}"></span>
+                    </div>
+
+                    <!-- Email / Phone Field -->
+                    <div>
+                        <label class="form-label small fw-semibold text-secondary text-uppercase" for="identifier">Email or Phone Number</label>
+                        <div class="position-relative">
+                            <i data-lucide="mail" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" style="width: 20px; height: 20px;"></i>
+                            <input class="form-control form-control-lg bg-white border-0 py-3 ps-5 shadow-sm" id="identifier" name="identifier" th:value="${email}" placeholder="hello@organic.com" type="text" required />
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label small fw-semibold text-secondary text-uppercase mb-0" for="password">Password</label>
+                            <a class="small fw-semibold text-success text-decoration-none" href="#">Quên mật khẩu?</a>
+                        </div>
+                        <div class="position-relative">
+                            <i data-lucide="lock" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" style="width: 20px; height: 20px;"></i>
+                            <input class="form-control form-control-lg bg-white border-0 py-3 px-5 shadow-sm" id="password" name="password" placeholder="••••••••" type="password" required />
+                            <button type="button" id="togglePassword" class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-secondary text-decoration-none">
+                                <i data-lucide="eye" style="width: 20px; height: 20px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Remember Me -->
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" id="remember" name="remember-me" type="checkbox" />
+                        <label class="form-check-label text-secondary fw-medium" for="remember">Remember me for 30 days</label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button id="submitBtn" class="btn btn-success btn-lg w-100 fw-bold py-3 mt-3 shadow-sm d-flex align-items-center justify-content-center border-0 bg-success" type="submit">
+                        <span id="btnText">Đăng nhập</span>
+                    </button>
+                </form>
+
+                <!-- Register Link -->
+                <div class="text-center mt-4">
+                    <p class="text-secondary">Lần đầu đến với ORGO? <a th:href="@{/register}" class="text-success fw-bold text-decoration-none ms-1">Đăng ký</a></p>
+                </div>
+            </div>
+        </section>
+    </div>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+        lucide.createIcons();
+        const toggleBtn = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        if (toggleBtn && passwordInput) {
+            toggleBtn.addEventListener('click', () => {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    toggleBtn.innerHTML = '<i data-lucide="eye-off" style="width: 20px; height: 20px;"></i>';
+                } else {
+                    passwordInput.type = 'password';
+                    toggleBtn.innerHTML = '<i data-lucide="eye" style="width: 20px; height: 20px;"></i>';
+                }
+                lucide.createIcons();
+            });
+        }
+        document.getElementById('loginForm').addEventListener('submit', function() {
+            const btn = document.getElementById('submitBtn');
+            const text = document.getElementById('btnText');
+            text.textContent = 'Đang đăng nhập...';
+            btn.disabled = true;
+        });
+    </script>
+</div>
+</body>
+</html>

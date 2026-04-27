@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Đăng ký - ORGO', ~{::#register})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div id="register" class="container-fluid p-0 min-vh-100 overflow-hidden">
+    <div class="row g-0 min-vh-100">
+        <!-- Left Side: Visual Narrative -->
+        <section class="col-12 col-md-6 col-lg-7 position-relative d-flex flex-column justify-content-between p-4 p-md-5 bg-dark">
+            <!-- Background Image -->
+            <div class="position-absolute top-0 start-0 w-100 h-100 z-0">
+                <img class="w-100 h-100 object-fit-cover" alt="Cinematic shot of fresh morning harvest" th:src="'https://lh3.googleusercontent.com/aida-public/AB6AXuBzS7_CcQdDHnug-odmR_UD9yv5RCH9rOaSwUMf0LTOmca1JWxsDa17rodA4TjdBrQh1AQEIpJ0dHe1M2ybbn-UsYE-iyuSLGLRvSsnhZry4SjY8neoLDMx9uIsn8-t5VAF6vnQ9udS_6MGv4bHuct6CMmc7HQBWLFGfKhQ17eI7WnWmzAcZE-bVj8vN-n_3XpmAYv-ybOjXXeYkyhB58b-58rtrUxgihSmdMWaWvQtiRSVcDbYt1Y3QjhqHJeKZw4TXtrdrxCdXSWa'" referrerpolicy="no-referrer" />
+                <div class="position-absolute top-0 start-0 w-100 h-100 bg-black bg-opacity-50"></div>
+            </div>
+
+            <!-- Brand Identity -->
+            <div class="position-relative z-1 mb-auto">
+                <a class="display-6 fw-bolder text-white text-decoration-none mb-2" href="/">ORGO</a>
+                <div class="bg-success rounded-pill mt-2" style="height: 4px; width: 48px;"></div>
+            </div>
+
+            <!-- Tagline -->
+            <div class="position-relative z-1 mb-4 mt-5" style="max-width: 500px;">
+                <h2 class="display-5 fw-bold text-white mb-4">Thuần khiết từ thiên nhiên, nâng niu trao tận cửa.</h2>
+                <p class="fs-5 text-light text-opacity-75">Gia nhập hành trình ẩm thực tỉnh thức, và nâng niu những người nông dân hữu cơ bản địa trong từng vị giác.</p>
+            </div>
+        </section>
+
+        <!-- Right Side: Register Form -->
+        <section class="col-12 col-md-6 col-lg-5 d-flex align-items-center justify-content-center p-4 p-md-5 bg-body-tertiary offset-lg-0 relative">
+            <div class="w-100" style="max-width: 450px;">
+                <!-- Header Text -->
+                <div class="mb-4">
+                    <h3 class="fs-2 fw-bold text-dark mb-2">Tạo tài khoản mới</h3>
+                    <p class="text-secondary fs-5">Gia nhập cộng đồng ORGO và bắt đầu hành trình hữu cơ của bạn.</p>
+                </div>
+
+                <!-- Register Form -->
+                <form th:action="@{/register}" method="post" class="d-flex flex-column gap-3" id="registerForm">
+                    <!-- Error Message -->
+                    <div th:if="${error != null}" class="alert alert-danger p-3 small mb-0">
+                        <span th:text="${error}"></span>
+                    </div>
+
+                    <!-- Full Name -->
+                    <div>
+                        <label class="form-label small fw-semibold text-secondary text-uppercase" for="name">Họ và tên</label>
+                        <input class="form-control form-control-lg bg-white border-0 py-2 px-3 shadow-sm" id="name" name="name" th:value="${param.name}" placeholder="Nguyễn Văn A" type="text" required />
+                    </div>
+
+                    <!-- Email & Phone -->
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-semibold text-secondary text-uppercase" for="email">Email</label>
+                            <input class="form-control form-control-lg bg-white border-0 py-2 px-3 shadow-sm" id="email" name="email" th:value="${param.email}" placeholder="hello@organic.com" type="email" required />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-semibold text-secondary text-uppercase" for="phone">Điện thoại</label>
+                            <input class="form-control form-control-lg bg-white border-0 py-2 px-3 shadow-sm" id="phone" name="phone" th:value="${param.phone}" placeholder="039 xxxx xxxx" type="tel" required />
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label class="form-label small fw-semibold text-secondary text-uppercase" for="password">Mật khẩu</label>
+                        <input class="form-control form-control-lg bg-white border-0 py-2 px-3 shadow-sm" id="password" name="password" placeholder="••••••••" type="password" required />
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label class="form-label small fw-semibold text-secondary text-uppercase" for="confirmPassword">Xác nhận mật khẩu</label>
+                        <input class="form-control form-control-lg bg-white border-0 py-2 px-3 shadow-sm" id="confirmPassword" name="confirmPassword" placeholder="••••••••" type="password" required />
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="form-check mt-2">
+                        <input class="form-check-input mb-1" id="terms" name="terms" type="checkbox" required />
+                        <label class="form-check-label text-secondary small" for="terms">
+                            Tôi đồng ý với <a href="#" class="text-success text-decoration-none">Điều khoản</a> và <a href="#" class="text-success text-decoration-none">Chính sách bảo mật</a>.
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button class="btn btn-success btn-lg w-100 fw-bold py-3 mt-3 shadow-sm border-0 bg-success" type="submit">
+                        Tạo tài khoản
+                    </button>
+                </form>
+
+                <!-- Login Link -->
+                <div class="text-center mt-4">
+                    <p class="text-secondary">Đã có tài khoản? <a th:href="@{/login}" class="text-success fw-bold text-decoration-none ms-1">Đăng nhập</a></p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Simple JS: Check password match -->
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            if (pass !== confirm) {
+                alert("Mật khẩu xác nhận không khớp!");
+                e.preventDefault();
+            }
+        });
+    </script>
+</div>
+</body>
+</html>

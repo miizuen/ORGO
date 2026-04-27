@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="blog-list" class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+      <!-- Card 1 -->
+      <div class="col">
+        <article class="h-100 d-flex flex-column" style="cursor:pointer;">
+          <div class="position-relative rounded-3 overflow-hidden mb-4 article-img-wrap"
+               style="aspect-ratio:4/3;">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDzaSIkGsHXeyysrFqF28Ov7WeYoBd7aEZZpJmoBFDlsyfVDT64IS1b6BYu4BNBR0K-szKrOWQHD50Mh1U3AFVvuS2tTrTWpUVRkWyRPxb0dKo8bakyuXbZfrDQY4PSlQy1xkFBStAKTwxYeGSlIsu_7S_S7y0NOmff8d6lV3ahfr_D3zMAS1GtwVBAsT9gvzm1KrGlHAZw_0NIj24y0PTEs-LwOhwvZgS6P8Lk6LCX3WSg1O35yKK8sQ0XywDN-Cy46orpcL1_Oy_"
+                 alt="Salad" class="w-100 h-100 object-fit-cover article-img"
+                 referrerpolicy="no-referrer"/>
+            <div class="position-absolute top-0 start-0 m-3">
+              <span class="badge rounded-pill px-3 py-2 fw-bold"
+                    style="background:rgba(255,255,255,.9);color:#4caf50;font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;backdrop-filter:blur(6px);">
+                Clean Eating
+              </span>
+            </div>
+          </div>
+          <div class="flex-grow-1 d-flex flex-column">
+            <h3 class="fw-bold mb-2 article-title" style="font-size:1.1rem;line-height:1.4;font-family:'Playfair Display',serif;">
+              10 Seasonal Superfoods to Fuel Your Spring Transition
+            </h3>
+            <p class="text-secondary mb-4 small" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.6;">
+              Discover the vibrant ingredients currently peaking in nutrition and how to integrate them into your daily rituals.
+            </p>
+            <div class="d-flex align-items-center justify-content-between mt-auto">
+              <div class="d-flex align-items-center gap-2">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzN9LWep0vW3BvjmwpqPXLMbqQIBjigTqlFe83BvasSudtHLfQQ-wuXIOa4Vowto85yLbS4QXQQO7Ygyslwe-6i2JDT-FQ2Jz5IXnNEbRS4X4QEGwEjhM-NAY2SABip2FoCD23gS6T9cyJmxnZEu3kBkb-tbtcyVMSFtvaJqEAxB84w7MCZVUkrugkAsi9Lm7SQBpxBPDO8c5bs6N-qIdFU8oK2H_7y4XnMB1ia7Kr92cjxUZxLW3xWBXeliFfWCwsV151bIhQSz9a"
+                     alt="Marcus Chen" class="rounded-circle object-fit-cover"
+                     style="width:32px;height:32px;" referrerpolicy="no-referrer"/>
+                <span class="fw-semibold small">Marcus Chen</span>
+              </div>
+              <span class="text-secondary" style="font-size:.75rem;">May 12, 2024</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="col">
+        <article class="h-100 d-flex flex-column" style="cursor:pointer;">
+          <div class="position-relative rounded-3 overflow-hidden mb-4 article-img-wrap"
+               style="aspect-ratio:4/3;">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5Ev17jUB8pJrjxTKuPQtxp4WwEQFR0NFh2_2qDoFCK627OnG6xqzlldNLlB47ZqlAmrMSKbXryfWiG-V-2XaRRsXX15nU4oMjEkPLyWvHtCkwe9XFWv83p4Z4CI5aFzSIMsMbddVl5dF1vvrrJKREg69by5hQZa6m9g568p2KyOxdC5X3__Zq-nVpoUybQZFxEPpTGxb5wTEQjVzG-mnboKS_93K83sSZrm5SP7_9HJ5OYdtmzvABsVGZkrfwkXI4dHuq5me6b7hf"
+                 alt="Farmers Market" class="w-100 h-100 object-fit-cover article-img"
+                 referrerpolicy="no-referrer"/>
+            <div class="position-absolute top-0 start-0 m-3">
+              <span class="badge rounded-pill px-3 py-2 fw-bold"
+                    style="background:rgba(255,255,255,.9);color:#4caf50;font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;backdrop-filter:blur(6px);">
+                Organic Living
+              </span>
+            </div>
+          </div>
+          <div class="flex-grow-1 d-flex flex-column">
+            <h3 class="fw-bold mb-2 article-title" style="font-size:1.1rem;line-height:1.4;font-family:'Playfair Display',serif;">
+              The Hidden Costs of Industrial Grocery Chains
+            </h3>
+            <p class="text-secondary mb-4 small" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.6;">
+              Why the price tag on the shelf doesn't tell the whole story about our environment and long-term health.
+            </p>
+            <div class="d-flex align-items-center justify-content-between mt-auto">
+              <div class="d-flex align-items-center gap-2">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9xALjqKMM12eux5ufHccdsD1e9PAqRFSSOvEmjFyDSoiaqKhne4dBjSz0jAy353U3-hBmt1JV7EEHoJwmX9_Q9sHEIMj0QEnJBiOWjLGM6jHNl6My2Kc520BkLvJyAUKUIxiWNNovbk1oKBHh-uLNN9ZnLkY_n3lAqOR-P4csViZoB3QYXNJnSpm2nWdmJ9paTpVkU3E7DDp20mk9Dj7W2IEaEhthPPu0qslddn59C12K3OS1NgUUS5fU_xTzb79YTbSxuqR7pblz"
+                     alt="Sarah Miller" class="rounded-circle object-fit-cover"
+                     style="width:32px;height:32px;" referrerpolicy="no-referrer"/>
+                <span class="fw-semibold small">Sarah Miller</span>
+              </div>
+              <span class="text-secondary" style="font-size:.75rem;">May 08, 2024</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="col">
+        <article class="h-100 d-flex flex-column" style="cursor:pointer;">
+          <div class="position-relative rounded-3 overflow-hidden mb-4 article-img-wrap"
+               style="aspect-ratio:4/3;">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYU0I1Y1TbkCqp7PBW_aIVxp-q3TWLFI6hUkiXftCb1HT6o-f3IBwb3fV6CkHmGmvoJKyT-nVHgYksRDTTMnndipQkg3rnYj84OtjddN3i4vIJohU37GKQ_3bqTjQJ-PfqDIOECS_DdihnLfB_S9_5wOT7kR_qp3VbdtTb_kz7TNhSPRpD5jgbrJpmA9dU5xTltwr2BmyvmFVHv-BQCXDjslJLV0CHPYs4uYP8yzB4hRXnyJ_nNY7Ea9SjsAW7Ck0gSRaRf16Uj6sr"
+                 alt="Field" class="w-100 h-100 object-fit-cover article-img"
+                 referrerpolicy="no-referrer"/>
+            <div class="position-absolute top-0 start-0 m-3">
+              <span class="badge rounded-pill px-3 py-2 fw-bold"
+                    style="background:rgba(255,255,255,.9);color:#4caf50;font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;backdrop-filter:blur(6px);">
+                Farming
+              </span>
+            </div>
+          </div>
+          <div class="flex-grow-1 d-flex flex-column">
+            <h3 class="fw-bold mb-2 article-title" style="font-size:1.1rem;line-height:1.4;font-family:'Playfair Display',serif;">
+              Micro-Composting: A Guide for Urban Dwellers
+            </h3>
+            <p class="text-secondary mb-4 small" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.6;">
+              You don't need a backyard to participate in the circular economy of waste. Here is how to start in an apartment.
+            </p>
+            <div class="d-flex align-items-center justify-content-between mt-auto">
+              <div class="d-flex align-items-center gap-2">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiZKUntwNFYbmuKDsmp-Oul4mL98NR457Jbh1IBrgsFJsqRsvTlUfyfegivwOp5sQ0X9UmJjpuXGFjLnim5odP7IC2-_do7Jy6xa9UF8DJnTjTYwXVE9jk0K-k19XmceHDTKgQuaJYyt-WI225b56rsv9E5WEyfYZx_uUwK1GzszPRSRXkZa6kE5uqC3-zgftvKGwypFUcYsrWXief829kOxuq6bOiVNKYh4i1X4KOXRVq5BfPymTJ-R9tTIoosnUmxkqUbRfneTzQ"
+                     alt="Leo Rodriguez" class="rounded-circle object-fit-cover"
+                     style="width:32px;height:32px;" referrerpolicy="no-referrer"/>
+                <span class="fw-semibold small">Leo Rodriguez</span>
+              </div>
+              <span class="text-secondary" style="font-size:.75rem;">April 29, 2024</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="col">
+        <article class="h-100 d-flex flex-column" style="cursor:pointer;">
+          <div class="position-relative rounded-3 overflow-hidden mb-4 article-img-wrap"
+               style="aspect-ratio:4/3;">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCa4StS0VsODvohuhKu4NEBq69Xbr_q4yeUSSJIhx04PX4Tr5vsNCT7f0UDtJaa4-KNYdQQZKhHcFv70SzJp499bxQK6-qU5bW81S3TaDkdbMX3m9dnHq36HqgurNrPid4YXN7K6FS9IWsXUg3L6ppe61xqnOHqq85tcubZHxEcPC7Wv2W93KobkCDFcQV0PtAEPYfJ-vmbijH_A-5s2dXECDV8K_RnzaJxpODbQSYkkK1oHYBKtZmnUCUrj9OkpoJeyCw_aQgWhjQQ"
+                 alt="Tea" class="w-100 h-100 object-fit-cover article-img"
+                 referrerpolicy="no-referrer"/>
+            <div class="position-absolute top-0 start-0 m-3">
+              <span class="badge rounded-pill px-3 py-2 fw-bold"
+                    style="background:rgba(255,255,255,.9);color:#4caf50;font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;backdrop-filter:blur(6px);">
+                Organic Living
+              </span>
+            </div>
+          </div>
+          <div class="flex-grow-1 d-flex flex-column">
+            <h3 class="fw-bold mb-2 article-title" style="font-size:1.1rem;line-height:1.4;font-family:'Playfair Display',serif;">
+              The Evening Ritual: Unplugging with Herbal Infusions
+            </h3>
+            <p class="text-secondary mb-4 small" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.6;">
+              How a simple cup of organic chamomile and valerian root can transform your sleep hygiene.
+            </p>
+            <div class="d-flex align-items-center justify-content-between mt-auto">
+              <div class="d-flex align-items-center gap-2">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDhJYQY7ddjQPwiKivzO5F-x6OTrZQmlD0QvuOR_8w8WcUpoe6PpoDflQh2pUZtVg-XtGRRI21Qe0LtMG9IfQh47oPjANuIz_c3VOyOmU7yI0lR57aOVs3CZMBGFD4S3sU8dBsEc8PJODljDgoxLQJm-zMefqxtZdBB_iliMlaaszT57tlgRO0l8AI6MNZ1ELWMzMIGaG_12gw3PM1Zg2dSHvFMFb7jx7SBkpyYGvSx73ANIvIzqrXa_3xaSYAO-KYf5HhEe-cE1u_"
+                     alt="Elena Vance" class="rounded-circle object-fit-cover"
+                     style="width:32px;height:32px;" referrerpolicy="no-referrer"/>
+                <span class="fw-semibold small">Elena Vance</span>
+              </div>
+              <span class="text-secondary" style="font-size:.75rem;">April 24, 2024</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="col">
+        <article class="h-100 d-flex flex-column" style="cursor:pointer;">
+          <div class="position-relative rounded-3 overflow-hidden mb-4 article-img-wrap"
+               style="aspect-ratio:4/3;">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3X_exVgsgnuG2MnVXfBDnVpRgIuKpqIJe7wWH0FnixyUgtBuru72Qq-t0LMdoot-krzMOgfoJB4zza0hD1dI66Wil8i_nrtU-GYUxVDnDRKdkbtfv5fUf9cy8PH-sLxOoWoprgYOtWFodzbVwyYQcG4U_Rq1qq6OsVgTA3sUJhWTSTxQngSq-MdcJPna3UtHq-0ihPsVMYqSvbvshOblVaMy_Qq9E98tmv2jBSAmhedDyQgGTlngindp8m773XEIbMMqNtnbNBOxi"
+                 alt="Soil" class="w-100 h-100 object-fit-cover article-img"
+                 referrerpolicy="no-referrer"/>
+            <div class="position-absolute top-0 start-0 m-3">
+              <span class="badge rounded-pill px-3 py-2 fw-bold"
+                    style="background:rgba(255,255,255,.9);color:#4caf50;font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;backdrop-filter:blur(6px);">
+                Farming
+              </span>
+            </div>
+          </div>
+          <div class="flex-grow-1 d-flex flex-column">
+            <h3 class="fw-bold mb-2 article-title" style="font-size:1.1rem;line-height:1.4;font-family:'Playfair Display',serif;">
+              Beyond Pesticide-Free: Understanding Soil Biodiversity
+            </h3>
+            <p class="text-secondary mb-4 small" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.6;">
+              It is what we put INTO the soil that matters as much as what we keep off it. A look at the underground ecosystem.
+            </p>
+            <div class="d-flex align-items-center justify-content-between mt-auto">
+              <div class="d-flex align-items-center gap-2">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvzGO87M3HgOxJ-9aRPwqDBs7LHW7haRn11vRu_pvtqALtgcuAqS9K0wLTmSyZC46sCzlnlN6VaEfWV6SeWiYd-JPhYM_635S9DwosnWd4_-gFUQjQAOgyMUx82Dxn1CQufmnLJ9xfQ8hZ2LulsQXyeADYqOsLVQQlPUZ6x_6vlk0_R2mlZTwZ3fs8Y1K_f2NwFo9iWLbIEr5FDgtuRLlgA2fan9UQyfcKg0IR3jW3K5x5IjXVYG_BEckbqBKF1sxT4ZNjzDtw5kL6"
+                     alt="Marcus Chen" class="rounded-circle object-fit-cover"
+                     style="width:32px;height:32px;" referrerpolicy="no-referrer"/>
+                <span class="fw-semibold small">Marcus Chen</span>
+              </div>
+              <span class="text-secondary" style="font-size:.75rem;">April 15, 2024</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="col">
+        <article class="h-100 d-flex flex-column" style="cursor:pointer;">
+          <div class="position-relative rounded-3 overflow-hidden mb-4 article-img-wrap"
+               style="aspect-ratio:4/3;">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFRdOm1Px8BXjc-V3PPEJpovY2X1Dz-wC-6ViPP5xg0kTYXdoROmwfQ5cbeoJnVgLygGDunaiyj3FxKPC_NeU53698D-hn9ssNTyyPGqwbJsSdEIYgtCb4x2vh9tSZUCDN9KVc7nKcLGYNWhqk2vzhXOV5K7fiLi4z334kxzaEcALVvMnBlP5vBjYFpYBZ6la13RovrEGmv5F5XGfummKD11yjrSTl7J3nhr6EMnmwEALAGihZVrUC_PpZMik6WoTtxTz3I0VXlLoi"
+                 alt="Healthy Plate" class="w-100 h-100 object-fit-cover article-img"
+                 referrerpolicy="no-referrer"/>
+            <div class="position-absolute top-0 start-0 m-3">
+              <span class="badge rounded-pill px-3 py-2 fw-bold"
+                    style="background:rgba(255,255,255,.9);color:#4caf50;font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;backdrop-filter:blur(6px);">
+                Clean Eating
+              </span>
+            </div>
+          </div>
+          <div class="flex-grow-1 d-flex flex-column">
+            <h3 class="fw-bold mb-2 article-title" style="font-size:1.1rem;line-height:1.4;font-family:'Playfair Display',serif;">
+              The Glycemic Pivot: Why Complex Carbs are Your Best Ally
+            </h3>
+            <p class="text-secondary mb-4 small" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.6;">
+              Rethinking energy density and satiety through the lens of whole, organic root vegetables and ancient grains.
+            </p>
+            <div class="d-flex align-items-center justify-content-between mt-auto">
+              <div class="d-flex align-items-center gap-2">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfdq6Fl9gJZW4kjvtzjECciVij31kZqttu9akTg6yPsixAR8DboOm5GpVikr4a0NOKtJN9gPdBGAvIlniNQLT37jrttUnQIbr6iT18hk5Fhi5anlOcc2rpDrd5MRcweixqquw8thxVn2EuruGOFII7LS6QV3GOjrpDqriAw3rX9JmBmVtABlduNcwv30cR6r_sFVIDbl_FAfdDS4ZqQCknYleE_ke5ndWW5ciiIA-Wc-4jXALiC64qDwxYVq7uARDev25sx70lulCw"
+                     alt="Sarah Miller" class="rounded-circle object-fit-cover"
+                     style="width:32px;height:32px;" referrerpolicy="no-referrer"/>
+                <span class="fw-semibold small">Sarah Miller</span>
+              </div>
+              <span class="text-secondary" style="font-size:.75rem;">April 02, 2024</span>
+            </div>
+          </div>
+        </article>
+      </div>
+</div>
+</body>
+</html>
