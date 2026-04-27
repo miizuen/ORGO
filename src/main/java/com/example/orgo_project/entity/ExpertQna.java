@@ -31,10 +31,10 @@ public class ExpertQna {
     @Column(name = "chuyenGiaId")
     private Integer expertId;
 
-    @Column(name = "cauHoi")
+    @Column(name = "cauHoi", columnDefinition = "NVARCHAR(MAX)")
     private String question;
 
-    @Column(name = "cauTraLoi")
+    @Column(name = "cauTraLoi", columnDefinition = "NVARCHAR(MAX)")
     private String answer;
 
     @Column(name = "ngayHoi")

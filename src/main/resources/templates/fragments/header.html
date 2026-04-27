@@ -1,27 +1,46 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <header th:fragment="header" class="bg-white shadow-sm position-relative z-3">
     <div class="container-xl d-flex align-items-center justify-content-between py-3">
         <a th:href="@{/}" class="fs-4 fw-bold text-success text-decoration-none">ORGO</a>
-        
-        <nav class="d-none d-md-flex gap-4" th:if="${session.currentRole == 'buyer' or session.currentRole == null}">
-            <a th:href="@{/products}" class="text-secondary text-decoration-none fw-medium class-hover-success">Sản phẩm</a>
-            <a th:href="@{/blog}" class="text-secondary text-decoration-none fw-medium class-hover-success">Blog</a>
-            <a th:href="@{/experts}" class="text-secondary text-decoration-none fw-medium class-hover-success">Chuyên gia</a>
+
+        <nav class="d-none d-md-flex gap-4"
+             sec:authorize="!isAuthenticated() or hasRole('USER')">
+            <a th:href="@{/products}" class="text-secondary text-decoration-none fw-medium">Sản phẩm</a>
+            <a th:href="@{/blog}"     class="text-secondary text-decoration-none fw-medium">Blog</a>
+            <a th:href="@{/experts}"  class="text-secondary text-decoration-none fw-medium">Chuyên gia</a>
         </nav>
-        
+
         <div class="d-flex align-items-center gap-3">
-            <a th:href="@{/buyer/cart}" class="text-secondary text-decoration-none d-flex align-items-center gap-1"
-                th:if="${session.currentRole == 'buyer'}">
+            <a th:href="@{/user/cart}"
+               class="text-secondary text-decoration-none d-flex align-items-center gap-1"
+               sec:authorize="hasRole('USER')">
                 🛒
             </a>
-            <div th:if="${session.currentUser == null}">
+
+            <!-- Chưa đăng nhập -->
+            <div sec:authorize="!isAuthenticated()">
                 <a th:href="@{/login}" class="btn btn-outline-success btn-sm fw-semibold px-4">Đăng nhập</a>
             </div>
-            <div th:if="${session.currentUser != null}" class="d-flex align-items-center gap-3">
-                <span class="small fw-medium text-secondary">Chào, <strong class="text-success" th:text="${session.currentRole}"></strong></span>
-                <a th:href="@{/logout}" class="btn btn-outline-danger btn-sm fw-medium px-3">Đăng xuất</a>
+
+            <!-- Đã đăng nhập: Dropdown -->
+            <div sec:authorize="isAuthenticated()" class="dropdown">
+                <button class="btn btn-link text-decoration-none small fw-medium text-secondary p-0 dropdown-toggle"
+                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Xin chào, <strong class="text-success" sec:authentication="principal.fullName"></strong>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                    <li>
+                        <a class="dropdown-item" th:href="@{/user/profile}"
+                           sec:authorize="hasRole('USER')">Hồ sơ</a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-danger" th:href="@{/logout}">Đăng xuất</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>

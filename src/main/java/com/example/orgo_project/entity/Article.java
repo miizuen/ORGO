@@ -34,19 +34,19 @@ public class Article {
     @Column(name = "id_chuyen_muc", insertable = false, updatable = false)
     private Integer blogCategoryId;
 
-    @Column(name = "tieu_de")
+    @Column(name = "tieu_de", columnDefinition = "NVARCHAR(255)")
     private String title;
 
-    @Column(name = "slug")
+    @Column(name = "slug", columnDefinition = "NVARCHAR(255)")
     private String slug;
 
-    @Column(name = "anh_bia")
+    @Column(name = "anh_bia", columnDefinition = "NVARCHAR(255)")
     private String coverImage;
 
-    @Column(name = "tom_tat")
+    @Column(name = "tom_tat", columnDefinition = "NVARCHAR(MAX)")
     private String summary;
 
-    @Column(name = "noi_dung")
+    @Column(name = "noi_dung", columnDefinition = "NVARCHAR(MAX)")
     private String content;
 
     @Column(name = "ngay_dang")
@@ -62,6 +62,6 @@ public class Article {
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     private com.example.orgo_project.enums.ArticleStatus status;
 
-    @Column(name = "ly_do_tu_choi")
+    @Column(name = "ly_do_tu_choi", columnDefinition = "NVARCHAR(255)")
     private String rejectionReason;
 }

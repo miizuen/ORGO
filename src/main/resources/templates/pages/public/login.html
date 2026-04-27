@@ -39,18 +39,17 @@
                 </div>
 
                 <!-- Login Form -->
-                <form class="d-flex flex-column gap-3" th:action="@{/login}" method="post" id="loginForm">
-                    <!-- Error Message -->
-                    <div th:if="${error != null or param.error != null}" class="alert alert-danger p-3 small mb-0">
-                        <span th:text="${error != null ? error : 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.'}"></span>
-                    </div>
+                <form class="d-flex flex-column gap-3" th:action="@{/login}" method="POST" id="loginForm">
+                    <div th:if="${param.error}" class="alert alert-danger py-2 mb-3">Tài khoản hoặc mật khẩu
+                        không đúng!</div>
+                    <div th:if="${param.logout}" class="alert alert-success py-2 mb-3">Đã đăng xuất thành công!</div>
 
                     <!-- Email / Phone Field -->
                     <div>
                         <label class="form-label small fw-semibold text-secondary text-uppercase" for="identifier">Email or Phone Number</label>
                         <div class="position-relative">
                             <i data-lucide="mail" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" style="width: 20px; height: 20px;"></i>
-                            <input class="form-control form-control-lg bg-white border-0 py-3 ps-5 shadow-sm" id="identifier" name="identifier" th:value="${email}" placeholder="hello@organic.com" type="text" required />
+                            <input class="form-control form-control-lg bg-white border-0 py-3 ps-5 shadow-sm" id="identifier" name="username" placeholder="hello@organic.com" type="text" required />
                         </div>
                     </div>
 
@@ -85,6 +84,21 @@
                 <div class="text-center mt-4">
                     <p class="text-secondary">Lần đầu đến với ORGO? <a th:href="@{/register}" class="text-success fw-bold text-decoration-none ms-1">Đăng ký</a></p>
                 </div>
+
+                <!-- Guest Login Divider -->
+                <div class="d-flex align-items-center gap-3 my-2">
+                    <hr class="flex-grow-1 m-0">
+                    <span class="text-secondary small fw-medium">hoặc</span>
+                    <hr class="flex-grow-1 m-0">
+                </div>
+
+                <!-- Guest Login Button -->
+                <a th:href="@{/guest-login}"
+                   class="btn btn-outline-secondary btn-lg w-100 fw-semibold py-3 d-flex align-items-center justify-content-center gap-2"
+                   style="border-radius: 12px;">
+                    <i data-lucide="user-circle" style="width: 20px; height: 20px;"></i>
+                    Tiếp tục không cần tài khoản
+                </a>
             </div>
         </section>
     </div>

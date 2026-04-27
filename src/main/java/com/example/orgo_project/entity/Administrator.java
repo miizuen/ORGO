@@ -23,19 +23,19 @@ public class Administrator {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "username")
+    @Column(name = "username", columnDefinition = "NVARCHAR(255)")
     private String username;
 
-    @Column(name = "matKhau")
+    @Column(name = "matKhau", columnDefinition = "NVARCHAR(255)")
     private String password;
 
-    @Column(name = "hoTen")
+    @Column(name = "hoTen", columnDefinition = "NVARCHAR(255)")
     private String fullName;
 
-    @Column(name = "email")
+    @Column(name = "email", columnDefinition = "NVARCHAR(255)")
     private String email;
 
-    @Column(name = "vaiTro")
+    @Column(name = "vaiTro", columnDefinition = "NVARCHAR(255)")
     private String role;
 
     @Column(name = "trangThai")

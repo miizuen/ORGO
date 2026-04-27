@@ -26,21 +26,21 @@ public class ShippingAddress {
     @Column(name = "id_tai_khoan")
     private Integer accountId;
 
-    @Column(name = "nguoi_nhan")
+    @Column(name = "nguoi_nhan", columnDefinition = "NVARCHAR(255)")
     private String recipientName;
 
-    @Column(name = "so_dien_thoai_nguoi_nhan")
+    @Column(name = "so_dien_thoai_nguoi_nhan", columnDefinition = "NVARCHAR(255)")
     private String recipientPhone;
 
-    @Column(name = "tinh_thanh")
+    @Column(name = "tinh_thanh", columnDefinition = "NVARCHAR(255)")
     private String provinceOrCity;
 
     @Column(name = "co_mac_dinh")
     private Boolean defaultAddress;
 
-    @Column(name = "loai_dia_chi")
+    @Column(name = "loai_dia_chi", columnDefinition = "NVARCHAR(255)")
     private String addressType;
 
-    @Column(name = "dia_chi_cu_the")
+    @Column(name = "dia_chi_cu_the", columnDefinition = "NVARCHAR(255)")
     private String detailedAddress;
 }

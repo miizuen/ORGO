@@ -32,20 +32,20 @@ public class WithdrawalRequest {
     @Column(name = "so_tien_thuc_nhan")
     private BigDecimal actualAmount;
 
-    @Column(name = "ten_ngan_hang")
+    @Column(name = "ten_ngan_hang", columnDefinition = "NVARCHAR(255)")
     private String bankName;
 
-    @Column(name = "so_tai_khoan_nhan")
+    @Column(name = "so_tai_khoan_nhan", columnDefinition = "NVARCHAR(255)")
     private String recipientBankAccount;
 
-    @Column(name = "ten_chu_tai_khoan")
+    @Column(name = "ten_chu_tai_khoan", columnDefinition = "NVARCHAR(255)")
     private String accountHolderName;
 
     @Column(name = "trang_thai")
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     private com.example.orgo_project.enums.WithdrawalStatus status;
 
-    @Column(name = "ly_do_tu_choi")
+    @Column(name = "ly_do_tu_choi", columnDefinition = "NVARCHAR(255)")
     private String rejectionReason;
 
     @Column(name = "ngay_tao")

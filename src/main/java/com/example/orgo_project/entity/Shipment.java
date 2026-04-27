@@ -28,10 +28,10 @@ public class Shipment {
     @Column(name = "id_don_hang")
     private Integer orderId;
 
-    @Column(name = "don_vi_van_chuyen")
+    @Column(name = "don_vi_van_chuyen", columnDefinition = "NVARCHAR(255)")
     private String shippingProvider;
 
-    @Column(name = "ma_van_don")
+    @Column(name = "ma_van_don", columnDefinition = "NVARCHAR(255)")
     private String trackingCode;
 
     @Column(name = "ngay_giao_du_kien")

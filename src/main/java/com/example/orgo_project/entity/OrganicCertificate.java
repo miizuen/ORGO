@@ -28,10 +28,10 @@ public class OrganicCertificate {
     @Column(name = "id_san_pham")
     private Integer productId;
 
-    @Column(name = "ten_chung_nhan")
+    @Column(name = "ten_chung_nhan", columnDefinition = "NVARCHAR(255)")
     private String certificateName;
 
-    @Column(name = "toChucCap")
+    @Column(name = "toChucCap", columnDefinition = "NVARCHAR(255)")
     private String issuingOrganization;
 
     @Column(name = "ngay_cap")
@@ -40,7 +40,7 @@ public class OrganicCertificate {
     @Column(name = "ngay_het_han")
     private LocalDateTime expiresAt;
 
-    @Column(name = "file_dinh_kem")
+    @Column(name = "file_dinh_kem", columnDefinition = "NVARCHAR(255)")
     private String attachmentFile;
 
     @Column(name = "trangThaiDuyet")

@@ -28,7 +28,7 @@ public class ProductVariant {
     @Column(name = "id_san_pham")
     private Integer productId;
 
-    @Column(name = "ten_bien_the")
+    @Column(name = "ten_bien_the", columnDefinition = "NVARCHAR(255)")
     private String variantName;
 
     @Column(name = "khoi_luong")
@@ -43,6 +43,6 @@ public class ProductVariant {
     @Column(name = "so_luong_ton")
     private Integer stockQuantity;
 
-    @Column(name = "hinh_anh")
+    @Column(name = "hinh_anh", columnDefinition = "NVARCHAR(255)")
     private String imageUrl;
 }
