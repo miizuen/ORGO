@@ -32,7 +32,7 @@ public class ExpertService implements IExpertService{
 
     @Override
     public List<Expert> getPendingList() {
-        return expertRepository.findAll();
+        return expertRepository.findByStatus(ExpertStatus.PENDING);
     }
 
     @Override

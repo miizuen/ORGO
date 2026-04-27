@@ -32,7 +32,7 @@ public class SellerService implements ISellerService{
 
     @Override
     public List<Seller> getPendingList() {
-        return sellerRepository.findAll();
+        return sellerRepository.findByStatus(SellerStatus.PENDING);
     }
 
     @Override

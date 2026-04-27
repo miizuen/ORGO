@@ -36,8 +36,8 @@ public class WebSecurityConfig {
                 .requestMatchers("/seller/**").hasRole("SELLER")
                 .requestMatchers("/expert/**").hasRole("EXPERT")
                 .requestMatchers("/buyer/**").hasRole("BUYER")
-                // Cấp quyền cho user cơ bản
-                .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER")
+                // FIX: Cho phép USER, SELLER, EXPERT vào /user/** (để xem lại form đăng ký)
+                .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER", "SELLER", "EXPERT")
                 // Các đường dẫn cho phép public
                 .requestMatchers("/login", "/register", "/forgot-password", "/verify-otp", "/reset-password", "/guest-login").permitAll()
                 .requestMatchers("/", "/welcome", "/search", "/products", "/products/**", "/blog", "/blog/**", "/css/**", "/js/**", "/images/**").permitAll()
@@ -58,6 +58,9 @@ public class WebSecurityConfig {
                             .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_EXPERT"));
                     boolean isBuyer = authentication.getAuthorities().stream()
                             .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_BUYER"));
+                    // FIX: Thêm check cho ROLE_USER
+                    boolean isUser = authentication.getAuthorities().stream()
+                            .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_USER"));
 
                     if (isAdmin) {
                         response.sendRedirect("/admin/dashboard");
@@ -67,6 +70,8 @@ public class WebSecurityConfig {
                         response.sendRedirect("/expert/dashboard");
                     } else if (isBuyer) {
                         response.sendRedirect("/buyer/dashboard");
+                    } else if (isUser) {
+                        response.sendRedirect("/"); // USER về trang chủ
                     } else {
                         response.sendRedirect("/");
                     }
@@ -89,7 +94,6 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-    // SpringSecurityDialect là một thành phần tích hợp giữa Spring Security và Thymeleaf
     @Bean
     public SpringSecurityDialect springSecurityDialect() {
         return new SpringSecurityDialect();
