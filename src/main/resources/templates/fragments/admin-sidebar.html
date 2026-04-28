@@ -37,6 +37,11 @@
            class="nav-item">
             <span class="icon">📦</span> Đơn đặt hàng
         </a>
+        <a th:href="@{/admin/payouts}"
+           th:classappend="${activePage == 'payouts'} ? 'active' : ''"
+           class="nav-item">
+            <span class="icon">💴</span> Đối soát và duyệt Payout
+        </a>
         <a th:href="@{/admin/marketing}"
            th:classappend="${activePage == 'marketing'} ? 'active' : ''"
            class="nav-item">

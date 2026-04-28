@@ -364,6 +364,11 @@
                class="adm-nav-item">
                 <span class="icon">📦</span> Đơn hàng
             </a>
+            <a th:href="@{/admin/payouts}"
+               th:classappend="${activePage == 'payouts'} ? 'active' : ''"
+               class="adm-nav-item">
+                <span class="icon">💴</span> Đối soát và thanh toán
+            </a>
             <a th:href="@{/admin/reports}"
                th:classappend="${activePage == 'reports'} ? 'active' : ''"
                class="adm-nav-item">

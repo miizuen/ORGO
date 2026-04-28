@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{fragments/admin-layout :: adminLayout('Rút tiền và đối soát', 'payouts', ~{::main})}">
+    <main>
+        <div class="adm-card mb-4">
+            <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                <div>
+                    <h2 class="fw-bold mb-1">Rút tiền & Đối soát</h2>
+                    <p class="text-muted mb-0">Quản lý và duyệt các yêu cầu rút tiền từ Người bán và Chuyên gia.</p>
+                </div>
+                <form method="get" th:action="@{/admin/payouts}" class="d-flex gap-2">
+                    <select name="status" class="form-select form-select-sm" style="min-width: 170px;">
+                        <option value="ALL">Tất cả</option>
+                        <option value="PENDING">Đang chờ</option>
+                        <option value="APPROVED">Đã duyệt</option>
+                        <option value="REJECTED">Từ chối</option>
+                        <option value="PAID">Đã chi trả</option>
+                    </select>
+                    <button class="btn btn-success btn-sm" type="submit">Lọc</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="adm-card shadow-sm">
+                    <div class="text-muted small">Tổng yêu cầu</div>
+                    <div class="fs-3 fw-bold">4</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="adm-card shadow-sm">
+                    <div class="text-muted small">Đang chờ</div>
+                    <div class="fs-3 fw-bold">1</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="adm-card shadow-sm">
+                    <div class="text-muted small">Đã duyệt</div>
+                    <div class="fs-3 fw-bold">1</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="adm-card shadow-sm">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Mã YC</th>
+                        <th>Người yêu cầu</th>
+                        <th>Số tiền</th>
+                        <th>Ngân hàng</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày yêu cầu</th>
+                        <th class="text-end">Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>PAY-202604-001</td>
+                        <td>
+                            <div class="fw-semibold">Nguyễn Văn A</div>
+                            <div class="text-muted small">SELLER</div>
+                        </td>
+                        <td>15,000,000 VND</td>
+                        <td>
+                            <div>Vietcombank</div>
+                            <div class="text-muted small">0123456789</div>
+                        </td>
+                        <td><span class="badge bg-warning text-dark">PENDING</span></td>
+                        <td>27/04/2026 10:30</td>
+                        <td class="text-end">
+                            <a href="/admin/payouts/1" class="btn btn-sm btn-outline-primary">Xem</a>
+                            <form action="/admin/payouts/1/approve" method="post" class="d-inline">
+                                <button class="btn btn-sm btn-success">Duyệt</button>
+                            </form>
+                            <form action="/admin/payouts/1/reject" method="post" class="d-inline">
+                                <button class="btn btn-sm btn-outline-danger">Từ chối</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>PAY-202604-002</td>
+                        <td>
+                            <div class="fw-semibold">Trần Thị B</div>
+                            <div class="text-muted small">EXPERT</div>
+                        </td>
+                        <td>7,200,000 VND</td>
+                        <td>
+                            <div>BIDV</div>
+                            <div class="text-muted small">0987654321</div>
+                        </td>
+                        <td><span class="badge bg-success">APPROVED</span></td>
+                        <td>26/04/2026 14:20</td>
+                        <td class="text-end">
+                            <a href="/admin/payouts/2" class="btn btn-sm btn-outline-primary">Xem</a>
+                            <form action="/admin/payouts/2/paid" method="post" class="d-inline">
+                                <button class="btn btn-sm btn-primary">Đã chi trả</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>PAY-202604-003</td>
+                        <td>
+                            <div class="fw-semibold">Lê Văn C</div>
+                            <div class="text-muted small">SELLER</div>
+                        </td>
+                        <td>4,300,000 VND</td>
+                        <td>
+                            <div>ACB</div>
+                            <div class="text-muted small">1122334455</div>
+                        </td>
+                        <td><span class="badge bg-danger">REJECTED</span></td>
+                        <td>25/04/2026 09:15</td>
+                        <td class="text-end">
+                            <a href="/admin/payouts/3" class="btn btn-sm btn-outline-primary">Xem</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>PAY-202604-004</td>
+                        <td>
+                            <div class="fw-semibold">Phạm Thị D</div>
+                            <div class="text-muted small">EXPERT</div>
+                        </td>
+                        <td>9,800,000 VND</td>
+                        <td>
+                            <div>MB Bank</div>
+                            <div class="text-muted small">5566778899</div>
+                        </td>
+                        <td><span class="badge bg-primary">PAID</span></td>
+                        <td>24/04/2026 16:45</td>
+                        <td class="text-end">
+                            <a href="/admin/payouts/4" class="btn btn-sm btn-outline-primary">Xem</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>
