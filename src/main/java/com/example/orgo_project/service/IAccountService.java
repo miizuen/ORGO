@@ -15,8 +15,7 @@ public interface IAccountService {
 
     Account findById(int id);
 
-
-//    Page<AccountDetailDto> searchAll(String name, String username, String email, String phone, Pageable pageable);
-
     Account findByUsername(String username);
+
+    boolean changePassword(Account account, String currentPassword, String newPassword);
 }
