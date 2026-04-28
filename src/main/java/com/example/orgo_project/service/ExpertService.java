@@ -24,6 +24,9 @@ public class ExpertService implements IExpertService{
     @Autowired
     private IRoleRepository roleRepository;
 
+    @Autowired
+    private EmailService emailService;
+
 
     @Override
     public void register(Expert expert) {
@@ -50,6 +53,19 @@ public class ExpertService implements IExpertService{
         Role roleName = roleRepository.findByRoleName(RoleName.EXPERT);
         account.setRole(roleName);
         accountRepository.save(account);
+
+        try {
+            String toEmail = account.getUser().getEmail();
+            String fullName = account.getUser().getFullName();
+            emailService.sendExpertDecisionEmail(
+                    toEmail,
+                    fullName,
+                    "APPROVED",
+                    "Chúc mừng bạn! Hồ sơ Expert của bạn đã được phê duyệt."
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Đã duyệt Expert nhưng không gửi được email thông báo.", e);
+        }
     }
 
     @Override
@@ -57,6 +73,19 @@ public class ExpertService implements IExpertService{
         Expert expert = expertRepository.findById(id).orElseThrow();
         expert.setStatus(ExpertStatus.REJECTED);
         expertRepository.save(expert);
+        try {
+            Account account = expert.getAccount();
+            String toEmail = account.getUser().getEmail();
+            String fullName = account.getUser().getFullName();
+            emailService.sendExpertDecisionEmail(
+                    toEmail,
+                    fullName,
+                    "REJECTED",
+                    "Rất tiếc, hồ sơ Expert của bạn chưa đáp ứng yêu cầu hiện tại."
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Đã từ chối Expert nhưng không gửi được email thông báo.", e);
+        }
     }
 
     @Override
