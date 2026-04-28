@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{fragments/admin-layout :: adminLayout('Chi tiết rút tiền', 'payouts', ~{::main})}">
+    <main>
+        <div class="adm-card mb-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="fw-bold mb-1">Chi tiết yêu cầu rút tiền</h3>
+                    <p class="text-muted mb-0">Thông tin giao dịch payout đang được admin xử lý.</p>
+                </div>
+                <a href="/admin/payouts" class="btn btn-outline-secondary btn-sm">← Quay lại</a>
+            </div>
+        </div>
+
+        <div class="adm-card shadow-sm">
+            <div class="row g-3">
+                <div class="col-md-6"><strong>Mã yêu cầu:</strong> <span>PAY-202604-001</span></div>
+                <div class="col-md-6"><strong>Người yêu cầu:</strong> <span>Nguyễn Văn A</span></div>
+                <div class="col-md-6"><strong>Loại tài khoản:</strong> <span>SELLER</span></div>
+                <div class="col-md-6"><strong>Số tiền:</strong> <span>15,000,000 VND</span></div>
+                <div class="col-md-6"><strong>Ngân hàng:</strong> <span>Vietcombank</span></div>
+                <div class="col-md-6"><strong>Số tài khoản:</strong> <span>0123456789</span></div>
+                <div class="col-md-6"><strong>Chủ tài khoản:</strong> <span>Nguyễn Văn A</span></div>
+                <div class="col-md-6"><strong>Trạng thái:</strong> <span class="badge bg-warning text-dark">PENDING</span></div>
+                <div class="col-12"><strong>Ghi chú:</strong> <span>Yêu cầu rút tiền từ doanh thu tháng 4</span></div>
+                <div class="col-12"><strong>Ngày yêu cầu:</strong> <span>27/04/2026 10:30</span></div>
+                <div class="col-12"><strong>Ngày xử lý:</strong> <span>Chưa xử lý</span></div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <form action="/admin/payouts/1/approve" method="post">
+                    <button class="btn btn-success">Duyệt</button>
+                </form>
+                <form action="/admin/payouts/1/reject" method="post">
+                    <button class="btn btn-outline-danger">Từ chối</button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

@@ -25,6 +25,9 @@ public class SellerService implements ISellerService{
     @Autowired
     private IAccountRepository accountRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     @Override
     public void register(Seller seller) {
         sellerRepository.save(seller);
@@ -50,6 +53,18 @@ public class SellerService implements ISellerService{
         Role sellerRole = roleRepository.findByRoleName(RoleName.SELLER);
         account.setRole(sellerRole);
         accountRepository.save(account);
+        try {
+            String toEmail = account.getUser().getEmail();
+            String fullName = account.getUser().getFullName();
+            emailService.sendSellerDecisionMail(
+                    toEmail,
+                    fullName,
+                    "APPROVED",
+                    "Chúc mừng bạn! Hồ sơ Seller của bạn đã được phê duyệt."
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Đã duyệt Seller nhưng không gửi được email thông báo.", e);
+        }
     }
 
     @Override
@@ -57,6 +72,19 @@ public class SellerService implements ISellerService{
         Seller seller = sellerRepository.findById(id).orElseThrow();
         seller.setStatus(SellerStatus.REJECTED);
         sellerRepository.save(seller);
+        try {
+            Account account = seller.getAccount();
+            String toEmail = account.getUser().getEmail();
+            String fullName = account.getUser().getFullName();
+            emailService.sendSellerDecisionMail(
+                    toEmail,
+                    fullName,
+                    "REJECTED",
+                    "Rất tiếc, hồ sơ Seller của bạn chưa được chấp thuận."
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Đã từ chối Seller nhưng không gửi được email thông báo.", e);
+        }
     }
 
     @Override
