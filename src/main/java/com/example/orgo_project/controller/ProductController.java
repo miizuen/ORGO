@@ -90,6 +90,33 @@ public class ProductController {
         model.addAttribute("certs", certs);
         model.addAttribute("reviews", reviews);
 
+        // Build map userId -> fullName cho đánh giá
+        java.util.Map<Integer, String> reviewerNames = new java.util.HashMap<>();
+        java.util.Map<Integer, String> sellerNames = new java.util.HashMap<>();
+
+        // Lấy tên shop của sản phẩm này làm default (dùng khi reply chưa có sellerId)
+        String productShopName = "Seller";
+        com.example.orgo_project.entity.Seller productSeller = sellerRepository.findById(product.getSellerId()).orElse(null);
+        if (productSeller != null && productSeller.getShopName() != null) {
+            productShopName = productSeller.getShopName();
+        }
+        model.addAttribute("productShopName", productShopName);
+
+        for (ProductReview review : reviews.getContent()) {
+            if (review.getUserId() != null && !reviewerNames.containsKey(review.getUserId())) {
+                UserProfile reviewer = userRepository.findById(review.getUserId()).orElse(null);
+                reviewerNames.put(review.getUserId(),
+                        reviewer != null && reviewer.getFullName() != null ? reviewer.getFullName() : "Người dùng");
+            }
+            if (review.getSellerId() != null && !sellerNames.containsKey(review.getSellerId())) {
+                com.example.orgo_project.entity.Seller seller = sellerRepository.findById(review.getSellerId()).orElse(null);
+                sellerNames.put(review.getSellerId(),
+                        seller != null && seller.getShopName() != null ? seller.getShopName() : "Seller");
+            }
+        }
+        model.addAttribute("reviewerNames", reviewerNames);
+        model.addAttribute("sellerNames", sellerNames);
+
         if (userDetails != null) {
             // Tìm user theo username (vì login dùng username)
             UserProfile user = userRepository.findByEmail(userDetails.getUsername());
@@ -150,6 +177,7 @@ public class ProductController {
     public String newProductForm(Model model) {
         model.addAttribute("product", new Product());
         model.addAttribute("categories", productService.getAllCategories());
+        model.addAttribute("certs", java.util.Collections.emptyList());
         model.addAttribute("action", "new");
         return "pages/seller/product-form";
     }
@@ -161,13 +189,20 @@ public class ProductController {
                                  @RequestParam(required = false) List<String> variantNames,
                                  @RequestParam(required = false) List<BigDecimal> variantPrices,
                                  @RequestParam(required = false) List<Integer> variantStocks,
+                                 @RequestParam(required = false) List<String> certNames,
+                                 @RequestParam(required = false) List<String> certOrgs,
+                                 @RequestParam(required = false) List<String> certDates,
+                                 @RequestParam(required = false) List<MultipartFile> certFiles,
                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
         Integer sellerId = getSellerIdFromUser(userDetails);
         if (sellerId == null) return "redirect:/";
 
         product.setSellerId(sellerId);
         List<ProductVariant> variants = buildVariants(variantNames, variantPrices, variantStocks);
-        productService.createProduct(product, variants, imageFile);
+        Product saved = productService.createProduct(product, variants, imageFile);
+        if (saved != null) {
+            productService.saveCertificates(saved.getId(), null, certNames, certOrgs, certDates, certFiles);
+        }
         return "redirect:/seller/products?success=created";
     }
 
@@ -184,6 +219,7 @@ public class ProductController {
 
         model.addAttribute("product", product);
         model.addAttribute("variants", productService.getVariantsByProduct(id));
+        model.addAttribute("certs", productService.getCertsByProduct(id));
         model.addAttribute("categories", productService.getAllCategories());
         model.addAttribute("action", "edit");
         return "pages/seller/product-form";
@@ -197,6 +233,11 @@ public class ProductController {
                                  @RequestParam(required = false) List<String> variantNames,
                                  @RequestParam(required = false) List<BigDecimal> variantPrices,
                                  @RequestParam(required = false) List<Integer> variantStocks,
+                                 @RequestParam(required = false) List<Integer> keepCertIds,
+                                 @RequestParam(required = false) List<String> certNames,
+                                 @RequestParam(required = false) List<String> certOrgs,
+                                 @RequestParam(required = false) List<String> certDates,
+                                 @RequestParam(required = false) List<MultipartFile> certFiles,
                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
         Integer sellerId = getSellerIdFromUser(userDetails);
         if (sellerId == null) return "redirect:/";
@@ -205,6 +246,7 @@ public class ProductController {
         product.setSellerId(sellerId);
         List<ProductVariant> variants = buildVariants(variantNames, variantPrices, variantStocks);
         productService.updateProduct(product, variants, imageFile);
+        productService.saveCertificates(id, keepCertIds, certNames, certOrgs, certDates, certFiles);
         return "redirect:/seller/products?success=updated";
     }
 
@@ -224,8 +266,10 @@ public class ProductController {
     @PostMapping("/seller/reviews/{reviewId}/reply")
     public String replyReview(@PathVariable Integer reviewId,
                                @RequestParam String replyText,
-                               @RequestParam Integer productId) {
-        productService.replyReview(reviewId, replyText);
+                               @RequestParam Integer productId,
+                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Integer sellerId = getSellerIdFromUser(userDetails);
+        productService.replyReview(reviewId, replyText, sellerId);
         return "redirect:/products/" + productId + "#reviews";
     }
 

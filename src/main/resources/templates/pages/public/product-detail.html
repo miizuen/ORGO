@@ -126,7 +126,12 @@
             <div class="tab-pane fade" id="tab-cert">
                 <div th:if="${!#lists.isEmpty(certs)}">
                     <div th:each="cert : ${certs}" class="d-flex align-items-start gap-3 p-3 border rounded-3 mb-3">
-                        <span class="fs-2">🏅</span>
+                        <!-- Hiển thị ảnh nếu có, ngược lại dùng icon -->
+                        <div th:if="${cert.attachmentFile != null}" style="flex-shrink:0;">
+                            <img th:src="${cert.attachmentFile}" alt="Chứng nhận"
+                                 class="rounded-2 border" style="width:64px;height:64px;object-fit:cover;"/>
+                        </div>
+                        <span th:if="${cert.attachmentFile == null}" class="fs-2">🏅</span>
                         <div>
                             <h6 class="fw-bold mb-1" th:text="${cert.certificateName}">Chứng nhận</h6>
                             <p class="text-secondary small mb-1" th:text="'Cấp bởi: ' + ${cert.issuingOrganization}"></p>
@@ -195,9 +200,11 @@
                             <!-- Header đánh giá -->
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold"
-                                     style="width:38px;height:38px;font-size:14px;">U</div>
+                                     style="width:38px;height:38px;font-size:14px;"
+                                     th:text="${reviewerNames != null and reviewerNames[review.userId] != null ? #strings.substring(reviewerNames[review.userId], 0, 1) : 'U'}">U</div>
                                 <div class="flex-grow-1">
-                                    <div class="fw-semibold">Người dùng</div>
+                                    <div class="fw-semibold"
+                                         th:text="${reviewerNames != null and reviewerNames[review.userId] != null ? reviewerNames[review.userId] : 'Người dùng'}">Người dùng</div>
                                     <div class="text-warning">
                                         <th:block th:each="i : ${#numbers.sequence(1, review.stars)}">★</th:block>
                                         <th:block th:each="i : ${#numbers.sequence(review.stars + 1, 5)}">
@@ -216,7 +223,10 @@
                             <div th:if="${review.reply != null}"
                                  class="ms-3 mt-2 p-3 bg-light rounded-3 border-start border-success border-3">
                                 <div class="d-flex align-items-center gap-2 mb-1">
-                                    <span class="badge bg-success rounded-pill">🏪 Seller</span>
+                                    <span class="badge bg-success rounded-pill">🏪
+                                        <th:block th:with="sName=${review.sellerId != null and sellerNames[review.sellerId] != null ? sellerNames[review.sellerId] : productShopName}"
+                                                  th:text="${sName}"></th:block>
+                                    </span>
                                     <span class="text-secondary small"
                                           th:text="${review.repliedAt != null ? #temporals.format(review.repliedAt, 'dd/MM/yyyy') : ''}"></span>
                                 </div>

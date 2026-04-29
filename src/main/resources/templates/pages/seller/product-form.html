@@ -87,6 +87,94 @@
                 </div>
             </div>
 
+            <!-- Chứng nhận hữu cơ -->
+            <h5 class="fw-bold mb-3 text-success">🏅 Chứng nhận hữu cơ</h5>
+
+            <div id="certContainer" class="mb-4">
+
+                <!-- Chứng nhận hiện có (khi edit) -->
+                <div th:each="cert, stat : ${certs}" class="bg-white border rounded-3 p-3 mb-3 cert-row">
+                    <!-- Hidden input để giữ lại cert này khi submit -->
+                    <input type="hidden" name="keepCertIds" th:value="${cert.id}"/>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-semibold mb-1">Tên chứng nhận</label>
+                            <input type="text" name="certNames" class="form-control rounded-3 form-control-sm"
+                                   th:value="${cert.certificateName}"/>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold mb-1">Tổ chức cấp</label>
+                            <input type="text" name="certOrgs" class="form-control rounded-3 form-control-sm"
+                                   th:value="${cert.issuingOrganization}"/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">Ngày cấp</label>
+                            <input type="text" name="certDates" class="form-control rounded-3 form-control-sm"
+                                   th:value="${#temporals.format(cert.issuedAt, 'yyyy-MM-dd')}"/>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-danger btn-sm rounded-3 w-100"
+                                    onclick="removeCert(this)">✕</button>
+                        </div>
+                    </div>
+                    <label class="form-label small fw-semibold mb-1">Ảnh chứng nhận</label>
+                    <div class="border rounded-3 p-4 text-center bg-light" style="border: 2px dashed #dee2e6 !important;">
+                        <div class="mb-2">📷</div>
+                        <input type="file" name="certFiles" accept="image/*"
+                               class="form-control rounded-3"
+                               onchange="previewCertImage(this)"/>
+                        <p class="text-secondary small mt-2 mb-0">PNG, JPG tối đa 5MB</p>
+                    </div>
+                    <!-- Ảnh hiện tại -->
+                    <div class="mt-2" th:if="${cert.attachmentFile != null}">
+                        <span class="text-secondary small">Ảnh hiện tại:</span>
+                        <img th:src="${cert.attachmentFile}" class="rounded-3 ms-2 d-block mt-1" style="max-height:200px;"/>
+                    </div>
+                    <div class="cert-preview mt-3" style="display:none;">
+                        <img src="" alt="Preview" class="rounded-3" style="max-height:200px;"/>
+                    </div>
+                </div>
+
+                <!-- Form trống mặc định (luôn hiện, dùng cho sản phẩm chưa có chứng nhận) -->
+                <div class="bg-white border rounded-3 p-3 mb-3 cert-row">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-semibold mb-1">Tên chứng nhận</label>
+                            <input type="text" name="certNames" class="form-control rounded-3 form-control-sm"
+                                   placeholder="VD: USDA Organic, VietGAP..."/>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold mb-1">Tổ chức cấp</label>
+                            <input type="text" name="certOrgs" class="form-control rounded-3 form-control-sm"
+                                   placeholder="VD: Bộ Nông nghiệp..."/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">Ngày cấp</label>
+                            <input type="date" name="certDates" class="form-control rounded-3 form-control-sm"/>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-danger btn-sm rounded-3 w-100"
+                                    onclick="removeCert(this)">✕</button>
+                        </div>
+                    </div>
+                    <label class="form-label small fw-semibold mb-1">Ảnh chứng nhận</label>
+                    <div class="border rounded-3 p-4 text-center bg-light" style="border: 2px dashed #dee2e6 !important;">
+                        <div class="mb-2">📷</div>
+                        <input type="file" name="certFiles" accept="image/*"
+                               class="form-control rounded-3"
+                               onchange="previewCertImage(this)"/>
+                        <p class="text-secondary small mt-2 mb-0">PNG, JPG tối đa 5MB</p>
+                    </div>
+                    <div class="cert-preview mt-3" style="display:none;">
+                        <img src="" alt="Preview" class="rounded-3" style="max-height:200px;"/>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Nút thêm chứng nhận đã bị xóa -->
+
+
             <!-- Phân loại (Variants) -->
             <h5 class="fw-bold mb-3 text-success">📦 Phân loại sản phẩm</h5>
             <div id="variantContainer" class="mb-4">
@@ -202,6 +290,33 @@ function previewImage(input) {
         reader.onload = function(e) {
             document.getElementById('previewImg').src = e.target.result;
             document.getElementById('imagePreview').style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function removeCert(btn) {
+    var row = btn.closest('.cert-row');
+    if (row) {
+        row.remove();
+    } else {
+        // fallback: xóa parent gần nhất có border
+        var parent = btn.parentElement;
+        while (parent && !parent.classList.contains('cert-row')) {
+            parent = parent.parentElement;
+        }
+        if (parent) parent.remove();
+    }
+}
+
+function previewCertImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        var previewDiv = input.closest('.cert-row').querySelector('.cert-preview');
+        var previewImg = previewDiv.querySelector('img');
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewDiv.style.display = 'block';
         };
         reader.readAsDataURL(input.files[0]);
     }
