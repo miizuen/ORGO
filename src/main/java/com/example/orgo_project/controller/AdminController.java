@@ -20,18 +20,21 @@ public class AdminController {
     private IExpertService expertService;
 
     @GetMapping("/dashboard")
-    public String showAdminDashboard(){
+    public String showAdminDashboard(Model model){
+        model.addAttribute("activePage", "dashboard");
         return "/pages/admin/dashboard";
     }
 
     @GetMapping("/seller-pending-list")
     public String showSellerPendingList(Model model){
+        model.addAttribute("activePage", "seller-pending-list");
         model.addAttribute("sellers", sellerService.getPendingList());
         return "/pages/admin/seller-pending-list";
     }
 
     @GetMapping("/seller-pending-list/seller-approve-detail")
     public String showSellerPendingDetail(@RequestParam int id, Model model){
+        model.addAttribute("activePage", "seller-pending-list");
         model.addAttribute("seller", sellerService.findById(id));
         return "/pages/admin/seller-approve-detail";
     }
@@ -52,12 +55,14 @@ public class AdminController {
 
     @GetMapping("/expert-pending-list")
     public String showExpertPendingList(Model model){
+        model.addAttribute("activePage", "expert-pending-list");
         model.addAttribute("experts", expertService.getPendingList().stream().map(ExpertDTO::fromEntity).collect(Collectors.toList()));
         return "/pages/admin/expert-pending-list";
     }
 
     @GetMapping("/expert-pending-list/expert-approve-detail")
     public String showExpertPendingDetail(@RequestParam int id, Model model){
+        model.addAttribute("activePage", "expert-pending-list");
         model.addAttribute("expert", ExpertDTO.fromEntity(expertService.findById(id)));
         return "/pages/admin/expert-approve-detail";
     }

@@ -2,51 +2,171 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <aside th:fragment="sidebar"
-       class="bg-dark d-flex flex-column" style="width: 240px; min-height: 100vh;">
+       class="sidebar bg-dark d-flex flex-column shadow-lg"
+       style="width: 250px; min-height: 100vh; background: linear-gradient(180deg, #1f2937 0%, #111827 100%);">
+
+    <style>
+        .sidebar {
+            color: #e5e7eb;
+        }
+
+        .sidebar .sidebar-brand {
+            color: #f9fafb;
+        }
+
+        .sidebar .sidebar-user-role {
+            color: #9ca3af;
+        }
+
+        .sidebar .sidebar-section-title {
+            color: #6b7280;
+            font-size: 10px;
+            letter-spacing: 0.12em;
+        }
+
+        .sidebar .sidebar-link {
+            color: #d1d5db;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            background: transparent;
+        }
+
+        .sidebar .sidebar-link:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.08);
+            transform: translateX(2px);
+        }
+
+        .sidebar .sidebar-link.active {
+            color: #ffffff;
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.28), rgba(16, 185, 129, 0.12));
+            border-color: rgba(34, 197, 94, 0.35);
+            box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.15);
+        }
+
+        .sidebar .sidebar-link.active .sidebar-link-dot,
+        .sidebar .sidebar-link:hover .sidebar-link-dot {
+            background-color: #22c55e;
+        }
+
+        .sidebar .sidebar-link-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #6b7280;
+            flex-shrink: 0;
+            transition: background-color 0.2s ease;
+        }
+
+        .sidebar .sidebar-logout {
+            color: #fca5a5;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar .sidebar-logout:hover {
+            color: #ffffff;
+            background: rgba(239, 68, 68, 0.18);
+        }
+    </style>
 
     <!-- Logo + User info -->
-    <div class="p-4 border-bottom border-secondary">
-        <a th:href="@{/}" class="fs-5 fw-medium text-success text-decoration-none">ORGO</a>
+    <div class="p-4 border-bottom border-secondary border-opacity-25">
+        <a th:href="@{/}" class="sidebar-brand fs-5 fw-semibold text-decoration-none d-inline-flex align-items-center gap-2">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success text-white fw-semibold" style="width: 34px; height: 34px; font-size: 13px;">O</span>
+            ORGO
+        </a>
         <div class="d-flex align-items-center gap-2 mt-3">
-            <div class="rounded-circle bg-success d-flex align-items-center justify-content-center text-white fw-medium" style="width: 28px; height: 28px; font-size: 11px;"
+            <div class="rounded-circle bg-success d-flex align-items-center justify-content-center text-white fw-semibold"
+                 style="width: 30px; height: 30px; font-size: 12px;"
                  th:text="${#strings.toUpperCase(#strings.substring(session.currentUser,0,1))}">U</div>
             <div>
-                <p class="mb-0 fw-medium text-light" style="font-size: 12px;" th:text="${session.currentUser}"></p>
-                <p class="mb-0 text-secondary text-capitalize" style="font-size: 11px;" th:text="${session.currentRole}"></p>
+                <p class="mb-0 fw-semibold text-light" style="font-size: 12px;" th:text="${session.currentUser}"></p>
+                <p class="mb-0 sidebar-user-role text-capitalize" style="font-size: 11px;" th:text="${session.currentRole}"></p>
             </div>
         </div>
     </div>
 
     <!-- Nav items -->
     <nav class="flex-grow-1 p-3 d-flex flex-column gap-1">
-        <p class="text-secondary fw-medium text-uppercase px-2 pb-1 pt-2 mb-0" style="font-size: 10px; letter-spacing: 0.1em;">Menu</p>
+        <p class="sidebar-section-title fw-semibold text-uppercase px-2 pb-1 pt-2 mb-0">Menu</p>
 
         <!-- Seller -->
         <th:block th:if="${session.currentRole == 'seller'}">
-            <a th:href="@{/seller/dashboard}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Dashboard</a>
-            <a th:href="@{/seller/products}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Sản phẩm</a>
-            <a th:href="@{/seller/orders}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Đơn hàng</a>
+            <a th:href="@{/seller/dashboard}"
+               th:classappend="${activePage == 'dashboard'} ? ' active' : ''"
+               class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none"
+               style="font-size: 13px;">
+                <span class="sidebar-link-dot"></span>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/seller/products}"
+               th:classappend="${activePage == 'products'} ? ' active' : ''"
+               class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none"
+               style="font-size: 13px;">
+                <span class="sidebar-link-dot"></span>
+                <span>Sản phẩm</span>
+            </a>
+            <a th:href="@{/seller/orders}"
+               th:classappend="${activePage == 'orders'} ? ' active' : ''"
+               class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none"
+               style="font-size: 13px;">
+                <span class="sidebar-link-dot"></span>
+                <span>Đơn hàng</span>
+            </a>
         </th:block>
 
         <!-- Admin -->
         <th:block th:if="${session.currentRole == 'admin'}">
-            <a th:href="@{/admin/dashboard}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Dashboard</a>
-            <a th:href="@{/admin/users}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Người dùng</a>
-            <a th:href="@{/admin/products}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Duyệt sản phẩm</a>
+            <a th:href="@{/admin/dashboard}"
+               th:classappend="${activePage == 'dashboard'} ? ' active' : ''"
+               class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none"
+               style="font-size: 13px;">
+                <span class="sidebar-link-dot"></span>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/admin/users}"
+               th:classappend="${activePage == 'users'} ? ' active' : ''"
+               class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none"
+               style="font-size: 13px;">
+                <span class="sidebar-link-dot"></span>
+                <span>Người dùng</span>
+            </a>
+            <a th:href="@{/admin/products}"
+               th:classappend="${activePage == 'products'} ? ' active' : ''"
+               class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none"
+               style="font-size: 13px;">
+                <span class="sidebar-link-dot"></span>
+                <span>Duyệt sản phẩm</span>
+            </a>
         </th:block>
 
         <!-- Expert -->
         <th:block th:if="${session.currentRole == 'expert'}">
-            <a th:href="@{/expert/dashboard}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Dashboard</a>
-            <a th:href="@{/expert/blogs}" class="d-flex align-items-center gap-2 px-3 py-2 rounded text-secondary text-decoration-none" style="font-size: 13px;">Bài viết</a>
+            <a th:href="@{/expert/dashboard}"
+               th:classappend="${activePage == 'dashboard'} ? ' active' : ''"
+               class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none"
+               style="font-size: 13px;">
+                <span class="sidebar-link-dot"></span>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/expert/blogs}"
+               th:classappend="${activePage == 'blogs'} ? ' active' : ''"
+               class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none"
+               style="font-size: 13px;">
+                <span class="sidebar-link-dot"></span>
+                <span>Bài viết</span>
+            </a>
         </th:block>
     </nav>
 
     <!-- Logout -->
-    <div class="p-3 border-top border-secondary">
+    <div class="p-3 border-top border-secondary border-opacity-25">
         <a th:href="@{/logout}"
-           class="d-flex align-items-center gap-2 px-3 py-2 rounded text-danger text-decoration-none" style="font-size: 13px;">
-            Đăng xuất
+           class="sidebar-logout d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none"
+           style="font-size: 13px;">
+            <span class="sidebar-link-dot" style="background: currentColor;"></span>
+            <span>Đăng xuất</span>
         </a>
     </div>
 </aside>

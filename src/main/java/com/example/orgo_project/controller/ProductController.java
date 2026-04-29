@@ -26,6 +26,7 @@ import com.example.orgo_project.entity.Product;
 import com.example.orgo_project.entity.ProductReview;
 import com.example.orgo_project.entity.ProductVariant;
 import com.example.orgo_project.entity.UserProfile;
+import com.example.orgo_project.repository.IProductCategoryRepository;
 import com.example.orgo_project.repository.ISellerRepository;
 import com.example.orgo_project.repository.IUserRepository;
 import com.example.orgo_project.security.CustomUserDetails;
@@ -42,6 +43,9 @@ public class ProductController {
 
     @Autowired
     private ISellerRepository sellerRepository;
+
+    @Autowired
+    private IProductCategoryRepository productCategoryRepository;
 
     // ==================== PUBLIC ====================
 
@@ -166,6 +170,7 @@ public class ProductController {
         if (sellerId == null) return "redirect:/";
 
         Page<Product> products = productService.getProductsBySeller(sellerId, PageRequest.of(page, 10));
+        model.addAttribute("activePage", "products");
         model.addAttribute("products", products);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", products.getTotalPages());
@@ -287,11 +292,31 @@ public class ProductController {
         } else {
             products = productService.getPendingProducts(pageable);
         }
+        model.addAttribute("activePage", "products");
         model.addAttribute("products", products);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", products.getTotalPages());
         model.addAttribute("status", status);
         return "pages/admin/products";
+    }
+
+    @GetMapping("/admin/products/{id}")
+    public String adminProductDetail(@PathVariable Integer id, Model model) {
+        Product product = productService.getProductById(id);
+        if (product == null) return "redirect:/admin/products";
+
+        List<ProductVariant> variants = productService.getVariantsByProduct(id);
+        List<OrganicCertificate> certs = productService.getCertsByProduct(id);
+        Page<ProductReview> reviews = productService.getReviewsByProduct(id, PageRequest.of(0, 10));
+
+        model.addAttribute("activePage", "products");
+        model.addAttribute("product", product);
+        model.addAttribute("variants", variants);
+        model.addAttribute("certs", certs);
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("productShopName", getShopName(product));
+        model.addAttribute("productCategoryName", getCategoryName(product));
+        return "pages/admin/product-detail";
     }
 
     // Duyệt sản phẩm (T023)
@@ -346,6 +371,23 @@ public class ProductController {
     }
 
     // ==================== HELPER ====================
+
+    private String getShopName(Product product) {
+        if (product == null || product.getSellerId() == null) return "Seller";
+        com.example.orgo_project.entity.Seller seller = sellerRepository.findById(product.getSellerId()).orElse(null);
+        if (seller != null && seller.getShopName() != null && !seller.getShopName().isBlank()) {
+            return seller.getShopName();
+        }
+        return "Seller";
+    }
+
+    private String getCategoryName(Product product) {
+        if (product == null || product.getCategoryId() == null) return "Chưa phân loại";
+        return productCategoryRepository.findById(product.getCategoryId())
+                .map(com.example.orgo_project.entity.ProductCategory::getCategoryName)
+                .filter(name -> name != null && !name.isBlank())
+                .orElse("Chưa phân loại");
+    }
 
     private Integer getSellerIdFromUser(CustomUserDetails userDetails) {
         if (userDetails == null) return null;
