@@ -9,8 +9,9 @@ version = '0.0.1-SNAPSHOT'
 description = 'orgo_project'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_22
-    targetCompatibility = JavaVersion.VERSION_22
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 repositories {

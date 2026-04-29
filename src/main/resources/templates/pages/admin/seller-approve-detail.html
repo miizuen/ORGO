@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Chi tiết Seller</title>
+    <style>
+        /* Page-specific only */
+
+        /* Hero banner */
+        .hero-card {
+            background: linear-gradient(135deg, #f0faf0 0%, #e8f5e9 100%);
+            border-radius: 16px;
+            padding: 24px 28px;
+            display: flex;
+            align-items: flex-start;
+            gap: 22px;
+            margin-bottom: 26px;
+            border: 1px solid #c8e6c9;
+        }
+
+        .hero-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 14px;
+            background: var(--color-primary);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero-logo-placeholder {
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            padding: 10px;
+            line-height: 1.3;
+        }
+
+        .hero-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .hero-desc {
+            font-size: 13px;
+            color: var(--color-text-muted);
+            line-height: 1.6;
+        }
+
+        /* Two-col layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 22px;
+            margin-bottom: 22px;
+        }
+
+        .section-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-card);
+            padding: 22px;
+        }
+
+        .section-card h3 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Compliance */
+        .compliance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .cert-card {
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .cert-card .cert-name {
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .cert-card .cert-id {
+            font-size: 11px;
+            color: var(--color-text-faint);
+            margin-top: 3px;
+        }
+
+        .cert-card .cert-link {
+            font-size: 11px;
+            color: var(--color-primary);
+            font-weight: 600;
+            margin-top: 10px;
+            display: block;
+            cursor: pointer;
+        }
+
+        /* File row */
+        .file-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid #eee;
+            margin-top: 10px;
+        }
+
+        .file-row .file-icon {
+            font-size: 20px;
+        }
+
+        .file-row .file-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .file-row .file-meta {
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .file-row .dl-icon {
+            margin-left: auto;
+            font-size: 16px;
+            color: #888;
+            cursor: pointer;
+        }
+
+        /* Progress timeline */
+        .progress-item {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .progress-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .prog-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .prog-dot.done {
+            background: var(--color-primary);
+            color: #fff;
+        }
+
+        .prog-dot.pending {
+            background: #eee;
+            border: 2px solid #ddd;
+        }
+
+        .prog-info .prog-label {
+            font-size: 9px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .prog-info .prog-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .prog-info .prog-meta {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+
+        .prog-line {
+            width: 2px;
+            height: 20px;
+            background: #e0e0e0;
+            margin-left: 9px;
+            margin-bottom: 4px;
+        }
+
+        .prog-line.green {
+            background: var(--color-primary);
+        }
+
+        /* Map section */
+        .map-section {
+            background: var(--color-surface);
+            border-radius: var(--radius-card);
+            padding: 22px;
+            margin-bottom: 22px;
+        }
+
+        .map-section h3 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .map-placeholder {
+            background: #c8e6c9;
+            border-radius: 12px;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-grid {
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, .05) 0, rgba(0, 0, 0, .05) 1px, transparent 1px, transparent 40px), repeating-linear-gradient(90deg, rgba(0, 0, 0, .05) 0, rgba(0, 0, 0, .05) 1px, transparent 1px, transparent 60px);
+        }
+
+        .map-roads {
+            position: absolute;
+            top: 40%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(255, 255, 255, .7);
+        }
+
+        .map-roads2 {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 30%;
+            width: 2px;
+            background: rgba(255, 255, 255, .7);
+        }
+
+        .map-pin {
+            font-size: 32px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .map-label {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+        }
+
+        /* Notes + actions */
+        .notes-section {
+            background: var(--color-surface);
+            border-radius: var(--radius-card);
+            padding: 22px;
+        }
+
+        .notes-section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .notes-sub {
+            font-size: 12px;
+            color: var(--color-text-faint);
+            margin-bottom: 12px;
+        }
+
+        .notes-textarea {
+            width: 100%;
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 13px;
+            font-family: var(--font-body);
+            color: var(--color-text-muted);
+            resize: none;
+            height: 80px;
+            outline: none;
+        }
+
+        .action-row {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .action-row button {
+            border-radius: var(--radius-btn);
+            padding: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: var(--font-body);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
+
+        .btn-approve {
+            background: var(--color-primary);
+            color: #fff;
+            border: none;
+            transition: background .15s;
+        }
+
+        .btn-approve:hover {
+            background: var(--color-primary-dark);
+        }
+
+        .btn-clarify {
+            background: #fff;
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-reject {
+            background: #fff;
+            color: var(--color-danger);
+            border: 2px solid #e57373;
+        }
+
+        .action-note {
+            text-align: center;
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div th:replace="~{fragments/admin-layout :: adminLayout('Chi tiết Seller', 'seller', ~{::main})}">
+        <main>
+            <div class="adm-breadcrumb">
+                <a th:href="@{/admin/seller-pending-list}">← Quay lại danh sách</a>
+                <span>/</span>
+                <span th:text="'ĐƠN #GVF-' + ${seller.id}">ĐƠN #GVF-2024</span>
+            </div>
+
+            <!-- Hero -->
+            <div class="hero-card">
+                <div>
+                    <span class="badge-orange" th:text="${seller.status}">Đang xem xét</span>
+                    <div class="hero-title" th:text="${seller.shopName}">Green Valley Organic</div>
+                    <div class="hero-desc" th:text="${seller.shopDescription != null ? seller.shopDescription : 'Chưa có mô tả'}"></div>
+                </div>
+            </div>
+
+            <!-- Two-col -->
+            <div class="two-col">
+                <div class="section-card">
+                    <h3>📋 Tuân thủ quy định</h3>
+                    <div class="compliance-grid">
+                        <div class="cert-card">
+                            <span class="badge-green" style="float:right">VALID</span>
+                            <div style="font-size:22px;margin-top:4px">🌿</div>
+                            <div class="cert-name">USDA Organic</div>
+                            <div class="cert-id">Cert #882-192-A</div>
+                            <a class="cert-link">XEM TÀI LIỆU →</a>
+                        </div>
+                        <div class="cert-card">
+                            <span class="badge-green" style="float:right">VALID</span>
+                            <div style="font-size:22px;margin-top:4px">✅</div>
+                            <div class="cert-name">VietGAP Certificate</div>
+                            <div class="cert-id">Registration VG-2023-01</div>
+                            <a class="cert-link">XEM TÀI LIỆU →</a>
+                        </div>
+                    </div>
+                    <div class="file-row">
+                        <span class="file-icon">📄</span>
+                        <div>
+                            <div class="file-name">Giay_Phep_Kinh_Doanh_GVF.pdf</div>
+                            <div class="file-meta">Uploaded Jan 12, 2024 • 4.2 MB</div>
+                        </div>
+                        <span class="dl-icon">⬇</span>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Tiến trình xử lý</h3>
+                    <div class="progress-item">
+                        <div>
+                            <div class="prog-dot done">✓</div>
+                            <div class="prog-line green"></div>
+                        </div>
+                        <div class="prog-info">
+                            <div class="prog-label">NỘP ĐƠN</div>
+                            <div class="prog-title">Application Received</div>
+                            <div class="prog-meta">Jan 12, 2024 • 09:45 AM</div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div>
+                            <div class="prog-dot done">✓</div>
+                            <div class="prog-line green"></div>
+                        </div>
+                        <div class="prog-info">
+                            <div class="prog-label">XÁC MINH DANH TÍNH</div>
+                            <div class="prog-title">Identity &amp; Legal Pass</div>
+                            <div class="prog-meta">Jan 14, 2024 • 02:20 PM</div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div>
+                            <div class="prog-dot done" style="background:var(--color-warning)">●</div>
+                            <div class="prog-line"></div>
+                        </div>
+                        <div class="prog-info">
+                            <div class="prog-label">ĐANG XEM XÉT</div>
+                            <div class="prog-title">Compliance Audit</div>
+                            <div class="prog-meta">Bắt đầu Jan 15, 2024</div>
+                        </div>
+                    </div>
+                    <div class="progress-item" style="opacity:.5">
+                        <div>
+                            <div class="prog-dot pending"></div>
+                        </div>
+                        <div class="prog-info">
+                            <div class="prog-label">QUYẾT ĐỊNH CUỐI CÙNG</div>
+                            <div class="prog-title">Pending Approval</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="map-section">
+                <h3>📍 Trung tâm điều hành nông trại</h3>
+                <div class="map-placeholder">
+                    <div class="map-grid"></div>
+                    <div class="map-roads"></div>
+                    <div class="map-roads2"></div>
+                    <div class="map-pin">📍</div>
+                    <div class="map-label">Plot 12, Ward 7, Đà Lạt, Lâm Đồng</div>
+                </div>
+            </div>
+
+            <!-- Notes + Actions -->
+            <div class="notes-section">
+                <h3>Ghi chú của người kiểm duyệt</h3>
+                <div class="notes-sub">Phản hồi của người đánh giá (Gửi cho Seller nếu bị từ chối)</div>
+                <textarea class="notes-textarea"
+                    placeholder="Hãy đưa ra phản hồi chi tiết về những điểm cần điều chỉnh..."></textarea>
+                <div class="action-row">
+                    <form th:action="@{/admin/seller-pending-list/approve}" method="post">
+                        <input type="hidden" name="id" th:value="${seller.id}" />
+                        <button type="submit" class="btn-approve" style="width: 100%;">Xác nhận và kích hoạt</button>
+                    </form>
+                    <button class="btn-clarify">Yêu cầu làm rõ</button>
+                    <form th:action="@{/admin/seller-pending-list/reject}" method="post">
+                        <input type="hidden" name="id" th:value="${seller.id}" />
+                        <button type="submit" class="btn-reject" style="width: 100%;">Từ chối</button>
+                    </form>
+                </div>
+                <div class="action-note">Khi phê duyệt, Seller sẽ được liệt kê trên sàn và nhận thông báo qua email.
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+
+</html>

@@ -36,8 +36,8 @@ public class WebSecurityConfig {
                 .requestMatchers("/seller/**").hasRole("SELLER")
                 .requestMatchers("/expert/**").hasRole("EXPERT")
                 .requestMatchers("/buyer/**").hasRole("BUYER")
-                // Cấp quyền cho user cơ bản
-                .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER")
+                // FIX: Cho phép USER, SELLER, EXPERT vào /user/** (để xem lại form đăng ký)
+                .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER", "SELLER", "EXPERT")
                 // Các đường dẫn cho phép public
                 .requestMatchers("/login", "/register", "/forgot-password", "/verify-otp", "/reset-password", "/guest-login").permitAll()
                 .requestMatchers("/", "/welcome", "/search", "/products", "/products/**", "/blog", "/blog/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "/webjars/**").permitAll()
@@ -59,6 +59,9 @@ public class WebSecurityConfig {
                             .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_EXPERT"));
                     boolean isBuyer = authentication.getAuthorities().stream()
                             .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_BUYER"));
+                    // FIX: Thêm check cho ROLE_USER
+                    boolean isUser = authentication.getAuthorities().stream()
+                            .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_USER"));
 
                     // Set session cho layout sidebar
                     jakarta.servlet.http.HttpSession session = request.getSession();
@@ -76,6 +79,8 @@ public class WebSecurityConfig {
                     } else if (isBuyer) {
                         session.setAttribute("currentRole", "buyer");
                         response.sendRedirect("/buyer/dashboard");
+                    } else if (isUser) {
+                        response.sendRedirect("/"); // USER về trang chủ
                     } else {
                         session.setAttribute("currentRole", "user");
                         response.sendRedirect("/");
@@ -99,7 +104,6 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-    // SpringSecurityDialect là một thành phần tích hợp giữa Spring Security và Thymeleaf
     @Bean
     public SpringSecurityDialect springSecurityDialect() {
         return new SpringSecurityDialect();

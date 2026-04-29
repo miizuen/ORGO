@@ -1,11 +1,6 @@
 package com.example.orgo_project.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,4 +48,8 @@ public class Seller {
 
     @Column(name = "mo_ta_shop", columnDefinition = "NVARCHAR(MAX)")
     private String shopDescription;
+
+    @ManyToOne
+    @JoinColumn(name="id_tai_khoan")
+    private Account account;
 }
