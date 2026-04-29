@@ -344,6 +344,11 @@
                class="adm-nav-item">
                 <span class="icon">👥</span> Người dùng
             </a>
+            <a th:href="@{/admin/products}"
+               th:classappend="${activePage == 'products'} ? 'active' : ''"
+               class="adm-nav-item">
+                <span class="icon">🥑</span> Duyệt sản phẩm
+            </a>
             <a th:href="@{/admin/seller-pending-list}"
                th:classappend="${activePage == 'seller'} ? 'active' : ''"
                class="adm-nav-item">

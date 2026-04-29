@@ -27,17 +27,20 @@ public class HomeController {
     }
 
     @GetMapping("seller/dashboard")
-    public String showSellerDashboard() {
+    public String showSellerDashboard(Model model) {
+        model.addAttribute("activePage", "dashboard");
         return "pages/seller/dashboard";
     }
 
     @GetMapping("expert/dashboard")
-    public String showExpertDashboard() {
+    public String showExpertDashboard(Model model) {
+        model.addAttribute("activePage", "dashboard");
         return "pages/expert/dashboard";
     }
 
     @GetMapping("buyer/dashboard")
-    public String showBuyerDashboard() {
+    public String showBuyerDashboard(Model model) {
+        model.addAttribute("activePage", "dashboard");
         return "pages/buyer/dashboard";
     }
     @GetMapping("logout")
