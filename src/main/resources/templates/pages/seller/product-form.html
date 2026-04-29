@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Thêm/Sửa sản phẩm - Seller', ~{::#product-form})}">
+<body>
+<div id="product-form">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a th:href="@{/seller/products}" class="btn btn-outline-secondary btn-sm rounded-3">← Quay lại</a>
+        <h1 class="fs-3 fw-bold text-dark mb-0"
+            th:text="${action == 'new'} ? 'Thêm sản phẩm mới' : 'Chỉnh sửa sản phẩm'">Form sản phẩm</h1>
+    </div>
+
+    <div class="bg-white rounded-4 shadow-sm p-4">
+        <form th:action="${action == 'new'} ? @{/seller/products/new} : @{/seller/products/{id}/edit(id=${product.id})}"
+              method="post" enctype="multipart/form-data">
+
+            <!-- Thông tin cơ bản -->
+            <h5 class="fw-bold mb-3 text-success">📋 Thông tin cơ bản</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <label class="fw-semibold mb-1">Tên sản phẩm <span class="text-danger">*</span></label>
+                    <input type="text" name="productName" th:value="${product.productName}"
+                           class="form-control rounded-3" placeholder="VD: Rau cải hữu cơ Đà Lạt" required/>
+                </div>
+                <div class="col-md-6">
+                    <label class="fw-semibold mb-1">Danh mục</label>
+                    <select name="categoryId" class="form-select rounded-3">
+                        <option value="">-- Chọn danh mục --</option>
+                        <option th:each="cat : ${categories}"
+                                th:value="${cat.id}"
+                                th:text="${cat.categoryName}"
+                                th:selected="${product.categoryId != null and product.categoryId == cat.id}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="fw-semibold mb-1">Nguồn gốc</label>
+                    <input type="text" name="origin" th:value="${product.origin}"
+                           class="form-control rounded-3" placeholder="VD: Đà Lạt, Lâm Đồng"/>
+                </div>
+                <div class="col-12">
+                    <label class="fw-semibold mb-1">Mô tả ngắn</label>
+                    <input type="text" name="shortDescription" th:value="${product.shortDescription}"
+                           class="form-control rounded-3" placeholder="Mô tả ngắn gọn về sản phẩm"/>
+                </div>
+                <div class="col-12">
+                    <label class="fw-semibold mb-1">Mô tả chi tiết</label>
+                    <textarea name="detailedDescription" rows="4" class="form-control rounded-3"
+                              placeholder="Mô tả đầy đủ về sản phẩm..."
+                              th:text="${product.detailedDescription}"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="fw-semibold mb-1">Thành phần</label>
+                    <textarea name="ingredients" rows="3" class="form-control rounded-3"
+                              placeholder="Liệt kê thành phần..."
+                              th:text="${product.ingredients}"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="fw-semibold mb-1">Lợi ích sức khỏe</label>
+                    <textarea name="healthBenefits" rows="3" class="form-control rounded-3"
+                              placeholder="Lợi ích sức khỏe..."
+                              th:text="${product.healthBenefits}"></textarea>
+                </div>
+                <div class="col-12">
+                    <label class="fw-semibold mb-1">Hướng dẫn sử dụng</label>
+                    <textarea name="usageInstructions" rows="2" class="form-control rounded-3"
+                              placeholder="Cách sử dụng, bảo quản..."
+                              th:text="${product.usageInstructions}"></textarea>
+                </div>
+            </div>
+
+            <!-- Upload ảnh -->
+            <h5 class="fw-bold mb-3 text-success">🖼️ Hình ảnh sản phẩm</h5>
+            <div class="mb-4">
+                <div class="border-2 border-dashed rounded-3 p-4 text-center bg-light" style="border: 2px dashed #dee2e6;">
+                    <div class="mb-2">📷</div>
+                    <input type="file" name="imageFile" accept="image/*" class="form-control rounded-3"
+                           onchange="previewImage(this)"/>
+                    <p class="text-secondary small mt-2 mb-0">PNG, JPG tối đa 5MB</p>
+                </div>
+                <div id="imagePreview" class="mt-3" style="display:none;">
+                    <img id="previewImg" src="" alt="Preview" class="rounded-3" style="max-height:200px;"/>
+                </div>
+                <!-- Hiện ảnh cũ nếu có -->
+                <div th:if="${product.slug != null}" class="mt-2">
+                    <span class="text-secondary small">Ảnh hiện tại:</span>
+                    <img th:src="${product.slug}" class="rounded-3 ms-2" style="height:60px;"/>
+                </div>
+            </div>
+
+            <!-- Chứng nhận hữu cơ -->
+            <h5 class="fw-bold mb-3 text-success">🏅 Chứng nhận hữu cơ</h5>
+
+            <div id="certContainer" class="mb-4">
+
+                <!-- Chứng nhận hiện có (khi edit) -->
+                <div th:each="cert, stat : ${certs}" class="bg-white border rounded-3 p-3 mb-3 cert-row">
+                    <!-- Hidden input để giữ lại cert này khi submit -->
+                    <input type="hidden" name="keepCertIds" th:value="${cert.id}"/>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-semibold mb-1">Tên chứng nhận</label>
+                            <input type="text" name="certNames" class="form-control rounded-3 form-control-sm"
+                                   th:value="${cert.certificateName}"/>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold mb-1">Tổ chức cấp</label>
+                            <input type="text" name="certOrgs" class="form-control rounded-3 form-control-sm"
+                                   th:value="${cert.issuingOrganization}"/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">Ngày cấp</label>
+                            <input type="text" name="certDates" class="form-control rounded-3 form-control-sm"
+                                   th:value="${#temporals.format(cert.issuedAt, 'yyyy-MM-dd')}"/>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-danger btn-sm rounded-3 w-100"
+                                    onclick="removeCert(this)">✕</button>
+                        </div>
+                    </div>
+                    <label class="form-label small fw-semibold mb-1">Ảnh chứng nhận</label>
+                    <div class="border rounded-3 p-4 text-center bg-light" style="border: 2px dashed #dee2e6 !important;">
+                        <div class="mb-2">📷</div>
+                        <input type="file" name="certFiles" accept="image/*"
+                               class="form-control rounded-3"
+                               onchange="previewCertImage(this)"/>
+                        <p class="text-secondary small mt-2 mb-0">PNG, JPG tối đa 5MB</p>
+                    </div>
+                    <!-- Ảnh hiện tại -->
+                    <div class="mt-2" th:if="${cert.attachmentFile != null}">
+                        <span class="text-secondary small">Ảnh hiện tại:</span>
+                        <img th:src="${cert.attachmentFile}" class="rounded-3 ms-2 d-block mt-1" style="max-height:200px;"/>
+                    </div>
+                    <div class="cert-preview mt-3" style="display:none;">
+                        <img src="" alt="Preview" class="rounded-3" style="max-height:200px;"/>
+                    </div>
+                </div>
+
+                <!-- Form trống mặc định (luôn hiện, dùng cho sản phẩm chưa có chứng nhận) -->
+                <div class="bg-white border rounded-3 p-3 mb-3 cert-row">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-semibold mb-1">Tên chứng nhận</label>
+                            <input type="text" name="certNames" class="form-control rounded-3 form-control-sm"
+                                   placeholder="VD: USDA Organic, VietGAP..."/>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold mb-1">Tổ chức cấp</label>
+                            <input type="text" name="certOrgs" class="form-control rounded-3 form-control-sm"
+                                   placeholder="VD: Bộ Nông nghiệp..."/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">Ngày cấp</label>
+                            <input type="date" name="certDates" class="form-control rounded-3 form-control-sm"/>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-danger btn-sm rounded-3 w-100"
+                                    onclick="removeCert(this)">✕</button>
+                        </div>
+                    </div>
+                    <label class="form-label small fw-semibold mb-1">Ảnh chứng nhận</label>
+                    <div class="border rounded-3 p-4 text-center bg-light" style="border: 2px dashed #dee2e6 !important;">
+                        <div class="mb-2">📷</div>
+                        <input type="file" name="certFiles" accept="image/*"
+                               class="form-control rounded-3"
+                               onchange="previewCertImage(this)"/>
+                        <p class="text-secondary small mt-2 mb-0">PNG, JPG tối đa 5MB</p>
+                    </div>
+                    <div class="cert-preview mt-3" style="display:none;">
+                        <img src="" alt="Preview" class="rounded-3" style="max-height:200px;"/>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Nút thêm chứng nhận đã bị xóa -->
+
+
+            <!-- Phân loại (Variants) -->
+            <h5 class="fw-bold mb-3 text-success">📦 Phân loại sản phẩm</h5>
+            <div id="variantContainer" class="mb-4">
+                <div th:each="v, stat : ${variants}" class="row g-2 mb-2 variant-row">
+                    <div class="col-md-5">
+                        <input type="text" name="variantNames" th:value="${v.variantName}"
+                               class="form-control rounded-3" placeholder="VD: 500g, 1kg"/>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" name="variantPrices" th:value="${v.originalPrice != null ? v.originalPrice.intValue() : ''}"
+                               class="form-control rounded-3" placeholder="Giá (đ)" min="0"/>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" name="variantStocks" th:value="${v.stockQuantity}"
+                               class="form-control rounded-3" placeholder="Tồn kho" min="0"/>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-outline-danger rounded-3 w-100"
+                                onclick="removeVariant(this)">✕</button>
+                    </div>
+                </div>
+                <!-- Default empty row if no variants -->
+                <div th:if="${#lists.isEmpty(variants)}" class="row g-2 mb-2 variant-row">
+                    <div class="col-md-5">
+                        <input type="text" name="variantNames" class="form-control rounded-3" placeholder="VD: 500g, 1kg"/>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" name="variantPrices" class="form-control rounded-3" placeholder="Giá (đ)" min="0"/>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" name="variantStocks" class="form-control rounded-3" placeholder="Tồn kho" min="0"/>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-outline-danger rounded-3 w-100"
+                                onclick="removeVariant(this)">✕</button>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-success btn-sm rounded-3 mb-4" onclick="addVariant()">
+                + Thêm phân loại
+            </button>
+
+            <!-- Submit -->
+            <div class="d-flex gap-3 pt-3 border-top">
+                <button type="submit" class="btn btn-success fw-bold px-5 rounded-3">
+                    <span th:text="${action == 'new'} ? 'Gửi duyệt' : 'Lưu thay đổi'">Lưu</span>
+                </button>
+                <a th:href="@{/seller/products}" class="btn btn-outline-secondary px-4 rounded-3">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function addVariant() {
+    var container = document.getElementById('variantContainer');
+    var row = document.createElement('div');
+    row.className = 'row g-2 mb-2 variant-row';
+
+    var col1 = document.createElement('div');
+    col1.className = 'col-md-5';
+    var input1 = document.createElement('input');
+    input1.type = 'text';
+    input1.name = 'variantNames';
+    input1.className = 'form-control rounded-3';
+    input1.placeholder = 'VD: 500g, 1kg';
+    col1.appendChild(input1);
+
+    var col2 = document.createElement('div');
+    col2.className = 'col-md-3';
+    var input2 = document.createElement('input');
+    input2.type = 'number';
+    input2.name = 'variantPrices';
+    input2.className = 'form-control rounded-3';
+    input2.placeholder = 'Giá (đ)';
+    input2.min = '0';
+    col2.appendChild(input2);
+
+    var col3 = document.createElement('div');
+    col3.className = 'col-md-3';
+    var input3 = document.createElement('input');
+    input3.type = 'number';
+    input3.name = 'variantStocks';
+    input3.className = 'form-control rounded-3';
+    input3.placeholder = 'Tồn kho';
+    input3.min = '0';
+    col3.appendChild(input3);
+
+    var col4 = document.createElement('div');
+    col4.className = 'col-md-1';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-outline-danger rounded-3 w-100';
+    btn.textContent = '✕';
+    btn.onclick = function() { removeVariant(this); };
+    col4.appendChild(btn);
+
+    row.appendChild(col1);
+    row.appendChild(col2);
+    row.appendChild(col3);
+    row.appendChild(col4);
+    container.appendChild(row);
+}
+
+function removeVariant(btn) {
+    var row = btn.closest('.variant-row');
+    if (row) row.remove();
+}
+
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('imagePreview').style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function removeCert(btn) {
+    var row = btn.closest('.cert-row');
+    if (row) {
+        row.remove();
+    } else {
+        // fallback: xóa parent gần nhất có border
+        var parent = btn.parentElement;
+        while (parent && !parent.classList.contains('cert-row')) {
+            parent = parent.parentElement;
+        }
+        if (parent) parent.remove();
+    }
+}
+
+function previewCertImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        var previewDiv = input.closest('.cert-row').querySelector('.cert-preview');
+        var previewImg = previewDiv.querySelector('img');
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewDiv.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+</body>
+</html>

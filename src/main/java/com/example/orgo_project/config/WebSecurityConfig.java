@@ -40,7 +40,8 @@ public class WebSecurityConfig {
                 .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER", "SELLER", "EXPERT")
                 // Các đường dẫn cho phép public
                 .requestMatchers("/login", "/register", "/forgot-password", "/verify-otp", "/reset-password", "/guest-login").permitAll()
-                .requestMatchers("/", "/welcome", "/search", "/products", "/products/**", "/blog", "/blog/**", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/", "/welcome", "/search", "/products", "/products/**", "/blog", "/blog/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "/webjars/**").permitAll()
+                .requestMatchers("/reviews/add").authenticated()
                 // Bất kỳ request nào khác đều bắt buộc đăng nhập
                 .anyRequest().authenticated()
         );
@@ -62,17 +63,26 @@ public class WebSecurityConfig {
                     boolean isUser = authentication.getAuthorities().stream()
                             .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_USER"));
 
+                    // Set session cho layout sidebar
+                    jakarta.servlet.http.HttpSession session = request.getSession();
+                    session.setAttribute("currentUser", authentication.getName());
+
                     if (isAdmin) {
+                        session.setAttribute("currentRole", "admin");
                         response.sendRedirect("/admin/dashboard");
                     } else if (isSeller) {
+                        session.setAttribute("currentRole", "seller");
                         response.sendRedirect("/seller/dashboard");
                     } else if (isExpert) {
+                        session.setAttribute("currentRole", "expert");
                         response.sendRedirect("/expert/dashboard");
                     } else if (isBuyer) {
+                        session.setAttribute("currentRole", "buyer");
                         response.sendRedirect("/buyer/dashboard");
                     } else if (isUser) {
                         response.sendRedirect("/"); // USER về trang chủ
                     } else {
+                        session.setAttribute("currentRole", "user");
                         response.sendRedirect("/");
                     }
                 })

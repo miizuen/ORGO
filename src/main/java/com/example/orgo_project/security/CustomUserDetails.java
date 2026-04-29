@@ -32,6 +32,10 @@ public class CustomUserDetails implements UserDetails {
         return account.getUsername();
     }
 
+    public Account getAccount() {
+        return account;
+    }
+
     public String getFullName() {
         if (account.getUser() != null && account.getUser().getFullName() != null) {
             return account.getUser().getFullName();
