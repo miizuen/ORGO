@@ -25,26 +25,26 @@ public class AdminArticleController {
         if (status == ArticleStatus.PENDING) {
             articles = articleService.getPendingArticles(pageable);
         } else {
-            articles = articleService.getPublicArticles(null, null, pageable);
+            articles = articleService.getPublicArticles(null, pageable);
         }
         return ResponseEntity.ok(articles);
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ArticleResponse> getArticle(@PathVariable Long id) {
+    public ResponseEntity<ArticleResponse> getArticle(@PathVariable Integer id) {
         ArticleResponse response = articleService.getArticleById(id);
         return ResponseEntity.ok(response);
     }
     
     @PutMapping("/{id}/approve")
-    public ResponseEntity<ArticleResponse> approveArticle(@PathVariable Long id) {
+    public ResponseEntity<ArticleResponse> approveArticle(@PathVariable Integer id) {
         ArticleResponse response = articleService.approveArticle(id);
         return ResponseEntity.ok(response);
     }
     
     @PutMapping("/{id}/reject")
     public ResponseEntity<ArticleResponse> rejectArticle(
-            @PathVariable Long id,
+            @PathVariable Integer id,
             @RequestBody ApprovalRequest request) {
         ArticleResponse response = articleService.rejectArticle(id, request.getNote());
         return ResponseEntity.ok(response);

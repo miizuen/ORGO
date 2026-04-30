@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Chi tiết sản phẩm - ORGO', ~{::#product-detail})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div id="product-detail" class="min-vh-100 bg-light text-dark">
+    <main class="container py-5">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-success">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="/products" class="text-decoration-none text-success">Sản phẩm</a></li>
+                <li class="breadcrumb-item active text-success fw-medium" aria-current="page">Chi tiết sản phẩm</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4">
+            <!-- Product Images -->
+            <div class="col-12 col-lg-6">
+                <div class="bg-white rounded-4 p-4 shadow-sm border border-light">
+                    <!-- Main Image -->
+                    <div class="mb-3 position-relative" style="aspect-ratio: 1/1; overflow: hidden; border-radius: 16px;">
+                        <img id="mainImage" 
+                             src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800" 
+                             alt="Product" 
+                             class="w-100 h-100 object-fit-cover"/>
+                        <div class="position-absolute top-0 start-0 m-3">
+                            <span class="badge bg-success px-3 py-2 rounded-pill">Hữu cơ</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Thumbnail Images -->
+                    <div class="d-flex gap-2 overflow-auto">
+                        <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=200" 
+                             class="rounded-3 border border-2 border-success" 
+                             style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
+                             onclick="changeMainImage(this.src)"/>
+                        <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=200" 
+                             class="rounded-3 border border-light" 
+                             style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
+                             onclick="changeMainImage(this.src)"/>
+                        <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=200" 
+                             class="rounded-3 border border-light" 
+                             style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
+                             onclick="changeMainImage(this.src)"/>
+                        <img src="https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=200" 
+                             class="rounded-3 border border-light" 
+                             style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
+                             onclick="changeMainImage(this.src)"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="col-12 col-lg-6">
+                <div class="bg-white rounded-4 p-4 shadow-sm border border-light h-100">
+                    <!-- Product Title -->
+                    <h1 class="display-6 fw-bold mb-2">Rau cải hữu cơ Đà Lạt - Chuẩn GlobalGAP</h1>
+                    
+                    <!-- Rating & Reviews -->
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="text-warning">★★★★★</span>
+                            <span class="fw-semibold">4.8</span>
+                        </div>
+                        <span class="text-secondary">|</span>
+                        <a href="#reviews" class="text-decoration-none text-success">156 đánh giá</a>
+                        <span class="text-secondary">|</span>
+                        <span class="text-secondary">Đã bán 1.2k</span>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="bg-light rounded-3 p-3 mb-4">
+                        <div class="d-flex align-items-baseline gap-2">
+                            <span class="display-5 fw-bold text-success">45.000đ</span>
+                            <span class="text-secondary text-decoration-line-through">60.000đ</span>
+                            <span class="badge bg-danger">-25%</span>
+                        </div>
+                        <p class="text-secondary mb-0 small mt-1">Giá / 500g</p>
+                    </div>
+
+                    <!-- Seller Info -->
+                    <div class="d-flex align-items-center gap-3 mb-4 pb-4 border-bottom">
+                        <img src="https://ui-avatars.com/api/?name=DaLat+Farm&background=4CAF50&color=fff" 
+                             alt="Seller" 
+                             class="rounded-circle" 
+                             style="width: 48px; height: 48px;"/>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold">DaLat Farm</div>
+                            <div class="small text-secondary">Còn 124kg</div>
+                        </div>
+                        <button class="btn btn-outline-success rounded-pill px-4">
+                            <i data-lucide="store" style="width: 16px; height: 16px;"></i>
+                            Xem shop
+                        </button>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="mb-4">
+                        <label class="fw-semibold mb-2 d-block">Số lượng</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-secondary" onclick="decreaseQty()">
+                                    <i data-lucide="minus" style="width: 16px; height: 16px;"></i>
+                                </button>
+                                <input type="number" id="quantity" value="1" min="1" 
+                                       class="form-control text-center" 
+                                       style="width: 80px; border-left: 0; border-right: 0;"/>
+                                <button type="button" class="btn btn-outline-secondary" onclick="increaseQty()">
+                                    <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                                </button>
+                            </div>
+                            <span class="text-secondary">Còn lại: 248 gói</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3 mb-4">
+                        <button class="btn btn-outline-success btn-lg rounded-pill px-4 flex-grow-1">
+                            <i data-lucide="shopping-cart" style="width: 20px; height: 20px;"></i>
+                            Thêm vào giỏ
+                        </button>
+                        <button class="btn btn-success btn-lg rounded-pill px-5 flex-grow-1">
+                            Mua ngay
+                        </button>
+                    </div>
+
+                    <!-- Features -->
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 text-secondary">
+                                <i data-lucide="truck" style="width: 20px; height: 20px;" class="text-success"></i>
+                                <span class="small">Miễn phí vận chuyển</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 text-secondary">
+                                <i data-lucide="shield-check" style="width: 20px; height: 20px;" class="text-success"></i>
+                                <span class="small">Đảm bảo chất lượng</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 text-secondary">
+                                <i data-lucide="refresh-cw" style="width: 20px; height: 20px;" class="text-success"></i>
+                                <span class="small">Đổi trả trong 7 ngày</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2 text-secondary">
+                                <i data-lucide="award" style="width: 20px; height: 20px;" class="text-success"></i>
+                                <span class="small">Chứng nhận hữu cơ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Details Tabs -->
+        <div class="bg-white rounded-4 p-4 shadow-sm border border-light mt-4">
+            <ul class="nav nav-tabs border-0 mb-4" id="productTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-semibold" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab">
+                        Mô tả sản phẩm
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-semibold" id="specs-tab" data-bs-toggle="tab" data-bs-target="#specs" type="button" role="tab">
+                        Thông số
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-semibold" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
+                        Đánh giá (156)
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="productTabsContent">
+                <!-- Description Tab -->
+                <div class="tab-pane fade show active" id="description" role="tabpanel">
+                    <h3 class="fw-bold mb-3">Về sản phẩm này</h3>
+                    <p class="text-secondary mb-4">
+                        Rau cải hữu cơ được trồng tại Đà Lạt với quy trình canh tác hoàn toàn tự nhiên, 
+                        không sử dụng thuốc trừ sâu hay phân bón hóa học. Sản phẩm đạt chứng nhận GlobalGAP 
+                        và được thu hoạch vào buổi sáng sớm để đảm bảo độ tươi ngon tối đa.
+                    </p>
+                    
+                    <h4 class="fw-bold mb-3">Lợi ích sức khỏe</h4>
+                    <ul class="text-secondary">
+                        <li>Giàu vitamin A, C, K và các khoáng chất thiết yếu</li>
+                        <li>Chứa nhiều chất xơ, tốt cho hệ tiêu hóa</li>
+                        <li>Chất chống oxy hóa cao, giúp tăng cường miễn dịch</li>
+                        <li>Hỗ trợ giảm cân và kiểm soát đường huyết</li>
+                    </ul>
+
+                    <h4 class="fw-bold mb-3 mt-4">Hướng dẫn sử dụng</h4>
+                    <p class="text-secondary">
+                        Rửa sạch dưới vòi nước, có thể dùng ngay hoặc chế biến thành các món xào, luộc, 
+                        nấu canh. Bảo quản trong ngăn mát tủ lạnh, sử dụng trong vòng 3-5 ngày.
+                    </p>
+                </div>
+
+                <!-- Specs Tab -->
+                <div class="tab-pane fade" id="specs" role="tabpanel">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td class="fw-semibold" style="width: 200px;">Xuất xứ</td>
+                                <td class="text-secondary">Đà Lạt, Lâm Đồng</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold">Trọng lượng</td>
+                                <td class="text-secondary">500g / gói</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold">Chứng nhận</td>
+                                <td class="text-secondary">GlobalGAP, VietGAP</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold">Hạn sử dụng</td>
+                                <td class="text-secondary">3-5 ngày (bảo quản lạnh)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold">Thương hiệu</td>
+                                <td class="text-secondary">DaLat Farm</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold">Phương thức canh tác</td>
+                                <td class="text-secondary">100% hữu cơ, không hóa chất</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Reviews Tab -->
+                <div class="tab-pane fade" id="reviews" role="tabpanel">
+                    <div class="row g-4">
+                        <div class="col-12 col-md-4">
+                            <div class="text-center p-4 bg-light rounded-3">
+                                <div class="display-4 fw-bold text-success mb-2">4.8</div>
+                                <div class="text-warning mb-2">★★★★★</div>
+                                <div class="text-secondary">156 đánh giá</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-md-8">
+                            <!-- Review Item -->
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex align-items-center gap-3 mb-2">
+                                    <img src="https://ui-avatars.com/api/?name=Nguyen+Van+A" 
+                                         alt="User" 
+                                         class="rounded-circle" 
+                                         style="width: 40px; height: 40px;"/>
+                                    <div>
+                                        <div class="fw-semibold">Nguyễn Văn A</div>
+                                        <div class="small text-secondary">2 ngày trước</div>
+                                    </div>
+                                </div>
+                                <div class="text-warning mb-2">★★★★★</div>
+                                <p class="text-secondary mb-0">
+                                    Rau rất tươi và sạch, giao hàng nhanh. Sẽ ủng hộ shop lâu dài!
+                                </p>
+                            </div>
+
+                            <!-- Review Item -->
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex align-items-center gap-3 mb-2">
+                                    <img src="https://ui-avatars.com/api/?name=Tran+Thi+B" 
+                                         alt="User" 
+                                         class="rounded-circle" 
+                                         style="width: 40px; height: 40px;"/>
+                                    <div>
+                                        <div class="fw-semibold">Trần Thị B</div>
+                                        <div class="small text-secondary">5 ngày trước</div>
+                                    </div>
+                                </div>
+                                <div class="text-warning mb-2">★★★★☆</div>
+                                <p class="text-secondary mb-0">
+                                    Chất lượng tốt, giá hợp lý. Đóng gói cẩn thận.
+                                </p>
+                            </div>
+
+                            <button class="btn btn-outline-success rounded-pill px-4">
+                                Xem thêm đánh giá
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products -->
+        <div class="mt-5">
+            <h2 class="fw-bold mb-4">Sản phẩm tương tự</h2>
+            <div th:replace="~{fragments/product :: product-list}"></div>
+        </div>
+    </main>
+</div>
+
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+    lucide.createIcons();
+    
+    function changeMainImage(src) {
+        document.getElementById('mainImage').src = src.replace('w=200', 'w=800');
+        
+        // Update border for active thumbnail
+        document.querySelectorAll('.rounded-3').forEach(img => {
+            img.classList.remove('border-success', 'border-2');
+            img.classList.add('border-light');
+        });
+        event.target.classList.remove('border-light');
+        event.target.classList.add('border-success', 'border-2');
+    }
+    
+    function increaseQty() {
+        const input = document.getElementById('quantity');
+        input.value = parseInt(input.value) + 1;
+    }
+    
+    function decreaseQty() {
+        const input = document.getElementById('quantity');
+        if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+        }
+    }
+</script>
+</body>
+</html>

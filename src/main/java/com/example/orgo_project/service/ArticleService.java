@@ -3,7 +3,6 @@ package com.example.orgo_project.service;
 import com.example.orgo_project.dto.*;
 import com.example.orgo_project.entity.*;
 import com.example.orgo_project.enums.ArticleStatus;
-import com.example.orgo_project.enums.ArticleType;
 import com.example.orgo_project.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,22 +23,19 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final ArticleProductRepository articleProductRepository;
     private final ArticleStatsRepository articleStatsRepository;
-    private final IExpertRepository expertRepository;
     
     @Transactional
-    public ArticleResponse createArticle(Long expertId, ArticleRequest request) {
-        Expert expert = expertRepository.findById(expertId)
-                .orElseThrow(() -> new RuntimeException("Expert not found"));
-        
+    public ArticleResponse createArticle(Integer expertId, ArticleRequest request) {
         Article article = new Article();
-        article.setExpert(expert);
+        article.setExpertId(expertId);
         article.setTitle(request.getTitle());
-        article.setType(request.getType());
         article.setContent(request.getContent());
-        article.setThumbnail(request.getThumbnail());
-        article.setCategory(request.getCategory());
+        article.setCoverImage(request.getThumbnail());
+        article.setSummary(request.getCategory());
         article.setStatus(ArticleStatus.DRAFT);
-        article.setCreatedAt(LocalDateTime.now());
+        article.setPublishedAt(LocalDateTime.now());
+        article.setUpdatedAt(LocalDateTime.now());
+        article.setViewCount(0);
         
         Article saved = articleRepository.save(article);
         
@@ -52,7 +48,7 @@ public class ArticleService {
     }
     
     @Transactional
-    public ArticleResponse updateArticle(Long articleId, ArticleRequest request) {
+    public ArticleResponse updateArticle(Integer articleId, ArticleRequest request) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new RuntimeException("Article not found"));
         
@@ -62,29 +58,29 @@ public class ArticleService {
         }
         
         article.setTitle(request.getTitle());
-        article.setType(request.getType());
         article.setContent(request.getContent());
-        article.setThumbnail(request.getThumbnail());
-        article.setCategory(request.getCategory());
+        article.setCoverImage(request.getThumbnail());
+        article.setSummary(request.getCategory());
+        article.setUpdatedAt(LocalDateTime.now());
         
         Article updated = articleRepository.save(article);
         
         // Update product links
-        articleProductRepository.deleteByArticleId(articleId);
+        articleProductRepository.deleteByArticleId(articleId.longValue());
         if (request.getProductIds() != null && !request.getProductIds().isEmpty()) {
-            linkProducts(articleId, request.getProductIds());
+            linkProducts(updated.getId(), request.getProductIds());
         }
         
         return mapToResponse(updated);
     }
     
     @Transactional
-    public void deleteArticle(Long articleId) {
+    public void deleteArticle(Integer articleId) {
         articleRepository.deleteById(articleId);
     }
     
     @Transactional
-    public ArticleResponse submitArticle(Long articleId) {
+    public ArticleResponse submitArticle(Integer articleId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new RuntimeException("Article not found"));
         
@@ -95,19 +91,16 @@ public class ArticleService {
     }
     
     @Transactional
-    public void linkProducts(Long articleId, List<Long> productIds) {
-        Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new RuntimeException("Article not found"));
-        
+    public void linkProducts(Integer articleId, List<Long> productIds) {
         for (Long productId : productIds) {
             ArticleProduct ap = new ArticleProduct();
-            ap.setArticle(article);
-            ap.setProductId(productId);
+            ap.setArticleId(articleId);
+            ap.setProductId(productId.intValue());
             articleProductRepository.save(ap);
         }
     }
     
-    public Page<ArticleResponse> getExpertArticles(Long expertId, Pageable pageable) {
+    public Page<ArticleResponse> getExpertArticles(Integer expertId, Pageable pageable) {
         return articleRepository.findByExpertId(expertId, pageable)
                 .map(this::mapToResponse);
     }
@@ -118,50 +111,46 @@ public class ArticleService {
     }
     
     @Transactional
-    public ArticleResponse approveArticle(Long articleId) {
+    public ArticleResponse approveArticle(Integer articleId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new RuntimeException("Article not found"));
         
-        article.setStatus(ArticleStatus.APPROVED);
+        article.setStatus(ArticleStatus.PUBLISHED);
         article.setPublishedAt(LocalDateTime.now());
         Article updated = articleRepository.save(article);
-        
-        // TODO: Send notification to expert
         
         return mapToResponse(updated);
     }
     
     @Transactional
-    public ArticleResponse rejectArticle(Long articleId, String note) {
+    public ArticleResponse rejectArticle(Integer articleId, String note) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new RuntimeException("Article not found"));
         
         article.setStatus(ArticleStatus.REJECTED);
-        article.setRejectNote(note);
+        article.setRejectionReason(note);
         Article updated = articleRepository.save(article);
-        
-        // TODO: Send notification to expert
         
         return mapToResponse(updated);
     }
     
-    public Page<ArticleResponse> getPublicArticles(ArticleType type, String category, Pageable pageable) {
-        if (type != null) {
-            return articleRepository.findByStatusAndType(ArticleStatus.APPROVED, type, pageable)
-                    .map(this::mapToResponse);
-        }
+    public Page<ArticleResponse> getPublicArticles(String category, Pageable pageable) {
         return articleRepository.findPublishedArticles(pageable)
                 .map(this::mapToResponse);
     }
     
     @Transactional
-    public ArticleResponse getArticleById(Long articleId) {
+    public ArticleResponse getArticleById(Integer articleId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new RuntimeException("Article not found"));
         
         // Increment view count
+        article.setViewCount(article.getViewCount() + 1);
+        articleRepository.save(article);
+        
+        // Update stats
         LocalDate today = LocalDate.now();
-        ArticleStats stats = articleStatsRepository.findByArticleIdAndDate(articleId, today)
+        ArticleStats stats = articleStatsRepository.findByArticleIdAndDate(articleId.longValue(), today)
                 .orElse(new ArticleStats(null, article, 0, 0, today));
         stats.setViews(stats.getViews() + 1);
         articleStatsRepository.save(stats);
@@ -169,8 +158,8 @@ public class ArticleService {
         return mapToResponse(article);
     }
     
-    public List<ArticleStatsResponse> getArticleStats(Long articleId) {
-        return articleStatsRepository.findByArticleIdOrderByDateDesc(articleId).stream()
+    public List<ArticleStatsResponse> getArticleStats(Integer articleId) {
+        return articleStatsRepository.findByArticleIdOrderByDateDesc(articleId.longValue()).stream()
                 .map(s -> new ArticleStatsResponse(s.getDate(), s.getViews(), s.getLikes()))
                 .collect(Collectors.toList());
     }
@@ -183,28 +172,23 @@ public class ArticleService {
     
     private ArticleResponse mapToResponse(Article article) {
         ArticleResponse response = new ArticleResponse();
-        response.setId(article.getId());
-        response.setExpertId(article.getExpert().getId());
-        response.setExpertName(article.getExpert().getUser().getFullName());
+        response.setId(article.getId().longValue());
+        response.setExpertId(article.getExpertId().longValue());
+        response.setExpertName("Expert " + article.getExpertId()); // Simplified
         response.setTitle(article.getTitle());
-        response.setType(article.getType());
         response.setContent(article.getContent());
         response.setStatus(article.getStatus());
-        response.setThumbnail(article.getThumbnail());
-        response.setCategory(article.getCategory());
-        response.setRejectNote(article.getRejectNote());
+        response.setThumbnail(article.getCoverImage());
+        response.setCategory(article.getSummary());
+        response.setRejectNote(article.getRejectionReason());
         response.setPublishedAt(article.getPublishedAt());
-        response.setCreatedAt(article.getCreatedAt());
-        
-        // Get stats
-        Integer totalViews = articleStatsRepository.getTotalViewsByArticleId(article.getId());
-        Integer totalLikes = articleStatsRepository.getTotalLikesByArticleId(article.getId());
-        response.setTotalViews(totalViews != null ? totalViews : 0);
-        response.setTotalLikes(totalLikes != null ? totalLikes : 0);
+        response.setCreatedAt(article.getUpdatedAt());
+        response.setTotalViews(article.getViewCount());
+        response.setTotalLikes(0);
         
         // Get linked products
-        List<Long> productIds = articleProductRepository.findByArticleId(article.getId()).stream()
-                .map(ArticleProduct::getProductId)
+        List<Long> productIds = articleProductRepository.findByArticleId(article.getId().longValue()).stream()
+                .map(ap -> ap.getProductId().longValue())
                 .collect(Collectors.toList());
         response.setProductIds(productIds);
         

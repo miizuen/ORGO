@@ -35,7 +35,6 @@ public class WebSecurityConfig {
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/seller/**").hasRole("SELLER")
                 .requestMatchers("/expert/**").hasRole("EXPERT")
-                .requestMatchers("/buyer/**").hasRole("BUYER")
                 // Cấp quyền cho user cơ bản
                 .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER")
                 // Các đường dẫn cho phép public
@@ -56,8 +55,6 @@ public class WebSecurityConfig {
                             .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_SELLER"));
                     boolean isExpert = authentication.getAuthorities().stream()
                             .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_EXPERT"));
-                    boolean isBuyer = authentication.getAuthorities().stream()
-                            .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_BUYER"));
 
                     if (isAdmin) {
                         response.sendRedirect("/admin/dashboard");
@@ -65,8 +62,6 @@ public class WebSecurityConfig {
                         response.sendRedirect("/seller/dashboard");
                     } else if (isExpert) {
                         response.sendRedirect("/expert/dashboard");
-                    } else if (isBuyer) {
-                        response.sendRedirect("/buyer/dashboard");
                     } else {
                         response.sendRedirect("/");
                     }

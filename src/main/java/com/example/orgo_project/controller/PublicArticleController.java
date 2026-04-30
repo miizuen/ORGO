@@ -23,12 +23,12 @@ public class PublicArticleController {
             @RequestParam(required = false) ArticleType type,
             @RequestParam(required = false) String category,
             Pageable pageable) {
-        Page<ArticleResponse> articles = articleService.getPublicArticles(type, category, pageable);
+        Page<ArticleResponse> articles = articleService.getPublicArticles(category, pageable);
         return ResponseEntity.ok(articles);
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ArticleResponse> getArticle(@PathVariable Long id) {
+    public ResponseEntity<ArticleResponse> getArticle(@PathVariable Integer id) {
         ArticleResponse response = articleService.getArticleById(id);
         return ResponseEntity.ok(response);
     }

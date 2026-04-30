@@ -26,7 +26,7 @@ public class ExpertArticleController {
     public ResponseEntity<ArticleResponse> createArticle(
             @Valid @RequestBody ArticleRequest request,
             Authentication authentication) {
-        Long expertId = getExpertIdFromAuth(authentication);
+        Integer expertId = getExpertIdFromAuth(authentication);
         ArticleResponse response = articleService.createArticle(expertId, request);
         return ResponseEntity.ok(response);
     }
@@ -35,53 +35,53 @@ public class ExpertArticleController {
     public ResponseEntity<Page<ArticleResponse>> getMyArticles(
             Pageable pageable,
             Authentication authentication) {
-        Long expertId = getExpertIdFromAuth(authentication);
+        Integer expertId = getExpertIdFromAuth(authentication);
         Page<ArticleResponse> articles = articleService.getExpertArticles(expertId, pageable);
         return ResponseEntity.ok(articles);
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ArticleResponse> getArticle(@PathVariable Long id) {
+    public ResponseEntity<ArticleResponse> getArticle(@PathVariable Integer id) {
         ArticleResponse response = articleService.getArticleById(id);
         return ResponseEntity.ok(response);
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<ArticleResponse> updateArticle(
-            @PathVariable Long id,
+            @PathVariable Integer id,
             @Valid @RequestBody ArticleRequest request) {
         ArticleResponse response = articleService.updateArticle(id, request);
         return ResponseEntity.ok(response);
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteArticle(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteArticle(@PathVariable Integer id) {
         articleService.deleteArticle(id);
         return ResponseEntity.noContent().build();
     }
     
     @PostMapping("/{id}/submit")
-    public ResponseEntity<ArticleResponse> submitArticle(@PathVariable Long id) {
+    public ResponseEntity<ArticleResponse> submitArticle(@PathVariable Integer id) {
         ArticleResponse response = articleService.submitArticle(id);
         return ResponseEntity.ok(response);
     }
     
     @PostMapping("/{id}/link-product")
     public ResponseEntity<Void> linkProducts(
-            @PathVariable Long id,
+            @PathVariable Integer id,
             @RequestBody Map<String, List<Long>> request) {
         articleService.linkProducts(id, request.get("productIds"));
         return ResponseEntity.ok().build();
     }
     
     @GetMapping("/{id}/stats")
-    public ResponseEntity<List<ArticleStatsResponse>> getArticleStats(@PathVariable Long id) {
+    public ResponseEntity<List<ArticleStatsResponse>> getArticleStats(@PathVariable Integer id) {
         List<ArticleStatsResponse> stats = articleService.getArticleStats(id);
         return ResponseEntity.ok(stats);
     }
     
-    private Long getExpertIdFromAuth(Authentication authentication) {
+    private Integer getExpertIdFromAuth(Authentication authentication) {
         // TODO: Extract expert ID from authentication
-        return 1L; // Placeholder
+        return 1; // Placeholder
     }
 }
