@@ -26,18 +26,6 @@ public class HomeController {
         return "pages/public/home";
     }
 
-    @GetMapping("seller/dashboard")
-    public String showSellerDashboard(Model model) {
-        model.addAttribute("activePage", "dashboard");
-        return "pages/seller/dashboard";
-    }
-
-    @GetMapping("expert/dashboard")
-    public String showExpertDashboard(Model model) {
-        model.addAttribute("activePage", "dashboard");
-        return "pages/expert/dashboard";
-    }
-
     @GetMapping("buyer/dashboard")
     public String showBuyerDashboard(Model model) {
         model.addAttribute("activePage", "dashboard");

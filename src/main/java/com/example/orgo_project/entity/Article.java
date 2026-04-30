@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_chuyen_muc")
+    @Column(name = "id_bai_viet")
     private Integer id;
 
     @Column(name = "id_chuyen_gia")
@@ -31,7 +31,7 @@ public class Article {
     @Column(name = "id_nguoi_duyet")
     private Integer reviewerAdminId;
 
-    @Column(name = "id_chuyen_muc", insertable = false, updatable = false)
+    @Column(name = "id_chuyen_muc")
     private Integer blogCategoryId;
 
     @Column(name = "tieu_de", columnDefinition = "NVARCHAR(255)")

@@ -25,7 +25,7 @@
         <nav class="d-none d-md-flex gap-4"
              sec:authorize="!isAuthenticated() or hasRole('USER')">
             <a th:href="@{/products}" class="text-secondary text-decoration-none fw-medium">Sản phẩm</a>
-            <a th:href="@{/blog}"     class="text-secondary text-decoration-none fw-medium">Blog</a>
+            <a th:href="@{/articles}"     class="text-secondary text-decoration-none fw-medium">Blog</a>
             <a th:href="@{/experts}"  class="text-secondary text-decoration-none fw-medium">Chuyên gia</a>
         </nav>
 

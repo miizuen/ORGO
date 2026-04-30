@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title th:text="${article.title}">Chi tiết bài viết - ORGO</title>
 </head>
 <body>
+<div th:replace="~{fragments/expert-layout :: expertLayout('Chi tiết bài viết', 'articles', ~{::main})}">
     <main class="article-detail">
         <!-- Hero Section -->
         <section class="article-hero">
@@ -196,6 +196,7 @@
                 </div>
             </div>
         </section>
+    }
         <style>
         /* Hero Section */
         .article-hero {
@@ -551,4 +552,5 @@
         }
         </style>
     </main>
+</div>
 </html>

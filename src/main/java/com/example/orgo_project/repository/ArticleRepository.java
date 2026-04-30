@@ -18,9 +18,9 @@ public interface ArticleRepository extends JpaRepository<Article, Integer> {
     
     Page<Article> findByStatus(ArticleStatus status, Pageable pageable);
     
-    @Query("SELECT a FROM Article a WHERE a.status = 'APPROVED' ORDER BY a.publishedAt DESC")
+    @Query("SELECT a FROM Article a WHERE a.status = 'PUBLISHED' ORDER BY a.publishedAt DESC")
     Page<Article> findPublishedArticles(Pageable pageable);
     
-    @Query("SELECT a FROM Article a WHERE a.status = 'APPROVED' ORDER BY a.viewCount DESC")
+    @Query("SELECT a FROM Article a WHERE a.status = 'PUBLISHED' ORDER BY a.viewCount DESC")
     List<Article> findFeaturedArticles(Pageable pageable);
 }

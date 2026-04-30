@@ -9,12 +9,15 @@ import java.util.List;
 
 @Data
 public class ArticleResponse {
-    private Long id;
-    private Long expertId;
+    private Integer id;
+    private Integer expertId;
     private String expertName;
+    private String expertAvatar;
+    private String readTime;
     private String title;
     private ArticleType type;
     private String content;
+    private String summary;
     private ArticleStatus status;
     private String thumbnail;
     private String category;
@@ -23,5 +26,5 @@ public class ArticleResponse {
     private LocalDateTime createdAt;
     private Integer totalViews;
     private Integer totalLikes;
-    private List<Long> productIds;
+    private List<Integer> productIds;
 }

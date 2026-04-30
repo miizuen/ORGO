@@ -4,6 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết bài viết - ORGO Admin</title>
+</head>
+<body>
+<div th:replace="~{fragments/admin-layout :: adminLayout('Chi tiết bài viết', 'articles', ~{::main})}">
+<main>
+    <div class="container">
+        <div class="header">
+            <a href="#" class="back-btn">← Quay lại danh sách</a>
+            <div class="header-actions">
+                <span style="color: #6b7280; font-size: 14px;">Lưu nháp</span>
+                <span style="color: #10b981; font-size: 14px; font-weight: 600;">Đang chờ duyệt</span>
+            </div>
+        </div>
+        
+        <div class="content-layout">
+            <!-- Main Article -->
+            <div class="article-main">
+                <span class="article-badge">Lên sóng mới nhất</span>
+                
+                <h1 class="article-title" th:text="${article.title}">10 Mẹo duy trì lối sống hữu cơ ngay cả khi bận rộn</h1>
+                
+                <div class="author-info">
+                    <img class="author-avatar" th:src="${article.expertAvatar != null && !article.expertAvatar.isEmpty() ? article.expertAvatar : '/api/placeholder/48/48'}" alt="Expert avatar">
+                    <div class="author-details">
+                        <h4 th:text="${article.expertName}">Hoàng Nam</h4>
+                    </div>
+                </div>
+                
+                <img th:src="${article.thumbnail != null && !article.thumbnail.isEmpty() ? article.thumbnail : '/api/placeholder/800/400'}" alt="Article" class="article-image">
+                
+                <div class="article-content" th:utext="${article.content}">
+                    <!-- Content injected via thymeleaf -->
+                </div>
+                    
+                    <div class="feedback-section">
+                        <div class="feedback-title">💬 Phản hồi và tác của quản trị viên</div>
+                        <div class="feedback-subtitle">GHI CHÚ NỘI BỘ CHO EXPERT</div>
+                        <textarea class="feedback-textarea" placeholder="Nhập phản hồi hoặc yêu cầu chỉnh sửa cho tác giả..."></textarea>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <form th:action="@{/admin/articles/{id}/reject(id=${article.id})}" method="post" style="flex: 1;">
+                            <input type="hidden" name="note" id="rejectNoteValue">
+                            <button type="submit" class="btn btn-reject" onclick="document.getElementById('rejectNoteValue').value = document.querySelector('.feedback-textarea').value;" style="width:100%">Từ chối</button>
+                        </form>
+                        <form th:action="@{/admin/articles/{id}/approve(id=${article.id})}" method="post" style="flex: 1;">
+                            <button type="submit" class="btn btn-approve" style="width:100%">↑ Phê duyệt và đăng tải</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Linked Products -->
+                <div class="widget">
+                    <div class="widget-title">🔗 SẢN PHẨM ĐÃ GẮN THẺ (<span th:text="${linkedProducts.size()}">0</span>)</div>
+                    <div class="product-item" th:each="product : ${linkedProducts}">
+                        <img th:src="${product.imageUrl != null ? product.imageUrl : (product.slug != null && product.slug.startsWith('/uploads/') ? product.slug : '/api/placeholder/200/200')}"
+                             alt="Product" class="product-image">
+                        <div class="product-info">
+                            <div class="product-name" th:text="${product.productName}">Organic Spinach</div>
+                            <div class="product-category" th:text="${product.shortDescription != null ? product.shortDescription : 'Product'}">Fresh Produce</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     <style>
         * {
             margin: 0;
@@ -86,6 +153,7 @@
             height: 48px;
             border-radius: 50%;
             background: #e5e7eb;
+            object-fit: cover;
         }
         
         .author-details h4 {
@@ -321,107 +389,7 @@
             cursor: pointer;
         }
     </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <a href="#" class="back-btn">← Quay lại danh sách</a>
-            <div class="header-actions">
-                <span style="color: #6b7280; font-size: 14px;">Lưu nháp</span>
-                <span style="color: #10b981; font-size: 14px; font-weight: 600;">Đang chờ duyệt</span>
-            </div>
-        </div>
-        
-        <div class="content-layout">
-            <!-- Main Article -->
-            <div class="article-main">
-                <span class="article-badge">Lên sóng mới nhất</span>
-                
-                <h1 class="article-title">10 Mẹo duy trì lối sống hữu cơ ngay cả khi bận rộn</h1>
-                
-                <div class="author-info">
-                    <div class="author-avatar"></div>
-                    <div class="author-details">
-                        <h4>Hoàng Nam</h4>
-                        <p>Chuyên gia về dinh dưỡng chức năng</p>
-                    </div>
-                    <div class="article-meta">
-                        <span>NGÀY GỬI<br><strong>12 Oct, 2023</strong></span>
-                    </div>
-                </div>
-                
-                <img src="/api/placeholder/800/400" alt="Article" class="article-image">
-                
-                <div class="article-content">
-                    <p>Trong thế giới hiện đại đầy hối hả, việc theo đuổi một lối sống thuần hữu cơ đôi khi có thể cảm thấy như một thách thức lớn. Tuy nhiên, với một chút kế hoạch thông minh, bạn hoàn toàn có thể duy trì lối sống khỏe mạnh không cần tốn quá nhiều thời gian.</p>
-                    
-                    <p>Lối sống hữu cơ không chỉ là việc chọn thực phẩm sạch, đó là một triết lý sống toàn diện về sức khỏe và môi trường. Bất kể bạn đang ở mức độ nào trong hành trình này, những mẹo sau đây có thể giúp bạn duy trì lối sống hữu cơ một cách dễ dàng hơn.</p>
-                    
-                    <h2>1. Lập kế hoạch thực đơn theo tuần</h2>
-                    
-                    <p>Dành ra 30 phút vào Chủ nhật để lên kế hoạch các món ăn trong tuần sẽ giúp bạn tiết kiệm thời gian và đảm bảo bạn luôn có sẵn các nguyên liệu hữu cơ cần thiết. Điều này không chỉ giúp bạn tránh được việc mua sắm vội vàng mà còn giúp bạn kiểm soát được chất lượng thực phẩm chất biến sẽ không làm mạnh khi bạn sẵn sàng.</p>
-                    
-                    <h2>2. Ưu tiên các loại rau củ bản địa</h2>
-                    
-                    <p>Thực phẩm hữu cơ địa phương không chỉ tươi ngon hơn mà còn có giá phải chăng hơn nhiều so với những thực phẩm nhập khẩu. Bạn có thể tìm hiểu về các chợ nông sản địa phương hoặc tham gia các nhóm mua chung để có được nguồn thực phẩm chất lượng với giá tốt hơn.</p>
-                    
-                    <div class="feedback-section">
-                        <div class="feedback-title">💬 Phản hồi và tác của quản trị viên</div>
-                        <div class="feedback-subtitle">GHI CHÚ NỘI BỘ CHO EXPERT</div>
-                        <textarea class="feedback-textarea" placeholder="Nhập phản hồi hoặc yêu cầu chỉnh sửa cho tác giả..."></textarea>
-                    </div>
-                    
-                    <div class="action-buttons">
-                        <button class="btn btn-reject">Từ chối</button>
-                        <button class="btn btn-request">Yêu cầu chỉnh sửa</button>
-                        <button class="btn btn-approve">↑ Phê duyệt và đăng tải</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <!-- Linked Products -->
-                <div class="widget">
-                    <div class="widget-title">🔗 SẢN PHẨM ĐÃ GẮN THẺ (3)</div>
-                    
-                    <div class="product-item">
-                        <img src="/api/placeholder/64/64" alt="Product" class="product-img">
-                        <div class="product-info">
-                            <div class="product-name">Organic Spinach</div>
-                            <div class="product-category">Fresh Produce</div>
-                            <div class="product-price">$4.50 <span class="product-badge">+8%</span></div>
-                        </div>
-                    </div>
-                    
-                    <div class="product-item">
-                        <img src="/api/placeholder/64/64" alt="Product" class="product-img">
-                        <div class="product-info">
-                            <div class="product-name">Heirloom Tomatoes</div>
-                            <div class="product-category">Vegetables</div>
-                            <div class="product-price">$6.25</div>
-                        </div>
-                    </div>
-                    
-                    <div class="product-item">
-                        <img src="/api/placeholder/64/64" alt="Product" class="product-img">
-                        <div class="product-info">
-                            <div class="product-name">Organic Avocados</div>
-                            <div class="product-category">Fresh Produce</div>
-                            <div class="product-price">$3.90</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Performance Card -->
-                <div class="performance-card">
-                    <div style="font-size: 12px; margin-bottom: 8px;">EXPERT PERFORMANCE</div>
-                    <div class="performance-rating">4.9 ⭐</div>
-                    <div class="performance-text">Hoàng Nam has published 24 articles with an average engagement rate of 12%</div>
-                    <button class="performance-btn">View Full Profile</button>
-                </div>
-            </div>
-        </div>
-    </div>
+</main>
+</div>
 </body>
 </html>

@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ArticleProductRepository extends JpaRepository<ArticleProduct, Long> {
+public interface ArticleProductRepository extends JpaRepository<ArticleProduct, Integer> {
     
-    List<ArticleProduct> findByArticleId(Long articleId);
+    List<ArticleProduct> findByArticleId(Integer articleId);
     
-    void deleteByArticleId(Long articleId);
+    void deleteByArticleId(Integer articleId);
 }

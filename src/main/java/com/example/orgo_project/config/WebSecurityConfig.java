@@ -40,7 +40,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER", "SELLER", "EXPERT")
                 // Các đường dẫn cho phép public
                 .requestMatchers("/login", "/register", "/forgot-password", "/verify-otp", "/reset-password", "/guest-login").permitAll()
-                .requestMatchers("/", "/welcome", "/search", "/products", "/products/**", "/blog", "/blog/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "/webjars/**").permitAll()
+                .requestMatchers("/", "/welcome", "/search", "/products", "/products/**", "/blog", "/blog/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "/webjars/**", "/articles").permitAll()
                 .requestMatchers("/reviews/add").authenticated()
                 // Bất kỳ request nào khác đều bắt buộc đăng nhập
                 .anyRequest().authenticated()

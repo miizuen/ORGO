@@ -1,12 +1,21 @@
 package com.example.orgo_project.controller;
 
+import com.example.orgo_project.dto.ExpertDTO;
+import com.example.orgo_project.enums.ArticleStatus;
+import com.example.orgo_project.enums.ExpertStatus;
+import com.example.orgo_project.enums.SellerStatus;
+import com.example.orgo_project.repository.ArticleRepository;
+import com.example.orgo_project.repository.ISellerRepository;
+import com.example.orgo_project.repository.IExpertRepository;
+import com.example.orgo_project.repository.ProductRepository;
 import com.example.orgo_project.service.IExpertService;
 import com.example.orgo_project.service.ISellerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.example.orgo_project.dto.ExpertDTO;
+
 import java.util.stream.Collectors;
 
 @Controller
@@ -19,9 +28,27 @@ public class AdminController {
     @Autowired
     private IExpertService expertService;
 
+    @Autowired
+    private ISellerRepository sellerRepository;
+
+    @Autowired
+    private IExpertRepository expertRepository;
+
+    @Autowired
+    private ArticleRepository articleRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
     @GetMapping("/dashboard")
     public String showAdminDashboard(Model model){
         model.addAttribute("activePage", "dashboard");
+        model.addAttribute("sellerCount", sellerRepository.count());
+        model.addAttribute("expertCount", expertRepository.count());
+        model.addAttribute("pendingSellerCount", sellerRepository.findByStatus(SellerStatus.PENDING).size());
+        model.addAttribute("pendingExpertCount", expertRepository.findByStatus(ExpertStatus.PENDING).size());
+        model.addAttribute("pendingArticleCount", articleRepository.findByStatus(ArticleStatus.PENDING, org.springframework.data.domain.PageRequest.of(0, 1)).getTotalElements());
+        model.addAttribute("productCount", productRepository.count());
         return "/pages/admin/dashboard";
     }
 

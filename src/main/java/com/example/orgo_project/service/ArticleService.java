@@ -5,7 +5,9 @@ import com.example.orgo_project.entity.*;
 import com.example.orgo_project.enums.ArticleStatus;
 import com.example.orgo_project.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,32 +21,19 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ArticleService {
+
+    @Autowired
+    private ArticleRepository articleRepository;
+    @Autowired
+    private ArticleProductRepository articleProductRepository;
+    @Autowired
+    private ArticleStatsRepository articleStatsRepository;
+    @Autowired
+    private com.example.orgo_project.repository.IExpertRepository expertRepository;
     
-    private final ArticleRepository articleRepository;
-    private final ArticleProductRepository articleProductRepository;
-    private final ArticleStatsRepository articleStatsRepository;
-    
-    @Transactional
-    public ArticleResponse createArticle(Integer expertId, ArticleRequest request) {
-        Article article = new Article();
-        article.setExpertId(expertId);
-        article.setTitle(request.getTitle());
-        article.setContent(request.getContent());
-        article.setCoverImage(request.getThumbnail());
-        article.setSummary(request.getCategory());
-        article.setStatus(ArticleStatus.DRAFT);
-        article.setPublishedAt(LocalDateTime.now());
-        article.setUpdatedAt(LocalDateTime.now());
-        article.setViewCount(0);
-        
-        Article saved = articleRepository.save(article);
-        
-        // Link products if provided
-        if (request.getProductIds() != null && !request.getProductIds().isEmpty()) {
-            linkProducts(saved.getId(), request.getProductIds());
-        }
-        
-        return mapToResponse(saved);
+
+    public Article createArticle(Article article) {
+        return articleRepository.save(article);
     }
     
     @Transactional
@@ -60,13 +49,13 @@ public class ArticleService {
         article.setTitle(request.getTitle());
         article.setContent(request.getContent());
         article.setCoverImage(request.getThumbnail());
-        article.setSummary(request.getCategory());
+        article.setSummary(request.getSummary());
         article.setUpdatedAt(LocalDateTime.now());
         
         Article updated = articleRepository.save(article);
         
         // Update product links
-        articleProductRepository.deleteByArticleId(articleId.longValue());
+        articleProductRepository.deleteByArticleId(articleId);
         if (request.getProductIds() != null && !request.getProductIds().isEmpty()) {
             linkProducts(updated.getId(), request.getProductIds());
         }
@@ -91,11 +80,11 @@ public class ArticleService {
     }
     
     @Transactional
-    public void linkProducts(Integer articleId, List<Long> productIds) {
-        for (Long productId : productIds) {
+    public void linkProducts(Integer articleId, List<Integer> productIds) {
+        for (Integer productId : productIds) {
             ArticleProduct ap = new ArticleProduct();
             ap.setArticleId(articleId);
-            ap.setProductId(productId.intValue());
+            ap.setProductId(productId);
             articleProductRepository.save(ap);
         }
     }
@@ -135,8 +124,14 @@ public class ArticleService {
     }
     
     public Page<ArticleResponse> getPublicArticles(String category, Pageable pageable) {
-        return articleRepository.findPublishedArticles(pageable)
-                .map(this::mapToResponse);
+        Page<Article> articles = articleRepository.findPublishedArticles(pageable);
+        if (category != null && !category.isBlank()) {
+            List<Article> filtered = articles.getContent().stream()
+                    .filter(article -> category.equalsIgnoreCase(article.getSummary()))
+                    .collect(Collectors.toList());
+            return new PageImpl<>(filtered.stream().map(this::mapToResponse).collect(Collectors.toList()), pageable, filtered.size());
+        }
+        return articles.map(this::mapToResponse);
     }
     
     @Transactional
@@ -170,12 +165,39 @@ public class ArticleService {
                 .collect(Collectors.toList());
     }
     
+    private String generateSlug(String title) {
+        if (title == null) {
+            return null;
+        }
+        return title.trim().toLowerCase()
+                .replaceAll("[^a-z0-9\u00C0-\u024F]+", "-")
+                .replaceAll("-+", "-")
+                .replaceAll("^-|-$", "");
+    }
+
     private ArticleResponse mapToResponse(Article article) {
         ArticleResponse response = new ArticleResponse();
-        response.setId(article.getId().longValue());
-        response.setExpertId(article.getExpertId().longValue());
-        response.setExpertName("Expert " + article.getExpertId()); // Simplified
+        response.setId(article.getId());
+        response.setExpertId(article.getExpertId());
+        
+        com.example.orgo_project.entity.Expert expert = expertRepository.findById(article.getExpertId()).orElse(null);
+        if (expert != null && expert.getAccount() != null) {
+            String expertName = expert.getAccount().getUsername();
+            if (expert.getAccount().getUser() != null && expert.getAccount().getUser().getFullName() != null) {
+                expertName = expert.getAccount().getUser().getFullName();
+            }
+            response.setExpertName(expertName);
+            
+            String defaultAvatar = "https://ui-avatars.com/api/?name=" + java.net.URLEncoder.encode(expertName, java.nio.charset.StandardCharsets.UTF_8) + "&background=random";
+            response.setExpertAvatar(expert.getAccount().getAvatarUrl() != null && !expert.getAccount().getAvatarUrl().isEmpty() ? expert.getAccount().getAvatarUrl() : defaultAvatar);
+        } else {
+            response.setExpertName("Expert " + article.getExpertId());
+            String defaultAvatar = "https://ui-avatars.com/api/?name=Expert+" + article.getExpertId() + "&background=random";
+            response.setExpertAvatar(defaultAvatar);
+        }
+        
         response.setTitle(article.getTitle());
+        response.setReadTime("5 phút đọc");
         response.setContent(article.getContent());
         response.setStatus(article.getStatus());
         response.setThumbnail(article.getCoverImage());
@@ -187,8 +209,8 @@ public class ArticleService {
         response.setTotalLikes(0);
         
         // Get linked products
-        List<Long> productIds = articleProductRepository.findByArticleId(article.getId().longValue()).stream()
-                .map(ap -> ap.getProductId().longValue())
+        List<Integer> productIds = articleProductRepository.findByArticleId(article.getId()).stream()
+                .map(ap -> ap.getProductId())
                 .collect(Collectors.toList());
         response.setProductIds(productIds);
         

@@ -62,4 +62,7 @@ public class Product {
 
     @Column(name = "tong_danh")
     private Integer totalReviews;
+
+    @jakarta.persistence.Transient
+    private String imageUrl;
 }
