@@ -65,21 +65,24 @@ public class DashboardService {
     public ExpertDashboardStats getExpertDashboardStats(Long expertId) {
         ExpertDashboardStats stats = new ExpertDashboardStats();
         
-        long totalArticles = articleRepository.findByExpertId(expertId.intValue(), PageRequest.of(0, 1000)).getTotalElements();
+        List<com.example.orgo_project.entity.Article> expertArticles = articleRepository.findByExpertId(expertId.intValue(), PageRequest.of(0, 1000)).getContent();
+        long totalArticles = expertArticles.size();
         stats.setTotalArticles(totalArticles);
         
-        long pendingArticles = articleRepository.findByStatus(ArticleStatus.PENDING, PageRequest.of(0, 1000))
-            .stream()
-            .filter(article -> article.getExpertId().equals(expertId.intValue()))
-            .count();
+        long pendingArticles = expertArticles.stream()
+            .filter(a -> a.getStatus() == ArticleStatus.PENDING).count();
         stats.setPendingArticles(pendingArticles);
         
-        stats.setTotalViews(142890L);
+        long totalViews = expertArticles.stream()
+            .mapToLong(a -> a.getViewCount() != null ? (long) a.getViewCount() : 0L)
+            .sum();
+        stats.setTotalViews(totalViews);
         
         Map<String, Long> articlesByStatus = new HashMap<>();
-        articlesByStatus.put("DRAFT", 5L);
+        articlesByStatus.put("DRAFT", expertArticles.stream().filter(a -> a.getStatus() == ArticleStatus.DRAFT).count());
         articlesByStatus.put("PENDING", pendingArticles);
-        articlesByStatus.put("PUBLISHED", 15L);
+        articlesByStatus.put("PUBLISHED", expertArticles.stream().filter(a -> a.getStatus() == ArticleStatus.PUBLISHED).count());
+        articlesByStatus.put("REJECTED", expertArticles.stream().filter(a -> a.getStatus() == ArticleStatus.REJECTED).count());
         stats.setArticlesByStatus(articlesByStatus);
         
         List<ExpertDashboardStats.ViewsByDay> viewsByDay = new ArrayList<>();
