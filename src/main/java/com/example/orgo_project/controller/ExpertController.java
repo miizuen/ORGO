@@ -40,4 +40,10 @@ public class ExpertController {
         model.addAttribute("activePage", ACTIVE_PAGE);
         return "pages/expert/dashboard";
     }
+
+    @GetMapping("/payout")
+    public String showPayoutPage(Model model){
+        model.addAttribute("activePage", ACTIVE_PAGE);
+        return "pages/expert/payout";
+    }
 }
