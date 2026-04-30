@@ -12,9 +12,14 @@ public class PayoutController {
         return "pages/admin/payouts";
     }
 
-    @GetMapping("/{id}")
-    public String detail(@PathVariable Integer id) {
-        return "pages/admin/payout-detail";
+    @GetMapping("/seller/{id}")
+    public String sellerDetail(@PathVariable Integer id) {
+        return "pages/admin/payout-detail-seller";
+    }
+
+    @GetMapping("/expert/{id}")
+    public String expertDetail(@PathVariable Integer id) {
+        return "pages/admin/payout-detail-expert";
     }
 
     @PostMapping("/{id}/approve")
