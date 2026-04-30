@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+<head>
+    <title th:text="${article.title}">Chi tiết bài viết - ORGO</title>
+</head>
+<body>
+    <main class="article-detail">
+        <!-- Hero Section -->
+        <section class="article-hero">
+            <div class="hero-overlay">
+                <img th:src="${article.thumbnail != null && !article.thumbnail.isEmpty() ? article.thumbnail : '/api/placeholder/800/400'}" alt="Article hero" class="hero-bg">
+            </div>
+            <div class="hero-content-wrapper">
+                <div class="container">
+                    <span class="category-badge" th:text="${article.category}">HEALTH & NUTRITION</span>
+                    <h1 class="article-title" th:text="${article.title}">
+                        Organic Hass Avocados: "Vàng xanh" của dinh dưỡng
+                    </h1>
+                    <div class="article-meta">
+                        <img th:src="${article.expertAvatar != null && !article.expertAvatar.isEmpty() ? article.expertAvatar : '/api/placeholder/32/32'}" alt="Expert" class="expert-avatar-small">
+                        <span class="expert-name" th:text="${article.expertName}">Dr. Marcus - Nutrition Expert</span>
+                        <span class="separator">•</span>
+                        <span class="read-time" th:text="${article.readTime}">5 min read</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <section class="article-content-section">
+            <div class="container">
+                <div class="content-grid">
+                    <!-- Left Sidebar - Table of Contents -->
+                    <aside class="toc-sidebar">
+                        <div class="toc-sticky">
+                            <h3 class="toc-title">Nội dung</h3>
+                            <nav class="toc-nav">
+                                <a href="#intro" class="toc-link active">Giới thiệu</a>
+                                <a href="#benefits" class="toc-link active">Lợi ích cho sức khỏe</a>
+                                <a href="#quality" class="toc-link active">Chất lượng làm nên</a>
+                                <a href="#source" class="toc-link active">Nguồn gốc bền vững</a>
+                            </nav>
+                            <button class="btn-share">Chia sẻ bài viết</button>
+                        </div>
+                    </aside>
+
+                    <!-- Main Article Content -->
+                    <article class="article-main">
+                        <div class="article-body" th:utext="${article.content}">
+                            <p id="intro">
+                                Thực tế đáng sợ: Hầu hết các loại bơ "Hass" bạn thấy ở siêu thị
+                                được trồng bằng phân bón hóa học, thuốc trừ sâu tổng hợp và
+                                được thu hoạch quá sớm để chịu được vận chuyển đường dài...
+                            </p>
+
+                            <h2 id="benefits">Lợi ích cho sức khỏe tim mạch</h2>
+                            <p>
+                                Các chất béo không bão hòa đơn trong bơ Hass hữu cơ đã được
+                                chứng minh là giúp giảm cholesterol LDL...
+                            </p>
+
+                            <!-- Quote Block -->
+                            <blockquote class="article-quote">
+                                <p>
+                                    "Thay thế chất béo bão hòa bằng chất béo không bão hòa đơn
+                                    từ bơ có thể giúp cải thiện nồng độ cholesterol và giảm nguy
+                                    cơ mắc bệnh tim mạch."
+                                </p>
+                                <cite>— DR. TUẤN ANH</cite>
+                            </blockquote>
+
+                            <h2 id="vitamins">Vitamin thiết yếu (K, C, B5, B6, E)</h2>
+                            <p>
+                                Mỗi quả bơ là một kho báu dinh dưỡng, cung cấp nhiều vitamin
+                                và khoáng chất thiết yếu...
+                            </p>
+
+                            <!-- Vitamin Grid -->
+                            <div class="vitamin-grid">
+                                <div class="vitamin-card">
+                                    <div class="vitamin-icon">🥑</div>
+                                    <h4>26% Daily Value</h4>
+                                    <p>Vitamin K</p>
+                                </div>
+                                <div class="vitamin-card">
+                                    <div class="vitamin-icon">🍋</div>
+                                    <h4>17% Daily Value</h4>
+                                    <p>Vitamin C</p>
+                                </div>
+                                <div class="vitamin-card">
+                                    <div class="vitamin-icon">💊</div>
+                                    <h4>14% Daily Value</h4>
+                                    <p>Vitamin B5</p>
+                                </div>
+                                <div class="vitamin-card">
+                                    <div class="vitamin-icon">🌿</div>
+                                    <h4>13% Daily Value</h4>
+                                    <p>Vitamin B6</p>
+                                </div>
+                            </div>
+
+                            <h2 id="quality">Chất lượng làm nên: Hệ thống phân phối</h2>
+                            <p>
+                                Cách bạn mua bơ ảnh hưởng trực tiếp đến chất lượng dinh dưỡng...
+                            </p>
+
+                            <!-- Info Box -->
+                            <div class="info-box">
+                                <div class="info-item">
+                                    <div class="info-icon">📦</div>
+                                    <div>
+                                        <h4>Cách chuỗi cung ứng hủy hoại dinh dưỡng</h4>
+                                        <p>Bơ thương mại thường được thu hoạch khi chưa chín...</p>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">❄️</div>
+                                    <div>
+                                        <h4>Kéo dài tuổi thọ</h4>
+                                        <p>Nhiều loại bơ được xử lý bằng khí ethylene...</p>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">🌱</div>
+                                    <div>
+                                        <h4>Chênh lệch hữu cơ</h4>
+                                        <p>Bơ hữu cơ được trồng trong đất giàu dinh dưỡng...</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h2 id="source">Nguồn gốc bền vững</h2>
+                            <p>
+                                Nông trại bơ hữu cơ của chúng tôi ở Mexico tuân thủ các
+                                tiêu chuẩn nghiêm ngặt về bảo vệ môi trường...
+                            </p>
+                        </div>
+
+                        <!-- CTA Box -->
+                        <div class="cta-box">
+                            <div class="cta-content">
+                                <h3>Cam kết không thỏa mãn trả tiền</h3>
+                                <p>
+                                    Nếu bạn không hoàn toàn hài lòng với chất lượng bơ hữu cơ
+                                    của chúng tôi, chúng tôi sẽ hoàn lại tiền 100%.
+                                </p>
+                                <a href="#" class="btn-cta">Mua bơ hữu cơ ngay</a>
+                            </div>
+                        </div>
+
+                        <!-- Related Articles -->
+                        <div class="related-articles">
+                            <h3>Bài viết liên quan</h3>
+                            <div class="related-grid">
+                                <article class="related-card" th:each="related : ${relatedArticles}">
+                                    <a th:href="@{/articles/{id}(id=${related.id})}">
+                                        <img th:src="${related.thumbnail}" alt="Related">
+                                        <h4 th:text="${related.title}">Bài viết liên quan</h4>
+                                    </a>
+                                </article>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Right Sidebar - Related Products -->
+                    <aside class="product-sidebar">
+                        <div class="sidebar-sticky">
+                            <h3 class="sidebar-title">Sản phẩm trong bài viết</h3>
+
+                            <div class="product-card" th:each="product : ${relatedProducts}">
+                                <img th:src="${product.imageUrl != null ? product.imageUrl :
+                      (product.slug != null && #strings.startsWith(product.slug, '/uploads/')
+                       ? product.slug : '/api/placeholder/200/200')}"
+                                     alt="Product" class="product-image">
+                                <h4 class="product-name" th:text="${product.productName}">
+                                    Organic Hass Avocados (2 pack)
+                                </h4>
+                                <div class="product-footer">
+                                    <a th:href="@{/products/{id}(id=${product.id})}"
+                                       style="text-decoration:none;
+                                      display:block;
+                                      width:100%;
+                                      padding:8px 0;
+                                      background:#16A34A;
+                                      color:white;
+                                      border-radius:8px;
+                                      font-size:13px;
+                                      font-weight:600;
+                                      text-align:center;
+                                      margin-top:8px;">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+        <style>
+        /* Hero Section */
+        .article-hero {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%);
+        }
+
+        .hero-bg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-content-wrapper {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 48px;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: #16A34A;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .article-title {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: white;
+            margin-bottom: 16px;
+            max-width: 800px;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+        }
+
+        .expert-avatar-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        /* Content Grid */
+        .article-content-section {
+            padding: 48px 0;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 240px 1fr 320px;
+            gap: 48px;
+        }
+
+        /* TOC Sidebar */
+        .toc-sidebar {
+            position: relative;
+        }
+
+        .toc-sticky {
+            position: sticky;
+            top: 24px;
+        }
+
+        .toc-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #6B7280;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .toc-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .toc-link {
+            padding: 8px 12px;
+            color: #4B5563;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .toc-link:hover, .toc-link.active {
+            background: #F3F4F6;
+            color: #16A34A;
+        }
+
+        .btn-share {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Article Main */
+        .article-main {
+            max-width: 720px;
+        }
+
+        .article-body {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #374151;
+        }
+
+        .article-body h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #111827;
+            margin: 48px 0 24px;
+        }
+
+        .article-body p {
+            margin-bottom: 24px;
+        }
+
+        /* Quote */
+        .article-quote {
+            background: #F0F9FF;
+            border-left: 4px solid #16A34A;
+            padding: 32px;
+            margin: 48px 0;
+            font-style: italic;
+        }
+
+        .article-quote cite {
+            display: block;
+            margin-top: 16px;
+            font-style: normal;
+            font-weight: 700;
+            color: #16A34A;
+        }
+
+        /* Vitamin Grid */
+        .vitamin-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 32px 0;
+        }
+
+        .vitamin-card {
+            background: #F9FAFB;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .vitamin-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: #1F2937;
+            color: white;
+            padding: 32px;
+            border-radius: 12px;
+            margin: 48px 0;
+        }
+
+        .info-item {
+            display: flex;
+            gap: 16px;
+            padding: 24px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-icon {
+            font-size: 24px;
+        }
+
+        /* CTA Box */
+        .cta-box {
+            background: linear-gradient(135deg, #16A34A 0%, #22C55E 100%);
+            color: white;
+            padding: 48px;
+            border-radius: 12px;
+            margin: 48px 0;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .btn-cta {
+            display: inline-block;
+            background: white;
+            color: #16A34A;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-decoration: none;
+            margin-top: 24px;
+        }
+
+        /* Related Articles */
+        .related-articles {
+            margin-top: 64px;
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .related-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        /* Product Sidebar */
+        .product-sidebar {
+            position: relative;
+        }
+
+        .sidebar-sticky {
+            position: sticky;
+            top: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .product-card {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-price {
+            font-weight: 700;
+            color: #16A34A;
+        }
+
+        .btn-add-cart {
+            width: 32px;
+            height: 32px;
+            background: #16A34A;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        /* Recipe Card */
+        .recipe-card {
+            background: #16A34A;
+            color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 24px;
+        }
+
+        .recipe-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .recipe-content {
+            padding: 24px;
+        }
+
+        .recipe-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .recipe-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toc-sidebar, .product-sidebar {
+                display: none;
+            }
+        }
+        </style>
+    </main>
+</html>

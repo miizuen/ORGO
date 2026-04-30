@@ -3,243 +3,334 @@
 <head>
     <title>Tổng quan</title>
     <style>
-        /* --- Page-specific styles only --- */
-        .page-title h1 { font-size: 22px; font-weight: 700; }
-        .page-title p  { font-size: 13px; color: var(--color-text-muted); margin-top: 4px; }
+        .page-title h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-top: 24px; }
+        .page-title p {
+            font-size: 13px;
+            color: var(--color-text-muted);
+        }
 
-        .stat-card { background: var(--color-surface); border-radius: var(--radius-card); padding: 20px; position: relative; overflow: hidden; }
-        .stat-card .badge { position: absolute; top: 14px; right: 14px; }
-        .stat-card .card-icon  { font-size: 22px; margin-bottom: 10px; }
-        .stat-card .card-label { font-size: 10.5px; font-weight: 700; color: var(--color-text-faint); letter-spacing: .5px; text-transform: uppercase; }
-        .stat-card .card-value { font-size: 26px; font-weight: 800; margin-top: 4px; }
-        .stat-card .card-value.red { color: #e53935; }
-        .stat-card .card-sub { font-size: 12px; color: var(--color-text-muted); margin-top: 6px; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
 
-        .sub-list { margin-top: 10px; }
-        .sub-row  { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; }
-        .sub-row span:last-child { font-weight: 600; }
-        .sub-bar  { height: 3px; border-radius: 2px; margin-bottom: 10px; }
-        .bar-blue  { background: #1565C0; } .bar-green { background: #2e7d32; } .bar-light { background: #a5d6a7; }
+        .stat-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-card);
+            padding: 20px;
+            border: 1px solid var(--color-border);
+        }
 
-        .mini-chart { display: flex; align-items: flex-end; gap: 4px; margin-top: 12px; height: 40px; }
-        .mini-bar        { flex: 1; border-radius: 3px 3px 0 0; background: #c8e6c9; }
-        .mini-bar.active { background: #2e7d32; }
+        .stat-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text-faint);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
 
-        .joined-avatars { display: flex; align-items: center; margin-top: 14px; }
-        .joined-avatars .av { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff; margin-left: -8px; background: #aaa; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; font-weight: 700; overflow: hidden; }
-        .joined-avatars .av:first-child { margin-left: 0; }
-        .joined-avatars .av.more  { background: #555; font-size: 9px; }
-        .joined-text { font-size: 11px; color: var(--color-text-faint); margin-left: 8px; }
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            margin-top: 10px;
+            color: var(--color-text);
+        }
 
-        .waiting-link { color: var(--color-primary); font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 20px; display: block; text-decoration: none; }
+        .stat-note {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--color-text-muted);
+        }
 
-        /* Bottom section */
-        .bottom-grid { display: grid; grid-template-columns: 1fr 280px; gap: 20px; margin-top: 24px; }
+        .stat-link {
+            display: inline-flex;
+            margin-top: 14px;
+            color: var(--color-primary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+        }
 
-        .activity-card { background: var(--color-surface); border-radius: var(--radius-card); padding: 22px; }
-        .activity-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-        .activity-header h3 { font-size: 16px; font-weight: 700; }
-        .activity-header .icons { display: flex; gap: 10px; color: #aaa; cursor: pointer; font-size: 16px; }
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 20px;
+            margin-top: 24px;
+        }
 
-        .activity-item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
-        .activity-item:last-child { border-bottom: none; }
-        .act-avatar { width: 42px; height: 42px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .act-avatar.warning  { background: #fff3e0; }
-        .act-avatar.cart     { background: #e3f2fd; }
-        .act-info { flex: 1; }
-        .act-info .act-title { font-size: 13px; }
-        .act-info .act-meta  { font-size: 11px; color: #aaa; margin-top: 2px; }
-        .act-tags { display: flex; gap: 6px; flex-shrink: 0; }
-        .tag { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 500; cursor: pointer; }
-        .tag.outline { border: 1px solid #ddd; color: #555; }
-        .tag.green   { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-        .tag.red-bg  { background: #fce4ec; color: #c62828; border: 1px solid #f8bbd0; font-weight: 700; }
-        .view-all { text-align: center; margin-top: 14px; font-size: 13px; color: var(--color-primary); cursor: pointer; font-weight: 600; }
+        .section-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-card);
+            padding: 22px;
+            border: 1px solid var(--color-border);
+        }
 
-        /* Right panel */
-        .right-panel { display: flex; flex-direction: column; gap: 20px; }
-        .panel-card { background: var(--color-surface); border-radius: var(--radius-card); padding: 20px; }
-        .panel-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
 
-        .cat-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-        .cat-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        .cat-icon.green-bg  { background: #e8f5e9; } .cat-icon.orange-bg { background: #fff3e0; } .cat-icon.blue-bg { background: #e3f2fd; }
-        .cat-info { flex: 1; }
-        .cat-info .cat-name { font-size: 12.5px; font-weight: 500; }
-        .cat-info .cat-bar-wrap { background: #eee; border-radius: 3px; height: 4px; margin-top: 4px; }
-        .cat-info .cat-bar { height: 4px; border-radius: 3px; }
-        .cat-pct { font-size: 12px; font-weight: 600; }
+        .section-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+        }
 
-        .queue-item { display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
-        .queue-item:last-child { margin-bottom: 0; }
-        .queue-left { display: flex; align-items: center; gap: 10px; }
-        .queue-left .q-icon  { font-size: 16px; }
-        .queue-left .q-label { font-size: 13px; font-weight: 500; }
-        .queue-badge { background: #e8f5e9; color: #2e7d32; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+        .activity-item,
+        .queue-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .activity-item:last-child,
+        .queue-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon,
+        .queue-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: #f3f4f6;
+            font-size: 16px;
+        }
+
+        .activity-content,
+        .queue-content {
+            flex: 1;
+        }
+
+        .activity-title,
+        .queue-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .activity-meta,
+        .queue-meta {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            margin-top: 3px;
+        }
+
+        .mini-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            margin-top: 16px;
+            height: 52px;
+        }
+
+        .mini-bars span {
+            flex: 1;
+            border-radius: 4px 4px 0 0;
+            background: #d1fae5;
+        }
+
+        .mini-bars span.active {
+            background: var(--color-primary);
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .category-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+            font-size: 15px;
+        }
+
+        .category-info {
+            flex: 1;
+        }
+
+        .category-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .category-bar-wrap {
+            height: 5px;
+            border-radius: 999px;
+            background: #edf2f7;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .category-bar {
+            height: 100%;
+            border-radius: 999px;
+        }
+
+        .category-pct {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--color-text-muted);
+        }
+
+        @media (max-width: 1200px) {
+            .stats-grid,
+            .bottom-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid,
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-
 <div th:replace="~{fragments/admin-layout :: adminLayout('Tổng quan', 'dashboard', ~{::main})}">
     <main>
         <div class="page-title">
             <h1>Tổng quan hệ thống</h1>
-            <p>Chào mừng trở lại. Sau đây là những sự kiện đang diễn ra tại ORGO hôm nay.</p>
+            <p>Chào mừng trở lại. Dưới đây là dữ liệu thực tế của hệ thống ORGO.</p>
         </div>
 
         <div class="stats-grid">
-            <!-- Doanh thu -->
             <div class="stat-card">
-                <span class="badge badge-green">+12.4%</span>
-                <div class="card-icon">💵</div>
-                <div class="card-label">DOANH THU TOÀN SÀN</div>
-                <div class="card-value">$142,384.50</div>
-                <div class="mini-chart">
-                    <div class="mini-bar" style="height:40%"></div>
-                    <div class="mini-bar" style="height:55%"></div>
-                    <div class="mini-bar" style="height:45%"></div>
-                    <div class="mini-bar" style="height:65%"></div>
-                    <div class="mini-bar" style="height:50%"></div>
-                    <div class="mini-bar active" style="height:80%"></div>
-                    <div class="mini-bar active" style="height:100%"></div>
-                </div>
-                <div class="card-sub">Last 7 days performance</div>
+                <div class="stat-label">Tổng số người dùng</div>
+                <div class="stat-value" th:text="${userCount != null ? userCount : 0}">0</div>
+                <div class="stat-note">Bao gồm buyer, seller và expert</div>
             </div>
 
-            <!-- Người dùng -->
             <div class="stat-card">
-                <div class="card-icon">👤</div>
-                <div class="card-label">TỔNG SỐ NGƯỜI DÙNG</div>
-                <div class="card-value">24,892</div>
-                <div class="sub-list">
-                    <div class="sub-row"><span>Người mua</span><span>18,201</span></div>
-                    <div class="sub-bar bar-blue" style="width:80%"></div>
-                    <div class="sub-row"><span>Sellers</span><span>5,440</span></div>
-                    <div class="sub-bar bar-green" style="width:50%"></div>
-                    <div class="sub-row"><span>Experts</span><span>1,251</span></div>
-                    <div class="sub-bar bar-light" style="width:25%"></div>
-                </div>
+                <div class="stat-label">Tổng số seller</div>
+                <div class="stat-value" th:text="${sellerCount != null ? sellerCount : 0}">0</div>
+                <div class="stat-note">Seller đang hoạt động trong hệ thống</div>
             </div>
 
-            <!-- Người bán -->
             <div class="stat-card">
-                <div class="card-icon">🏪</div>
-                <div class="card-label">TỔNG SỐ NGƯỜI BÁN</div>
-                <div class="card-value">4,812</div>
-                <div class="joined-avatars">
-                    <div class="av" style="background:#e57373">JD</div>
-                    <div class="av" style="background:#64b5f6">MK</div>
-                    <div class="av" style="background:#81c784">SR</div>
-                    <div class="av more">+12</div>
-                </div>
-                <div class="joined-text" style="margin-top:6px">Joined this hour</div>
+                <div class="stat-label">Tổng số expert</div>
+                <div class="stat-value" th:text="${expertCount != null ? expertCount : 0}">0</div>
+                <div class="stat-note">Chuyên gia đã đăng ký</div>
             </div>
 
-            <!-- Chờ phê duyệt -->
             <div class="stat-card">
-                <span class="badge badge-red">🔴</span>
-                <div class="card-icon" style="color:#e53935">📅</div>
-                <div class="card-label">ĐANG CHỜ PHÊ DUYỆT</div>
-                <div class="card-value red">128</div>
-                <a th:href="@{/admin/seller-pending-list}" class="waiting-link">Xem hàng đợi →</a>
+                <div class="stat-label">Đang chờ duyệt</div>
+                <div class="stat-value" th:text="${pendingSellerCount != null ? pendingSellerCount + pendingExpertCount + pendingArticleCount : 0}">0</div>
+                <a th:href="@{/admin/seller-pending-list}" class="stat-link">Xem hàng đợi →</a>
             </div>
         </div>
 
         <div class="bottom-grid">
-            <!-- Hoạt động gần đây -->
-            <div class="activity-card">
-                <div class="activity-header">
-                    <h3>Hoạt động gần đây</h3>
-                    <div class="icons"><span>≡</span><span>⋮</span></div>
+            <div class="section-card">
+                <div class="section-header">
+                    <div>
+                        <h3>Hoạt động gần đây</h3>
+                        <p style="font-size: 13px; color: var(--color-text-muted); margin-top: 4px;">Các sự kiện mới nhất trong hệ thống</p>
+                    </div>
                 </div>
+
                 <div class="activity-item">
-                    <div class="act-avatar"><img src="https://i.pravatar.cc/42?img=11" alt=""></div>
-                    <div class="act-info">
-                        <div class="act-title"><strong>Organic Roots Farm</strong> đã nộp đơn Seller</div>
-                        <div class="act-meta">2 phút trước • San Francisco, CA</div>
-                    </div>
-                    <div class="act-tags">
-                        <span class="tag outline">Đánh giá</span>
-                        <span class="tag green">Phê duyệt</span>
+                    <div class="activity-icon">🛒</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Seller mới gửi yêu cầu tham gia</div>
+                        <div class="activity-meta" th:text="${pendingSellerCount != null ? pendingSellerCount + ' seller đang chờ duyệt' : 'Không có dữ liệu'}">0 seller đang chờ duyệt</div>
                     </div>
                 </div>
+
                 <div class="activity-item">
-                    <div class="act-avatar warning">⚠️</div>
-                    <div class="act-info">
-                        <div class="act-title"><strong>System Alert:</strong> Inventory Sync Delay</div>
-                        <div class="act-meta">14 phút trước • Region: US-EAST-1</div>
+                    <div class="activity-icon">🔰</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Expert mới gửi hồ sơ xác minh</div>
+                        <div class="activity-meta" th:text="${pendingExpertCount != null ? pendingExpertCount + ' expert đang chờ duyệt' : 'Không có dữ liệu'}">0 expert đang chờ duyệt</div>
                     </div>
-                    <div class="act-tags"><span class="tag red-bg">RỦI RO TRUNG BÌNH</span></div>
                 </div>
+
                 <div class="activity-item">
-                    <div class="act-avatar"><img src="https://i.pravatar.cc/42?img=33" alt=""></div>
-                    <div class="act-info">
-                        <div class="act-title"><strong>Dr. Julian Reed</strong> đã hoàn thành bằng Expert</div>
-                        <div class="act-meta">45 phút trước • Nutrition &amp; Soil Science</div>
+                    <div class="activity-icon">📄</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Bài viết đang chờ kiểm duyệt</div>
+                        <div class="activity-meta" th:text="${pendingArticleCount != null ? pendingArticleCount + ' bài viết đang chờ duyệt' : 'Không có dữ liệu'}">0 bài viết đang chờ duyệt</div>
                     </div>
-                    <div class="act-tags"><span class="tag outline">Xem hồ sơ</span></div>
                 </div>
-                <div class="activity-item">
-                    <div class="act-avatar cart">🛒</div>
-                    <div class="act-info">
-                        <div class="act-title"><strong>High Volume Transaction:</strong> Order #OR-99211</div>
-                        <div class="act-meta">1 giờ trước • Total: $1,240.00</div>
-                    </div>
-                    <div class="act-tags"><span class="tag outline">Xử lý</span></div>
-                </div>
-                <div class="view-all">Xem nhật ký kiểm toán đầy đủ</div>
             </div>
 
-            <!-- Right panel -->
-            <div class="right-panel">
-                <div class="panel-card">
-                    <h3>Các danh mục hàng đầu</h3>
-                    <div class="cat-item">
-                        <div class="cat-icon green-bg">🌿</div>
-                        <div class="cat-info">
-                            <div class="cat-name">Sản phẩm hữu cơ</div>
-                            <div class="cat-bar-wrap"><div class="cat-bar" style="width:42%;background:#2e7d32"></div></div>
-                        </div>
-                        <span class="cat-pct">42%</span>
-                    </div>
-                    <div class="cat-item">
-                        <div class="cat-icon orange-bg">🥛</div>
-                        <div class="cat-info">
-                            <div class="cat-name">Sản phẩm từ sữa và gia cầm</div>
-                            <div class="cat-bar-wrap"><div class="cat-bar" style="width:28%;background:#fb8c00"></div></div>
-                        </div>
-                        <span class="cat-pct">28%</span>
-                    </div>
-                    <div class="cat-item">
-                        <div class="cat-icon blue-bg">🫖</div>
-                        <div class="cat-info">
-                            <div class="cat-name">Trà thảo mộc và mật ong</div>
-                            <div class="cat-bar-wrap"><div class="cat-bar" style="width:18%;background:#1565c0"></div></div>
-                        </div>
-                        <span class="cat-pct">18%</span>
+            <div class="section-card">
+                <div class="section-header">
+                    <div>
+                        <h3>Danh mục hệ thống</h3>
+                        <p style="font-size: 13px; color: var(--color-text-muted); margin-top: 4px;">Phân bổ dữ liệu chính</p>
                     </div>
                 </div>
-                <div class="panel-card">
-                    <h3>Hàng đợi phê duyệt</h3>
-                    <div class="queue-item">
-                        <div class="queue-left"><span class="q-icon">🗂️</span><span class="q-label">Đơn đăng ký Seller</span></div>
-                        <span class="queue-badge">42 mới</span>
+
+                <div class="category-item">
+                    <div class="category-icon">👥</div>
+                    <div class="category-info">
+                        <div class="category-name">Người dùng</div>
+                        <div class="category-bar-wrap">
+                            <div class="category-bar" style="width: 100%; background: var(--color-primary);"></div>
+                        </div>
                     </div>
-                    <div class="queue-item">
-                        <div class="queue-left"><span class="q-icon">⏱️</span><span class="q-label">Hồ sơ Expert</span></div>
-                        <span class="queue-badge">12 mới</span>
+                    <div class="category-pct" th:text="${userCount != null ? userCount : 0}">0</div>
+                </div>
+
+                <div class="category-item">
+                    <div class="category-icon">🛒</div>
+                    <div class="category-info">
+                        <div class="category-name">Seller</div>
+                        <div class="category-bar-wrap">
+                            <div class="category-bar" style="width: 72%; background: #fb8c00;"></div>
+                        </div>
                     </div>
-                    <div class="queue-item">
-                        <div class="queue-left"><span class="q-icon">📄</span><span class="q-label">Nội dung sản phẩm</span></div>
-                        <span class="queue-badge">74 mới</span>
+                    <div class="category-pct" th:text="${sellerCount != null ? sellerCount : 0}">0</div>
+                </div>
+
+                <div class="category-item">
+                    <div class="category-icon">🔰</div>
+                    <div class="category-info">
+                        <div class="category-name">Expert</div>
+                        <div class="category-bar-wrap">
+                            <div class="category-bar" style="width: 55%; background: #1565c0;"></div>
+                        </div>
                     </div>
+                    <div class="category-pct" th:text="${expertCount != null ? expertCount : 0}">0</div>
+                </div>
+
+                <div class="category-item">
+                    <div class="category-icon">📄</div>
+                    <div class="category-info">
+                        <div class="category-name">Bài viết</div>
+                        <div class="category-bar-wrap">
+                            <div class="category-bar" style="width: 84%; background: #2e7d32;"></div>
+                        </div>
+                    </div>
+                    <div class="category-pct" th:text="${articleCount != null ? articleCount : 0}">0</div>
                 </div>
             </div>
         </div>
     </main>
 </div>
-
 </body>
 </html>

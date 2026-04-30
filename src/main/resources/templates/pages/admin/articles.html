@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Bài viết</title>
+    <style>
+        .page-title h1 { font-size: 22px; font-weight: 700; }
+        .page-title p { font-size: 13px; color: var(--color-text-muted); margin-top: 4px; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; gap: 12px; flex-wrap: wrap; }
+        .filter-chip { padding: 8px 14px; border-radius: 999px; background: #f3f4f6; color: #374151; text-decoration: none; font-size: 13px; font-weight: 600; }
+        .filter-chip.active { background: #111827; color: white; }
+        .table-card { margin-top: 20px; background: var(--color-surface); border-radius: var(--radius-card); padding: 18px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #eef0f3; font-size: 14px; }
+        th { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--color-text-faint); }
+        .badge { padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; display: inline-block; }
+        .pending { background: #fff7ed; color: #c2410c; }
+        .published { background: #ecfdf5; color: #047857; }
+        .rejected { background: #fef2f2; color: #b91c1c; }
+        .actions a { margin-right: 10px; color: var(--color-primary); text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/admin-layout :: adminLayout('Bài viết', 'articles', ~{::main})}">
+    <main>
+        <div class="page-title">
+            <h1>Quản lý bài viết</h1>
+            <p>Duyệt và theo dõi các bài viết do expert gửi lên hệ thống.</p>
+        </div>
+
+        <div class="toolbar">
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <a th:href="@{/admin/articles}" class="filter-chip" th:classappend="${status == null} ? ' active' : ''">Tất cả</a>
+                <a th:href="@{/admin/articles(status='PENDING')}" class="filter-chip" th:classappend="${status != null and status.name() == 'PENDING'} ? ' active' : ''">Chờ duyệt</a>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                <tr>
+                    <th>Tiêu đề</th>
+                    <th>Expert</th>
+                    <th>Trạng thái</th>
+                    <th>Cập nhật</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="article : ${articles.content}">
+                    <td th:text="${article.title}">Title</td>
+                    <td th:text="${article.expertName}">Expert</td>
+                    <td>
+                        <span class="badge text-black" th:classappend="${article.status.name() == 'PENDING'} ? ' pending' : (${article.status.name() == 'PUBLISHED'} ? ' published' : ' rejected')"
+                              th:text="${article.status}">PENDING</span>
+                    </td>
+                    <td th:text="${#temporals.format(article.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
+                    <td class="actions">
+                        <a th:href="@{/admin/articles/{id}(id=${article.id})}">Xem</a>
+                        <a th:if="${article.status.name() == 'PENDING'}" th:href="@{/admin/articles/{id}/approve(id=${article.id})}">Duyệt</a>
+                    </td>
+                </tr>
+                <tr th:if="${articles == null or articles.totalElements == 0}">
+                    <td colspan="5">Chưa có bài viết nào.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

@@ -35,3 +35,19 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Visual Studio ###
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+### Test files ###
+test-frontend-pages.html
+FRONTEND-CHECKLIST.md
+Check
+Compilation
+Run
+Task
+GiaoDienorgo.fig

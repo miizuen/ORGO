@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Viết bài</title>
+    <style>
+        .compose-wrap{display:grid;grid-template-columns:1fr 330px;gap:24px}
+        .editor-card,.side-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:18px}
+        .cover{height:220px;border:2px dashed #cbd5e1;border-radius:14px;background:#f8fafc;display:flex;align-items:center;justify-content:center;color:#64748b;font-weight:600}
+        .title-input{width:100%;margin-top:14px;border:none;outline:none;font-size:42px;font-weight:800;line-height:1.15}
+        .meta-row{display:flex;gap:8px;margin:10px 0 14px}
+        .chip{padding:6px 12px;border-radius:999px;background:#e0f2fe;color:#0c4a6e;font-size:12px;font-weight:700}
+        .chip.gray{background:#f1f5f9;color:#334155}
+        .toolbar{display:flex;gap:8px;border:1px solid #e2e8f0;border-radius:10px;padding:8px;margin-bottom:10px}
+        .tb-btn{border:none;background:#fff;color:#475569;padding:4px 8px;border-radius:8px}
+        .editor-text{width:100%;min-height:520px;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:15px;resize:vertical}
+        .field{margin-bottom:14px}.field label{display:block;font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+        .field input,.field select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:10px;font-size:14px}
+        .link-list{display:flex;flex-direction:column;gap:10px}
+        .linked-item{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px}
+        .btn{padding:10px 14px;border-radius:10px;border:none;font-weight:700;cursor:pointer}
+        .btn-main{background:#2e7d32;color:#fff;width:100%}.btn-sub{background:#fff;border:1px solid #d1d5db;color:#334155;width:100%}
+        .modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:1000}
+        .modal-mask.open{display:flex}
+        .modal-box{width:min(760px,92vw);max-height:82vh;overflow:auto;background:#fff;border-radius:14px;padding:16px}
+        .product-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+        .p-item{border:1px solid #e2e8f0;border-radius:10px;padding:10px;display:flex;gap:10px;align-items:center}
+        .p-item input{transform:scale(1.1)}
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/expert-layout :: expertLayout('Viết bài mới', 'article-new', ~{::main})}">
+    <main>
+        <form th:action="@{/expert/articles/new}" method="post" enctype="multipart/form-data" th:object="${article}">
+            <div class="compose-wrap">
+                <section class="editor-card">
+                    <div class="cover" style="flex-direction:column;gap:10px;">
+                        <span>Ảnh bìa bài viết</span>
+                        <label for="coverImageFile" style="padding:8px 12px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;cursor:pointer;font-size:13px;color:#334155;">Chọn ảnh</label>
+                        <input id="coverImageFile" name="coverImageFile" type="file" accept="image/*" style="display:none;" />
+                        <span id="coverFileName" style="font-size:12px;color:#64748b;">Chưa chọn ảnh</span>
+                    </div>
+                    <div th:if="${uploadError}" style="margin-top:8px;color:#dc2626;font-size:13px;" th:text="${uploadError}"></div>
+                    <div th:if="${param.error}" style="margin-top:8px;color:#dc2626;font-size:13px;">Không thể lưu bài viết. Vui lòng thử lại.</div>
+                    <input class="title-input" type="text" th:field="*{title}" placeholder="Nhập tiêu đề..." required>
+                    <div class="meta-row">
+                        <span class="chip">Chọn danh mục</span>
+                        <span class="chip gray">8 min read</span>
+                    </div>
+                    <textarea class="editor-text" th:field="*{summary}" placeholder="Mô tả nhanh" required></textarea>
+                    <textarea class="editor-text" th:field="*{content}" placeholder="Hãy bắt đầu câu chuyện của bạn tại đây..." required></textarea>
+                    <input type="hidden" th:field="*{thumbnail}">
+                    <input type="hidden" th:field="*{type}" th:value="${article.type != null ? article.type : 'BLOG'}">
+                </section>
+
+                <aside>
+                    <div class="side-card" style="margin-bottom:14px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                            <strong>Liên kết sản phẩm</strong>
+                            <button class="tb-btn" type="button" id="openModal">Quản lý</button>
+                        </div>
+                        <div id="linkedProducts" class="link-list"></div>
+                        <button class="btn btn-sub" type="button" id="openModal2" style="margin-top:10px;">+ Thêm sản phẩm</button>
+                    </div>
+
+                    <div class="side-card" style="margin-bottom:14px;">
+                        <div class="field">
+                            <label>Danh mục chính</label>
+                            <select th:field="*{category}">
+                                <option value="">-- Chọn danh mục --</option>
+                                <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="side-card">
+                        <button class="btn btn-main" type="submit">Lưu bài viết</button>
+                        <button class="btn btn-sub" type="button" style="margin-top:8px;" onclick="window.location.href='/expert/articles'">Quay lại</button>
+                    </div>
+                </aside>
+            </div>
+
+            <div id="modalMask" class="modal-mask">
+                <div class="modal-box">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <h3>Chọn sản phẩm gắn vào bài viết</h3>
+                        <button type="button" class="tb-btn" id="closeModal">Đóng</button>
+                    </div>
+                    <div class="product-grid">
+                        <label class="p-item" th:each="p : ${products}">
+                            <input type="checkbox" name="productIds" th:value="${p.id}" class="product-check" th:data-name="${p.productName}">
+                            <div>
+                                <div style="font-weight:700" th:text="${p.productName}">Tên SP</div>
+                                <div style="font-size:12px;color:#64748b" th:text="${p.slug}">slug</div>
+                            </div>
+                        </label>
+                    </div>
+                    <div style="margin-top:12px;text-align:right;">
+                        <button type="button" class="btn btn-main" id="applyProducts" style="width:auto;">Xác nhận</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+</div>
+
+<script>
+    const fileInput = document.getElementById('coverImageFile');
+    const fileName = document.getElementById('coverFileName');
+    const mask = document.getElementById('modalMask');
+    const open1 = document.getElementById('openModal');
+    const open2 = document.getElementById('openModal2');
+    const closeBtn = document.getElementById('closeModal');
+    const applyBtn = document.getElementById('applyProducts');
+    const linkedBox = document.getElementById('linkedProducts');
+
+    function openModal(){ mask.classList.add('open'); }
+    function closeModal(){ mask.classList.remove('open'); }
+
+    fileInput?.addEventListener('change', () => {
+        fileName.textContent = fileInput.files && fileInput.files.length ? fileInput.files[0].name : 'Chưa chọn ảnh';
+    });
+    open1?.addEventListener('click', openModal);
+    open2?.addEventListener('click', openModal);
+    closeBtn?.addEventListener('click', closeModal);
+
+    applyBtn?.addEventListener('click', () => {
+        linkedBox.innerHTML = '';
+        document.querySelectorAll('.product-check:checked').forEach(chk => {
+            const item = document.createElement('div');
+            item.className = 'linked-item';
+            item.innerHTML = `<span>${chk.dataset.name}</span><span style="font-size:12px;color:#64748b">đã chọn</span>`;
+            linkedBox.appendChild(item);
+        });
+        closeModal();
+    });
+</script>
+</body>
+</html>

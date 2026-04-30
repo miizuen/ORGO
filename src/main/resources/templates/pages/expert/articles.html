@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Bài viết của tôi</title>
+    <style>
+        .page-title h1{font-size:22px;font-weight:700}.page-title p{font-size:13px;color:#6b7280;margin-top:4px}
+        .toolbar{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+        .btn-new{background:#2e7d32;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:600;font-size:13px}
+        .card{margin-top:16px;background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px}
+        table{width:100%;border-collapse:collapse}th,td{padding:12px;border-bottom:1px solid #f1f5f9;text-align:left;font-size:14px}
+        th{font-size:12px;text-transform:uppercase;color:#94a3b8}
+        .actions a{margin-right:10px;text-decoration:none;color:#2e7d32;font-weight:600}
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/expert-layout :: expertLayout('Bài viết của tôi', 'articles', ~{::main})}">
+    <main>
+        <div class="page-title">
+            <h1>Bài viết của tôi</h1>
+            <p>Quản lý, cập nhật và gửi duyệt bài viết.</p>
+        </div>
+        <div class="toolbar">
+            <div></div>
+            <a class="btn-new" th:href="@{/expert/articles/new}">+ Viết bài mới</a>
+        </div>
+        <div class="card">
+            <table>
+                <thead><tr><th>Tiêu đề</th><th>Trạng thái</th><th>Cập nhật</th><th>Thao tác</th></tr></thead>
+                <tbody>
+                <tr th:each="a : ${articles.content}">
+                    <td th:text="${a.title}">Tiêu đề</td>
+                    <td th:text="${a.status}">DRAFT</td>
+                    <td th:text="${#temporals.format(a.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
+                    <td class="actions">
+                        <a th:href="@{/expert/articles/{id}(id=${a.id})}">Xem</a>
+                        <a th:href="@{/expert/articles/{id}/stats(id=${a.id})}">Thống kê</a>
+                    </td>
+                </tr>
+                <tr th:if="${articles == null or articles.totalElements == 0}"><td colspan="4">Chưa có bài viết.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

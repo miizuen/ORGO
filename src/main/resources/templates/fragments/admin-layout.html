@@ -359,8 +359,8 @@
                class="adm-nav-item">
                 <span class="icon">🔰</span> Duyệt Expert
             </a>
-            <a th:href="@{/admin/content}"
-               th:classappend="${activePage == 'content'} ? 'active' : ''"
+            <a th:href="@{/admin/articles(status='PENDING')}"
+               th:classappend="${activePage == 'articles'} ? 'active' : ''"
                class="adm-nav-item">
                 <span class="icon">📋</span> Duyệt nội dung
             </a>
