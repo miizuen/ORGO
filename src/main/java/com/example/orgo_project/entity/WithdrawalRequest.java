@@ -35,7 +35,7 @@ public class WithdrawalRequest {
     @Column(name = "ten_ngan_hang", columnDefinition = "NVARCHAR(255)")
     private String bankName;
 
-    @Column(name = "so_tai_khoan_nhan", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "so_tai_khoan_nhan")
     private String recipientBankAccount;
 
     @Column(name = "ten_chu_tai_khoan", columnDefinition = "NVARCHAR(255)")

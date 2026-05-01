@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payout</title>
+</head>
+<body>
+<div th:replace="~{fragments/seller-layout :: sellerLayout('Payout', 'payout', ~{::main})}">
+    <main>
+        <style>
+            .payout-page{
+                --page-bg:#ffffff;
+                --surface:#ffffff;
+                --surface-soft:#f8fafc;
+                --surface-soft-2:#eef2ff;
+                --text:#111827;
+                --muted:#6b7280;
+                --primary:#15803d;
+                --primary-2:#22c55e;
+                --border:#e5e7eb;
+                min-height:100%;
+                background:var(--page-bg);
+                color:var(--text);
+                font-family:'Inter',sans-serif;
+                font-size:16px;
+                line-height:1.6;
+                padding:18px 0 28px;
+            }
+            .payout-page *{box-sizing:border-box}
+            .payout-shell{max-width:1180px;margin:0 auto;padding:18px 14px 0}
+            .payout-hero{margin-bottom:28px}
+            .payout-title{font-size:clamp(2rem,3vw,2.8rem);line-height:1.1;font-weight:800;letter-spacing:-.03em;color:#111827;margin:0 0 10px}
+            .payout-subtitle{max-width:760px;font-size:1rem;line-height:1.7;color:#6b7280;margin:0}
+            .payout-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:34px 0 34px}
+            .metric-card,.form-card,.status-card,.history-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+            .metric-card{padding:22px 20px 18px;min-height:132px;display:flex;flex-direction:column;justify-content:space-between}
+            .metric-card:nth-child(1){background:linear-gradient(180deg,#ffffff 0%,#f3fff7 100%)}
+            .metric-card:nth-child(2){background:linear-gradient(180deg,#ffffff 0%,#f6f4ff 100%)}
+            .metric-card:nth-child(3){background:linear-gradient(180deg,#ffffff 0%,#f7f7ff 100%)}
+            .metric-card:nth-child(4){background:linear-gradient(180deg,#ffffff 0%,#f8f7ff 100%)}
+            .metric-label{display:flex;align-items:center;justify-content:space-between;font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#374151}
+            .metric-icon{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:rgba(21,128,61,.08);color:var(--primary);font-size:14px}
+            .metric-value{font-size:clamp(1.5rem,1.9vw,2rem);font-weight:800;letter-spacing:-.04em;color:#111827}
+            .metric-value .small{font-size:.72em;font-weight:700;color:#64748b;margin-left:2px}
+            .payout-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(320px,.95fr);gap:28px;align-items:start}
+            .panel-title{font-size:1.15rem;line-height:1.3;font-weight:800;color:#111827;margin:0 0 20px;letter-spacing:-.02em}
+            .form-card,.status-card{padding:28px}
+            .field{margin-bottom:18px}
+            .field-label{display:block;font-size:.92rem;font-weight:700;color:#374151;margin-bottom:10px}
+            .field-input,.account-input{width:100%;height:54px;border:1px solid #e5e7eb;border-radius:12px;background:#f8fafc;padding:0 16px;font-size:1rem;font-weight:600;color:#111827;outline:none}
+            .field-input:focus,.account-input:focus{border-color:#b7c4ff;box-shadow:0 0 0 4px rgba(99,102,241,.08)}
+            .helper{margin-top:8px;font-size:.86rem;color:#6b7280;display:flex;align-items:center;gap:8px}
+            .account-input{display:flex;align-items:center;justify-content:flex-start}
+            .action-btn{width:100%;height:54px;border:none;border-radius:12px;background:linear-gradient(90deg,#11823b 0%,#2fbf4f 100%);color:#fff;font-size:.98rem;font-weight:700;box-shadow:0 10px 20px rgba(34,197,94,.18);transition:transform .15s ease,box-shadow .15s ease}
+            .action-btn:hover{transform:translateY(-1px);box-shadow:0 18px 28px rgba(34,197,94,.26)}
+            .status-list{display:flex;flex-direction:column;gap:22px;margin-top:4px}
+            .status-item{display:grid;grid-template-columns:36px 1fr;gap:14px;align-items:flex-start}
+            .status-dot{width:36px;height:36px;border-radius:999px;display:grid;place-items:center;font-size:14px;font-weight:700}
+            .status-dot.pending{background:#eef2ff;color:#4f46e5}
+            .status-dot.success{background:#ecfdf5;color:#16a34a}
+            .status-dot.danger{background:#fef2f2;color:#dc2626}
+            .status-item h4{margin:0 0 6px;font-size:1rem;line-height:1.2;font-weight:800;color:#111827}
+            .status-item p{margin:0;font-size:.93rem;line-height:1.6;color:#5b6472}
+            .history-section{margin-top:34px}
+            .section-heading{font-size:1.05rem;font-weight:800;color:#6b7280;margin:0 0 14px;letter-spacing:-.02em}
+            .history-card{padding:0;overflow:hidden}
+            .history-table{width:100%;border-collapse:separate;border-spacing:0}
+            .history-table thead th{background:#f8fafc;color:#6b7280;font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;font-weight:800;text-align:left;padding:16px 20px}
+            .history-table tbody td{padding:18px 20px;border-top:1px solid #eef0ff;font-size:.92rem;color:#111827;vertical-align:middle}
+            .history-table tbody tr:hover{background:#fcfcff}
+            .amount{font-weight:800}
+            .pill{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;font-size:.76rem;font-weight:800;line-height:1}
+            .pill.pending{background:#e8ecff;color:#4f46e5}
+            .pill.approved{background:#e8f8ee;color:#15803d}
+            .pill.rejected{background:#fee2e2;color:#dc2626}
+            @media (max-width: 1100px){.payout-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.payout-grid{grid-template-columns:1fr}}
+            @media (max-width: 640px){.payout-page{padding-top:8px}.payout-shell{padding-inline:10px}.payout-title{font-size:2.2rem}.payout-metrics{grid-template-columns:1fr}.form-card,.status-card{padding:20px}.history-table thead{display:none}.history-table,.history-table tbody,.history-table tr,.history-table td{display:block;width:100%}.history-table tbody td{border-top:none;padding:10px 16px}.history-table tbody tr{padding:12px 0;border-top:1px solid #eef0ff}.history-table tbody td::before{content:attr(data-label);display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#8a93a5;font-weight:800;margin-bottom:4px}}
+        </style>
+        <div class="payout-page">
+            <div class="payout-shell">
+                <section class="payout-hero">
+                    <h1 class="payout-title">Rút tiền</h1>
+                    <p class="payout-subtitle">Quản lý các khoản thanh toán hoa hồng tự nhiên của bạn. Yêu cầu chuyển tiền một cách an toàn.</p>
+                </section>
+
+                <section class="payout-metrics">
+                    <article class="metric-card">
+                        <div class="metric-label">Số dư khả dụng <span class="metric-icon">⧉</span></div>
+                        <div class="metric-value" th:text="'\$1,200 '"><span class="small">00</span></div>
+                    </article>
+                    <article class="metric-card">
+                        <div class="metric-label">Tổng thu nhập <span class="metric-icon">↗</span></div>
+                        <div class="metric-value">$2,500</div>
+                    </article>
+                    <article class="metric-card">
+                        <div class="metric-label">Đang xử lý <span class="metric-icon">⌛</span></div>
+                        <div class="metric-value">$300</div>
+                    </article>
+                    <article class="metric-card">
+                        <div class="metric-label">Tổng số tiền đã rút <span class="metric-icon">✓</span></div>
+                        <div class="metric-value">$1,000</div>
+                    </article>
+                </section>
+
+                <section class="payout-grid">
+                    <article class="form-card">
+                        <h2 class="panel-title">Tạo yêu cầu</h2>
+                        <div class="field">
+                            <label class="field-label" for="withdrawAmount">Số tiền cần rút</label>
+                            <input id="withdrawAmount" class="field-input" type="text" value="$ 500">
+                            <div class="helper">ⓘ Số tiền rút tối thiểu là $50.00</div>
+                        </div>
+                        <div class="field">
+                            <label class="field-label" for="receiverAccount">Tài khoản nhận</label>
+                            <div id="receiverAccount" class="account-input">Vietcombank - 0123***890</div>
+                        </div>
+                        <button class="action-btn" type="button">Yêu cầu rút tiền</button>
+                    </article>
+
+                    <article class="status-card">
+                        <h2 class="panel-title">Hiểu rõ các trạng thái</h2>
+                        <div class="status-list">
+                            <div class="status-item">
+                                <div class="status-dot pending">◔</div>
+                                <div>
+                                    <h4>Đang xử lí</h4>
+                                    <p>Yêu cầu của bạn đã được tiếp nhận và đang chờ đội ngũ tài chính của chúng tôi xem xét. Thường mất 1-2 ngày làm việc.</p>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-dot success">✓</div>
+                                <div>
+                                    <h4>Đã chuyển</h4>
+                                    <p>Số tiền đã được chuyển thành công đến tài khoản ngân hàng bạn đã chọn.</p>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-dot danger">✕</div>
+                                <div>
+                                    <h4>Từ chối</h4>
+                                    <p>Yêu cầu không thể được hoàn tất. Vui lòng kiểm tra email của bạn để biết chi tiết hoặc liên hệ bộ phận hỗ trợ.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </section>
+
+                <section class="history-section">
+                    <h2 class="section-heading">Các lượt rút gần đây</h2>
+                    <div class="history-card">
+                        <table class="history-table">
+                            <thead>
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Request Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Processed Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td data-label="Request ID">#WD-8924</td>
+                                <td data-label="Request Date">Oct 24, 2023</td>
+                                <td data-label="Amount" class="amount">$300.00</td>
+                                <td data-label="Status"><span class="pill pending">Pending</span></td>
+                                <td data-label="Processed Date">-</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Request ID">#WD-8711</td>
+                                <td data-label="Request Date">Oct 12, 2023</td>
+                                <td data-label="Amount" class="amount">$550.00</td>
+                                <td data-label="Status"><span class="pill approved">Approved</span></td>
+                                <td data-label="Processed Date">Oct 14, 2023</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Request ID">#WD-8402</td>
+                                <td data-label="Request Date">Sep 28, 2023</td>
+                                <td data-label="Amount" class="amount">$450.00</td>
+                                <td data-label="Status"><span class="pill approved">Approved</span></td>
+                                <td data-label="Processed Date">Sep 29, 2023</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Request ID">#WD-8199</td>
+                                <td data-label="Request Date">Sep 15, 2023</td>
+                                <td data-label="Amount" class="amount">$120.00</td>
+                                <td data-label="Status"><span class="pill rejected">Rejected</span></td>
+                                <td data-label="Processed Date">Sep 16, 2023</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

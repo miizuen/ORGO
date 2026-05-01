@@ -11,38 +11,34 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "TransactionHistory")
+@Table(name = "NhatKyAudit")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransactionHistory {
+public class AuditLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "id_nhat_ky")
     private Integer id;
 
-    @Column(name = "id_vi")
-    private Integer walletId;
+    @Column(name = "loai_thuc_the", columnDefinition = "NVARCHAR(100)")
+    private String entityType;
 
-    @Column(name = "loai_giao_dich", columnDefinition = "NVARCHAR(50)")
-    private String type;
+    @Column(name = "id_thuc_the")
+    private Integer entityId;
 
-    @Column(name = "so_tien")
-    private BigDecimal amount;
+    @Column(name = "hanh_dong", columnDefinition = "NVARCHAR(100)")
+    private String action;
 
-    @Column(name = "so_du_sau_giao_dich")
-    private BigDecimal balanceAfter;
-
-    @Column(name = "id_tham_chieu")
-    private Integer referenceId;
-
-    @Column(name = "mo_ta", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "mo_ta", columnDefinition = "NVARCHAR(MAX)")
     private String description;
+
+    @Column(name = "id_nguoi_thuc_hien")
+    private Integer actorId;
 
     @Column(name = "ngay_tao")
     private LocalDateTime createdAt;

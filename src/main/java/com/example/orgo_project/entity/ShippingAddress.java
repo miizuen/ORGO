@@ -29,7 +29,7 @@ public class ShippingAddress {
     @Column(name = "nguoi_nhan", columnDefinition = "NVARCHAR(255)")
     private String recipientName;
 
-    @Column(name = "so_dien_thoai_nguoi_nhan", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "so_dien_thoai_nguoi_nhan")
     private String recipientPhone;
 
     @Column(name = "tinh_thanh", columnDefinition = "NVARCHAR(255)")
