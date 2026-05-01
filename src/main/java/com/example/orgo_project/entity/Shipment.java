@@ -31,7 +31,7 @@ public class Shipment {
     @Column(name = "don_vi_van_chuyen", columnDefinition = "NVARCHAR(255)")
     private String shippingProvider;
 
-    @Column(name = "ma_van_don", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "ma_van_don")
     private String trackingCode;
 
     @Column(name = "ngay_giao_du_kien")

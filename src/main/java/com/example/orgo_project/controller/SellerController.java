@@ -24,4 +24,10 @@ public class SellerController {
         model.addAttribute("activePage", ACTIVE_PAGE);
         return "pages/seller/dashboard";
     }
+
+    @GetMapping("/payout")
+    public String showPayoutPage(Model model){
+        model.addAttribute("activePage", ACTIVE_PAGE);
+        return "pages/seller/payout";
+    }
 }
