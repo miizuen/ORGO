@@ -1,16 +1,15 @@
 package com.example.orgo_project.controller;
 
-import com.example.orgo_project.dto.OrderDetailDTO;
-import com.example.orgo_project.dto.OrderSummaryDTO;
 import com.example.orgo_project.security.CustomUserDetails;
 import com.example.orgo_project.service.ISellerOrderService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-
-@RestController
-@RequestMapping("/api/seller/orders")
+@Controller
+@RequestMapping("/seller/orders")
 public class SellerOrderController {
 
     private final ISellerOrderService sellerOrderService;
@@ -20,49 +19,54 @@ public class SellerOrderController {
     }
 
     @GetMapping
-    public List<OrderSummaryDTO> getSellerOrders(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public String mySellerOrders(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         if (userDetails == null || userDetails.getAccount() == null) {
-            throw new RuntimeException("Chưa đăng nhập");
+            return "redirect:/login";
         }
-        return sellerOrderService.getSellerOrders(userDetails.getAccount().getId());
+
+        model.addAttribute("orders", sellerOrderService.getSellerOrders(userDetails.getAccount().getId()));
+        return "pages/seller/orders";
     }
 
     @GetMapping("/{orderId}")
-    public OrderDetailDTO getSellerOrderDetail(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                               @PathVariable Integer orderId) {
+    public String sellerOrderDetail(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                    @PathVariable Integer orderId,
+                                    Model model) {
         if (userDetails == null || userDetails.getAccount() == null) {
-            throw new RuntimeException("Chưa đăng nhập");
+            return "redirect:/login";
         }
-        return sellerOrderService.getSellerOrderDetail(userDetails.getAccount().getId(), orderId);
+
+        model.addAttribute("order", sellerOrderService.getSellerOrderDetail(userDetails.getAccount().getId(), orderId));
+        return "pages/seller/order-detail";
     }
 
-    @PutMapping("/{orderId}/confirm")
+    @PostMapping("/{orderId}/confirm")
     public String confirmOrder(@AuthenticationPrincipal CustomUserDetails userDetails,
-                               @PathVariable Integer orderId) {
-        if (userDetails == null || userDetails.getAccount() == null) {
-            throw new RuntimeException("Chưa đăng nhập");
-        }
-        sellerOrderService.confirmOrder(userDetails.getAccount().getId(), orderId);
-        return "Đã xác nhận đơn hàng";
+                               @PathVariable Integer orderId,
+                               RedirectAttributes redirectAttributes) {
+        boolean success = sellerOrderService.confirmOrder(userDetails.getAccount().getId(), orderId);
+        redirectAttributes.addFlashAttribute(success ? "successMessage" : "errorMessage",
+                success ? "Đã xác nhận đơn hàng!" : "Không thể xác nhận đơn hàng.");
+        return "redirect:/seller/orders/" + orderId;
     }
 
-    @PutMapping("/{orderId}/ship")
+    @PostMapping("/{orderId}/ship")
     public String shipOrder(@AuthenticationPrincipal CustomUserDetails userDetails,
-                            @PathVariable Integer orderId) {
-        if (userDetails == null || userDetails.getAccount() == null) {
-            throw new RuntimeException("Chưa đăng nhập");
-        }
-        sellerOrderService.shipOrder(userDetails.getAccount().getId(), orderId);
-        return "Đã chuyển sang trạng thái SHIPPED";
+                            @PathVariable Integer orderId,
+                            RedirectAttributes redirectAttributes) {
+        boolean success = sellerOrderService.shipOrder(userDetails.getAccount().getId(), orderId);
+        redirectAttributes.addFlashAttribute(success ? "successMessage" : "errorMessage",
+                success ? "Đơn hàng đã chuyển sang trạng thái đang giao!" : "Không thể chuyển trạng thái.");
+        return "redirect:/seller/orders/" + orderId;
     }
 
-    @PutMapping("/{orderId}/deliver")
+    @PostMapping("/{orderId}/deliver")
     public String deliverOrder(@AuthenticationPrincipal CustomUserDetails userDetails,
-                               @PathVariable Integer orderId) {
-        if (userDetails == null || userDetails.getAccount() == null) {
-            throw new RuntimeException("Chưa đăng nhập");
-        }
-        sellerOrderService.deliverOrder(userDetails.getAccount().getId(), orderId);
-        return "Đã giao hàng thành công";
+                               @PathVariable Integer orderId,
+                               RedirectAttributes redirectAttributes) {
+        boolean success = sellerOrderService.deliverOrder(userDetails.getAccount().getId(), orderId);
+        redirectAttributes.addFlashAttribute(success ? "successMessage" : "errorMessage",
+                success ? "Đơn hàng đã giao thành công!" : "Không thể hoàn tất đơn.");
+        return "redirect:/seller/orders/" + orderId;
     }
 }

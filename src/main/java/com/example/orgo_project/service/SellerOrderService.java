@@ -5,15 +5,16 @@ import com.example.orgo_project.dto.OrderItemDTO;
 import com.example.orgo_project.dto.OrderSummaryDTO;
 import com.example.orgo_project.entity.CustomerOrder;
 import com.example.orgo_project.entity.CustomerOrderItem;
+import com.example.orgo_project.entity.Product;
 import com.example.orgo_project.entity.ProductVariant;
 import com.example.orgo_project.enums.OrderStatus;
 import com.example.orgo_project.repository.ICustomerOrderItemRepository;
 import com.example.orgo_project.repository.ICustomerOrderRepository;
+import com.example.orgo_project.repository.IProductRepository;
 import com.example.orgo_project.repository.IProductVariantRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +25,16 @@ public class SellerOrderService implements ISellerOrderService {
     private final ICustomerOrderRepository orderRepository;
     private final ICustomerOrderItemRepository orderItemRepository;
     private final IProductVariantRepository productVariantRepository;
+    private final IProductRepository productRepository;
 
     public SellerOrderService(ICustomerOrderRepository orderRepository,
                               ICustomerOrderItemRepository orderItemRepository,
-                              IProductVariantRepository productVariantRepository) {
+                              IProductVariantRepository productVariantRepository,
+                              IProductRepository productRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.productVariantRepository = productVariantRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -58,6 +62,7 @@ public class SellerOrderService implements ISellerOrderService {
 
         List<OrderItemDTO> items = orderItemRepository.findByOrderId(orderId)
                 .stream()
+                .filter(item -> isItemRelatedToSeller(item, sellerAccountId))
                 .map(this::toItemDTO)
                 .toList();
 
@@ -133,17 +138,31 @@ public class SellerOrderService implements ISellerOrderService {
 
     private boolean isOrderRelatedToSeller(Integer orderId, Integer sellerAccountId) {
         List<CustomerOrderItem> items = orderItemRepository.findByOrderId(orderId);
-        if (items.isEmpty()) return false;
+        if (items.isEmpty()) {
+            return false;
+        }
 
-        // Logic hiện tại là tạm thời.
-        // Nếu bạn có mapping ProductVariant -> Product -> sellerId thì nên thay logic này bằng kiểm tra chuẩn.
         for (CustomerOrderItem item : items) {
-            ProductVariant variant = productVariantRepository.findById(item.getProductVariantId()).orElse(null);
-            if (variant != null) {
-                return true;
+            if (!isItemRelatedToSeller(item, sellerAccountId)) {
+                return false;
             }
         }
-        return false;
+
+        return true;
+    }
+
+    private boolean isItemRelatedToSeller(CustomerOrderItem item, Integer sellerAccountId) {
+        ProductVariant variant = productVariantRepository.findById(item.getProductVariantId()).orElse(null);
+        if (variant == null || variant.getProductId() == null) {
+            return false;
+        }
+
+        Product product = productRepository.findById(variant.getProductId()).orElse(null);
+        if (product == null || product.getSellerId() == null) {
+            return false;
+        }
+
+        return product.getSellerId().equals(sellerAccountId);
     }
 
     private OrderSummaryDTO toSummary(CustomerOrder order) {

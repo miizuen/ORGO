@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Đặt hàng', ~{::content})}">
+
+<th:block th:fragment="content">
+    <style>
+        .checkout-page {
+            padding: 34px 0 56px;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 10px;
+            letter-spacing: -0.04em;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 1rem;
+            max-width: 680px;
+            line-height: 1.7;
+        }
+
+        .panel-card {
+            background: #fff;
+            border: 1px solid rgba(46, 125, 50, 0.08);
+            border-radius: 22px;
+            box-shadow: 0 12px 30px rgba(46, 125, 50, 0.08);
+            padding: 24px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 18px;
+        }
+
+        .section-title .icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            background: #ecfdf5;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #2e7d32;
+            font-size: 1rem;
+        }
+
+        .form-label {
+            color: #6b7280;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .checkout-input,
+        .checkout-select,
+        .checkout-textarea {
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            background: #fbfbfe;
+            padding: 12px 14px;
+            height: 48px;
+            font-size: 0.96rem;
+            box-shadow: none;
+        }
+
+        .checkout-textarea {
+            height: 110px;
+            resize: vertical;
+        }
+
+        .checkout-input:focus,
+        .checkout-select:focus,
+        .checkout-textarea:focus {
+            border-color: #2e7d32;
+            box-shadow: 0 0 0 0.15rem rgba(46, 125, 50, 0.10);
+        }
+
+        .payment-method-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .payment-option {
+            position: relative;
+        }
+
+        .payment-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .payment-option label {
+            width: 100%;
+            min-height: 96px;
+            border-radius: 18px;
+            border: 1.5px solid #e5e7eb;
+            background: #fff;
+            padding: 14px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 700;
+            color: #374151;
+            text-align: center;
+        }
+
+        .payment-option label .pay-icon {
+            font-size: 1.35rem;
+            color: #6b7280;
+        }
+
+        .payment-option input:checked + label {
+            border-color: #2e7d32;
+            background: linear-gradient(180deg, rgba(46, 125, 50, 0.08), rgba(46, 125, 50, 0.03));
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.08);
+            color: #1f7a3b;
+        }
+
+        .payment-option input:checked + label .pay-icon {
+            color: #2e7d32;
+        }
+
+        .summary-box {
+            position: sticky;
+            top: 24px;
+        }
+
+        .summary-card {
+            background: #fff;
+            border: 1px solid rgba(46, 125, 50, 0.08);
+            border-radius: 22px;
+            box-shadow: 0 12px 30px rgba(46, 125, 50, 0.08);
+            padding: 24px;
+        }
+
+        .summary-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 18px;
+        }
+
+        .product-line {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(229, 231, 235, 0.7);
+        }
+
+        .product-line:last-child {
+            border-bottom: none;
+        }
+
+        .product-line img {
+            width: 62px;
+            height: 62px;
+            border-radius: 14px;
+            object-fit: cover;
+            background: #f3f4f6;
+        }
+
+        .product-meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .product-name {
+            font-size: 0.96rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 3px;
+            line-height: 1.35;
+        }
+
+        .product-desc {
+            font-size: 0.84rem;
+            color: #6b7280;
+        }
+
+        .product-price {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #1f7a3b;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #4b5563;
+            font-size: 0.96rem;
+        }
+
+        .summary-row strong {
+            color: #111827;
+        }
+
+        .coupon-row {
+            display: flex;
+            gap: 10px;
+            margin: 16px 0 14px;
+        }
+
+        .coupon-input {
+            height: 44px;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            background: #fbfbfe;
+            padding: 10px 14px;
+            box-shadow: none;
+        }
+
+        .apply-btn {
+            height: 44px;
+            border-radius: 14px;
+            padding: 0 18px;
+            white-space: nowrap;
+            font-weight: 800;
+            border: none;
+            background: #1d4ed8;
+        }
+
+        .total-block {
+            border-top: 1px solid rgba(229, 231, 235, 0.8);
+            padding-top: 16px;
+            margin-top: 8px;
+        }
+
+        .total-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 14px;
+        }
+
+        .total-line .label {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .total-line .value {
+            font-size: 1.9rem;
+            font-weight: 900;
+            color: #1f7a3b;
+            letter-spacing: -0.03em;
+        }
+
+        .place-order-btn {
+            width: 100%;
+            margin-top: 18px;
+            border-radius: 16px;
+            padding: 14px 18px;
+            font-weight: 800;
+            font-size: 1rem;
+            border: none;
+            background: linear-gradient(135deg, #1e8f3e, #28c26b);
+            box-shadow: 0 12px 22px rgba(40, 194, 107, 0.22);
+        }
+
+        .secure-note {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            color: #6b7280;
+            font-size: 0.82rem;
+            margin-top: 10px;
+        }
+
+        .checkout-note {
+            background: #f0fdf4;
+            border: 1px solid #dcfce7;
+            border-radius: 18px;
+            padding: 16px 18px;
+            margin-top: 18px;
+        }
+
+        .checkout-note strong {
+            color: #166534;
+        }
+
+        .checkout-note p {
+            margin: 6px 0 0;
+            color: #4b5563;
+            font-size: 0.92rem;
+            line-height: 1.65;
+        }
+
+        .shipping-summary {
+            background: #fafafa;
+            border: 1px dashed #e5e7eb;
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin-top: 14px;
+        }
+
+        .shipping-summary .line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.93rem;
+            color: #4b5563;
+            margin-bottom: 8px;
+        }
+
+        .shipping-summary .line:last-child {
+            margin-bottom: 0;
+        }
+
+        .shipping-summary .line strong {
+            color: #111827;
+        }
+
+        @media (max-width: 991px) {
+            .summary-box {
+                position: static;
+            }
+
+            .page-title {
+                font-size: 2.3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .payment-method-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .panel-card,
+            .summary-card {
+                padding: 18px;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .total-line .value {
+                font-size: 1.55rem;
+            }
+
+            .coupon-row {
+                flex-direction: column;
+            }
+
+            .apply-btn {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <section class="checkout-page">
+        <div class="container">
+            <div class="mb-4">
+                <h1 class="page-title">Đặt hàng</h1>
+                <p class="page-subtitle">
+                    Hoàn thành hành trình hướng tới lối sống bền vững hơn. Thu hoạch hữu cơ của bạn chỉ cách một cú nhấp chuột.
+                </p>
+            </div>
+
+            <div th:if="${errorMessage}" class="alert alert-danger rounded-4 shadow-sm mb-4" th:text="${errorMessage}"></div>
+            <div th:if="${checkoutResult != null}" class="alert alert-success rounded-4 shadow-sm mb-4">
+                <div>
+                    Đặt hàng thành công. Mã đơn:
+                    <strong th:text="${checkoutResult.orderCode}">ORD-XXXX</strong>
+                </div>
+                <div class="small mt-1" th:text="${checkoutResult.message}">Đặt hàng thành công</div>
+            </div>
+
+            <form th:action="@{/checkout}" method="post">
+                <div class="row g-4 align-items-start">
+                    <!-- LEFT SIDE -->
+                    <div class="col-lg-7">
+                        <!-- SHIPPING -->
+                        <div class="panel-card mb-4">
+                            <div class="section-title">
+                                <span class="icon">��</span>
+                                <span>Địa chỉ giao hàng</span>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Họ tên</label>
+                                    <input type="text"
+                                           class="form-control checkout-input"
+                                           placeholder="Nhập họ tên người nhận"
+                                           name="receiverName"
+                                           th:value="${session.currentUser != null ? session.currentUser.fullName : ''}">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Email</label>
+                                    <input type="email"
+                                           class="form-control checkout-input"
+                                           placeholder="you@example.com"
+                                           name="email"
+                                           th:value="${session.currentUser != null ? session.currentUser.email : ''}">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Số điện thoại</label>
+                                    <input type="text"
+                                           class="form-control checkout-input"
+                                           placeholder="Nhập số điện thoại"
+                                           name="phone">
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">Địa chỉ giao hàng</label>
+                                    <input type="text"
+                                           class="form-control checkout-input"
+                                           placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
+                                           name="shippingAddress">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Địa chỉ nhận hàng đã lưu</label>
+                                    <select class="form-select checkout-select" name="shippingAddressId">
+                                        <option value="">-- Chọn địa chỉ --</option>
+                                        <option value="1">Địa chỉ mặc định</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Ghi chú</label>
+                                    <input type="text"
+                                           class="form-control checkout-input"
+                                           placeholder="Ghi chú cho đơn hàng"
+                                           name="note">
+                                </div>
+                            </div>
+
+                            <div class="checkout-note">
+                                <strong>Lưu ý giao hàng</strong>
+                                <p>
+                                    ORGO ưu tiên giao hàng nhanh trong ngày đối với nội thành.
+                                    Vui lòng đảm bảo thông tin liên hệ chính xác để đơn hàng được xác nhận nhanh chóng.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- PAYMENT -->
+                        <div class="panel-card">
+                            <div class="section-title">
+                                <span class="icon">��</span>
+                                <span>Phương thức thanh toán</span>
+                            </div>
+
+                            <div class="payment-method-grid">
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-cod" name="paymentMethodId" value="1" checked>
+                                    <label for="payment-cod">
+                                        <span class="pay-icon">��</span>
+                                        <span>COD</span>
+                                        <small>Thanh toán khi nhận hàng</small>
+                                    </label>
+                                </div>
+
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-bank" name="paymentMethodId" value="2">
+                                    <label for="payment-bank">
+                                        <span class="pay-icon">🏦</span>
+                                        <span>Chuyển khoản</span>
+                                        <small>Thanh toán ngân hàng</small>
+                                    </label>
+                                </div>
+
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-wallet" name="paymentMethodId" value="3">
+                                    <label for="payment-wallet">
+                                        <span class="pay-icon">📲</span>
+                                        <span>Ví điện tử</span>
+                                        <small>Momo / ZaloPay</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT SIDE -->
+                    <div class="col-lg-5">
+                        <div class="summary-box">
+                            <div class="summary-card">
+                                <div class="summary-title">Tổng đơn hàng</div>
+
+                                <div th:if="${cartItems != null && !#lists.isEmpty(cartItems)}">
+                                    <div th:each="item : ${cartItems}" class="product-line">
+                                        <img th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1546470427-1f617b69a2fd?auto=format&fit=crop&w=200&q=80'}"
+                                             alt="Product image">
+                                        <div class="product-meta">
+                                            <div class="product-name" th:text="${item.productName}">Rau bina non hữu cơ</div>
+                                            <div class="product-desc">
+                                                <span th:text="${item.quantity}">2</span> x
+                                                <span th:text="${item.variantName != null ? item.variantName : 'biến thể'}">250g</span>
+                                            </div>
+                                        </div>
+                                        <div class="product-price"
+                                             th:text="${#numbers.formatDecimal(item.estimatedPrice != null ? item.estimatedPrice : item.unitPrice, 0, 'POINT', 0, 'COMMA')} + 'đ'">
+                                            85.000đ
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div th:if="${cartItems == null || #lists.isEmpty(cartItems)}" class="text-center text-muted py-3">
+                                    Giỏ hàng đang trống
+                                </div>
+
+                                <div class="coupon-row">
+                                    <input type="text"
+                                           class="form-control coupon-input"
+                                           name="couponCode"
+                                           placeholder="Nhập mã giảm giá"
+                                           th:value="${param.couponCode}">
+                                    <button type="button" class="btn btn-primary apply-btn">Áp dụng</button>
+                                </div>
+
+                                <div class="shipping-summary">
+                                    <div class="line">
+                                        <span>Tạm tính</span>
+                                        <strong th:text="${#numbers.formatDecimal(totalAmount != null ? totalAmount : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">205.000đ</strong>
+                                    </div>
+                                    <div class="line">
+                                        <span>Vận chuyển</span>
+                                        <strong>25.000đ</strong>
+                                    </div>
+                                    <div class="line">
+                                        <span>Giảm giá</span>
+                                        <strong>-0đ</strong>
+                                    </div>
+                                </div>
+
+                                <div class="total-block">
+                                    <div class="total-line">
+                                        <div class="label">Tổng cộng</div>
+                                        <div class="value"
+                                             th:text="${#numbers.formatDecimal((totalAmount != null ? totalAmount : 0) + 25000, 0, 'POINT', 0, 'COMMA')} + 'đ'">
+                                            230.000đ
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-success place-order-btn">
+                                    Xác nhận đặt hàng →
+                                </button>
+
+                                <div class="secure-note">
+                                    <span>🔒</span>
+                                    <span>Secure encrypted transaction</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+</th:block>
+</html>

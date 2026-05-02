@@ -52,10 +52,14 @@ public class CheckoutService implements ICheckoutService {
     @Override
     public CheckoutResponseDTO checkout(Integer accountId, CheckoutRequestDTO request) {
         ShoppingCart cart = cartRepository.findByAccountId(accountId);
-        if (cart == null) throw new RuntimeException("Không tìm thấy giỏ hàng");
+        if (cart == null) {
+            throw new RuntimeException("Không tìm thấy giỏ hàng");
+        }
 
         List<ShoppingCartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
-        if (cartItems.isEmpty()) throw new RuntimeException("Giỏ hàng đang trống");
+        if (cartItems.isEmpty()) {
+            throw new RuntimeException("Giỏ hàng đang trống");
+        }
 
         BigDecimal totalAmount = BigDecimal.ZERO;
 
@@ -68,7 +72,9 @@ public class CheckoutService implements ICheckoutService {
             }
 
             BigDecimal unitPrice = variant.getDiscountedPrice() != null ? variant.getDiscountedPrice() : variant.getOriginalPrice();
-            if (unitPrice == null) unitPrice = BigDecimal.ZERO;
+            if (unitPrice == null) {
+                unitPrice = BigDecimal.ZERO;
+            }
 
             totalAmount = totalAmount.add(unitPrice.multiply(BigDecimal.valueOf(item.getQuantity())));
         }
@@ -78,14 +84,18 @@ public class CheckoutService implements ICheckoutService {
             CouponValidateResponseDTO couponResult = couponService.validateCoupon(
                     new CouponValidateRequestDTO(request.getCouponCode(), totalAmount)
             );
+
             if (!couponResult.isValid()) {
                 throw new RuntimeException(couponResult.getMessage());
             }
+
             discountAmount = couponResult.getDiscountAmount();
         }
 
         BigDecimal finalTotal = totalAmount.subtract(discountAmount);
-        if (finalTotal.compareTo(BigDecimal.ZERO) < 0) finalTotal = BigDecimal.ZERO;
+        if (finalTotal.compareTo(BigDecimal.ZERO) < 0) {
+            finalTotal = BigDecimal.ZERO;
+        }
 
         CustomerOrder order = new CustomerOrder();
         order.setUserId(accountId);
@@ -106,7 +116,9 @@ public class CheckoutService implements ICheckoutService {
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy biến thể sản phẩm"));
 
             BigDecimal unitPrice = variant.getDiscountedPrice() != null ? variant.getDiscountedPrice() : variant.getOriginalPrice();
-            if (unitPrice == null) unitPrice = BigDecimal.ZERO;
+            if (unitPrice == null) {
+                unitPrice = BigDecimal.ZERO;
+            }
 
             CustomerOrderItem orderItem = new CustomerOrderItem();
             orderItem.setOrderId(savedOrder.getId());
