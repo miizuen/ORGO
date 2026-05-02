@@ -77,8 +77,10 @@ class PayoutServiceImplTest {
         request.setId(1);
         request.setStatus(WithdrawalStatus.PENDING);
         request.setRequestedAmount(new BigDecimal("200000"));
+        request.setProcessorId(10);
 
         when(withdrawalRequestRepository.findById(1)).thenReturn(Optional.of(request));
+        when(walletBalanceRepository.findByAccountId(10)).thenReturn(Optional.of(wallet));
         when(withdrawalRequestRepository.save(any(WithdrawalRequest.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         WithdrawalRequest result = payoutService.approve(1);
@@ -91,8 +93,10 @@ class PayoutServiceImplTest {
         WithdrawalRequest request = new WithdrawalRequest();
         request.setId(2);
         request.setStatus(WithdrawalStatus.PENDING);
+        request.setProcessorId(10);
 
         when(withdrawalRequestRepository.findById(2)).thenReturn(Optional.of(request));
+        when(walletBalanceRepository.findByAccountId(10)).thenReturn(Optional.of(wallet));
         when(withdrawalRequestRepository.save(any(WithdrawalRequest.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         WithdrawalRequest result = payoutService.reject(2, "Sai thông tin ngân hàng");

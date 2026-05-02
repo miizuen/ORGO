@@ -15,31 +15,37 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "SoDuVi")
+@Table(name = "SoDuEscrow")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class WalletBalance {
+public class EscrowBalance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_vi")
+    @Column(name = "id_escrow")
     private Integer id;
 
-    @Column(name = "id_tai_khoan")
-    private Integer accountId;
+    @Column(name = "id_don_hang")
+    private Integer orderId;
 
-    @Column(name = "so_du_kha_dung")
-    private BigDecimal availableBalance;
+    @Column(name = "tong_tien_ham_giu")
+    private BigDecimal heldAmount;
 
-    @Column(name = "so_du_tam_giu")
-    private BigDecimal heldBalance;
+    @Column(name = "phi_hoa_hong")
+    private BigDecimal commissionAmount;
 
-    @Column(name = "tong_da_rut")
-    private BigDecimal totalWithdrawn;
+    @Column(name = "tien_nguoi_ban_nhan")
+    private BigDecimal sellerPayoutAmount;
 
-    @Column(name = "so_du_duy_tri")
-    private BigDecimal maintenanceBalance;
+    @Column(name = "tien_admin_nhan")
+    private BigDecimal adminRevenueAmount;
+
+    @Column(name = "trang_thai", columnDefinition = "NVARCHAR(50)")
+    private String status;
+
+    @Column(name = "ngay_tao")
+    private LocalDateTime createdAt;
 
     @Column(name = "ngay_cap_nhat")
     private LocalDateTime updatedAt;

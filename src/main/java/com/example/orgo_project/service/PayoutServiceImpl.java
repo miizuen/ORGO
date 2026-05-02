@@ -106,6 +106,14 @@ public class PayoutServiceImpl implements PayoutService {
             throw new IllegalArgumentException("Số dư không đủ để rút");
         }
 
+        // Check maintenance balance for sellers
+        if (wallet.getMaintenanceBalance() != null) {
+            BigDecimal afterWithdrawal = wallet.getAvailableBalance().subtract(amount);
+            if (afterWithdrawal.compareTo(wallet.getMaintenanceBalance()) < 0) {
+                throw new IllegalArgumentException("Không thể rút tiền vì sẽ thấp hơn mức duy trì tối thiểu " + wallet.getMaintenanceBalance() + " VND");
+            }
+        }
+
         wallet.setAvailableBalance(wallet.getAvailableBalance().subtract(amount));
         wallet.setHeldBalance((wallet.getHeldBalance() == null ? BigDecimal.ZERO : wallet.getHeldBalance()).add(amount));
         wallet.setUpdatedAt(LocalDateTime.now());
@@ -131,17 +139,46 @@ public class PayoutServiceImpl implements PayoutService {
     @Override
     public WithdrawalRequest approve(Integer id) {
         WithdrawalRequest request = findById(id);
+        Integer ownerAccountId = request.getProcessorId();
+        WalletBalance wallet = getWalletByAccountId(ownerAccountId);
+        if (wallet == null) {
+            throw new IllegalArgumentException("Không tìm thấy ví của tài khoản");
+        }
+
+        BigDecimal amount = request.getRequestedAmount() == null ? BigDecimal.ZERO : request.getRequestedAmount();
+        if (wallet.getHeldBalance() != null) {
+            wallet.setHeldBalance(wallet.getHeldBalance().subtract(amount));
+        }
+        wallet.setTotalWithdrawn((wallet.getTotalWithdrawn() == null ? BigDecimal.ZERO : wallet.getTotalWithdrawn()).add(amount));
+        wallet.setUpdatedAt(LocalDateTime.now());
+        walletBalanceRepository.save(wallet);
+
         request.setStatus(WithdrawalStatus.APPROVED);
         request.setProcessedAt(LocalDateTime.now());
         request.setProcessorId(getCurrentAccountId());
         WithdrawalRequest saved = withdrawalRequestRepository.save(request);
+
         writeAudit("WithdrawalRequest", saved.getId(), "APPROVE", "Phê duyệt lệnh rút tiền #" + saved.getId(), getCurrentAccountId());
+        writeAudit("WalletBalance", wallet.getId(), "DEBIT", "Trừ số tiền " + amount + " khi duyệt lệnh rút #" + saved.getId(), getCurrentAccountId());
+        writeTransactionHistory(wallet.getId(), "DEBIT", amount, wallet.getAvailableBalance(), saved.getId(), "Admin duyệt payout và trừ tiền tài khoản");
         return saved;
     }
 
     @Override
     public WithdrawalRequest reject(Integer id, String reason) {
         WithdrawalRequest request = findById(id);
+        Integer ownerAccountId = request.getProcessorId();
+        WalletBalance wallet = getWalletByAccountId(ownerAccountId);
+        if (wallet != null) {
+            BigDecimal amount = request.getRequestedAmount() == null ? BigDecimal.ZERO : request.getRequestedAmount();
+            BigDecimal held = wallet.getHeldBalance() == null ? BigDecimal.ZERO : wallet.getHeldBalance();
+            wallet.setHeldBalance(held.subtract(amount));
+            wallet.setAvailableBalance((wallet.getAvailableBalance() == null ? BigDecimal.ZERO : wallet.getAvailableBalance()).add(amount));
+            wallet.setUpdatedAt(LocalDateTime.now());
+            walletBalanceRepository.save(wallet);
+            writeTransactionHistory(wallet.getId(), "UNLOCK", amount, wallet.getAvailableBalance(), request.getId(), "Admin từ chối payout và hoàn tiền về ví");
+        }
+
         request.setStatus(WithdrawalStatus.REJECTED);
         request.setRejectionReason(reason);
         request.setProcessedAt(LocalDateTime.now());
@@ -171,6 +208,17 @@ public class PayoutServiceImpl implements PayoutService {
         auditLog.setActorId(actorId);
         auditLog.setCreatedAt(LocalDateTime.now());
         auditLogRepository.save(auditLog);
+    }
+
+    private void writeTransactionHistory(Integer walletId, String type, BigDecimal amount, BigDecimal balanceAfter, Integer referenceId, String description) {
+        TransactionHistory history = new TransactionHistory();
+        history.setWalletId(walletId);
+        history.setType(type);
+        history.setAmount(amount);
+        history.setBalanceAfter(balanceAfter);
+        history.setReferenceId(referenceId);
+        history.setDescription(description);
+        history.setCreatedAt(LocalDateTime.now());
     }
 
     private Integer getCurrentAccountId() {

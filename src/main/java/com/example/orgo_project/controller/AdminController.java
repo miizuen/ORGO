@@ -8,10 +8,10 @@ import com.example.orgo_project.repository.ArticleRepository;
 import com.example.orgo_project.repository.ISellerRepository;
 import com.example.orgo_project.repository.IExpertRepository;
 import com.example.orgo_project.repository.ProductRepository;
+import com.example.orgo_project.service.EscrowService;
 import com.example.orgo_project.service.IExpertService;
 import com.example.orgo_project.service.ISellerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +27,9 @@ public class AdminController {
 
     @Autowired
     private IExpertService expertService;
+
+    @Autowired
+    private EscrowService escrowService;
 
     @Autowired
     private ISellerRepository sellerRepository;
@@ -105,6 +108,16 @@ public class AdminController {
         expertService.reject(id);
         model.addAttribute("successMessage", "Đã từ chối thành công!");
         return "redirect:/admin/expert-pending-list?rejected";
+    }
+
+    @GetMapping("/escrow-reconciliation")
+    public String showEscrowReconciliation(Model model){
+        model.addAttribute("activePage", "escrow-reconciliation");
+        model.addAttribute("escrows", escrowService.findAll());
+        model.addAttribute("totalEscrowAmount", escrowService.getTotalHeldAmount());
+        model.addAttribute("totalAdminCommission", escrowService.getTotalAdminRevenue());
+        model.addAttribute("settlementRows", escrowService.findAllSettlements());
+        return "/pages/admin/escrow-reconciliation";
     }
 
 }

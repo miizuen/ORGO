@@ -41,3 +41,34 @@ VALUES (3, N'Nguyễn Văn Phú', 'phu@orgo.com', '0900000003', 'ACTIVE'); --Nê
 
 INSERT INTO nguoi_dung (id_tai_khoan, ho_ten, email, so_dien_thoai, trang_thai)
 VALUES (4, N'Nguyễn Hà Vi', 'vi@orgo.com', '0900000004', 'ACTIVE'); -- nên nhập email thật
+
+
+Lệnh chạy chương trình:
+set JAVA_HOME=C:\Program Files\Java\jdk-17
+
+set PATH=%JAVA_HOME%\bin;%PATH%
+
+gradlew.bat bootRun
+
+gradlew.bat --stop
+
+---
+
+## Ghi chú về mô hình escrow
+
+- Seller đăng ký tại `/register/seller` và cần khai báo ngân hàng ngay từ đầu.
+- Admin duyệt seller có thể xem thông tin ngân hàng trực tiếp trên màn chi tiết duyệt.
+- Khi đơn hàng hoàn tất, tiền được đi qua luồng escrow và được chia theo từng seller tự động.
+- Seller không còn luồng rút tiền thủ công; email duyệt seller sẽ nhắc lại bank info và quy trình escrow.
+
+## Kiểm thử đã bổ sung
+
+- Unit test cho `EscrowServiceImpl`:
+  - tạo escrow
+  - cộng tổng tiền escrow
+  - cộng tổng hoa hồng admin
+  - settlement cho 1 seller
+  - settlement cho nhiều seller
+  - trường hợp escrow không tồn tại
+
+

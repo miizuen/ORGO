@@ -99,16 +99,29 @@
                 <section class="payout-grid">
                     <article class="form-card">
                         <h2 class="panel-title">Yêu cầu thanh toán</h2>
-                        <div class="field">
-                            <label class="field-label" for="expertWithdrawAmount">Số tiền thanh toán</label>
-                            <input id="expertWithdrawAmount" class="field-input" type="text" value="$ 1250.00">
-                            <div class="helper"><span>Số tiền thanh toán tối thiểu: $50.00</span><a href="#">Withdraw Max</a></div>
-                        </div>
-                        <div class="field">
-                            <label class="field-label" for="expertAccount">Tài khoản nhận</label>
-                            <div id="expertAccount" class="account-input">Vietcombank - ****8901</div>
-                        </div>
-                        <button class="action-btn" type="button">Yêu cầu thanh toán</button>
+                        <div th:if="${successMessage}" class="alert alert-success" style="padding:12px 16px;border-radius:12px;margin-bottom:16px;color:#064e3b;background:#d1fae5;border:1px solid #86efac;" th:text="${successMessage}"></div>
+                        <div th:if="${errorMessage}" class="alert alert-danger" style="padding:12px 16px;border-radius:12px;margin-bottom:16px;color:#991b1b;background:#fee2e2;border:1px solid #fecaca;" th:text="${errorMessage}"></div>
+                        <form method="post" th:action="@{/expert/payout/create}">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <div class="field">
+                                <label class="field-label" for="expertWithdrawAmount">Số tiền thanh toán</label>
+                                <input id="expertWithdrawAmount" class="field-input" type="number" name="amount" step="0.01" min="0" placeholder="Nhập số tiền" required>
+                                <div class="helper"><span>Số tiền thanh toán tối thiểu: 50.00</span><a href="#">Withdraw Max</a></div>
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="expertBankName">Ngân hàng</label>
+                                <input id="expertBankName" class="field-input" type="text" name="bankName" placeholder="Vietcombank" required>
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="expertBankAccount">Số tài khoản nhận</label>
+                                <input id="expertBankAccount" class="field-input" type="text" name="bankAccount" placeholder="0123456789" required>
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="expertAccountHolderName">Tên chủ tài khoản</label>
+                                <input id="expertAccountHolderName" class="field-input" type="text" name="accountHolderName" placeholder="Nguyễn Văn A" required>
+                            </div>
+                            <button class="action-btn" type="submit">Yêu cầu thanh toán</button>
+                        </form>
                     </article>
 
                     <article class="status-card">

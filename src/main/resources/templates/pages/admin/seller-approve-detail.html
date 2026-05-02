@@ -459,15 +459,27 @@
                 </div>
             </div>
 
-            <!-- Map -->
+            <!-- Bank info -->
             <div class="map-section">
-                <h3>📍 Trung tâm điều hành nông trại</h3>
-                <div class="map-placeholder">
-                    <div class="map-grid"></div>
-                    <div class="map-roads"></div>
-                    <div class="map-roads2"></div>
-                    <div class="map-pin">📍</div>
-                    <div class="map-label">Plot 12, Ward 7, Đà Lạt, Lâm Đồng</div>
+                <h3>🏦 Thông tin ngân hàng</h3>
+                <div class="section-card" style="padding:18px;background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid #dbe4ee;">
+                    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;">
+                        <div style="padding:14px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;">
+                            <div style="font-size:12px;color:#6b7280;font-weight:800;text-transform:uppercase;letter-spacing:.06em;">Ngân hàng</div>
+                            <div style="margin-top:8px;font-size:16px;font-weight:800;color:#111827;" th:text="${seller.bankName != null ? seller.bankName : 'Chưa cập nhật'}">Chưa cập nhật</div>
+                        </div>
+                        <div style="padding:14px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;">
+                            <div style="font-size:12px;color:#6b7280;font-weight:800;text-transform:uppercase;letter-spacing:.06em;">Số tài khoản</div>
+                            <div style="margin-top:8px;font-size:16px;font-weight:800;color:#111827;" th:text="${seller.bankAccount != null ? seller.bankAccount : 'Chưa cập nhật'}">Chưa cập nhật</div>
+                        </div>
+                        <div style="padding:14px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;">
+                            <div style="font-size:12px;color:#6b7280;font-weight:800;text-transform:uppercase;letter-spacing:.06em;">Chủ tài khoản</div>
+                            <div style="margin-top:8px;font-size:16px;font-weight:800;color:#111827;" th:text="${seller.accountHolderName != null ? seller.accountHolderName : 'Chưa cập nhật'}">Chưa cập nhật</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:14px;font-size:12px;color:#6b7280;line-height:1.6;">
+                        Dữ liệu này sẽ được dùng cho đối soát và chi trả tự động theo luồng escrow.
+                    </div>
                 </div>
             </div>
 
