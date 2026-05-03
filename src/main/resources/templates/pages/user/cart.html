@@ -6,113 +6,169 @@
 <th:block th:fragment="content">
     <style>
         .cart-page {
-            padding: 32px 0 56px;
+            padding: 32px 0 60px;
         }
 
-        .page-title {
+        .cart-hero {
+            background: linear-gradient(135deg, #f4fff6, #ffffff 55%, #f9fffa);
+            border-radius: 28px;
+            padding: 32px;
+            box-shadow: 0 18px 45px rgba(46, 125, 50, 0.08);
+            border: 1px solid rgba(46, 125, 50, 0.08);
+        }
+
+        .cart-title {
             font-family: 'Playfair Display', serif;
             font-size: 3rem;
             font-weight: 800;
-            color: #1f2937;
-            margin-bottom: 10px;
+            color: #173a1a;
             letter-spacing: -0.04em;
+            margin-bottom: 8px;
         }
 
-        .page-subtitle {
-            color: #6b7280;
+        .cart-subtitle {
+            color: #64748b;
             font-size: 1rem;
-            max-width: 640px;
             line-height: 1.7;
+            max-width: 760px;
         }
 
-        .cart-card {
+        .shop-group {
+            background: #ffffff;
+            border: 1px solid #edf3ee;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+            margin-bottom: 22px;
+        }
+
+        .shop-header {
+            background: linear-gradient(135deg, #f0fbf3, #ffffff);
+            padding: 16px 20px;
+            border-bottom: 1px solid #edf3ee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .shop-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #e9f9ee;
+            color: #1f7a3b;
+            padding: 10px 16px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 0.95rem;
+        }
+
+        .shop-meta {
+            color: #6b7280;
+            font-size: 0.92rem;
+            font-weight: 600;
+        }
+
+        .cart-item-card {
             background: #fff;
-            border: 1px solid rgba(46, 125, 50, 0.08);
-            border-radius: 20px;
-            box-shadow: 0 12px 30px rgba(46, 125, 50, 0.08);
-            padding: 16px;
-            margin-bottom: 18px;
+            padding: 18px 20px;
+            border-bottom: 1px solid #f1f5f2;
         }
 
-        .cart-product-img {
-            width: 84px;
-            height: 84px;
-            border-radius: 16px;
+        .cart-item-card:last-child {
+            border-bottom: none;
+        }
+
+        .cart-img {
+            width: 92px;
+            height: 92px;
+            border-radius: 18px;
             object-fit: cover;
             background: #f3f4f6;
+            border: 1px solid #eef2f7;
         }
 
-        .product-category {
+        .cart-label {
+            display: inline-block;
             font-size: 0.72rem;
+            font-weight: 800;
             letter-spacing: 0.18em;
             text-transform: uppercase;
             color: #6b7280;
             margin-bottom: 6px;
-            font-weight: 700;
         }
 
-        .product-name {
-            font-size: 1.05rem;
-            font-weight: 700;
+        .cart-product-name {
+            font-size: 1.08rem;
+            font-weight: 800;
             color: #111827;
-            margin-bottom: 10px;
-            line-height: 1.3;
+            margin-bottom: 8px;
+            line-height: 1.35;
         }
 
-        .product-price {
-            font-size: 1rem;
-            font-weight: 700;
+        .variant-name {
+            font-size: 0.92rem;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .cart-price {
+            font-size: 1.12rem;
+            font-weight: 900;
             color: #2e7d32;
             white-space: nowrap;
         }
 
-        .qty-control {
+        .qty-pill {
             display: inline-flex;
             align-items: center;
-            gap: 14px;
-            background: #f7f7fb;
+            gap: 12px;
+            background: #f7f9f7;
+            border: 1px solid #e5eee6;
             border-radius: 999px;
-            padding: 4px 12px;
+            padding: 6px 12px;
             width: fit-content;
         }
 
         .qty-btn {
+            width: 30px;
+            height: 30px;
             border: none;
-            background: transparent;
-            color: #6b7280;
-            font-size: 1.1rem;
-            font-weight: 700;
-            line-height: 1;
-            width: 22px;
-            height: 22px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #2e7d32;
+            font-weight: 900;
+            box-shadow: 0 2px 8px rgba(46, 125, 50, 0.12);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            padding: 0;
         }
 
-        .qty-value {
-            min-width: 16px;
+        .qty-value-input {
+            width: 42px;
+            border: none;
+            background: transparent;
             text-align: center;
-            font-weight: 700;
-            color: #374151;
-            font-size: 0.95rem;
+            font-weight: 800;
+            color: #111827;
+            outline: none;
         }
 
-        .summary-box {
-            background: #f6f6fb;
-            border: 1px solid rgba(46, 125, 50, 0.06);
-            border-radius: 20px;
+        .cart-summary {
+            background: #ffffff;
+            border-radius: 24px;
             padding: 24px;
-            box-shadow: 0 10px 24px rgba(31, 41, 55, 0.05);
+            border: 1px solid #edf3ee;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
             position: sticky;
             top: 24px;
         }
 
         .summary-title {
-            font-size: 1.5rem;
-            font-weight: 800;
+            font-size: 1.35rem;
+            font-weight: 900;
             color: #111827;
             margin-bottom: 20px;
         }
@@ -136,23 +192,23 @@
             align-items: baseline;
             padding-top: 14px;
             margin-top: 10px;
-            border-top: 1px solid rgba(107, 114, 128, 0.15);
+            border-top: 1px solid #e5e7eb;
         }
 
         .summary-total .label {
             font-size: 1rem;
-            font-weight: 700;
+            font-weight: 800;
             color: #111827;
         }
 
         .summary-total .value {
-            font-size: 1.8rem;
-            font-weight: 800;
+            font-size: 1.85rem;
+            font-weight: 900;
             color: #1f7a3b;
             letter-spacing: -0.03em;
         }
 
-        .coupon-box {
+        .coupon-wrap {
             display: flex;
             gap: 10px;
             margin-top: 18px;
@@ -160,19 +216,18 @@
 
         .coupon-input {
             border-radius: 14px;
-            border: 1px solid #d1d5db;
-            padding: 12px 14px;
-            height: 44px;
-            font-size: 0.95rem;
+            border: 1px solid #dbe7dc;
+            height: 46px;
+            padding: 0 14px;
         }
 
         .coupon-btn {
             border-radius: 14px;
-            height: 44px;
+            height: 46px;
             padding: 0 18px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #2e7d32, #39b54a);
+            background: linear-gradient(135deg, #2e7d32, #3fb950);
             border: none;
+            font-weight: 800;
             white-space: nowrap;
         }
 
@@ -180,290 +235,434 @@
             width: 100%;
             border-radius: 16px;
             padding: 14px 18px;
-            font-weight: 800;
+            font-weight: 900;
             font-size: 1rem;
             margin-top: 16px;
-            background: linear-gradient(135deg, #2e7d32, #37b34a);
+            background: linear-gradient(135deg, #2e7d32, #3fb950);
             border: none;
         }
 
-        .small-note {
-            font-size: 0.78rem;
-            color: #6b7280;
-            text-align: center;
-            margin-top: 10px;
-            letter-spacing: 0.03em;
-        }
-
-        .eco-box {
-            margin-top: 16px;
-            background: #ecfdf5;
-            border: 1px solid #d1fae5;
+        .note-box {
+            margin-top: 18px;
+            background: #f0fbf3;
+            border: 1px solid #d5f5dc;
             border-radius: 18px;
             padding: 16px;
         }
 
-        .eco-title {
-            font-weight: 800;
+        .note-box .title {
+            font-weight: 900;
             color: #0f766e;
             margin-bottom: 6px;
         }
 
-        .eco-text {
-            font-size: 0.92rem;
-            color: #4b5563;
-            line-height: 1.6;
+        .note-box p {
             margin: 0;
+            color: #475569;
+            font-size: 0.93rem;
+            line-height: 1.6;
+        }
+
+        .empty-cart {
+            background: #fff;
+            border-radius: 24px;
+            padding: 48px 28px;
+            border: 1px dashed #cde6d2;
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+        }
+
+        .empty-cart .icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .empty-cart h3 {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        .empty-cart p {
+            color: #64748b;
+            margin-bottom: 22px;
+        }
+
+        .sweet-alert {
+            border-radius: 18px;
+            border: none;
+            box-shadow: 0 16px 35px rgba(46, 125, 50, 0.15);
+            overflow: hidden;
+            transition: opacity 0.6s ease, transform 0.6s ease, max-height 0.6s ease, margin 0.6s ease, padding 0.6s ease;
+        }
+
+        .sweet-alert-success {
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: white;
+            font-weight: 800;
+        }
+
+        .sweet-alert.fade-out {
+            opacity: 0;
+            transform: translateY(-8px);
+            max-height: 0;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            overflow: hidden;
+        }
+
+        .ok-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #eafaf0;
+            color: #1f7a3b;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 0.9rem;
         }
 
         .recommend-title {
-            margin: 84px 0 22px;
-            font-size: 1.35rem;
-            font-weight: 800;
+            margin: 74px 0 20px;
+            font-size: 1.4rem;
+            font-weight: 900;
             color: #111827;
         }
 
-        .product-suggest-card {
-            background: transparent;
-            border: none;
+        .suggest-card {
+            background: #fff;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid #edf3ee;
+            box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+            transition: transform 0.2s ease;
         }
 
-        .product-suggest-img {
+        .suggest-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .suggest-img {
             width: 100%;
-            height: 158px;
+            height: 168px;
             object-fit: cover;
-            border-radius: 14px;
-            background: #111;
-            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+        }
+
+        .suggest-body {
+            padding: 12px 14px 14px;
         }
 
         .suggest-name {
-            margin-top: 10px;
             font-size: 0.98rem;
-            font-weight: 600;
+            font-weight: 700;
             color: #111827;
             line-height: 1.4;
+            margin-bottom: 6px;
         }
 
         .suggest-price {
             color: #2e7d32;
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-
-        .empty-cart {
-            background: white;
-            border: 1px dashed rgba(46, 125, 50, 0.25);
-            border-radius: 20px;
-            padding: 40px;
-            text-align: center;
-        }
-
-        .empty-cart h3 {
-            font-size: 1.4rem;
             font-weight: 800;
-            margin-bottom: 10px;
-            color: #111827;
-        }
-
-        .empty-cart p {
-            color: #6b7280;
-            margin-bottom: 22px;
+            font-size: 0.92rem;
         }
 
         @media (max-width: 991px) {
-            .summary-box {
+            .cart-summary {
                 position: static;
             }
 
-            .page-title {
-                font-size: 2.3rem;
+            .cart-title {
+                font-size: 2.4rem;
             }
         }
 
         @media (max-width: 576px) {
-            .cart-card {
-                padding: 14px;
+            .cart-hero {
+                padding: 22px;
+                border-radius: 22px;
             }
 
-            .cart-product-img {
-                width: 72px;
-                height: 72px;
+            .shop-header,
+            .cart-item-card {
+                padding-left: 14px;
+                padding-right: 14px;
             }
 
-            .page-title {
+            .cart-img {
+                width: 74px;
+                height: 74px;
+            }
+
+            .cart-title {
                 font-size: 2rem;
             }
 
-            .summary-box {
-                padding: 18px;
-            }
-
             .summary-total .value {
-                font-size: 1.5rem;
+                font-size: 1.55rem;
             }
         }
     </style>
 
     <section class="cart-page">
         <div class="container">
-            <div class="mb-4">
-                <h1 class="page-title">Giỏ hàng</h1>
-                <p class="page-subtitle">
-                    Kiểm tra các sản phẩm hữu cơ tươi sạch bạn đã chọn cho lối sống bền vững của mình.
-                </p>
-            </div>
-
-            <div class="row g-4 align-items-start">
-                <!-- LEFT: CART ITEMS -->
-                <div class="col-lg-8">
-                    <div th:if="${successMessage}" class="alert alert-success rounded-4 shadow-sm" th:text="${successMessage}"></div>
-                    <div th:if="${errorMessage}" class="alert alert-danger rounded-4 shadow-sm" th:text="${errorMessage}"></div>
-
-                    <div th:if="${cartItems == null || #lists.isEmpty(cartItems)}" class="empty-cart">
-                        <h3>Giỏ hàng của bạn đang trống</h3>
-                        <p>Hãy khám phá các sản phẩm hữu cơ và thêm vào giỏ hàng để tiếp tục mua sắm.</p>
-                        <a th:href="@{/products}" class="btn btn-success btn-lg px-4 rounded-pill">Tiếp tục mua sắm</a>
+            <div class="cart-hero mb-4">
+                <div class="d-flex flex-column flex-lg-row align-items-lg-end justify-content-between gap-3 mb-4">
+                    <div>
+                        <div class="ok-badge mb-3">
+                            <span>🫶</span>
+                            <span>Giỏ hàng xanh sạch</span>
+                        </div>
+                        <h1 class="cart-title">Giỏ hàng của bạn</h1>
+                        <p class="cart-subtitle mb-0">
+                            Những sản phẩm hữu cơ đã được sắp xếp theo từng nhà bán hàng để bạn dễ theo dõi và thanh toán.
+                        </p>
                     </div>
 
-                    <div th:if="${cartItems != null && !#lists.isEmpty(cartItems)}">
-                        <div th:each="item : ${cartItems}" class="cart-card">
-                            <div class="d-flex gap-3 align-items-center flex-wrap flex-sm-nowrap">
-                                <div>
-                                    <img class="cart-product-img"
-                                         th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1540420773420-3366772f5999?auto=format&fit=crop&w=300&q=80'}"
-                                         alt="Product image">
+                    <div class="text-lg-end">
+                        <a th:href="@{/products}" class="btn btn-outline-success rounded-pill px-4 fw-bold">
+                            ← Tiếp tục mua sắm
+                        </a>
+                    </div>
+                </div>
+
+                <div id="cartSuccessAlert" th:if="${successMessage}" class="alert alert-success rounded-4 fw-semibold shadow-sm sweet-alert">
+                    <span class="me-2">✅</span>
+                    <span th:text="${successMessage}">Đã thêm vào giỏ hàng</span>
+                </div>
+
+                <div id="cartErrorAlert" th:if="${errorMessage}" class="alert alert-danger rounded-4 fw-semibold shadow-sm sweet-alert">
+                    <span class="me-2">⚠️</span>
+                    <span th:text="${errorMessage}">Có lỗi xảy ra</span>
+                </div>
+
+                <div class="row g-4 align-items-start">
+                    <div class="col-lg-8">
+                        <!-- EMPTY CART -->
+                        <div th:if="${cartGroups == null || #lists.isEmpty(cartGroups)}" class="empty-cart">
+                            <div class="icon">🧺</div>
+                            <h3>Giỏ hàng đang trống</h3>
+                            <p>Hãy thêm những sản phẩm hữu cơ tươi ngon vào giỏ để bắt đầu hành trình mua sắm xanh.</p>
+                            <a th:href="@{/products}" class="btn btn-success btn-lg rounded-pill px-4 fw-bold">
+                                Khám phá sản phẩm
+                            </a>
+                        </div>
+
+                        <!-- GROUPED BY SHOP -->
+                        <div th:if="${cartGroups != null && !#lists.isEmpty(cartGroups)}">
+                            <div th:each="group : ${cartGroups}" class="shop-group">
+                                <div class="shop-header">
+                                    <div class="shop-badge">
+                                        <span>🏪</span>
+                                        <span th:text="${group.key != null ? group.key : 'Nhà bán hàng'}">Tên shop</span>
+                                    </div>
+                                    <div class="shop-meta">
+                                        <span th:text="${#lists.size(group.value)}">0</span>
+                                        <span> sản phẩm trong shop này</span>
+                                    </div>
                                 </div>
+                            
+                                <div th:each="item : ${group.value}" class="cart-item-card">
+                                    <div class="d-flex gap-3 align-items-center flex-wrap flex-sm-nowrap">
+                                        <div>
+                                            <img class="cart-img"
+                                                 th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80'}"
+                                                 alt="Product image">
+                                        </div>
 
-                                <div class="flex-grow-1">
-                                    <div class="product-category"
-                                         th:text="${item.variantName != null ? item.variantName : 'Organic Farm'}">ORGANIC FARM</div>
+                                        <div class="flex-grow-1">
+                                            <div class="cart-label">ORGANIC PRODUCT</div>
+                                            <div class="cart-product-name" th:text="${item.productName}">Tên sản phẩm</div>
+                                            <div class="variant-name" th:text="${item.variantName}">Biến thể sản phẩm</div>
 
-                                    <div class="product-name" th:text="${item.productName}">Tên sản phẩm</div>
+                                            <div class="d-flex flex-wrap align-items-center gap-3">
+                                                <form th:action="@{/cart/update}" method="post" class="d-inline-flex align-items-center gap-2">
+                                                    <input type="hidden" name="cartItemId" th:value="${item.id}">
+                                                    <div class="qty-pill">
+                                                        <button type="button" class="qty-btn" onclick="updateQty(this, -1)">−</button>
+                                                        <input type="number"
+                                                               class="qty-value-input"
+                                                               name="quantity"
+                                                               th:value="${item.quantity}"
+                                                               min="1"
+                                                               onchange="this.form.submit()">
+                                                        <button type="button" class="qty-btn" onclick="updateQty(this, 1)">+</button>
+                                                    </div>
+                                                </form>
 
-                                    <div class="d-flex align-items-center gap-3 flex-wrap">
-                                        <form th:action="@{/user/cart/update}" method="post" class="d-inline-flex align-items-center gap-2">
-                                            <input type="hidden" name="cartItemId" th:value="${item.id}">
-                                            <div class="qty-control">
-                                                <button type="button" class="qty-btn"
-                                                        onclick="updateQty(this, -1)">−</button>
-                                                <input type="number"
-                                                       class="form-control form-control-sm border-0 bg-transparent text-center p-0 qty-value-input"
-                                                       name="quantity"
-                                                       th:value="${item.quantity}"
-                                                       min="1"
-                                                       style="width: 42px; box-shadow: none;"
-                                                       onchange="this.form.submit()">
-                                                <button type="button" class="qty-btn"
-                                                        onclick="updateQty(this, 1)">+</button>
+                                                <form th:action="@{/cart/remove}" method="post" class="d-inline">
+                                                    <input type="hidden" name="cartItemId" th:value="${item.id}">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold">
+                                                        Xoá
+                                                    </button>
+                                                </form>
                                             </div>
-                                        </form>
+                                        </div>
 
-                                        <form th:action="@{/user/cart/remove}" method="post" class="d-inline">
-                                            <input type="hidden" name="cartItemId" th:value="${item.id}">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                                Xoá
-                                            </button>
-                                        </form>
+                                        <div class="cart-price"
+                                             th:text="${#numbers.formatDecimal(item.estimatedPrice != null ? item.estimatedPrice : item.unitPrice, 0, 'POINT', 0, 'COMMA')} + 'đ'">
+                                            45.000đ
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FALLBACK IF ONLY cartItems EXISTS -->
+                        <div th:if="${cartGroups == null && cartItems != null && !#lists.isEmpty(cartItems)}">
+                            <div class="shop-group">
+                                <div class="shop-header">
+                                    <div class="shop-badge">
+                                        <span>🏪</span>
+                                        <span>Nhà bán hàng</span>
+                                    </div>
+                                    <div class="shop-meta">
+                                        <span th:text="${#lists.size(cartItems)}">0</span>
+                                        <span> sản phẩm</span>
                                     </div>
                                 </div>
 
-                                <div class="product-price"
-                                     th:text="${#numbers.formatDecimal(item.estimatedPrice != null ? item.estimatedPrice : item.unitPrice, 0, 'POINT', 0, 'COMMA')} + 'đ'">
-                                    45.000đ
+                                <div th:each="item : ${cartItems}" class="cart-item-card">
+                                    <div class="d-flex gap-3 align-items-center flex-wrap flex-sm-nowrap">
+                                        <div>
+                                            <img class="cart-img"
+                                                 th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1540420773420-3366772f5999?w=600&q=80'}"
+                                                 alt="Product image">
+                                        </div>
+
+                                        <div class="flex-grow-1">
+                                            <div class="cart-label">ORGANIC PRODUCT</div>
+                                            <div class="cart-product-name" th:text="${item.productName}">Tên sản phẩm</div>
+                                            <div class="variant-name" th:text="${item.variantName}">Biến thể sản phẩm</div>
+
+                                            <div class="d-flex flex-wrap align-items-center gap-3">
+                                                <form th:action="@{/cart/update}" method="post" class="d-inline-flex align-items-center gap-2">
+                                                    <input type="hidden" name="cartItemId" th:value="${item.id}">
+                                                    <div class="qty-pill">
+                                                        <button type="button" class="qty-btn" onclick="updateQty(this, -1)">−</button>
+                                                        <input type="number"
+                                                               class="qty-value-input"
+                                                               name="quantity"
+                                                               th:value="${item.quantity}"
+                                                               min="1"
+                                                               onchange="this.form.submit()">
+                                                        <button type="button" class="qty-btn" onclick="updateQty(this, 1)">+</button>
+                                                    </div>
+                                                </form>
+
+                                                <form th:action="@{/cart/remove}" method="post" class="d-inline">
+                                                    <input type="hidden" name="cartItemId" th:value="${item.id}">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold">
+                                                        Xoá
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                        <div class="cart-price"
+                                             th:text="${#numbers.formatDecimal(item.estimatedPrice != null ? item.estimatedPrice : item.unitPrice, 0, 'POINT', 0, 'COMMA')} + 'đ'">
+                                            45.000đ
+                                        </div>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUMMARY -->
+                    <div class="col-lg-4">
+                        <div class="cart-summary">
+                            <div class="summary-title">Tổng đơn hàng</div>
+
+                            <div class="summary-row">
+                                <span>Tạm tính</span>
+                                <strong th:text="${#numbers.formatDecimal(totalAmount != null ? totalAmount : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</strong>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Phí vận chuyển</span>
+                                <strong>25.000đ</strong>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Giảm giá</span>
+                                <strong>-0đ</strong>
+                            </div>
+
+                            <div class="summary-total">
+                                <div class="label">Tổng cộng</div>
+                                <div class="value"
+                                     th:text="${#numbers.formatDecimal((totalAmount != null ? totalAmount : 0) + 25000, 0, 'POINT', 0, 'COMMA')} + 'đ'">
+                                    0đ
+                                </div>
+                            </div>
+
+                            <div class="coupon-wrap">
+                                <input type="text" class="form-control coupon-input" placeholder="Mã giảm giá">
+                                <button type="button" class="btn btn-primary coupon-btn">Áp dụng</button>
+                            </div>
+
+                            <a th:href="@{/checkout}" class="btn btn-success checkout-btn">
+                                Tiến hành thanh toán →
+                            </a>
+
+                            <div class="text-center small text-secondary mt-3">
+                                GIAO HÀNG TRONG 2-5 GIỜ TẠI KHU VỰC NỘI THÀNH
+                            </div>
+
+                            <div class="note-box">
+                                <div class="title">Lựa chọn bền vững</div>
+                                <p>
+                                    Bao bì tái chế, nhựa sinh học, giao hàng xanh — mỗi đơn hàng của bạn là một hành động tốt cho môi trường.
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- RIGHT: SUMMARY -->
-                <div class="col-lg-4">
-                    <div class="summary-box">
-                        <div class="summary-title">Tổng đơn hàng</div>
-
-                        <div class="summary-row">
-                            <span>Tạm tính</span>
-                            <strong th:text="${#numbers.formatDecimal(totalAmount != null ? totalAmount : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">162.000đ</strong>
-                        </div>
-
-                        <div class="summary-row">
-                            <span>Phí vận chuyển dự tính</span>
-                            <strong>25.000đ</strong>
-                        </div>
-
-                        <div class="summary-row">
-                            <span>Giảm giá</span>
-                            <strong>-0đ</strong>
-                        </div>
-
-                        <div class="summary-total">
-                            <div class="label">Tổng cộng</div>
-                            <div class="value" th:text="${#numbers.formatDecimal((totalAmount != null ? totalAmount : 0) + 25000, 0, 'POINT', 0, 'COMMA')} + 'đ'">187.000đ</div>
-                        </div>
-
-                        <form th:action="@{/checkout}" method="get" class="coupon-box">
-                            <input type="text" class="form-control coupon-input" placeholder="Mã giảm giá" name="couponCode">
-                            <button type="button" class="btn btn-primary coupon-btn">Áp dụng</button>
-                        </form>
-
-                        <a th:href="@{/checkout}" class="btn btn-success checkout-btn">
-                            Tiến hành thanh toán →
-                        </a>
-
-                        <div class="small-note">GIAO HÀNG TRONG 2-5 GIỜ TẠI KHU VỰC NỘI THÀNH</div>
-
-                        <div class="eco-box">
-                            <div class="eco-title">Lựa chọn Bền vững</div>
-                            <p class="eco-text">
-                                Sử dụng bao bì tái chế và nhựa sinh học. Bạn đang góp phần giảm tác động xấu tới môi trường.
-                            </p>
+                <div class="recommend-title">Có thể bạn quan tâm</div>
+                <div class="row g-3 g-lg-4">
+                    <div class="col-6 col-md-3">
+                        <div class="suggest-card">
+                            <img class="suggest-img" src="https://images.unsplash.com/photo-1546470427-1f617b69a2fd?auto=format&fit=crop&w=800&q=80" alt="Cà chua hữu cơ">
+                            <div class="suggest-body">
+                                <div class="suggest-name">Cà chua hữu cơ</div>
+                                <div class="suggest-price">28.000đ / hộp</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- RECOMMENDED PRODUCTS -->
-            <div class="recommend-title">Có thể bạn quan tâm</div>
-
-            <div class="row g-3 g-lg-4">
-                <div class="col-6 col-md-3">
-                    <div class="product-suggest-card">
-                        <img class="product-suggest-img"
-                             src="https://images.unsplash.com/photo-1546470427-1f617b69a2fd?auto=format&fit=crop&w=600&q=80"
-                             alt="Cà chua hữu cơ">
-                        <div class="suggest-name">Cà chua hữu cơ</div>
-                        <div class="suggest-price">28.000đ / hộp</div>
+                    <div class="col-6 col-md-3">
+                        <div class="suggest-card">
+                            <img class="suggest-img" src="https://images.unsplash.com/photo-1574215683202-8a2d0a8f0f1c?auto=format&fit=crop&w=800&q=80" alt="Cải bó xôi">
+                            <div class="suggest-body">
+                                <div class="suggest-name">Cải bó xôi</div>
+                                <div class="suggest-price">22.000đ / túi</div>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-6 col-md-3">
-                    <div class="product-suggest-card">
-                        <img class="product-suggest-img"
-                             src="https://images.unsplash.com/photo-1574215683202-8a2d0a8f0f1c?auto=format&fit=crop&w=600&q=80"
-                             alt="Cải bó xôi">
-                        <div class="suggest-name">Cải bó xôi</div>
-                        <div class="suggest-price">22.000đ / túi</div>
+                    <div class="col-6 col-md-3">
+                        <div class="suggest-card">
+                            <img class="suggest-img" src="https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=800&q=80" alt="Việt quất">
+                            <div class="suggest-body">
+                                <div class="suggest-name">Việt quất hữu cơ</div>
+                                <div class="suggest-price">95.000đ / hộp</div>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-6 col-md-3">
-                    <div class="product-suggest-card">
-                        <img class="product-suggest-img"
-                             src="https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=600&q=80"
-                             alt="Việt quất hữu cơ">
-                        <div class="suggest-name">Việt quất hữu cơ</div>
-                        <div class="suggest-price">95.000đ / hộp</div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-3">
-                    <div class="product-suggest-card">
-                        <img class="product-suggest-img"
-                             src="https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=600&q=80"
-                             alt="Xoài cát Hòa Lộc">
-                        <div class="suggest-name">Xoài cát Hòa Lộc</div>
-                        <div class="suggest-price">110.000đ / kg</div>
+                    <div class="col-6 col-md-3">
+                        <div class="suggest-card">
+                            <img class="suggest-img" src="https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=800&q=80" alt="Xoài cát">
+                            <div class="suggest-body">
+                                <div class="suggest-name">Xoài cát Hòa Lộc</div>
+                                <div class="suggest-price">110.000đ / kg</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -479,6 +678,20 @@
             input.value = current;
             form.submit();
         }
+
+        window.addEventListener('DOMContentLoaded', function () {
+            const fadeAfterMs = 1500;
+            const fadeDurationMs = 600;
+
+            [document.getElementById('cartSuccessAlert'), document.getElementById('cartErrorAlert')]
+                .filter(Boolean)
+                .forEach((alertEl) => {
+                    setTimeout(() => {
+                        alertEl.classList.add('fade-out');
+                        setTimeout(() => alertEl.remove(), fadeDurationMs);
+                    }, fadeAfterMs);
+                });
+        });
     </script>
 </th:block>
 </html>

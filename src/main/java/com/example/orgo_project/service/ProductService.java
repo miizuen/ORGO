@@ -111,7 +111,7 @@ public class ProductService {
         product.setStatus(ProductStatus.PENDING);
         if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = saveImage(imageFile);
-            // Store image URL in slug field temporarily (or add imageUrl field)
+            product.setImageUrl(imageUrl);
             product.setSlug(imageUrl);
         }
         Product saved = productRepository.save(product);
@@ -134,8 +134,10 @@ public class ProductService {
         }
         if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = saveImage(imageFile);
+            product.setImageUrl(imageUrl);
             product.setSlug(imageUrl);
         } else {
+            product.setImageUrl(existing.getImageUrl());
             product.setSlug(existing.getSlug());
         }
         Product saved = productRepository.save(product);

@@ -5,6 +5,18 @@
 <body>
 <div id="product-detail" class="bg-light">
 <main class="container py-5">
+    <div id="product-detail" class="bg-light">
+        <main class="container py-5">
+        
+            <div th:if="${successMessage}" class="alert alert-success rounded-4 fw-semibold shadow-sm mb-4">
+                <span class="me-2">✅</span>
+                <span th:text="${successMessage}">Đã thêm sản phẩm vào giỏ hàng thành công!</span>
+            </div>
+        
+            <div th:if="${errorMessage}" class="alert alert-danger rounded-4 fw-semibold shadow-sm mb-4">
+                <span class="me-2">⚠️</span>
+                <span th:text="${errorMessage}">Có lỗi xảy ra</span>
+            </div>
 
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
@@ -20,9 +32,10 @@
         <!-- Image -->
         <div class="col-12 col-md-5">
             <div class="bg-white rounded-4 overflow-hidden shadow-sm" style="aspect-ratio:1/1;">
-                <img th:src="${product.slug != null ? product.slug : 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=80'}"
+                <img th:src="${product.imageUrl != null ? product.imageUrl : (product.slug != null ? product.slug : 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=80')}"
                      th:alt="${product.productName}"
-                     class="w-100 h-100" style="object-fit:cover;">
+                     class="w-100 h-100"
+                     style="object-fit:cover;">
             </div>
         </div>
 
@@ -42,16 +55,20 @@
             <p class="text-secondary mb-4" th:text="${product.shortDescription}"></p>
 
             <!-- Variants -->
-            <div th:if="${!#lists.isEmpty(variants)}" class="mb-4">
+            <div th:if="${variants != null and !#lists.isEmpty(variants)}" class="mb-4">
                 <h5 class="fw-bold mb-3">Chọn phân loại:</h5>
                 <div class="d-flex flex-wrap gap-2" id="variantSelector">
                     <button th:each="v, stat : ${variants}"
                             type="button"
                             th:classappend="${stat.first} ? 'btn-success' : 'btn-outline-success'"
                             class="btn rounded-3 variant-btn"
-                            th:attr="data-price=${v.originalPrice != null ? v.originalPrice.intValue() : 0},data-stock=${v.stockQuantity != null ? v.stockQuantity : 0}"
+                            th:attr="data-id=${v.id},
+                                     data-price=${v.originalPrice != null ? v.originalPrice.intValue() : 0},
+                                     data-stock=${v.stockQuantity != null ? v.stockQuantity : 0},
+                                     data-image=${v.imageUrl != null ? v.imageUrl : ''}"
                             th:text="${v.variantName}">Variant</button>
                 </div>
+
                 <div class="mt-3">
                     <span class="fs-3 fw-bold text-success" id="selectedPrice">
                         <th:block th:if="${!#lists.isEmpty(variants)}"
@@ -66,10 +83,16 @@
 
             <!-- Add to cart -->
             <div class="d-flex gap-3 mb-4">
-                <a href="/user/cart" class="btn btn-success btn-lg fw-bold px-5 rounded-3"
-                   sec:authorize="hasRole('USER')">
-                    🛒 Thêm vào giỏ
-                </a>
+                <form th:action="@{/cart/add}" method="post" sec:authorize="hasRole('USER')" class="d-inline">
+                    <input type="hidden" name="productVariantId" id="selectedVariantId"
+                           th:value="${variants != null and !#lists.isEmpty(variants) ? variants[0].id : ''}">
+                    <input type="hidden" name="quantity" value="1">
+                    <input type="hidden" name="redirectUrl" th:value="@{'/products/' + ${product.id}}">
+                    <button type="submit" class="btn btn-success btn-lg fw-bold px-5 rounded-3">
+                        🛒 Thêm vào giỏ
+                    </button>
+                </form>
+
                 <a href="/login" class="btn btn-success btn-lg fw-bold px-5 rounded-3"
                    sec:authorize="!isAuthenticated()">
                     Đăng nhập để mua
@@ -78,7 +101,7 @@
 
             <!-- Meta -->
             <div class="d-flex flex-wrap gap-3 text-secondary small">
-                <span th:if="${product.origin}">📍 Nguồn gốc: <strong th:text="${product.origin}"></strong></span>
+                <span th:if="${product.origin}">📍Nguồn gốc: <strong th:text="${product.origin}"></strong></span>
             </div>
         </div>
     </div>
@@ -124,12 +147,13 @@
 
             <!-- Chứng nhận -->
             <div class="tab-pane fade" id="tab-cert">
-                <div th:if="${!#lists.isEmpty(certs)}">
+                <div th:if="${certs != null and !#lists.isEmpty(certs)}">
                     <div th:each="cert : ${certs}" class="d-flex align-items-start gap-3 p-3 border rounded-3 mb-3">
-                        <!-- Hiển thị ảnh nếu có, ngược lại dùng icon -->
                         <div th:if="${cert.attachmentFile != null}" style="flex-shrink:0;">
-                            <img th:src="${cert.attachmentFile}" alt="Chứng nhận"
-                                 class="rounded-2 border" style="width:64px;height:64px;object-fit:cover;"/>
+                            <img th:src="${cert.attachmentFile}"
+                                 th:alt="${cert.certificateName}"
+                                 class="w-100 h-100"
+                                 style="object-fit:cover;">
                         </div>
                         <span th:if="${cert.attachmentFile == null}" class="fs-2">🏅</span>
                         <div>
@@ -140,7 +164,7 @@
                         </div>
                     </div>
                 </div>
-                <p th:if="${#lists.isEmpty(certs)}" class="text-secondary">Chưa có chứng nhận.</p>
+                <p th:if="${certs == null or #lists.isEmpty(certs)}" class="text-secondary">Chưa có chứng nhận.</p>
             </div>
 
             <!-- Đánh giá -->
@@ -186,7 +210,7 @@
                 <!-- ===== PHẦN CỦA SELLER: Thông báo vai trò ===== -->
                 <div sec:authorize="hasRole('SELLER')"
                      class="mb-4 p-3 bg-warning bg-opacity-10 rounded-3 border border-warning border-opacity-25">
-                    <p class="mb-0 text-warning fw-semibold">🏪 Bạn đang xem với tư cách Seller — có thể phản hồi đánh giá bên dưới.</p>
+                    <p class="mb-0 text-warning fw-semibold">�� Bạn đang xem với tư cách Seller — có thể phản hồi đánh giá bên dưới.</p>
                 </div>
 
                 <!-- ===== DANH SÁCH ĐÁNH GIÁ ===== -->
@@ -194,7 +218,7 @@
                     <h6 class="fw-bold mb-3 text-secondary"
                         th:text="'Tất cả đánh giá (' + ${reviews.totalElements} + ')'"></h6>
 
-                    <div th:if="${reviews.totalElements > 0}">
+                    <div th:if="${reviews != null and reviews.totalElements > 0}">
                         <div th:each="review : ${reviews.content}"
                              class="border rounded-3 p-3 mb-3 bg-white">
                             <!-- Header đánh giá -->
@@ -253,7 +277,7 @@
                     </div>
 
                     <!-- Empty state -->
-                    <div th:if="${reviews.totalElements == 0}"
+                    <div th:if="${reviews == null or reviews.totalElements == 0}"
                          class="text-center py-4 text-secondary">
                         <div class="fs-1 mb-2">💬</div>
                         <p class="fw-semibold">Chưa có đánh giá nào.</p>
@@ -274,20 +298,50 @@ document.querySelectorAll('.variant-btn').forEach(function(btn) {
             b.classList.remove('btn-success');
             b.classList.add('btn-outline-success');
         });
+
         this.classList.remove('btn-outline-success');
         this.classList.add('btn-success');
 
+        var variantId = this.getAttribute('data-id');
         var price = parseInt(this.getAttribute('data-price'));
         var stock = this.getAttribute('data-stock');
+        var image = this.getAttribute('data-image');
+
+        var selectedVariantInput = document.getElementById('selectedVariantId');
+        if (selectedVariantInput) {
+            selectedVariantInput.value = variantId;
+        }
 
         if (!isNaN(price)) {
             document.getElementById('selectedPrice').textContent =
                 price.toLocaleString('vi-VN') + 'đ';
         }
-        document.getElementById('selectedStock').textContent =
-            'Còn ' + stock + ' sản phẩm';
+
+        var selectedStockEl = document.getElementById('selectedStock');
+        if (selectedStockEl) {
+            selectedStockEl.textContent = 'Còn ' + stock + ' sản phẩm';
+        }
+
+        var mainImage = document.querySelector('#product-detail .col-12.col-md-5 img');
+        if (mainImage && image) {
+            mainImage.src = image;
+        }
     });
 });
 </script>
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            const fadeAfterMs = 1500;
+            const fadeDurationMs = 600;
+            document.querySelectorAll('#product-detail .alert-success, #product-detail .alert-danger').forEach((alertEl) => {
+                setTimeout(() => {
+                    alertEl.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    alertEl.style.opacity = '0';
+                    alertEl.style.transform = 'translateY(-8px)';
+                    setTimeout(() => alertEl.remove(), fadeDurationMs);
+                }, fadeAfterMs);
+            });
+        });
+    </script>
 </body>
 </html>

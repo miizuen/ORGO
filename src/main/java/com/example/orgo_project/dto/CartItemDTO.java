@@ -18,6 +18,8 @@ public class CartItemDTO {
     private Integer cartId;
     private Integer productVariantId;
     private Integer productId;
+    private Integer sellerId;
+    private String shopName;
     private String productName;
     private String variantName;
     private String imageUrl;

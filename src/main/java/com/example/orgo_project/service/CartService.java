@@ -4,19 +4,21 @@ import com.example.orgo_project.dto.CartItemDTO;
 import com.example.orgo_project.dto.CartSummaryDTO;
 import com.example.orgo_project.entity.Product;
 import com.example.orgo_project.entity.ProductVariant;
+import com.example.orgo_project.entity.Seller;
 import com.example.orgo_project.entity.ShoppingCart;
 import com.example.orgo_project.entity.ShoppingCartItem;
 import com.example.orgo_project.repository.IProductRepository;
 import com.example.orgo_project.repository.IProductVariantRepository;
+import com.example.orgo_project.repository.ISellerRepository;
 import com.example.orgo_project.repository.IShoppingCartItemRepository;
 import com.example.orgo_project.repository.IShoppingCartRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 
 @Service
 @Transactional
@@ -26,15 +28,18 @@ public class CartService implements ICartService {
     private final IShoppingCartItemRepository cartItemRepository;
     private final IProductVariantRepository productVariantRepository;
     private final IProductRepository productRepository;
+    private final ISellerRepository sellerRepository;
 
     public CartService(IShoppingCartRepository cartRepository,
                        IShoppingCartItemRepository cartItemRepository,
                        IProductVariantRepository productVariantRepository,
-                       IProductRepository productRepository) {
+                       IProductRepository productRepository,
+                       ISellerRepository sellerRepository) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productVariantRepository = productVariantRepository;
         this.productRepository = productRepository;
+        this.sellerRepository = sellerRepository;
     }
 
     @Override
@@ -63,6 +68,7 @@ public class CartService implements ICartService {
         if (quantity == null || quantity <= 0) quantity = 1;
 
         ShoppingCart cart = getOrCreateCart(accountId);
+
         ProductVariant variant = productVariantRepository.findById(productVariantId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy biến thể sản phẩm"));
 
@@ -89,6 +95,7 @@ public class CartService implements ICartService {
     @Override
     public CartItemDTO updateItem(Integer accountId, Integer cartItemId, Integer quantity) {
         ShoppingCart cart = getOrCreateCart(accountId);
+
         ShoppingCartItem item = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm trong giỏ hàng"));
 
@@ -120,6 +127,7 @@ public class CartService implements ICartService {
         ShoppingCart cart = getOrCreateCart(accountId);
         ShoppingCartItem item = cartItemRepository.findById(cartItemId).orElse(null);
         if (item == null || !cart.getId().equals(item.getCartId())) return false;
+
         cartItemRepository.delete(item);
         return true;
     }
@@ -130,9 +138,11 @@ public class CartService implements ICartService {
         cartItemRepository.deleteByCartId(cart.getId());
     }
 
+    @Override
     public List<CartItemDTO> getCartItems(Integer accountId) {
         ShoppingCart cart = getOrCreateCart(accountId);
         List<ShoppingCartItem> items = cartItemRepository.findByCartId(cart.getId());
+
         if (items.isEmpty()) return Collections.emptyList();
 
         List<CartItemDTO> result = new ArrayList<>();
@@ -162,17 +172,32 @@ public class CartService implements ICartService {
 
     private CartItemDTO toDTO(ShoppingCartItem item, ProductVariant variant) {
         Product product = productRepository.findById(variant.getProductId()).orElse(null);
+
         BigDecimal unitPrice = variant.getDiscountedPrice() != null ? variant.getDiscountedPrice() : variant.getOriginalPrice();
         if (unitPrice == null) unitPrice = BigDecimal.ZERO;
+
+        Integer sellerId = null;
+        String shopName = "Nhà bán hàng";
+
+        if (product != null && product.getSellerId() != null) {
+            sellerId = product.getSellerId();
+
+            Seller seller = sellerRepository.findById(sellerId).orElse(null);
+            if (seller != null && seller.getShopName() != null && !seller.getShopName().isBlank()) {
+                shopName = seller.getShopName();
+            }
+        }
 
         return CartItemDTO.builder()
                 .id(item.getId())
                 .cartId(item.getCartId())
                 .productVariantId(item.getProductVariantId())
                 .productId(product != null ? product.getId() : null)
+                .sellerId(sellerId)
+                .shopName(shopName)
                 .productName(product != null ? product.getProductName() : "Sản phẩm")
                 .variantName(variant.getVariantName())
-                .imageUrl(variant.getImageUrl())
+                .imageUrl(product != null && product.getImageUrl() != null ? product.getImageUrl() : variant.getImageUrl())
                 .quantity(item.getQuantity())
                 .unitPrice(unitPrice)
                 .estimatedPrice(item.getEstimatedPrice())
