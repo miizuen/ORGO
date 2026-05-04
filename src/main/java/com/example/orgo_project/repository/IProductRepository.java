@@ -32,6 +32,16 @@ public interface IProductRepository extends JpaRepository<Product, Integer>, Jpa
                                   @Param("categoryId") Integer categoryId,
                                   Pageable pageable);
 
+    @Query(value = "SELECT TOP 4 p.* FROM SanPham p " +
+            "WHERE p.trang_thai = 'ACTIVE' " +
+            "ORDER BY NEWID()", nativeQuery = true)
+    List<Product> findRandomTop4ActiveProducts();
+
+    @Query(value = "SELECT TOP 4 p.* FROM SanPham p " +
+            "WHERE p.trang_thai = 'ACTIVE' AND p.id_san_pham NOT IN (:excludedIds) " +
+            "ORDER BY NEWID()", nativeQuery = true)
+    List<Product> findRandomTop4ActiveProductsExcluding(@Param("excludedIds") java.util.Set<Integer> excludedIds);
+
     @Query("SELECT p FROM Product p WHERE p.status = com.example.orgo_project.enums.ProductStatus.ACTIVE AND " +
            "LOWER(p.productName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Product> findTop5ByKeyword(@Param("keyword") String keyword, Pageable pageable);

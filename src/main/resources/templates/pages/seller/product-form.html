@@ -178,18 +178,39 @@
                 <!-- Phân loại (Variants) -->
                 <h5 class="fw-bold mb-3 text-success">📦 Phân loại sản phẩm</h5>
                 <div id="variantContainer" class="mb-4">
-                    <div th:each="v, stat : ${variants}" class="row g-2 mb-2 variant-row">
-                        <div class="col-md-5">
+                    <div th:each="v, stat : ${variants}" class="row g-2 mb-2 variant-row align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold mb-1">Tên phân loại</label>
                             <input type="text" name="variantNames" th:value="${v.variantName}"
                                    class="form-control rounded-3" placeholder="VD: 500g, 1kg"/>
                         </div>
-                        <div class="col-md-3">
-                            <input type="number" name="variantPrices" th:value="${v.originalPrice != null ? v.originalPrice.intValue() : ''}"
-                                   class="form-control rounded-3" placeholder="Giá (đ)" min="0"/>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">Giá gốc</label>
+                            <input type="number" name="variantPrices"
+                                   th:value="${v.originalPrice != null ? v.originalPrice : ''}"
+                                   class="form-control rounded-3" placeholder="Giá (đ)" min="0" step="1"/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">Giá KM</label>
+                            <input type="number" name="variantDiscountedPrices"
+                                   th:value="${v.discountedPrice != null ? v.discountedPrice : ''}"
+                                   class="form-control rounded-3" placeholder="Giá KM (đ)" min="0" step="1"/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">Khối lượng</label>
+                            <input type="number" name="variantWeights"
+                                   th:value="${v.weight != null ? v.weight : ''}"
+                                   class="form-control rounded-3" placeholder="VD: 500" min="0" step="1"/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">Tồn kho</label>
+                            <input type="number" name="variantStocks" th:value="${v.stockQuantity}"
+                                   class="form-control rounded-3" placeholder="Tồn kho" min="0" step="1"/>
                         </div>
                         <div class="col-md-3">
-                            <input type="number" name="variantStocks" th:value="${v.stockQuantity}"
-                                   class="form-control rounded-3" placeholder="Tồn kho" min="0"/>
+                            <label class="form-label small fw-semibold mb-1">Ảnh</label>
+                            <input type="text" name="variantImageUrls" th:value="${v.imageUrl}"
+                                   class="form-control rounded-3" placeholder="/uploads/..."/>
                         </div>
                         <div class="col-md-1">
                             <button type="button" class="btn btn-outline-danger rounded-3 w-100"
@@ -197,15 +218,30 @@
                         </div>
                     </div>
                     <!-- Default empty row if no variants -->
-                    <div th:if="${#lists.isEmpty(variants)}" class="row g-2 mb-2 variant-row">
-                        <div class="col-md-5">
+                    <div th:if="${#lists.isEmpty(variants)}" class="row g-2 mb-2 variant-row align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold mb-1">Tên phân loại</label>
                             <input type="text" name="variantNames" class="form-control rounded-3" placeholder="VD: 500g, 1kg"/>
                         </div>
-                        <div class="col-md-3">
-                            <input type="number" name="variantPrices" class="form-control rounded-3" placeholder="Giá (đ)" min="0"/>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">Giá gốc</label>
+                            <input type="number" name="variantPrices" class="form-control rounded-3" placeholder="Giá (đ)" min="0" step="1"/>
                         </div>
-                        <div class="col-md-3">
-                            <input type="number" name="variantStocks" class="form-control rounded-3" placeholder="Tồn kho" min="0"/>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">Giá KM</label>
+                            <input type="number" name="variantDiscountedPrices" class="form-control rounded-3" placeholder="Giá KM (đ)" min="0" step="1"/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">Khối lượng</label>
+                            <input type="number" name="variantWeights" class="form-control rounded-3" placeholder="VD: 500" min="0" step="1"/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">Tồn kho</label>
+                            <input type="number" name="variantStocks" class="form-control rounded-3" placeholder="Tồn kho" min="0" step="1"/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">Ảnh</label>
+                            <input type="text" name="variantImageUrls" class="form-control rounded-3" placeholder="/uploads/..."/>
                         </div>
                         <div class="col-md-1">
                             <button type="button" class="btn btn-outline-danger rounded-3 w-100"
@@ -216,6 +252,10 @@
                 <button type="button" class="btn btn-outline-success btn-sm rounded-3 mb-4" onclick="addVariant()">
                     + Thêm phân loại
                 </button>
+
+                <p class="text-secondary small mb-4">
+                    Mỗi phân loại nên nhập đủ tên, giá gốc, giá khuyến mãi, tồn kho, khối lượng và ảnh (nếu có).
+                </p>
 
                 <!-- Submit -->
                 <div class="d-flex gap-3 pt-3 border-top">
@@ -233,50 +273,45 @@
 function addVariant() {
     var container = document.getElementById('variantContainer');
     var row = document.createElement('div');
-    row.className = 'row g-2 mb-2 variant-row';
+    row.className = 'row g-2 mb-2 variant-row align-items-end';
 
-    var col1 = document.createElement('div');
-    col1.className = 'col-md-5';
-    var input1 = document.createElement('input');
-    input1.type = 'text';
-    input1.name = 'variantNames';
-    input1.className = 'form-control rounded-3';
-    input1.placeholder = 'VD: 500g, 1kg';
-    col1.appendChild(input1);
+    function makeField(colClass, labelText, name, type, placeholder) {
+        var col = document.createElement('div');
+        col.className = colClass;
+        var label = document.createElement('label');
+        label.className = 'form-label small fw-semibold mb-1';
+        label.textContent = labelText;
+        var input = document.createElement('input');
+        input.type = type;
+        input.name = name;
+        input.className = 'form-control rounded-3';
+        input.placeholder = placeholder;
+        if (type === 'number') {
+            input.min = '0';
+            input.step = '1';
+        }
+        col.appendChild(label);
+        col.appendChild(input);
+        return col;
+    }
 
-    var col2 = document.createElement('div');
-    col2.className = 'col-md-3';
-    var input2 = document.createElement('input');
-    input2.type = 'number';
-    input2.name = 'variantPrices';
-    input2.className = 'form-control rounded-3';
-    input2.placeholder = 'Giá (đ)';
-    input2.min = '0';
-    col2.appendChild(input2);
+    row.appendChild(makeField('col-md-3', 'Tên phân loại', 'variantNames', 'text', 'VD: 500g, 1kg'));
+    row.appendChild(makeField('col-md-2', 'Giá gốc', 'variantPrices', 'number', 'Giá (đ)'));
+    row.appendChild(makeField('col-md-2', 'Giá KM', 'variantDiscountedPrices', 'number', 'Giá KM (đ)'));
+    row.appendChild(makeField('col-md-2', 'Khối lượng', 'variantWeights', 'number', 'VD: 500'));
+    row.appendChild(makeField('col-md-2', 'Tồn kho', 'variantStocks', 'number', 'Tồn kho'));
+    row.appendChild(makeField('col-md-2', 'Ảnh', 'variantImageUrls', 'text', '/uploads/...'));
 
-    var col3 = document.createElement('div');
-    col3.className = 'col-md-3';
-    var input3 = document.createElement('input');
-    input3.type = 'number';
-    input3.name = 'variantStocks';
-    input3.className = 'form-control rounded-3';
-    input3.placeholder = 'Tồn kho';
-    input3.min = '0';
-    col3.appendChild(input3);
-
-    var col4 = document.createElement('div');
-    col4.className = 'col-md-1';
+    var col6 = document.createElement('div');
+    col6.className = 'col-md-1';
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'btn btn-outline-danger rounded-3 w-100';
     btn.textContent = '✕';
     btn.onclick = function() { removeVariant(this); };
-    col4.appendChild(btn);
+    col6.appendChild(btn);
 
-    row.appendChild(col1);
-    row.appendChild(col2);
-    row.appendChild(col3);
-    row.appendChild(col4);
+    row.appendChild(col6);
     container.appendChild(row);
 }
 

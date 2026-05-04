@@ -76,6 +76,17 @@ public class ProductService {
         return productRepository.findTop8ByStatusOrderByAverageRatingDesc(ProductStatus.ACTIVE);
     }
 
+    public List<Product> getRandomActiveProducts(int limit) {
+        return productRepository.findRandomTop4ActiveProducts();
+    }
+
+    public List<Product> getRandomActiveProductsExcluding(java.util.Set<Integer> excludedIds, int limit) {
+        if (excludedIds == null || excludedIds.isEmpty()) {
+            return getRandomActiveProducts(limit);
+        }
+        return productRepository.findRandomTop4ActiveProductsExcluding(excludedIds);
+    }
+
     public Product getProductById(Integer id) {
         return productRepository.findById(id).orElse(null);
     }
@@ -111,7 +122,7 @@ public class ProductService {
         product.setStatus(ProductStatus.PENDING);
         if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = saveImage(imageFile);
-            // Store image URL in slug field temporarily (or add imageUrl field)
+            product.setImageUrl(imageUrl);
             product.setSlug(imageUrl);
         }
         Product saved = productRepository.save(product);
@@ -134,8 +145,10 @@ public class ProductService {
         }
         if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = saveImage(imageFile);
+            product.setImageUrl(imageUrl);
             product.setSlug(imageUrl);
         } else {
+            product.setImageUrl(existing.getImageUrl());
             product.setSlug(existing.getSlug());
         }
         Product saved = productRepository.save(product);
