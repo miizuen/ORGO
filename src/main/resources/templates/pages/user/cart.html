@@ -132,6 +132,18 @@
             margin-bottom: 8px;
             line-height: 1.35;
         }
+        .checkout-btn:disabled {
+    background: linear-gradient(135deg, #9ca3af, #cbd5e1);
+    border: none;
+    opacity: 0.65;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.checkout-btn:not(:disabled) {
+    background: linear-gradient(135deg, #2e7d32, #3fb950);
+    border: none;
+}
 
         .variant-name {
             font-size: 0.92rem;
@@ -480,7 +492,7 @@
                                         <div class="item-select-wrap">
                                             <input type="checkbox"
                                                    class="select-checkbox item-checkbox"
-                                                   th:attr="data-shop-key=${groupEntry.key != null ? groupEntry.key : 'Nhà bán hàng'}"
+                                                   th:attr="data-shop-key=${groupEntry.key != null ? groupEntry.key : 'Nhà bán hàng'}, data-cart-item-id=${item.id}"
                                                    th:id="${'item-checkbox-' + item.id}">
                                             <label th:for="${'item-checkbox-' + item.id}" class="mb-0">
                                                 <img class="cart-img"
@@ -556,6 +568,7 @@
                                             <input type="checkbox"
                                                    class="select-checkbox item-checkbox"
                                                    data-shop-key="default-shop"
+                                                   th:attr="data-cart-item-id=${item.id}"
                                                    th:id="${'item-checkbox-' + item.id}">
                                             <label th:for="${'item-checkbox-' + item.id}" class="mb-0">
                                                 <img class="cart-img"
@@ -628,9 +641,9 @@
                                 </div>
                             </div>
 
-                            <a th:href="@{/checkout}" class="btn btn-success checkout-btn">
-                                Tiến hành thanh toán →
-                            </a>
+                            <button type="button" id="checkoutBtn" class="btn btn-success checkout-btn" disabled>
+                                Xác nhận đặt hàng →
+                            </button>
 
                             <div class="text-center small text-secondary mt-3">
                                 GIAO HÀNG TRONG 2-5 GIỜ TẠI KHU VỰC NỘI THÀNH
@@ -703,13 +716,27 @@
                 const priceEl = itemCard.querySelector('.cart-price');
                 if (!priceEl) return;
                 const quantityInput = itemCard.querySelector('.qty-value-input');
-                const quantity = parseInt(quantityInput?.value || '0', 10);
-                const unitPrice = parseInt(priceEl.getAttribute('data-unit-price') || '0', 10);
+                const quantity = Number.parseInt(quantityInput?.value || '0', 10);
+                const unitPrice = Number.parseFloat(priceEl.getAttribute('data-unit-price') || '0');
                 if (!Number.isNaN(unitPrice) && quantity > 0) {
-                    total += unitPrice * quantity;
+                    total += Math.round(unitPrice) * quantity;
                 }
             });
             return total;
+        }
+
+        function getSelectedCartItemIds() {
+            return Array.from(document.querySelectorAll('.item-checkbox:checked'))
+                .map((checkbox) => checkbox.getAttribute('data-cart-item-id'))
+                .filter(Boolean);
+        }
+
+        function updateCheckoutButton() {
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            if (!checkoutBtn) return;
+
+            const selectedTotal = getSelectedCartTotal();
+            checkoutBtn.disabled = selectedTotal <= 0;
         }
 
         function formatCurrencyVnd(value) {
@@ -724,9 +751,12 @@
 
             const selectedTotal = getSelectedCartTotal();
             const shipping = 25000;
+
             subtotalEl.textContent = formatCurrencyVnd(selectedTotal);
             shippingEl.textContent = formatCurrencyVnd(shipping);
             grandTotalEl.textContent = formatCurrencyVnd(selectedTotal + shipping);
+
+            updateCheckoutButton();
         }
 
         function bindCartSelection() {
@@ -737,9 +767,19 @@
                     document.querySelectorAll(`.item-checkbox[data-shop-key="${shopKey}"]`).forEach((item) => {
                         item.checked = checked;
                     });
+                    syncGroupCheckboxes();
                     updateOrderSummary();
                 });
             });
+
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener('click', function () {
+                    const selectedIds = getSelectedCartItemIds();
+                    if (selectedIds.length === 0) return;
+                    window.location.href = '/checkout?selectedItemIds=' + encodeURIComponent(selectedIds.join(','));
+                });
+            }
 
             document.querySelectorAll('.item-checkbox').forEach((itemCheckbox) => {
                 itemCheckbox.addEventListener('change', function () {

@@ -57,7 +57,12 @@ public class UserController {
         String username = auth.getName();
 
         Account account = accountService.findByUsername(username);
-        UserProfile userProfile = account.getUser();
+        UserProfile userProfile = account != null ? account.getUser() : null;
+        if (userProfile == null && account != null) {
+            userProfile = new UserProfile();
+            userProfile.setAccount(account);
+            userProfile.setEmail(account.getUsername());
+        }
 
         model.addAttribute("userProfile", userProfile);
         model.addAttribute("account", account);
@@ -74,11 +79,34 @@ public class UserController {
             String username = auth.getName();
 
             Account account = accountService.findByUsername(username);
-            UserProfile userProfile = account.getUser();
+            if (account == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy tài khoản!");
+                return "redirect:/user/profile";
+            }
 
-            userProfile.setEmail(email);
-            userProfile.setPhoneNumber(phone);
-            userProfile.setFullName(fullName);
+            UserProfile userProfile = account.getUser();
+            if (userProfile == null) {
+                userProfile = new UserProfile();
+                userProfile.setAccount(account);
+            }
+
+            String normalizedFullName = fullName != null ? fullName.trim() : "";
+            String normalizedEmail = email != null ? email.trim() : "";
+            String normalizedPhone = phone != null ? phone.trim() : "";
+
+            if (normalizedFullName.isBlank()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Họ tên không được để trống!");
+                return "redirect:/user/profile";
+            }
+            if (normalizedEmail.isBlank()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Email không được để trống!");
+                return "redirect:/user/profile";
+            }
+
+            userProfile.setEmail(normalizedEmail);
+            userProfile.setPhoneNumber(normalizedPhone);
+            userProfile.setFullName(normalizedFullName);
+            userProfile.setAccount(account);
             userService.save(userProfile);
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật hồ sơ thành công!");
         } catch (Exception e) {

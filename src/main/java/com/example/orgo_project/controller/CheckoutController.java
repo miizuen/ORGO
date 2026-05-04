@@ -20,23 +20,37 @@ public class CheckoutController {
     }
 
     @GetMapping
-    public String checkoutPage(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+    public String checkoutPage(@AuthenticationPrincipal CustomUserDetails userDetails,
+                               @RequestParam(required = false) String selectedItemIds,
+                               Model model) {
         if (userDetails == null || userDetails.getAccount() == null) {
             return "redirect:/login";
         }
+
+        var checkoutData = checkoutService.getCheckoutPageData(
+                userDetails.getAccount().getId(),
+                selectedItemIds
+        );
+
+        model.addAttribute("cartItems", checkoutData.getItems());
+        model.addAttribute("totalAmount", checkoutData.getTotalAmount());
+        model.addAttribute("selectedItemIds", selectedItemIds);
+        model.addAttribute("shippingAddresses", checkoutData.getShippingAddresses());
+        model.addAttribute("defaultShippingAddress", checkoutData.getDefaultShippingAddress());
         return "pages/user/checkout";
     }
 
     @PostMapping
     public String placeOrder(@AuthenticationPrincipal CustomUserDetails userDetails,
                              @ModelAttribute CheckoutRequestDTO request,
+                             @RequestParam(required = false) String selectedItemIds,
                              RedirectAttributes redirectAttributes) {
         if (userDetails == null || userDetails.getAccount() == null) {
             return "redirect:/login";
         }
 
         try {
-            var response = checkoutService.checkout(userDetails.getAccount().getId(), request);
+            var response = checkoutService.checkout(userDetails.getAccount().getId(), request, selectedItemIds);
             redirectAttributes.addFlashAttribute("checkoutResult", response);
             return "redirect:/checkout/success";
         } catch (Exception ex) {

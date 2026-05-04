@@ -12,6 +12,6 @@ import lombok.Setter;
 public class CheckoutRequestDTO {
     private Integer shippingAddressId;
     private Integer paymentMethodId;
-    private String couponCode;
-    private String note;
+    private String shipperNote;
+    private String shopNote;
 }
