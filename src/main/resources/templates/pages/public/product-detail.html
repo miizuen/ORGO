@@ -44,6 +44,21 @@
             <span class="badge bg-success rounded-pill px-3 py-2 mb-3">Organic</span>
             <h1 class="fw-bold fs-2 mb-2" th:text="${product.productName}">Tên sản phẩm</h1>
 
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <span class="badge bg-light text-success border border-success rounded-pill px-3 py-2">🏪 Shop</span>
+                <div>
+                    <a th:if="${productSeller != null}"
+                       th:href="@{/seller/profile/{id}(id=${productSeller.id})}"
+                       class="text-decoration-none fw-semibold text-success"
+                       th:text="${productShopName}">Tên shop</a>
+                    <span th:if="${productSeller == null}" class="fw-semibold text-success" th:text="${productShopName}">Tên shop</span>
+                    <div th:if="${productSeller != null and productSeller.shopAddress != null}" class="text-secondary small mt-1"
+                         th:text="${productSeller.shopAddress}"></div>
+                    <div th:if="${productSeller != null and productSeller.ownerName != null}" class="text-secondary small"
+                         th:text="'Người đại diện: ' + ${productSeller.ownerName}"></div>
+                </div>
+            </div>
+
             <!-- Rating -->
             <div class="d-flex align-items-center gap-2 mb-3" th:if="${product.averageRating != null}">
                 <span class="text-warning fs-5">★</span>
@@ -65,16 +80,21 @@
                             th:attr="data-id=${v.id},
                                      data-price=${v.originalPrice != null ? v.originalPrice.intValue() : 0},
                                      data-stock=${v.stockQuantity != null ? v.stockQuantity : 0},
+                                     data-weight=${v.weight != null ? v.weight : ''},
                                      data-image=${v.imageUrl != null ? v.imageUrl : ''}"
                             th:text="${v.variantName}">Variant</button>
                 </div>
 
-                <div class="mt-3">
+                <div class="mt-3 d-flex flex-wrap align-items-center gap-3">
                     <span class="fs-3 fw-bold text-success" id="selectedPrice">
                         <th:block th:if="${!#lists.isEmpty(variants)}"
                                   th:text="${variants[0].originalPrice != null ? #numbers.formatInteger(variants[0].originalPrice.intValue(), 3, 'COMMA') + 'đ' : ''}"></th:block>
                     </span>
-                    <span class="text-secondary ms-2" id="selectedStock">
+                    <span class="text-secondary" id="selectedWeight">
+                        <th:block th:if="${!#lists.isEmpty(variants)}"
+                                  th:text="${variants[0].weight != null ? 'Khối lượng: ' + variants[0].weight + ' g' : ''}"></th:block>
+                    </span>
+                    <span class="text-secondary" id="selectedStock">
                         <th:block th:if="${!#lists.isEmpty(variants)}"
                                   th:text="'Còn ' + ${variants[0].stockQuantity} + ' sản phẩm'"></th:block>
                     </span>
@@ -305,6 +325,7 @@ document.querySelectorAll('.variant-btn').forEach(function(btn) {
         var variantId = this.getAttribute('data-id');
         var price = parseInt(this.getAttribute('data-price'));
         var stock = this.getAttribute('data-stock');
+        var weight = this.getAttribute('data-weight');
         var image = this.getAttribute('data-image');
 
         var selectedVariantInput = document.getElementById('selectedVariantId');
@@ -315,6 +336,11 @@ document.querySelectorAll('.variant-btn').forEach(function(btn) {
         if (!isNaN(price)) {
             document.getElementById('selectedPrice').textContent =
                 price.toLocaleString('vi-VN') + 'đ';
+        }
+
+        var selectedWeightEl = document.getElementById('selectedWeight');
+        if (selectedWeightEl) {
+            selectedWeightEl.textContent = weight ? ('Khối lượng: ' + weight + ' g') : '';
         }
 
         var selectedStockEl = document.getElementById('selectedStock');
