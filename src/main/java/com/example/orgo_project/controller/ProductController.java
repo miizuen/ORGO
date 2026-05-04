@@ -390,11 +390,11 @@ public class ProductController {
     }
 
     private Integer getSellerIdFromUser(CustomUserDetails userDetails) {
-        if (userDetails == null) return null;
-        // Trong DB seed: NhaBanHang id=1 là shop của phu (TaiKhoan id=3)
-        // Tạm thời dùng hardcode mapping, sau này có thể thêm bảng liên kết
-        // Trả về 1 vì tất cả sản phẩm test đều thuộc NhaBanHang id=1
-        return 1;
+        if (userDetails == null || userDetails.getAccount() == null) return null;
+
+        return sellerRepository.findByAccount(userDetails.getAccount())
+                .map(com.example.orgo_project.entity.Seller::getId)
+                .orElse(null);
     }
 
     private List<ProductVariant> buildVariants(List<String> names, List<BigDecimal> prices, List<Integer> stocks) {
