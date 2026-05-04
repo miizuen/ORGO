@@ -76,6 +76,17 @@ public class ProductService {
         return productRepository.findTop8ByStatusOrderByAverageRatingDesc(ProductStatus.ACTIVE);
     }
 
+    public List<Product> getRandomActiveProducts(int limit) {
+        return productRepository.findRandomTop4ActiveProducts();
+    }
+
+    public List<Product> getRandomActiveProductsExcluding(java.util.Set<Integer> excludedIds, int limit) {
+        if (excludedIds == null || excludedIds.isEmpty()) {
+            return getRandomActiveProducts(limit);
+        }
+        return productRepository.findRandomTop4ActiveProductsExcluding(excludedIds);
+    }
+
     public Product getProductById(Integer id) {
         return productRepository.findById(id).orElse(null);
     }

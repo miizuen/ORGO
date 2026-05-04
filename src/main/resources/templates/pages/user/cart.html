@@ -53,6 +53,25 @@
             flex-wrap: wrap;
         }
 
+        .shop-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .shop-header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .select-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: #2e7d32;
+            cursor: pointer;
+        }
+
         .shop-badge {
             display: inline-flex;
             align-items: center;
@@ -69,6 +88,12 @@
             color: #6b7280;
             font-size: 0.92rem;
             font-weight: 600;
+        }
+
+        .item-select-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .cart-item-card {
@@ -208,28 +233,6 @@
             letter-spacing: -0.03em;
         }
 
-        .coupon-wrap {
-            display: flex;
-            gap: 10px;
-            margin-top: 18px;
-        }
-
-        .coupon-input {
-            border-radius: 14px;
-            border: 1px solid #dbe7dc;
-            height: 46px;
-            padding: 0 14px;
-        }
-
-        .coupon-btn {
-            border-radius: 14px;
-            height: 46px;
-            padding: 0 18px;
-            background: linear-gradient(135deg, #2e7d32, #3fb950);
-            border: none;
-            font-weight: 800;
-            white-space: nowrap;
-        }
 
         .checkout-btn {
             width: 100%;
@@ -442,7 +445,7 @@
                 <div class="row g-4 align-items-start">
                     <div class="col-lg-8">
                         <!-- EMPTY CART -->
-                        <div th:if="${cartGroups == null || #lists.isEmpty(cartGroups)}" class="empty-cart">
+                        <div th:if="${cartGroups == null || cartGroups.isEmpty()}" class="empty-cart">
                             <div class="icon">🧺</div>
                             <h3>Giỏ hàng đang trống</h3>
                             <p>Hãy thêm những sản phẩm hữu cơ tươi ngon vào giỏ để bắt đầu hành trình mua sắm xanh.</p>
@@ -452,25 +455,38 @@
                         </div>
 
                         <!-- GROUPED BY SHOP -->
-                        <div th:if="${cartGroups != null && !#lists.isEmpty(cartGroups)}">
-                            <div th:each="group : ${cartGroups}" class="shop-group">
+                        <div th:if="${cartGroups != null && !cartGroups.isEmpty()}">
+                            <div th:each="groupEntry : ${cartGroups.entrySet()}" class="shop-group">
                                 <div class="shop-header">
-                                    <div class="shop-badge">
-                                        <span>🏪</span>
-                                        <span th:text="${group.key != null ? group.key : 'Nhà bán hàng'}">Tên shop</span>
+                                    <div class="shop-header-left">
+                                        <input type="checkbox"
+                                               class="select-checkbox shop-checkbox"
+                                               th:attr="data-shop-key=${groupEntry.key != null ? groupEntry.key : 'Nhà bán hàng'}">
+                                        <div class="shop-badge">
+                                            <span>🏪</span>
+                                            <span th:text="${groupEntry.key != null ? groupEntry.key : 'Nhà bán hàng'}">Tên shop</span>
+                                        </div>
                                     </div>
-                                    <div class="shop-meta">
-                                        <span th:text="${#lists.size(group.value)}">0</span>
-                                        <span> sản phẩm trong shop này</span>
+                                    <div class="shop-header-right">
+                                        <div class="shop-meta">
+                                            <span th:text="${groupEntry.value != null ? #lists.size(groupEntry.value) : 0}">0</span>
+                                            <span> sản phẩm trong shop này</span>
+                                        </div>
                                     </div>
                                 </div>
                             
-                                <div th:each="item : ${group.value}" class="cart-item-card">
+                                <div th:each="item : ${groupEntry.value}" class="cart-item-card">
                                     <div class="d-flex gap-3 align-items-center flex-wrap flex-sm-nowrap">
-                                        <div>
-                                            <img class="cart-img"
-                                                 th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80'}"
-                                                 alt="Product image">
+                                        <div class="item-select-wrap">
+                                            <input type="checkbox"
+                                                   class="select-checkbox item-checkbox"
+                                                   th:attr="data-shop-key=${groupEntry.key != null ? groupEntry.key : 'Nhà bán hàng'}"
+                                                   th:id="${'item-checkbox-' + item.id}">
+                                            <label th:for="${'item-checkbox-' + item.id}" class="mb-0">
+                                                <img class="cart-img"
+                                                     th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80'}"
+                                                     alt="Product image">
+                                            </label>
                                         </div>
 
                                         <div class="flex-grow-1">
@@ -487,7 +503,7 @@
                                                                class="qty-value-input"
                                                                name="quantity"
                                                                th:value="${item.quantity}"
-                                                               min="1"
+                                                               min="0"
                                                                onchange="this.form.submit()">
                                                         <button type="button" class="qty-btn" onclick="updateQty(this, 1)">+</button>
                                                     </div>
@@ -503,6 +519,7 @@
                                         </div>
 
                                         <div class="cart-price"
+                                             th:attr="data-unit-price=${item.unitPrice != null ? item.unitPrice : 0}"
                                              th:text="${#numbers.formatDecimal(item.estimatedPrice != null ? item.estimatedPrice : item.unitPrice, 0, 'POINT', 0, 'COMMA')} + 'đ'">
                                             45.000đ
                                         </div>
@@ -512,25 +529,39 @@
                         </div>
 
                         <!-- FALLBACK IF ONLY cartItems EXISTS -->
-                        <div th:if="${cartGroups == null && cartItems != null && !#lists.isEmpty(cartItems)}">
+                        <div th:if="${(cartGroups == null || cartGroups.isEmpty()) && cartItems != null && !#lists.isEmpty(cartItems)}">
+                            <!-- fallback hiển thị khi không gom được theo shop -->
                             <div class="shop-group">
                                 <div class="shop-header">
-                                    <div class="shop-badge">
-                                        <span>🏪</span>
-                                        <span>Nhà bán hàng</span>
+                                    <div class="shop-header-left">
+                                        <input type="checkbox"
+                                               class="select-checkbox shop-checkbox"
+                                               data-shop-key="default-shop">
+                                        <div class="shop-badge">
+                                            <span>🏪</span>
+                                            <span>Nhà bán hàng</span>
+                                        </div>
                                     </div>
-                                    <div class="shop-meta">
-                                        <span th:text="${#lists.size(cartItems)}">0</span>
-                                        <span> sản phẩm</span>
+                                    <div class="shop-header-right">
+                                        <div class="shop-meta">
+                                            <span th:text="${#lists.size(cartItems)}">0</span>
+                                            <span> sản phẩm</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div th:each="item : ${cartItems}" class="cart-item-card">
                                     <div class="d-flex gap-3 align-items-center flex-wrap flex-sm-nowrap">
-                                        <div>
-                                            <img class="cart-img"
-                                                 th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1540420773420-3366772f5999?w=600&q=80'}"
-                                                 alt="Product image">
+                                        <div class="item-select-wrap">
+                                            <input type="checkbox"
+                                                   class="select-checkbox item-checkbox"
+                                                   data-shop-key="default-shop"
+                                                   th:id="${'item-checkbox-' + item.id}">
+                                            <label th:for="${'item-checkbox-' + item.id}" class="mb-0">
+                                                <img class="cart-img"
+                                                     th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1540420773420-3366772f5999?w=600&q=80'}"
+                                                     alt="Product image">
+                                            </label>
                                         </div>
 
                                         <div class="flex-grow-1">
@@ -547,7 +578,7 @@
                                                                class="qty-value-input"
                                                                name="quantity"
                                                                th:value="${item.quantity}"
-                                                               min="1"
+                                                               min="0"
                                                                onchange="this.form.submit()">
                                                         <button type="button" class="qty-btn" onclick="updateQty(this, 1)">+</button>
                                                     </div>
@@ -563,6 +594,7 @@
                                         </div>
 
                                         <div class="cart-price"
+                                             th:attr="data-unit-price=${item.unitPrice != null ? item.unitPrice : 0}"
                                              th:text="${#numbers.formatDecimal(item.estimatedPrice != null ? item.estimatedPrice : item.unitPrice, 0, 'POINT', 0, 'COMMA')} + 'đ'">
                                             45.000đ
                                         </div>
@@ -579,30 +611,21 @@
 
                             <div class="summary-row">
                                 <span>Tạm tính</span>
-                                <strong th:text="${#numbers.formatDecimal(totalAmount != null ? totalAmount : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</strong>
+                                <strong id="cartSubtotal" th:attr="data-fallback-total=${totalAmount != null ? totalAmount : 0}"
+                                        th:text="${#numbers.formatDecimal(totalAmount != null ? totalAmount : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</strong>
                             </div>
 
                             <div class="summary-row">
                                 <span>Phí vận chuyển</span>
-                                <strong>25.000đ</strong>
-                            </div>
-
-                            <div class="summary-row">
-                                <span>Giảm giá</span>
-                                <strong>-0đ</strong>
+                                <strong id="cartShipping">25.000đ</strong>
                             </div>
 
                             <div class="summary-total">
                                 <div class="label">Tổng cộng</div>
-                                <div class="value"
+                                <div class="value" id="cartGrandTotal"
                                      th:text="${#numbers.formatDecimal((totalAmount != null ? totalAmount : 0) + 25000, 0, 'POINT', 0, 'COMMA')} + 'đ'">
                                     0đ
                                 </div>
-                            </div>
-
-                            <div class="coupon-wrap">
-                                <input type="text" class="form-control coupon-input" placeholder="Mã giảm giá">
-                                <button type="button" class="btn btn-primary coupon-btn">Áp dụng</button>
                             </div>
 
                             <a th:href="@{/checkout}" class="btn btn-success checkout-btn">
@@ -624,44 +647,21 @@
                 </div>
 
                 <div class="recommend-title">Có thể bạn quan tâm</div>
-                <div class="row g-3 g-lg-4">
-                    <div class="col-6 col-md-3">
-                        <div class="suggest-card">
-                            <img class="suggest-img" src="https://images.unsplash.com/photo-1546470427-1f617b69a2fd?auto=format&fit=crop&w=800&q=80" alt="Cà chua hữu cơ">
-                            <div class="suggest-body">
-                                <div class="suggest-name">Cà chua hữu cơ</div>
-                                <div class="suggest-price">28.000đ / hộp</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-6 col-md-3">
-                        <div class="suggest-card">
-                            <img class="suggest-img" src="https://images.unsplash.com/photo-1574215683202-8a2d0a8f0f1c?auto=format&fit=crop&w=800&q=80" alt="Cải bó xôi">
-                            <div class="suggest-body">
-                                <div class="suggest-name">Cải bó xôi</div>
-                                <div class="suggest-price">22.000đ / túi</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-6 col-md-3">
-                        <div class="suggest-card">
-                            <img class="suggest-img" src="https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=800&q=80" alt="Việt quất">
-                            <div class="suggest-body">
-                                <div class="suggest-name">Việt quất hữu cơ</div>
-                                <div class="suggest-price">95.000đ / hộp</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-6 col-md-3">
-                        <div class="suggest-card">
-                            <img class="suggest-img" src="https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=800&q=80" alt="Xoài cát">
-                            <div class="suggest-body">
-                                <div class="suggest-name">Xoài cát Hòa Lộc</div>
-                                <div class="suggest-price">110.000đ / kg</div>
-                            </div>
+                <div class="row g-3 g-lg-4" th:if="${recommendedProducts != null && !#lists.isEmpty(recommendedProducts)}">
+                    <div class="col-6 col-md-3" th:each="item : ${recommendedProducts}">
+                        <div class="suggest-card h-100">
+                            <a th:href="@{/products/{id}(id=${item.product.id})}" class="text-decoration-none">
+                                <img class="suggest-img"
+                                     th:src="${item.product.imageUrl != null ? item.product.imageUrl : 'https://images.unsplash.com/photo-1546470427-1f617b69a2fd?auto=format&fit=crop&w=800&q=80'}"
+                                     th:alt="${item.product.productName}">
+                                <div class="suggest-body">
+                                    <div class="suggest-name" th:text="${item.product.productName}">Tên sản phẩm</div>
+                                    <div class="suggest-price"
+                                         th:text="${#numbers.formatDecimal(item.price != null ? item.price : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">
+                                        0đ
+                                    </div>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -674,10 +674,85 @@
             const form = button.closest('form');
             const input = form.querySelector('.qty-value-input');
             let current = parseInt(input.value || '1', 10);
-            current = Math.max(1, current + delta);
+            current = current + delta;
+            if (current <= 0) {
+                input.value = 0;
+                form.submit();
+                return;
+            }
             input.value = current;
             form.submit();
         }
+
+        function syncGroupCheckboxes() {
+            const shopCheckboxes = document.querySelectorAll('.shop-checkbox');
+            shopCheckboxes.forEach((shopCheckbox) => {
+                const shopKey = shopCheckbox.getAttribute('data-shop-key');
+                const items = document.querySelectorAll(`.item-checkbox[data-shop-key="${shopKey}"]`);
+                const checkedItems = Array.from(items).filter((item) => item.checked);
+                shopCheckbox.checked = items.length > 0 && checkedItems.length === items.length;
+                shopCheckbox.indeterminate = checkedItems.length > 0 && checkedItems.length < items.length;
+            });
+        }
+
+        function getSelectedCartTotal() {
+            let total = 0;
+            document.querySelectorAll('.item-checkbox:checked').forEach((checkbox) => {
+                const itemCard = checkbox.closest('.cart-item-card');
+                if (!itemCard) return;
+                const priceEl = itemCard.querySelector('.cart-price');
+                if (!priceEl) return;
+                const quantityInput = itemCard.querySelector('.qty-value-input');
+                const quantity = parseInt(quantityInput?.value || '0', 10);
+                const unitPrice = parseInt(priceEl.getAttribute('data-unit-price') || '0', 10);
+                if (!Number.isNaN(unitPrice) && quantity > 0) {
+                    total += unitPrice * quantity;
+                }
+            });
+            return total;
+        }
+
+        function formatCurrencyVnd(value) {
+            return new Intl.NumberFormat('vi-VN').format(value) + 'đ';
+        }
+
+        function updateOrderSummary() {
+            const subtotalEl = document.getElementById('cartSubtotal');
+            const shippingEl = document.getElementById('cartShipping');
+            const grandTotalEl = document.getElementById('cartGrandTotal');
+            if (!subtotalEl || !shippingEl || !grandTotalEl) return;
+
+            const selectedTotal = getSelectedCartTotal();
+            const shipping = 25000;
+            subtotalEl.textContent = formatCurrencyVnd(selectedTotal);
+            shippingEl.textContent = formatCurrencyVnd(shipping);
+            grandTotalEl.textContent = formatCurrencyVnd(selectedTotal + shipping);
+        }
+
+        function bindCartSelection() {
+            document.querySelectorAll('.shop-checkbox').forEach((shopCheckbox) => {
+                shopCheckbox.addEventListener('change', function () {
+                    const shopKey = this.getAttribute('data-shop-key');
+                    const checked = this.checked;
+                    document.querySelectorAll(`.item-checkbox[data-shop-key="${shopKey}"]`).forEach((item) => {
+                        item.checked = checked;
+                    });
+                    updateOrderSummary();
+                });
+            });
+
+            document.querySelectorAll('.item-checkbox').forEach((itemCheckbox) => {
+                itemCheckbox.addEventListener('change', function () {
+                    syncGroupCheckboxes();
+                    updateOrderSummary();
+                });
+            });
+
+            syncGroupCheckboxes();
+            updateOrderSummary();
+        }
+
+        bindCartSelection();
 
         window.addEventListener('DOMContentLoaded', function () {
             const fadeAfterMs = 1500;
