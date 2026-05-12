@@ -6,6 +6,7 @@ import com.example.orgo_project.dto.CheckoutRequestDTO;
 import com.example.orgo_project.dto.CheckoutResponseDTO;
 import com.example.orgo_project.entity.CustomerOrder;
 import com.example.orgo_project.entity.CustomerOrderItem;
+import com.example.orgo_project.entity.PaymentHistory;
 import com.example.orgo_project.entity.Product;
 import com.example.orgo_project.entity.ProductVariant;
 import com.example.orgo_project.entity.ShippingAddress;
@@ -15,6 +16,7 @@ import com.example.orgo_project.enums.OrderStatus;
 import com.example.orgo_project.enums.PaymentStatus;
 import com.example.orgo_project.repository.ICustomerOrderItemRepository;
 import com.example.orgo_project.repository.ICustomerOrderRepository;
+import com.example.orgo_project.repository.IPaymentHistoryRepository;
 import com.example.orgo_project.repository.IPaymentQrSessionRepository;
 import com.example.orgo_project.repository.IProductRepository;
 import com.example.orgo_project.repository.IProductVariantRepository;
@@ -44,7 +46,9 @@ public class CheckoutService implements ICheckoutService {
     private final ICustomerOrderItemRepository orderItemRepository;
     private final IShippingAddressRepository shippingAddressRepository;
     private final IPaymentQrSessionRepository paymentQrSessionRepository;
+    private final IPaymentHistoryRepository paymentHistoryRepository;
     private final PaymentQrService paymentQrService;
+    private final IRevenueDistributionService revenueDistributionService;
 
     public CheckoutService(IShoppingCartRepository cartRepository,
                            IShoppingCartItemRepository cartItemRepository,
@@ -54,7 +58,9 @@ public class CheckoutService implements ICheckoutService {
                            ICustomerOrderItemRepository orderItemRepository,
                            IShippingAddressRepository shippingAddressRepository,
                            IPaymentQrSessionRepository paymentQrSessionRepository,
-                           PaymentQrService paymentQrService) {
+                           IPaymentHistoryRepository paymentHistoryRepository,
+                           PaymentQrService paymentQrService,
+                           IRevenueDistributionService revenueDistributionService) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productVariantRepository = productVariantRepository;
@@ -63,7 +69,9 @@ public class CheckoutService implements ICheckoutService {
         this.orderItemRepository = orderItemRepository;
         this.shippingAddressRepository = shippingAddressRepository;
         this.paymentQrSessionRepository = paymentQrSessionRepository;
+        this.paymentHistoryRepository = paymentHistoryRepository;
         this.paymentQrService = paymentQrService;
+        this.revenueDistributionService = revenueDistributionService;
     }
 
     @Override
@@ -99,7 +107,8 @@ public class CheckoutService implements ICheckoutService {
         if (cartItems.isEmpty()) throw new RuntimeException("Bạn chưa chọn sản phẩm nào");
 
         BigDecimal totalAmount = calculateTotal(cartItems);
-        CustomerOrder savedOrder = saveOrder(accountId, request, totalAmount);
+        Integer sellerId = resolveOrderSellerId(cartItems);
+        CustomerOrder savedOrder = saveOrder(accountId, request, totalAmount, sellerId);
         saveOrderItems(savedOrder, cartItems);
         cartItemRepository.deleteAll(cartItems);
         upsertPaymentQrSession(savedOrder, totalAmount);
@@ -109,15 +118,32 @@ public class CheckoutService implements ICheckoutService {
 
     @Override
     public CheckoutResponseDTO confirmPayment(Integer orderId, String transactionCode) {
-        CustomerOrder order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+        CustomerOrder order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
         if (order.getPaymentStatus() == PaymentStatus.PAID) {
             return buildPaymentResponse(order, "Đơn hàng đã được xác nhận thanh toán");
         }
+
         order.setPaymentStatus(PaymentStatus.PAID);
-        order.setOrderStatus(OrderStatus.PENDING);
+        order.setOrderStatus(OrderStatus.PROCESSING); // auto chuyển trạng thái xử lý
         orderRepository.save(order);
-        paymentQrSessionRepository.findByOrderId(orderId).ifPresent(session -> { session.setStatus("PAID"); paymentQrSessionRepository.save(session); });
-        return buildPaymentResponse(order, transactionCode != null && !transactionCode.isBlank() ? "Thanh toán thành công: " + transactionCode : "Thanh toán thành công");
+
+        paymentQrSessionRepository.findByOrderId(orderId).ifPresent(session -> {
+            session.setStatus("PAID");
+            paymentQrSessionRepository.save(session);
+        });
+        savePaymentHistory(order, transactionCode);
+
+        // chia tiền ngay sau khi thanh toán thành công
+        revenueDistributionService.distributeForOrder(orderId);
+
+        return buildPaymentResponse(
+                order,
+                transactionCode != null && !transactionCode.isBlank()
+                        ? "Thanh toán thành công: " + transactionCode
+                        : "Thanh toán thành công"
+        );
     }
 
     private CheckoutPageDataDTO emptyCheckoutPage() {
@@ -160,9 +186,20 @@ public class CheckoutService implements ICheckoutService {
         return unitPrice != null ? unitPrice : BigDecimal.ZERO;
     }
 
-    private CustomerOrder saveOrder(Integer accountId, CheckoutRequestDTO request, BigDecimal totalAmount) {
+    private Integer resolveOrderSellerId(List<ShoppingCartItem> cartItems) {
+        if (cartItems == null || cartItems.isEmpty()) return null;
+        ShoppingCartItem firstItem = cartItems.get(0);
+        if (firstItem.getProductVariantId() == null) return null;
+        ProductVariant variant = productVariantRepository.findById(firstItem.getProductVariantId()).orElse(null);
+        if (variant == null || variant.getProductId() == null) return null;
+        Product product = productRepository.findById(variant.getProductId()).orElse(null);
+        return product != null ? product.getSellerId() : null;
+    }
+
+    private CustomerOrder saveOrder(Integer accountId, CheckoutRequestDTO request, BigDecimal totalAmount, Integer sellerId) {
         CustomerOrder order = new CustomerOrder();
         order.setUserId(accountId);
+        order.setSellerId(sellerId);
         order.setShippingAddressId(request != null ? request.getShippingAddressId() : null);
         order.setPaymentMethodId(request != null ? request.getPaymentMethodId() : null);
         order.setOrderCode("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
@@ -198,6 +235,18 @@ public class CheckoutService implements ICheckoutService {
 
     private CheckoutResponseDTO buildPaymentResponse(CustomerOrder order, String message) {
         return CheckoutResponseDTO.builder().orderId(order.getId()).orderCode(order.getOrderCode()).totalAmount(order.getTotalAmount()).message(message).build();
+    }
+
+    private void savePaymentHistory(CustomerOrder order, String transactionCode) {
+        PaymentHistory history = new PaymentHistory();
+        history.setOrderId(order.getId());
+        history.setPaymentMethodId(order.getPaymentMethodId());
+        history.setTransactionCode(transactionCode != null && !transactionCode.isBlank() ? transactionCode.trim() : "MANUAL-" + order.getOrderCode());
+        history.setAmount(order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO);
+        history.setStatus(PaymentStatus.PAID);
+        history.setTransactionAt(LocalDateTime.now());
+        history.setNote("Thanh toan don hang " + order.getOrderCode());
+        paymentHistoryRepository.save(history);
     }
 
 

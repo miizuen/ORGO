@@ -88,15 +88,11 @@
                         <div class="value" th:text="${wallet != null ? wallet.availableBalance : '0'}">0</div>
                     </article>
                     <article class="summary-card">
-                        <div class="label">Chờ xử lý <span class="icon">◔</span></div>
+                        <div class="label">Số tiền đang chờ xử lý <span class="icon">◔</span></div>
                         <div class="value" th:text="${pendingAmount != null ? pendingAmount : '0'}">0</div>
                     </article>
                     <article class="summary-card">
-                        <div class="label">Tổng thu nhập <span class="icon">↗</span></div>
-                        <div class="value" th:text="${totalIncome != null ? totalIncome : '0'}">0</div>
-                    </article>
-                    <article class="summary-card">
-                        <div class="label">Tổng đã rút <span class="icon">✓</span></div>
+                        <div class="label">Tổng số tiền đã rút <span class="icon">✓</span></div>
                         <div class="value" th:text="${totalWithdrawn != null ? totalWithdrawn : '0'}">0</div>
                     </article>
                 </section>
@@ -140,6 +136,7 @@
                                 <th>Request Date</th>
                                 <th>Amount</th>
                                 <th>Status</th>
+                                <th>Transaction ID</th>
                                 <th>Processed Date</th>
                             </tr>
                             </thead>
@@ -149,6 +146,7 @@
                                 <td data-label="Request Date" th:text="${item.createdAt}">-</td>
                                 <td data-label="Amount" class="amount" th:text="${item.requestedAmount}">$0.00</td>
                                 <td data-label="Status"><span class="pill pending" th:text="${item.status}">PENDING</span></td>
+                                <td data-label="Transaction ID" th:text="${item.transactionCode != null ? item.transactionCode : '-'}">-</td>
                                 <td data-label="Processed Date" th:text="${item.processedAt != null ? item.processedAt : '-'}">-</td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(historyRequests)}">

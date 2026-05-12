@@ -16,26 +16,27 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
 @RequestMapping("/admin/payouts")
-@Tag(name = "Payout", description = "Quản lý payout / wallet / transaction")
+@Tag(name = "Payout", description = "Quan ly payout / wallet / transaction")
 public class PayoutController {
 
     @Autowired
     private PayoutService payoutService;
 
     @GetMapping
-    @Operation(summary = "Xem danh sách payout", description = "Lấy danh sách payout, lịch sử của user hiện tại và các request đang pending")
+    @Operation(summary = "Xem danh sach payout", description = "Lay danh sach payout, lich su cua user hien tai va cac request dang pending")
     public String index(@RequestParam(required = false, defaultValue = "ALL") String status, Model model) {
         List<WithdrawalRequest> requests = "ALL".equalsIgnoreCase(status)
                 ? payoutService.findAll()
                 : payoutService.findByStatus(WithdrawalStatus.valueOf(status));
-        model.addAttribute("requests", requests);
-        model.addAttribute("pendingRequests", payoutService.findPending());
+        model.addAttribute("allPayouts", requests);
+        model.addAttribute("pendingPayouts", payoutService.findPending());
         model.addAttribute("historyRequests", payoutService.findCurrentUserHistory());
         model.addAttribute("selectedStatus", status);
         model.addAttribute("currentWallet", currentWallet());
@@ -43,21 +44,21 @@ public class PayoutController {
     }
 
     @GetMapping("/seller/{id}")
-    @Operation(summary = "Xem chi tiết payout seller", description = "Hiển thị chi tiết request payout của seller")
+    @Operation(summary = "Xem chi tiet payout seller", description = "Hien thi chi tiet request payout cua seller")
     public String sellerDetail(@PathVariable Integer id, Model model) {
         model.addAttribute("request", payoutService.findById(id));
         return "pages/admin/payout-detail-seller";
     }
 
     @GetMapping("/expert/{id}")
-    @Operation(summary = "Xem chi tiết payout expert", description = "Hiển thị chi tiết request payout của expert")
+    @Operation(summary = "Xem chi tiet payout expert", description = "Hien thi chi tiet request payout cua expert")
     public String expertDetail(@PathVariable Integer id, Model model) {
         model.addAttribute("request", payoutService.findById(id));
         return "pages/admin/payout-detail-expert";
     }
 
     @PostMapping("/create")
-    @Operation(summary = "Tạo lệnh rút", description = "Seller/Expert tạo payout request mới")
+    @Operation(summary = "Tao lenh rut", description = "Seller/Expert tao payout request moi")
     public String create(@RequestParam(required = false) Integer accountId,
                          @RequestParam BigDecimal amount,
                          @RequestParam String bankName,
@@ -67,7 +68,7 @@ public class PayoutController {
         Integer resolvedAccountId = accountId != null ? accountId : currentWallet();
         try {
             payoutService.createRequest(resolvedAccountId, amount, bankName, bankAccount, accountHolderName);
-            model.addAttribute("successMessage", "Tạo lệnh rút thành công");
+            model.addAttribute("successMessage", "Tao lenh rut thanh cong");
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
         }
@@ -75,21 +76,41 @@ public class PayoutController {
     }
 
     @PostMapping("/{id}/approve")
-    @Operation(summary = "Duyệt payout", description = "Admin duyệt yêu cầu payout")
-    public String approve(@PathVariable Integer id) {
-        payoutService.approve(id);
+    @Operation(summary = "Duyet payout", description = "Admin duyet yeu cau payout")
+    public String approve(@PathVariable Integer id,
+                          @RequestParam(required = false) String transactionCode,
+                          RedirectAttributes redirectAttributes) {
+        try {
+            payoutService.approve(id, transactionCode);
+            redirectAttributes.addFlashAttribute("successMessage", "Duyet payout thanh cong.");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/admin/payouts";
+    }
+
+    @GetMapping("/{id}/approve")
+    public String approveGetFallback(@PathVariable Integer id,
+                                     @RequestParam(required = false) String transactionCode,
+                                     RedirectAttributes redirectAttributes) {
+        try {
+            payoutService.approve(id, transactionCode);
+            redirectAttributes.addFlashAttribute("successMessage", "Duyet payout thanh cong.");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
         return "redirect:/admin/payouts";
     }
 
     @PostMapping("/{id}/reject")
-    @Operation(summary = "Từ chối payout", description = "Admin từ chối yêu cầu payout")
+    @Operation(summary = "Tu choi payout", description = "Admin tu choi yeu cau payout")
     public String reject(@PathVariable Integer id, @RequestParam(required = false) String reason) {
         payoutService.reject(id, reason == null ? "" : reason);
         return "redirect:/admin/payouts";
     }
 
     @PostMapping("/{id}/paid")
-    @Operation(summary = "Đánh dấu đã chi trả", description = "Admin xác nhận payout đã hoàn tất")
+    @Operation(summary = "Danh dau da chi tra", description = "Admin xac nhan payout da hoan tat")
     public String markPaid(@PathVariable Integer id) {
         payoutService.markPaid(id);
         return "redirect:/admin/payouts";

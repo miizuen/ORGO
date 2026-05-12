@@ -12,4 +12,6 @@ public interface IWithdrawalRequestRepository extends JpaRepository<WithdrawalRe
     List<WithdrawalRequest> findByStatusOrderByCreatedAtDesc(WithdrawalStatus status);
     List<WithdrawalRequest> findAllByOrderByCreatedAtDesc();
     List<WithdrawalRequest> findByProcessorIdOrderByCreatedAtDesc(Integer processorId);
+
+    List<WithdrawalRequest> findByRequesterIdOrderByCreatedAtDesc(Integer accountId);
 }

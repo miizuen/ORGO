@@ -30,7 +30,6 @@ public class AdminOrderService implements IAdminOrderService {
     private final ICustomerOrderItemRepository orderItemRepository;
     private final IProductVariantRepository productVariantRepository;
     private final IProductRepository productRepository;
-    private final IRevenueDistributionService revenueDistributionService;
 
     public AdminOrderService(ICustomerOrderRepository orderRepository,
                              ICustomerOrderItemRepository orderItemRepository,
@@ -41,7 +40,6 @@ public class AdminOrderService implements IAdminOrderService {
         this.orderItemRepository = orderItemRepository;
         this.productVariantRepository = productVariantRepository;
         this.productRepository = productRepository;
-        this.revenueDistributionService = revenueDistributionService;
     }
 
     @Override
@@ -78,7 +76,6 @@ public class AdminOrderService implements IAdminOrderService {
         order.setOrderStatus(OrderStatus.PROCESSING);
         orderRepository.save(order);
         log.info("Order {} marked PROCESSING, distributing revenue now", order.getOrderCode());
-        revenueDistributionService.distributeForOrder(orderId);
         log.info("Revenue distribution finished for order {}", order.getOrderCode());
         return true;
     }

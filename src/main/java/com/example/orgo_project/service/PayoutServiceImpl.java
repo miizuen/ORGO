@@ -6,8 +6,9 @@ import com.example.orgo_project.entity.TransactionHistory;
 import com.example.orgo_project.entity.WalletBalance;
 import com.example.orgo_project.entity.WithdrawalRequest;
 import com.example.orgo_project.enums.WithdrawalStatus;
-import com.example.orgo_project.repository.IAuditLogRepository;
 import com.example.orgo_project.repository.IAccountRepository;
+import com.example.orgo_project.repository.IAuditLogRepository;
+import com.example.orgo_project.repository.ITransactionHistoryRepository;
 import com.example.orgo_project.repository.IWalletBalanceRepository;
 import com.example.orgo_project.repository.IWithdrawalRequestRepository;
 import jakarta.transaction.Transactional;
@@ -37,6 +38,9 @@ public class PayoutServiceImpl implements PayoutService {
     @Autowired
     private IAuditLogRepository auditLogRepository;
 
+    @Autowired
+    private ITransactionHistoryRepository transactionHistoryRepository;
+
     @Override
     public List<WithdrawalRequest> findAll() {
         return withdrawalRequestRepository.findAllByOrderByCreatedAtDesc();
@@ -54,9 +58,7 @@ public class PayoutServiceImpl implements PayoutService {
 
     @Override
     public List<WithdrawalRequest> findByAccountId(Integer accountId) {
-        return withdrawalRequestRepository.findAllByOrderByCreatedAtDesc().stream()
-                .filter(req -> Objects.equals(req.getProcessorId(), accountId))
-                .toList();
+        return withdrawalRequestRepository.findByRequesterIdOrderByCreatedAtDesc(accountId);
     }
 
     @Override
@@ -79,7 +81,7 @@ public class PayoutServiceImpl implements PayoutService {
         history.setType("SUMMARY");
         history.setAmount(wallet.getAvailableBalance());
         history.setBalanceAfter(wallet.getAvailableBalance());
-        history.setDescription("Tổng quan giao dịch ví");
+        history.setDescription("Tong quan giao dich vi");
         history.setCreatedAt(LocalDateTime.now());
         return List.of(history);
     }
@@ -97,20 +99,19 @@ public class PayoutServiceImpl implements PayoutService {
     @Override
     public WithdrawalRequest createRequest(Integer accountId, BigDecimal amount, String bankName, String bankAccount, String accountHolderName) {
         WalletBalance wallet = walletBalanceRepository.findByAccountId(Objects.requireNonNull(accountId))
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy ví của tài khoản"));
+                .orElseThrow(() -> new IllegalArgumentException("Khong tim thay vi cua tai khoan"));
 
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Số tiền rút không hợp lệ");
+            throw new IllegalArgumentException("So tien rut khong hop le");
         }
         if (wallet.getAvailableBalance() == null || wallet.getAvailableBalance().compareTo(amount) < 0) {
-            throw new IllegalArgumentException("Số dư không đủ để rút");
+            throw new IllegalArgumentException("So du khong du de rut");
         }
 
-        // Check maintenance balance for sellers
         if (wallet.getMaintenanceBalance() != null) {
             BigDecimal afterWithdrawal = wallet.getAvailableBalance().subtract(amount);
             if (afterWithdrawal.compareTo(wallet.getMaintenanceBalance()) < 0) {
-                throw new IllegalArgumentException("Không thể rút tiền vì sẽ thấp hơn mức duy trì tối thiểu " + wallet.getMaintenanceBalance() + " VND");
+                throw new IllegalArgumentException("Khong the rut tien vi se thap hon muc duy tri toi thieu " + wallet.getMaintenanceBalance() + " VND");
             }
         }
 
@@ -127,22 +128,26 @@ public class PayoutServiceImpl implements PayoutService {
         request.setAccountHolderName(accountHolderName);
         request.setStatus(WithdrawalStatus.PENDING);
         request.setCreatedAt(LocalDateTime.now());
-        request.setProcessorId(accountId);
+        request.setRequesterId(accountId);
         WithdrawalRequest saved = withdrawalRequestRepository.save(request);
 
-        writeAudit("WithdrawalRequest", saved.getId(), "CREATE", "Tạo lệnh rút tiền số tiền " + amount, accountId);
-        writeAudit("WalletBalance", wallet.getId(), "LOCK", "Khóa số tiền " + amount + " cho lệnh rút #" + saved.getId(), accountId);
+        writeAudit("WithdrawalRequest", saved.getId(), "CREATE", "Tao lenh rut tien so tien " + amount, accountId);
+        writeAudit("WalletBalance", wallet.getId(), "LOCK", "Khoa so tien " + amount + " cho lenh rut #" + saved.getId(), accountId);
 
         return saved;
     }
 
     @Override
-    public WithdrawalRequest approve(Integer id) {
+    public WithdrawalRequest approve(Integer id, String transactionCode) {
+        if (transactionCode == null || transactionCode.isBlank()) {
+            throw new IllegalArgumentException("Vui long nhap ma giao dich ngan hang.");
+        }
+
         WithdrawalRequest request = findById(id);
-        Integer ownerAccountId = request.getProcessorId();
+        Integer ownerAccountId = request.getRequesterId();
         WalletBalance wallet = getWalletByAccountId(ownerAccountId);
         if (wallet == null) {
-            throw new IllegalArgumentException("Không tìm thấy ví của tài khoản");
+            throw new IllegalArgumentException("Khong tim thay vi cua tai khoan");
         }
 
         BigDecimal amount = request.getRequestedAmount() == null ? BigDecimal.ZERO : request.getRequestedAmount();
@@ -156,18 +161,20 @@ public class PayoutServiceImpl implements PayoutService {
         request.setStatus(WithdrawalStatus.APPROVED);
         request.setProcessedAt(LocalDateTime.now());
         request.setProcessorId(getCurrentAccountId());
+        request.setTransactionCode(transactionCode.trim());
         WithdrawalRequest saved = withdrawalRequestRepository.save(request);
 
-        writeAudit("WithdrawalRequest", saved.getId(), "APPROVE", "Phê duyệt lệnh rút tiền #" + saved.getId(), getCurrentAccountId());
-        writeAudit("WalletBalance", wallet.getId(), "DEBIT", "Trừ số tiền " + amount + " khi duyệt lệnh rút #" + saved.getId(), getCurrentAccountId());
-        writeTransactionHistory(wallet.getId(), "DEBIT", amount, wallet.getAvailableBalance(), saved.getId(), "Admin duyệt payout và trừ tiền tài khoản");
+        String txCode = transactionCode.trim();
+        writeAudit("WithdrawalRequest", saved.getId(), "APPROVE", "Phe duyet lenh rut #" + saved.getId() + " - Ma GD: " + txCode, getCurrentAccountId());
+        writeAudit("WalletBalance", wallet.getId(), "DEBIT", "Tru so tien " + amount + " khi duyet lenh rut #" + saved.getId(), getCurrentAccountId());
+        writeTransactionHistory(wallet.getId(), "DEBIT", amount, wallet.getAvailableBalance(), saved.getId(), "Admin duyet payout, tru tien. Ma GD: " + txCode);
         return saved;
     }
 
     @Override
     public WithdrawalRequest reject(Integer id, String reason) {
         WithdrawalRequest request = findById(id);
-        Integer ownerAccountId = request.getProcessorId();
+        Integer ownerAccountId = request.getRequesterId();
         WalletBalance wallet = getWalletByAccountId(ownerAccountId);
         if (wallet != null) {
             BigDecimal amount = request.getRequestedAmount() == null ? BigDecimal.ZERO : request.getRequestedAmount();
@@ -176,7 +183,7 @@ public class PayoutServiceImpl implements PayoutService {
             wallet.setAvailableBalance((wallet.getAvailableBalance() == null ? BigDecimal.ZERO : wallet.getAvailableBalance()).add(amount));
             wallet.setUpdatedAt(LocalDateTime.now());
             walletBalanceRepository.save(wallet);
-            writeTransactionHistory(wallet.getId(), "UNLOCK", amount, wallet.getAvailableBalance(), request.getId(), "Admin từ chối payout và hoàn tiền về ví");
+            writeTransactionHistory(wallet.getId(), "UNLOCK", amount, wallet.getAvailableBalance(), request.getId(), "Admin tu choi payout va hoan tien ve vi");
         }
 
         request.setStatus(WithdrawalStatus.REJECTED);
@@ -184,7 +191,7 @@ public class PayoutServiceImpl implements PayoutService {
         request.setProcessedAt(LocalDateTime.now());
         request.setProcessorId(getCurrentAccountId());
         WithdrawalRequest saved = withdrawalRequestRepository.save(request);
-        writeAudit("WithdrawalRequest", saved.getId(), "REJECT", "Từ chối lệnh rút #" + saved.getId() + ". Lý do: " + reason, getCurrentAccountId());
+        writeAudit("WithdrawalRequest", saved.getId(), "REJECT", "Tu choi lenh rut #" + saved.getId() + ". Ly do: " + reason, getCurrentAccountId());
         return saved;
     }
 
@@ -195,7 +202,7 @@ public class PayoutServiceImpl implements PayoutService {
         request.setProcessedAt(LocalDateTime.now());
         request.setProcessorId(getCurrentAccountId());
         WithdrawalRequest saved = withdrawalRequestRepository.save(request);
-        writeAudit("WithdrawalRequest", saved.getId(), "PAID", "Đã chi trả lệnh rút #" + saved.getId(), getCurrentAccountId());
+        writeAudit("WithdrawalRequest", saved.getId(), "PAID", "Da chi tra lenh rut #" + saved.getId(), getCurrentAccountId());
         return saved;
     }
 
@@ -219,6 +226,7 @@ public class PayoutServiceImpl implements PayoutService {
         history.setReferenceId(referenceId);
         history.setDescription(description);
         history.setCreatedAt(LocalDateTime.now());
+        transactionHistoryRepository.save(history);
     }
 
     private Integer getCurrentAccountId() {

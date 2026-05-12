@@ -2,6 +2,7 @@ package com.example.orgo_project.controller;
 
 import com.example.orgo_project.dto.SellerDashboardStats;
 import com.example.orgo_project.entity.WalletBalance;
+import com.example.orgo_project.entity.WithdrawalRequest;
 import com.example.orgo_project.security.CustomUserDetails;
 import com.example.orgo_project.service.DashboardService;
 import com.example.orgo_project.service.PayoutService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/seller")
@@ -30,10 +32,16 @@ public class SellerController {
     @GetMapping("/dashboard")
     public String showSellerDashboard(Model model) {
         Integer accountId = currentAccountId();
+        WalletBalance wallet = payoutService.getWalletByAccountId(accountId);
+        BigDecimal availableBalance = wallet != null && wallet.getAvailableBalance() != null ? wallet.getAvailableBalance() : BigDecimal.ZERO;
+        BigDecimal heldBalance = wallet != null && wallet.getHeldBalance() != null ? wallet.getHeldBalance() : BigDecimal.ZERO;
+        BigDecimal totalWithdrawn = wallet != null && wallet.getTotalWithdrawn() != null ? wallet.getTotalWithdrawn() : BigDecimal.ZERO;
+        BigDecimal totalIncome = availableBalance.add(heldBalance).add(totalWithdrawn);
         SellerDashboardStats stats = dashboardService.getSellerDashboardStats(accountId != null ? accountId.longValue() : 0L);
         model.addAttribute("stats", stats);
         model.addAttribute("activePage", ACTIVE_PAGE);
-        model.addAttribute("wallet", payoutService.getWalletByAccountId(accountId));
+        model.addAttribute("wallet", wallet);
+        model.addAttribute("totalIncome", totalIncome);
         model.addAttribute("settlements", java.util.List.of());
         return "pages/seller/dashboard";
     }
@@ -49,10 +57,22 @@ public class SellerController {
     }
 
     @GetMapping("/payout")
-    public String showPayoutPage(Model model){
+    public String showPayoutPage(Model model) {
+        Integer accountId = currentAccountId();
+        WalletBalance wallet = payoutService.getWalletByAccountId(accountId);
+        List<WithdrawalRequest> historyRequests = payoutService.findByAccountId(accountId);
+
+        BigDecimal availableBalance = wallet != null && wallet.getAvailableBalance() != null ? wallet.getAvailableBalance() : BigDecimal.ZERO;
+        BigDecimal heldBalance = wallet != null && wallet.getHeldBalance() != null ? wallet.getHeldBalance() : BigDecimal.ZERO;
+        BigDecimal totalWithdrawn = wallet != null && wallet.getTotalWithdrawn() != null ? wallet.getTotalWithdrawn() : BigDecimal.ZERO;
+        BigDecimal totalIncome = availableBalance.add(heldBalance).add(totalWithdrawn);
+
         model.addAttribute("activePage", ACTIVE_PAGE);
-        model.addAttribute("disabledMessage", "Chức năng rút tiền thủ công đã bị vô hiệu hóa. Tiền sẽ được tự động chuyển vào ví sau khi đơn hàng hoàn thành.");
-        model.addAttribute("sellerBankInfoNotice", "Khi đăng ký Seller, vui lòng cập nhật sẵn thông tin ngân hàng để hệ thống có thể đối soát và chi trả tự động.");
+        model.addAttribute("wallet", wallet);
+        model.addAttribute("historyRequests", historyRequests);
+        model.addAttribute("pendingAmount", heldBalance);
+        model.addAttribute("totalWithdrawn", totalWithdrawn);
+        model.addAttribute("totalIncome", totalIncome);
         return "pages/seller/payout";
     }
 
@@ -63,10 +83,14 @@ public class SellerController {
             @RequestParam String bankAccount,
             @RequestParam String accountHolderName,
             Model model) {
-        model.addAttribute("errorMessage", "Chức năng rút tiền thủ công đã bị vô hiệu hóa.");
-        model.addAttribute("bankInfoReminder", "Hệ thống hiện không tạo lệnh rút. Thông tin ngân hàng của Seller sẽ được dùng cho đối soát và thanh toán tự động.");
-        model.addAttribute("activePage", ACTIVE_PAGE);
-        return "pages/seller/payout";
+        Integer accountId = currentAccountId();
+        try {
+            payoutService.createRequest(accountId, amount, bankName, bankAccount, accountHolderName);
+            model.addAttribute("successMessage", "Tao lenh rut tien thanh cong.");
+        } catch (Exception ex) {
+            model.addAttribute("errorMessage", ex.getMessage());
+        }
+        return showPayoutPage(model);
     }
 
     private Integer currentAccountId() {

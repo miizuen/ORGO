@@ -1,8 +1,10 @@
 package com.example.orgo_project.controller;
 
 import com.example.orgo_project.config.PaymentQrProperties;
+import com.example.orgo_project.entity.Account;
 import com.example.orgo_project.entity.OrderSettlement;
 import com.example.orgo_project.entity.PaymentBankConfig;
+import com.example.orgo_project.entity.Seller;
 import com.example.orgo_project.entity.WalletBalance;
 import com.example.orgo_project.repository.ArticleRepository;
 import com.example.orgo_project.repository.IAccountRepository;
@@ -26,7 +28,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
@@ -51,6 +55,10 @@ public class AdminController {
                 .filter(order -> "PAID".equals(order.getPaymentStatus()) && "PENDING".equals(order.getOrderStatus()))
                 .limit(5)
                 .toList();
+        List<OrderSettlement> allSettlements = orderSettlementRepository.findAll();
+        BigDecimal totalAdminCommission = allSettlements.stream()
+                .map(item -> item.getCommissionAmount() != null ? item.getCommissionAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         model.addAttribute("activePage", "dashboard");
         model.addAttribute("sellerCount", sellerRepository.count());
         model.addAttribute("expertCount", expertRepository.count());
@@ -64,18 +72,45 @@ public class AdminController {
         model.addAttribute("adminBankAccount", paymentQrProperties.getAccountNumber());
         model.addAttribute("adminAccountHolderName", paymentQrProperties.getAccountHolderName());
         model.addAttribute("adminWallet", walletBalanceRepository.findByAccountId(resolveAdminAccountId()).orElse(null));
-        model.addAttribute("adminSettlements", orderSettlementRepository.findAll().stream().filter(item -> item.getSellerId() == null || item.getSellerId() <= 0).toList());
+        model.addAttribute("adminSettlements", allSettlements.stream().filter(item -> item.getSellerId() == null || item.getSellerId() <= 0).toList());
+        model.addAttribute("totalAdminCommission", totalAdminCommission);
         model.addAttribute("bankConfig", paymentBankConfigService.getActiveConfig());
         return "/pages/admin/dashboard";
     }
 
     @GetMapping({"/escrow-reconciliation", "/revenue-reconciliation"})
-    public String revenueReconciliation(@RequestParam(required = false) Integer orderId,
+    public String revenueReconciliation(@RequestParam(required = false) String orderId,
+                                        @RequestParam(required = false) String sellerId,
                                         Model model) {
+        Integer orderIdFilter = parseInteger(orderId);
+        Integer sellerIdFilter = parseInteger(sellerId);
+        Integer normalizedSellerId = resolveSellerIdForSettlementFilter(sellerIdFilter);
+        List<OrderSettlement> settlements = orderSettlementRepository.findAll();
+        if (orderIdFilter != null) {
+            settlements = settlements.stream()
+                    .filter(item -> orderIdFilter.equals(item.getOrderId()))
+                    .toList();
+        }
+        if (normalizedSellerId != null) {
+            settlements = settlements.stream()
+                    .filter(item -> normalizedSellerId.equals(item.getSellerId()))
+                    .toList();
+        }
+        Map<Integer, Object> orderDetailsByOrderId = new HashMap<>();
+        for (OrderSettlement settlement : settlements) {
+            if (settlement.getOrderId() == null || orderDetailsByOrderId.containsKey(settlement.getOrderId())) continue;
+            try {
+                orderDetailsByOrderId.put(settlement.getOrderId(), adminOrderService.getOrderDetail(settlement.getOrderId()));
+            } catch (Exception ignored) {
+            }
+        }
+
         model.addAttribute("activePage", "revenue-reconciliation");
         model.addAttribute("adminWallet", walletBalanceRepository.findByAccountId(resolveAdminAccountId()).orElse(null));
-        model.addAttribute("orderIdFilter", orderId);
-        model.addAttribute("settlementRows", orderId != null ? orderSettlementRepository.findByOrderId(orderId) : orderSettlementRepository.findAll());
+        model.addAttribute("orderIdFilter", orderIdFilter);
+        model.addAttribute("sellerIdFilter", sellerIdFilter);
+        model.addAttribute("settlementRows", settlements);
+        model.addAttribute("orderDetailsByOrderId", orderDetailsByOrderId);
         model.addAttribute("bankConfig", paymentBankConfigService.getActiveConfig());
         return "/pages/admin/escrow-reconciliation";
     }
@@ -134,5 +169,30 @@ public class AdminController {
 
     private Integer resolveAdminAccountId() {
         return accountRepository.findByUsername("admin") != null ? accountRepository.findByUsername("admin").getId() : 1;
+    }
+
+    private Integer parseInteger(String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            return Integer.valueOf(value.trim());
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    /**
+     * URL co the truyen accountId (tu payout requester) hoac sellerId (NhaBanHang.id).
+     * Ham nay chuan hoa ve sellerId de loc bang OrderSettlement.sellerId.
+     */
+    private Integer resolveSellerIdForSettlementFilter(Integer rawSellerOrAccountId) {
+        if (rawSellerOrAccountId == null) return null;
+
+        Account account = accountRepository.findById(rawSellerOrAccountId).orElse(null);
+        if (account != null) {
+            Seller byAccount = sellerRepository.findByAccount(account).orElse(null);
+            if (byAccount != null) return byAccount.getId();
+        }
+
+        return rawSellerOrAccountId;
     }
 }

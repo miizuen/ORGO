@@ -1,27 +1,50 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Đối soát doanh thu</title>
+    <title>Doi soat doanh thu</title>
 </head>
 <body>
-<div th:replace="~{fragments/admin-layout :: adminLayout('Đối soát doanh thu', 'revenue-reconciliation', ~{::main})}">
+<div th:replace="~{fragments/admin-layout :: adminLayout('Doi soat doanh thu', 'revenue-reconciliation', ~{::main})}">
     <main>
-        <section class="hero"><h1>Đối soát doanh thu</h1><p>Theo dõi settlement và lọc theo đơn hoặc seller.</p></section>
+        <section class="hero">
+            <h1>Doi soat doanh thu</h1>
+            <p>Theo doi settlement va loc theo don hoac seller.</p>
+        </section>
+
         <div th:if="${adminWallet != null}" class="panel mb-3">
             <strong>Admin wallet</strong>
-            <div>Số dư khả dụng: <span th:text="${#numbers.formatDecimal(adminWallet.availableBalance != null ? adminWallet.availableBalance : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span></div>
-            <div>Số dư tạm giữ: <span th:text="${#numbers.formatDecimal(adminWallet.heldBalance != null ? adminWallet.heldBalance : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span></div>
+            <div>So du kha dung:
+                <span th:text="${#numbers.formatDecimal(adminWallet.availableBalance != null ? adminWallet.availableBalance : 0, 0, 'POINT', 0, 'COMMA')} + 'd'">0d</span>
+            </div>
+            <div>So du tam giu:
+                <span th:text="${#numbers.formatDecimal(adminWallet.heldBalance != null ? adminWallet.heldBalance : 0, 0, 'POINT', 0, 'COMMA')} + 'd'">0d</span>
+            </div>
         </div>
+
         <form method="get" class="panel" style="display:flex;gap:12px;flex-wrap:wrap;align-items:end;">
+            <div><label>Seller ID</label><input type="number" name="sellerId" th:value="${sellerIdFilter}" class="form-control"/></div>
             <div><label>Order ID</label><input type="number" name="orderId" th:value="${orderIdFilter}" class="form-control"/></div>
-            <button class="btn btn-primary" type="submit">Lọc</button>
-            <a th:href="@{/admin/revenue-reconciliation}" class="btn btn-outline-secondary">Xóa lọc</a>
+            <button class="btn btn-primary" type="submit">Loc</button>
+            <a th:href="@{/admin/revenue-reconciliation}" class="btn btn-outline-secondary">Xoa loc</a>
         </form>
+
         <div class="panel">
             <table class="table">
-                <thead><tr><th>Đơn</th><th>Seller</th><th>Tổng đơn</th><th>Hoa hồng</th><th>Seller nhận</th><th>Trạng thái</th><th>Chi tiết</th></tr></thead>
+                <thead>
+                <tr>
+                    <th>Don</th>
+                    <th>Seller</th>
+                    <th>Tong don</th>
+                    <th>Hoa hong</th>
+                    <th>Seller nhan</th>
+                    <th>Trang thai</th>
+                    <th>Chi tiet don</th>
+                </tr>
+                </thead>
                 <tbody>
-                <tr th:if="${settlementRows == null || settlementRows.isEmpty()}"><td colspan="7">Không có dữ liệu.</td></tr>
+                <tr th:if="${settlementRows == null || settlementRows.isEmpty()}">
+                    <td colspan="7">Khong co du lieu.</td>
+                </tr>
                 <tr th:each="row : ${settlementRows}">
                     <td th:text="${row.orderId}">1</td>
                     <td th:text="${row.sellerId}">1</td>
@@ -29,12 +52,73 @@
                     <td th:text="${row.commissionAmount}">0</td>
                     <td th:text="${row.sellerAmount}">0</td>
                     <td th:text="${row.status}">SETTLED</td>
-                    <td><a th:href="@{/admin/settlements/{orderId}(orderId=${row.orderId})}">Xem</a></td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-outline-primary btn-order-detail"
+                                th:attr="data-order-id=${row.orderId}">Xem chi tiet</button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
         </div>
+
+        <div id="order-detail-modal" style="display:none;position:fixed;inset:0;background:rgba(17,24,39,.6);z-index:1100;">
+            <div style="max-width:780px;margin:8vh auto;background:#fff;border-radius:12px;padding:20px;">
+                <h5 style="margin:0 0 12px;font-weight:800;">Chi tiet don hang</h5>
+                <div id="order-detail-content"></div>
+                <div style="display:flex;justify-content:flex-end;margin-top:14px;">
+                    <button type="button" id="btn-close-order-modal" class="btn btn-outline-secondary btn-sm">Dong</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="order-detail-store" style="display:none;">
+            <div th:each="entry : ${orderDetailsByOrderId}" th:attr="data-order-id=${entry.key}">
+                <div><strong>Ma don:</strong> <span th:text="${entry.value.orderCode}">ORD</span></div>
+                <div><strong>Trang thai don:</strong> <span th:text="${entry.value.orderStatus}">PENDING</span></div>
+                <div><strong>Trang thai thanh toan:</strong> <span th:text="${entry.value.paymentStatus}">PAID</span></div>
+                <div><strong>Tong tien:</strong> <span th:text="${entry.value.totalAmount}">0</span></div>
+                <div><strong>Ngay dat:</strong> <span th:text="${entry.value.orderedAt}">-</span></div>
+                <div style="margin-top:8px;"><strong>San pham:</strong></div>
+                <ul style="margin:6px 0 0 18px;">
+                    <li th:each="item : ${entry.value.items}"
+                        th:text="${(item.productName != null ? item.productName : 'San pham') + ' | SL: ' + item.quantity + ' | Thanh tien: ' + item.lineTotal}">
+                        Item
+                    </li>
+                </ul>
+            </div>
+        </div>
     </main>
 </div>
+
+<script>
+    (function () {
+        const modal = document.getElementById('order-detail-modal');
+        const content = document.getElementById('order-detail-content');
+        const store = document.getElementById('order-detail-store');
+
+        function closeModal() {
+            modal.style.display = 'none';
+            content.innerHTML = '';
+        }
+
+        document.querySelectorAll('.btn-order-detail').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const orderId = btn.getAttribute('data-order-id');
+                const source = store.querySelector('[data-order-id="' + orderId + '"]');
+                if (!source) {
+                    content.innerHTML = '<div>Khong tim thay chi tiet don hang.</div>';
+                } else {
+                    content.innerHTML = source.innerHTML;
+                }
+                modal.style.display = 'block';
+            });
+        });
+
+        document.getElementById('btn-close-order-modal').addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+    })();
+</script>
 </body>
 </html>
