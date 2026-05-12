@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý đơn hàng</title>
+    <style>
+        .status-badge{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
+        .status-paid{background:#dcfce7;color:#166534}.status-pending{background:#fef3c7;color:#92400e}.status-processing{background:#dbeafe;color:#1d4ed8}
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/admin-layout :: adminLayout('Đơn hàng', 'orders', ~{::main})}">
+    <main>
+        <section class="adm-card">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                <div>
+                    <h1 style="font-size:22px;font-weight:800;margin:0;">Duyệt đơn hàng</h1>
+                    <p style="font-size:13px;color:var(--color-text-muted);margin-top:4px;">Duyệt đơn để kích hoạt chia tiền cho seller và admin.</p>
+                </div>
+            </div>
+            <table class="table align-middle">
+                <thead>
+                <tr>
+                    <th>Mã đơn</th><th>Trạng thái thanh toán</th><th>Trạng thái đơn</th><th>Tổng tiền</th><th>Ngày đặt</th><th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${orders == null || orders.isEmpty()}"><td colspan="6">Chưa có đơn hàng.</td></tr>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.orderCode}">ORD</td>
+                    <td><span class="status-badge" th:classappend="${order.paymentStatus == 'PAID' ? 'status-paid' : (order.paymentStatus == 'PENDING' ? 'status-pending' : '')}" th:text="${order.paymentStatus}">PAID</span></td>
+                    <td><span class="status-badge" th:classappend="${order.orderStatus == 'PROCESSING' ? 'status-processing' : (order.orderStatus == 'PENDING' ? 'status-pending' : '')}" th:text="${order.orderStatus}">PENDING</span></td>
+                    <td th:text="${order.totalAmount}">0</td>
+                    <td th:text="${order.orderedAt}">-</td>
+                    <td class="d-flex gap-2 flex-wrap">
+                        <a class="btn btn-sm btn-outline-primary" th:href="@{/admin/orders/{id}(id=${order.id})}">Chi tiết</a>
+                        <form th:if="${order.paymentStatus == 'PAID' && order.orderStatus == 'PENDING'}" th:action="@{/admin/orders/{id}/approve(id=${order.id})}" method="post">
+                            <button type="submit" class="btn btn-sm btn-success">Duyệt đơn</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>

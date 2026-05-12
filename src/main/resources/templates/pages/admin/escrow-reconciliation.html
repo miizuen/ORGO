@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Đối soát doanh thu</title>
+</head>
+<body>
+<div th:replace="~{fragments/admin-layout :: adminLayout('Đối soát doanh thu', 'revenue-reconciliation', ~{::main})}">
+    <main>
+        <section class="hero"><h1>Đối soát doanh thu</h1><p>Theo dõi settlement và lọc theo đơn hoặc seller.</p></section>
+        <div th:if="${adminWallet != null}" class="panel mb-3">
+            <strong>Admin wallet</strong>
+            <div>Số dư khả dụng: <span th:text="${#numbers.formatDecimal(adminWallet.availableBalance != null ? adminWallet.availableBalance : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span></div>
+            <div>Số dư tạm giữ: <span th:text="${#numbers.formatDecimal(adminWallet.heldBalance != null ? adminWallet.heldBalance : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span></div>
+        </div>
+        <form method="get" class="panel" style="display:flex;gap:12px;flex-wrap:wrap;align-items:end;">
+            <div><label>Order ID</label><input type="number" name="orderId" th:value="${orderIdFilter}" class="form-control"/></div>
+            <button class="btn btn-primary" type="submit">Lọc</button>
+            <a th:href="@{/admin/revenue-reconciliation}" class="btn btn-outline-secondary">Xóa lọc</a>
+        </form>
+        <div class="panel">
+            <table class="table">
+                <thead><tr><th>Đơn</th><th>Seller</th><th>Tổng đơn</th><th>Hoa hồng</th><th>Seller nhận</th><th>Trạng thái</th><th>Chi tiết</th></tr></thead>
+                <tbody>
+                <tr th:if="${settlementRows == null || settlementRows.isEmpty()}"><td colspan="7">Không có dữ liệu.</td></tr>
+                <tr th:each="row : ${settlementRows}">
+                    <td th:text="${row.orderId}">1</td>
+                    <td th:text="${row.sellerId}">1</td>
+                    <td th:text="${row.orderAmount}">0</td>
+                    <td th:text="${row.commissionAmount}">0</td>
+                    <td th:text="${row.sellerAmount}">0</td>
+                    <td th:text="${row.status}">SETTLED</td>
+                    <td><a th:href="@{/admin/settlements/{orderId}(orderId=${row.orderId})}">Xem</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

@@ -29,23 +29,23 @@ public class SellerController {
 
     @GetMapping("/dashboard")
     public String showSellerDashboard(Model model) {
-        SellerDashboardStats stats = dashboardService.getSellerDashboardStats(1L);
+        Integer accountId = currentAccountId();
+        SellerDashboardStats stats = dashboardService.getSellerDashboardStats(accountId != null ? accountId.longValue() : 0L);
         model.addAttribute("stats", stats);
         model.addAttribute("activePage", ACTIVE_PAGE);
-
-        // Check maintenance balance
-        WalletBalance wallet = payoutService.getWalletByAccountId(currentAccountId());
-        if (wallet != null && wallet.getMaintenanceBalance() != null) {
-            BigDecimal available = wallet.getAvailableBalance() != null ? wallet.getAvailableBalance() : BigDecimal.ZERO;
-            BigDecimal maintenance = wallet.getMaintenanceBalance();
-            if (available.compareTo(maintenance) < 0) {
-                model.addAttribute("maintenanceWarning", "Số dư của bạn thấp hơn mức duy trì tối thiểu (" + maintenance + " VND). Vui lòng nạp thêm để tiếp tục hoạt động.");
-            } else if (available.subtract(maintenance).compareTo(new BigDecimal("5000")) < 0) {
-                model.addAttribute("maintenanceWarning", "Số dư của bạn sắp đạt mức duy trì tối thiểu. Cân nhắc nạp thêm.");
-            }
-        }
-
+        model.addAttribute("wallet", payoutService.getWalletByAccountId(accountId));
+        model.addAttribute("settlements", java.util.List.of());
         return "pages/seller/dashboard";
+    }
+
+    @GetMapping("/wallet")
+    public String showWallet(Model model) {
+        Integer accountId = currentAccountId();
+        WalletBalance wallet = payoutService.getWalletByAccountId(accountId);
+        model.addAttribute("activePage", ACTIVE_PAGE);
+        model.addAttribute("wallet", wallet);
+        model.addAttribute("settlements", java.util.List.of());
+        return "pages/seller/wallet";
     }
 
     @GetMapping("/payout")
@@ -64,7 +64,7 @@ public class SellerController {
             @RequestParam String accountHolderName,
             Model model) {
         model.addAttribute("errorMessage", "Chức năng rút tiền thủ công đã bị vô hiệu hóa.");
-        model.addAttribute("bankInfoReminder", "Hệ thống hiện không tạo lệnh rút. Thông tin ngân hàng của Seller sẽ được dùng cho đối soát và thanh toán tự động trong các đơn hàng escrow.");
+        model.addAttribute("bankInfoReminder", "Hệ thống hiện không tạo lệnh rút. Thông tin ngân hàng của Seller sẽ được dùng cho đối soát và thanh toán tự động.");
         model.addAttribute("activePage", ACTIVE_PAGE);
         return "pages/seller/payout";
     }

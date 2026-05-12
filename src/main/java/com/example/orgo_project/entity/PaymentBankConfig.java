@@ -11,41 +11,34 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "SoDuEscrow")
+@Table(name = "CauHinhNganHangThanhToan")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EscrowBalance {
+public class PaymentBankConfig {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_escrow")
+    @Column(name = "id")
     private Integer id;
 
-    @Column(name = "id_don_hang")
-    private Integer orderId;
+    @Column(name = "ten_ngan_hang", columnDefinition = "NVARCHAR(255)")
+    private String bankName;
 
-    @Column(name = "tong_tien_ham_giu")
-    private BigDecimal heldAmount;
+    @Column(name = "so_tai_khoan", columnDefinition = "NVARCHAR(255)")
+    private String accountNumber;
 
-    @Column(name = "phi_hoa_hong")
-    private BigDecimal commissionAmount;
+    @Column(name = "chu_tai_khoan", columnDefinition = "NVARCHAR(255)")
+    private String accountHolderName;
 
-    @Column(name = "tien_nguoi_ban_nhan")
-    private BigDecimal sellerPayoutAmount;
-
-    @Column(name = "tien_admin_nhan")
-    private BigDecimal adminRevenueAmount;
+    @Column(name = "ma_ngan_hang", columnDefinition = "NVARCHAR(50)")
+    private String bankCode;
 
     @Column(name = "trang_thai", columnDefinition = "NVARCHAR(50)")
     private String status;
-
-    @Column(name = "ngay_tao")
-    private LocalDateTime createdAt;
 
     @Column(name = "ngay_cap_nhat")
     private LocalDateTime updatedAt;

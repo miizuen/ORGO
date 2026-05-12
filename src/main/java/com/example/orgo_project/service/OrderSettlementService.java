@@ -1,7 +1,7 @@
 package com.example.orgo_project.service;
 
-import com.example.orgo_project.entity.EscrowBalance;
+import com.example.orgo_project.entity.OrderSettlement;
 
 public interface OrderSettlementService {
-    EscrowBalance settleOrder(Integer orderId);
+    OrderSettlement settleOrder(Integer orderId);
 }

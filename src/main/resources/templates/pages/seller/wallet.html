@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Ví Seller</title>
+    <style>
+        .wallet-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:18px}
+        .wallet-card{background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:18px;box-shadow:0 8px 24px rgba(15,23,42,.04)}
+        .wallet-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#6b7280}
+        .wallet-value{font-size:28px;font-weight:900;margin-top:10px;color:#111827}
+        .table-wrap{background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:18px;box-shadow:0 8px 24px rgba(15,23,42,.04)}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:12px;border-bottom:1px solid #eef2f7;text-align:left;font-size:13px}
+        th{font-size:11px;text-transform:uppercase;color:#6b7280}
+        @media (max-width: 1024px){.wallet-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+        @media (max-width: 640px){.wallet-grid{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/admin-layout :: adminLayout('Ví seller', 'seller-wallet', ~{::main})}">
+    <main>
+        <section class="hero" th:if="${sellerAccount != null}">
+            <h1 th:text="${sellerAccount.user != null && sellerAccount.user.fullName != null ? sellerAccount.user.fullName : sellerAccount.username}">Seller</h1>
+            <p>Ví và settlement history của seller.</p>
+        </section>
+        <section class="hero" th:if="${sellerAccount == null}">
+            <h1>Ví seller & settlement</h1>
+            <p>Chọn một seller bằng query `sellerId` để xem số dư ví và settlement history.</p>
+        </section>
+        <div class="mb-3" style="max-width:320px;">
+            <form method="get" th:action="@{/admin/seller-wallet}">
+                <label class="form-label">Seller ID</label>
+                <div class="d-flex gap-2">
+                    <input type="number" name="sellerId" class="form-control" th:value="${sellerId}" placeholder="Nhập sellerId">
+                    <button type="submit" class="btn btn-primary">Xem</button>
+                </div>
+            </form>
+        </div>
+        <div class="wallet-grid">
+            <div class="wallet-card"><div class="wallet-label">Số dư khả dụng</div><div class="wallet-value" th:text="${wallet != null && wallet.availableBalance != null ? #numbers.formatDecimal(wallet.availableBalance, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ'}">0đ</div></div>
+            <div class="wallet-card"><div class="wallet-label">Số tiền đang giữ</div><div class="wallet-value" th:text="${wallet != null && wallet.heldBalance != null ? #numbers.formatDecimal(wallet.heldBalance, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ'}">0đ</div></div>
+            <div class="wallet-card"><div class="wallet-label">Tổng đã rút</div><div class="wallet-value" th:text="${wallet != null && wallet.totalWithdrawn != null ? #numbers.formatDecimal(wallet.totalWithdrawn, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ'}">0đ</div></div>
+            <div class="wallet-card"><div class="wallet-label">Mức duy trì</div><div class="wallet-value" th:text="${wallet != null && wallet.maintenanceBalance != null ? #numbers.formatDecimal(wallet.maintenanceBalance, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ'}">0đ</div></div>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Đơn hàng</th><th>Seller</th><th>Tổng đơn</th><th>Hoa hồng</th><th>Seller nhận</th><th>Trạng thái</th></tr></thead>
+                <tbody>
+                <tr th:if="${settlements == null || settlements.isEmpty()}"><td colspan="6">Chưa có settlement.</td></tr>
+                <tr th:each="item : ${settlements}">
+                    <td th:text="${item.orderId}">1</td>
+                    <td th:text="${item.sellerId}">1</td>
+                    <td th:text="${item.orderAmount}">0</td>
+                    <td th:text="${item.commissionAmount}">0</td>
+                    <td th:text="${item.sellerAmount}">0</td>
+                    <td th:text="${item.status}">SETTLED</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>
