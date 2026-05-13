@@ -2,6 +2,7 @@ package com.example.orgo_project.controller;
 
 import com.example.orgo_project.dto.OrderDetailDTO;
 import com.example.orgo_project.dto.OrderSummaryDTO;
+import com.example.orgo_project.dto.ReturnRequestDTO;
 import com.example.orgo_project.service.IAdminOrderService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,5 +45,17 @@ public class AdminOrderController {
         adminOrderService.approveOrder(orderId);
         redirectAttributes.addFlashAttribute("successMessage", "Đã duyệt đơn hàng và kích hoạt chia tiền.");
         return "redirect:/admin/orders/" + orderId;
+    }
+
+    @PutMapping("/returns/{returnId}/approve")
+    public String approveReturn(@PathVariable Integer returnId) {
+        adminOrderService.approveReturn(returnId);
+        return "Đã duyệt yêu cầu hoàn trả";
+    }
+
+    @PutMapping("/returns/{returnId}/reject")
+    public String rejectReturn(@PathVariable Integer returnId) {
+        adminOrderService.rejectReturn(returnId);
+        return "Đã từ chối yêu cầu hoàn trả";
     }
 }
