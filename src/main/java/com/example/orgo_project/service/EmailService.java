@@ -122,7 +122,7 @@ public class EmailService {
         helper.setSubject("Kết quả đăng ký Seller - ORGO");
         String htmlContent = """
         <div style="font-family: Arial, sans-serif; background-color: #f6f8f6; padding: 30px;">
-            <div style="max-width: 560px; margin: auto; background: #ffffff; padding: 40px;
+            <div style="max-width: 620px; margin: auto; background: #ffffff; padding: 40px;
                         border-radius: 12px; border-top: 5px solid #198754; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
                 <h1 style="color: #198754; font-size: 28px; font-weight: 900; margin-bottom: 8px;">ORGO</h1>
                 <h2 style="color: #1a1a1a; font-size: 22px; margin-bottom: 18px;">Thông báo kết quả đăng ký Seller</h2>
@@ -136,6 +136,19 @@ public class EmailService {
                     </p>
                     <p style="margin: 10px 0 0; font-size: 14px; color: #666;">
                         %s
+                    </p>
+                </div>
+                <div style="margin: 20px 0; padding: 18px; background: #ecfdf5; border: 1px solid #bbf7d0; border-radius: 10px;">
+                    <p style="margin: 0 0 8px; font-size: 15px; font-weight: 700; color: #14532d;">Thông tin thanh toán đã được ghi nhận</p>
+                    <p style="margin: 0; font-size: 14px; color: #166534; line-height: 1.7;">
+                        Từ giờ, tiền bán hàng sẽ được xử lý qua luồng <b>escrow</b> và tự động chuyển về ví Seller sau khi đơn hàng hoàn tất.
+                        Bạn <b>không cần tạo yêu cầu rút tay</b> như trước. Thông tin ngân hàng đã được lưu để phục vụ đối soát và chi trả tự động.
+                    </p>
+                </div>
+                <div style="margin: 20px 0; padding: 18px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px;">
+                    <p style="margin: 0 0 8px; font-size: 15px; font-weight: 700; color: #1d4ed8;">Ghi nhận từ hồ sơ của bạn</p>
+                    <p style="margin: 0; font-size: 14px; color: #1e3a8a; line-height: 1.7;">
+                        Nếu cần thay đổi ngân hàng nhận tiền, vui lòng cập nhật lại với quản trị viên trước khi phát sinh đơn hàng.
                     </p>
                 </div>
                 <p style="font-size: 14px; color: #666; line-height: 1.6;">

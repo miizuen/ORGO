@@ -16,6 +16,11 @@ import java.math.BigDecimal;
 public class OrderItemDTO {
     private Integer id;
     private Integer productVariantId;
+    private Integer productId;
+    private Integer sellerId;
+    private String sellerName;
+    private String productName;
+    private String variantName;
     private Integer quantity;
     private BigDecimal unitPrice;
     private BigDecimal lineTotal;

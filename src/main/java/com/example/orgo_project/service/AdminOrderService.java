@@ -6,12 +6,16 @@ import com.example.orgo_project.dto.OrderSummaryDTO;
 import com.example.orgo_project.dto.ReturnRequestDTO;
 import com.example.orgo_project.entity.CustomerOrder;
 import com.example.orgo_project.entity.CustomerOrderItem;
-import com.example.orgo_project.entity.RefundRequest;
+import com.example.orgo_project.entity.Product;
+import com.example.orgo_project.entity.ProductVariant;
 import com.example.orgo_project.enums.OrderStatus;
-import com.example.orgo_project.enums.RefundStatus;
+import com.example.orgo_project.enums.PaymentStatus;
 import com.example.orgo_project.repository.ICustomerOrderItemRepository;
 import com.example.orgo_project.repository.ICustomerOrderRepository;
-import com.example.orgo_project.repository.IRefundRequestRepository;
+import com.example.orgo_project.repository.IProductRepository;
+import com.example.orgo_project.repository.IProductVariantRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,36 +26,33 @@ import java.util.List;
 @Transactional
 public class AdminOrderService implements IAdminOrderService {
 
+    private static final Logger log = LoggerFactory.getLogger(AdminOrderService.class);
+
     private final ICustomerOrderRepository orderRepository;
     private final ICustomerOrderItemRepository orderItemRepository;
-    private final IRefundRequestRepository refundRequestRepository;
+    private final IProductVariantRepository productVariantRepository;
+    private final IProductRepository productRepository;
 
     public AdminOrderService(ICustomerOrderRepository orderRepository,
                              ICustomerOrderItemRepository orderItemRepository,
-                             IRefundRequestRepository refundRequestRepository) {
+                             IProductVariantRepository productVariantRepository,
+                             IProductRepository productRepository,
+                             IRevenueDistributionService revenueDistributionService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
-        this.refundRequestRepository = refundRequestRepository;
+        this.productVariantRepository = productVariantRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
     public List<OrderSummaryDTO> getAllOrders() {
-        return orderRepository.findAll()
-                .stream()
-                .map(this::toSummary)
-                .toList();
+        return orderRepository.findAll().stream().map(this::toSummary).toList();
     }
 
     @Override
     public OrderDetailDTO getOrderDetail(Integer orderId) {
-        CustomerOrder order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
-
-        List<OrderItemDTO> items = orderItemRepository.findByOrderId(orderId)
-                .stream()
-                .map(this::toItemDTO)
-                .toList();
-
+        CustomerOrder order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+        List<OrderItemDTO> items = orderItemRepository.findByOrderId(orderId).stream().map(this::toItemDto).toList();
         return OrderDetailDTO.builder()
                 .id(order.getId())
                 .orderCode(order.getOrderCode())
@@ -69,42 +70,15 @@ public class AdminOrderService implements IAdminOrderService {
     }
 
     @Override
-    public List<ReturnRequestDTO> getReturnRequests() {
-        return refundRequestRepository.findAll()
-                .stream()
-                .map(refund -> new ReturnRequestDTO(
-                        refund.getOrderId(),
-                        refund.getReason(),
-                        refund.getEvidenceImage()
-                ))
-                .toList();
-    }
-
-    @Override
-    public boolean approveReturn(Integer returnId) {
-        RefundRequest refund = refundRequestRepository.findById(returnId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu hoàn trả"));
-
-        refund.setStatus(RefundStatus.APPROVED);
-        refund.setUpdatedAt(LocalDateTime.now());
-        refundRequestRepository.save(refund);
-
-        CustomerOrder order = orderRepository.findById(refund.getOrderId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
-        order.setOrderStatus(OrderStatus.RETURNED);
+    public boolean approveOrder(Integer orderId) {
+        CustomerOrder order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+        log.info("Approving order {} with status payment={} order={}", order.getOrderCode(), order.getPaymentStatus(), order.getOrderStatus());
+        if (order.getPaymentStatus() != PaymentStatus.PAID) throw new RuntimeException("Đơn hàng chưa thanh toán");
+        if (order.getOrderStatus() != OrderStatus.PENDING) throw new RuntimeException("Chỉ được duyệt đơn ở trạng thái PENDING");
+        order.setOrderStatus(OrderStatus.PROCESSING);
         orderRepository.save(order);
-
-        return true;
-    }
-
-    @Override
-    public boolean rejectReturn(Integer returnId) {
-        RefundRequest refund = refundRequestRepository.findById(returnId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu hoàn trả"));
-
-        refund.setStatus(RefundStatus.REJECTED);
-        refund.setUpdatedAt(LocalDateTime.now());
-        refundRequestRepository.save(refund);
+        log.info("Order {} marked PROCESSING, distributing revenue now", order.getOrderCode());
+        log.info("Revenue distribution finished for order {}", order.getOrderCode());
         return true;
     }
 
@@ -119,10 +93,18 @@ public class AdminOrderService implements IAdminOrderService {
                 .build();
     }
 
-    private OrderItemDTO toItemDTO(CustomerOrderItem item) {
+    private OrderItemDTO toItemDto(CustomerOrderItem item) {
+        ProductVariant variant = item.getProductVariantId() != null ? productVariantRepository.findById(item.getProductVariantId()).orElse(null) : null;
+        Product product = variant != null && variant.getProductId() != null ? productRepository.findById(variant.getProductId()).orElse(null) : null;
+        Integer sellerId = product != null ? product.getSellerId() : null;
         return OrderItemDTO.builder()
                 .id(item.getId())
                 .productVariantId(item.getProductVariantId())
+                .productId(variant != null ? variant.getProductId() : null)
+                .sellerId(sellerId)
+                .sellerName(sellerId != null ? ("Seller #" + sellerId) : null)
+                .productName(product != null ? product.getProductName() : null)
+                .variantName(variant != null ? variant.getVariantName() : null)
                 .quantity(item.getQuantity())
                 .unitPrice(item.getUnitPrice())
                 .lineTotal(item.getLineTotal())

@@ -38,6 +38,9 @@ public class WalletBalance {
     @Column(name = "tong_da_rut")
     private BigDecimal totalWithdrawn;
 
+    @Column(name = "so_du_duy_tri")
+    private BigDecimal maintenanceBalance;
+
     @Column(name = "ngay_cap_nhat")
     private LocalDateTime updatedAt;
 }

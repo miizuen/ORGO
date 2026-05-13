@@ -18,7 +18,7 @@ public interface PayoutService {
     WithdrawalRequest findById(Integer id);
     WalletBalance getWalletByAccountId(Integer accountId);
     WithdrawalRequest createRequest(Integer accountId, BigDecimal amount, String bankName, String bankAccount, String accountHolderName);
-    WithdrawalRequest approve(Integer id);
+    WithdrawalRequest approve(Integer id, String transactionCode);
     WithdrawalRequest reject(Integer id, String reason);
     WithdrawalRequest markPaid(Integer id);
 }

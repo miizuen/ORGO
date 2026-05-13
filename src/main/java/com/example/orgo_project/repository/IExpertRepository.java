@@ -13,4 +13,5 @@ import java.util.Optional;
 public interface IExpertRepository extends JpaRepository<Expert, Integer> {
     List<Expert> findByStatus(ExpertStatus status);
     Optional<Expert> findByAccount(Account account);
+    Optional<Expert> findByAccount_Id(Integer accountId);
 }

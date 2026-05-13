@@ -1,6 +1,5 @@
 package com.example.orgo_project.controller;
 
-import com.example.orgo_project.dto.ReturnRequestDTO;
 import com.example.orgo_project.security.CustomUserDetails;
 import com.example.orgo_project.service.IOrderService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -62,27 +61,4 @@ public class OrderController {
         return "redirect:/orders/" + orderId;
     }
 
-    @PostMapping("/{orderId}/return")
-    public String requestReturn(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                @PathVariable Integer orderId,
-                                @RequestParam(required = false) String reason,
-                                @RequestParam(required = false) String requestType,
-                                RedirectAttributes redirectAttributes) {
-        if (userDetails == null || userDetails.getAccount() == null) {
-            return "redirect:/login";
-        }
-
-        ReturnRequestDTO request = new ReturnRequestDTO();
-        request.setOrderId(orderId);
-        request.setReason(reason);
-
-        boolean success = orderService.requestReturn(userDetails.getAccount().getId(), request);
-        if (success) {
-            redirectAttributes.addFlashAttribute("successMessage", "Đã gửi yêu cầu hoàn trả!");
-        } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không thể gửi yêu cầu hoàn trả.");
-        }
-
-        return "redirect:/orders/" + orderId;
-    }
 }

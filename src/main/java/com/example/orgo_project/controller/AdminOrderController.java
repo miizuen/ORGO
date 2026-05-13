@@ -4,12 +4,15 @@ import com.example.orgo_project.dto.OrderDetailDTO;
 import com.example.orgo_project.dto.OrderSummaryDTO;
 import com.example.orgo_project.dto.ReturnRequestDTO;
 import com.example.orgo_project.service.IAdminOrderService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/admin/orders")
+@Controller
+@RequestMapping("/admin/orders")
 public class AdminOrderController {
 
     private final IAdminOrderService adminOrderService;
@@ -19,29 +22,25 @@ public class AdminOrderController {
     }
 
     @GetMapping
-    public List<OrderSummaryDTO> getAllOrders() {
-        return adminOrderService.getAllOrders();
+    public String ordersPage(Model model) {
+        List<OrderSummaryDTO> orders = adminOrderService.getAllOrders();
+        model.addAttribute("activePage", "orders");
+        model.addAttribute("orders", orders);
+        return "pages/admin/orders";
     }
 
     @GetMapping("/{orderId}")
-    public OrderDetailDTO getOrderDetail(@PathVariable Integer orderId) {
-        return adminOrderService.getOrderDetail(orderId);
+    public String orderDetail(@PathVariable Integer orderId, Model model) {
+        OrderDetailDTO order = adminOrderService.getOrderDetail(orderId);
+        model.addAttribute("activePage", "orders");
+        model.addAttribute("order", order);
+        return "pages/admin/order-detail";
     }
 
-    @GetMapping("/returns")
-    public List<ReturnRequestDTO> getReturnRequests() {
-        return adminOrderService.getReturnRequests();
-    }
-
-    @PutMapping("/returns/{returnId}/approve")
-    public String approveReturn(@PathVariable Integer returnId) {
-        adminOrderService.approveReturn(returnId);
-        return "Đã duyệt yêu cầu hoàn trả";
-    }
-
-    @PutMapping("/returns/{returnId}/reject")
-    public String rejectReturn(@PathVariable Integer returnId) {
-        adminOrderService.rejectReturn(returnId);
-        return "Đã từ chối yêu cầu hoàn trả";
+    @PostMapping("/{orderId}/approve")
+    public String approveOrder(@PathVariable Integer orderId, RedirectAttributes redirectAttributes) {
+        adminOrderService.approveOrder(orderId);
+        redirectAttributes.addFlashAttribute("successMessage", "Đã duyệt đơn hàng và kích hoạt chia tiền.");
+        return "redirect:/admin/orders/" + orderId;
     }
 }

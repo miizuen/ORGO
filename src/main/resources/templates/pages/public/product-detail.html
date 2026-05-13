@@ -103,12 +103,13 @@
 
             <!-- Add to cart -->
             <div class="d-flex gap-3 mb-4">
-                <form th:action="@{/cart/add}" method="post" sec:authorize="hasRole('USER')" class="d-inline">
+                <form th:action="@{/cart/add}" method="post" sec:authorize="hasRole('USER')" class="d-inline" id="addToCartForm">
                     <input type="hidden" name="productVariantId" id="selectedVariantId"
                            th:value="${variants != null and !#lists.isEmpty(variants) ? variants[0].id : ''}">
                     <input type="hidden" name="quantity" value="1">
                     <input type="hidden" name="redirectUrl" th:value="@{'/products/' + ${product.id}}">
-                    <button type="submit" class="btn btn-success btn-lg fw-bold px-5 rounded-3">
+                    <button type="submit" class="btn btn-success btn-lg fw-bold px-5 rounded-3"
+                            th:disabled="${variants == null or #lists.isEmpty(variants)}">
                         🛒 Thêm vào giỏ
                     </button>
                 </form>
@@ -117,6 +118,10 @@
                    sec:authorize="!isAuthenticated()">
                     Đăng nhập để mua
                 </a>
+            </div>
+
+            <div th:if="${variants == null or #lists.isEmpty(variants)}" class="alert alert-warning py-2">
+                Sản phẩm này chưa có biến thể nên chưa thể thêm vào giỏ.
             </div>
 
             <!-- Meta -->

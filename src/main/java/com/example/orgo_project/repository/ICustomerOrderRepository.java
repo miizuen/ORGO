@@ -12,4 +12,6 @@ public interface ICustomerOrderRepository extends JpaRepository<CustomerOrder, I
     List<CustomerOrder> findByUserIdOrderByOrderedAtDesc(Integer userId);
 
     List<CustomerOrder> findByUserIdAndOrderStatusOrderByOrderedAtDesc(Integer userId, OrderStatus status);
+
+    List<CustomerOrder> findBySellerIdOrderByOrderedAtDesc(Integer sellerId);
 }

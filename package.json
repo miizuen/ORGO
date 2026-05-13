@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "sepay-pg-node": "^1.0.0"
+  }
+}

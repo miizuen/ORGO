@@ -11,42 +11,39 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "YeuCauHoanTra")
+@Table(name = "DonHangThanhToan")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RefundRequest {
+public class OrderSettlement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "id_thanh_toan_don_hang")
     private Integer id;
 
     @Column(name = "id_don_hang")
     private Integer orderId;
 
-    @Column(name = "id_nguoi_dung")
-    private Integer userId;
+    @Column(name = "id_nguoi_ban")
+    private Integer sellerId;
 
-    @Column(name = "ly_do", columnDefinition = "NVARCHAR(MAX)")
-    private String reason;
+    @Column(name = "tong_tien_don_hang")
+    private BigDecimal orderAmount;
 
-    @Column(name = "anh_minh_chung", columnDefinition = "NVARCHAR(255)")
-    private String evidenceImage;
+    @Column(name = "phi_hoa_hong")
+    private BigDecimal commissionAmount;
 
-    @Column(name = "trang_thai")
-    @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
-    private com.example.orgo_project.enums.RefundStatus status;
+    @Column(name = "tien_nguoi_ban_nhan")
+    private BigDecimal sellerAmount;
 
-    @Column(name = "id_nguoi_xu_li")
-    private Integer processorId;
+    @Column(name = "trang_thai", columnDefinition = "NVARCHAR(50)")
+    private String status;
 
     @Column(name = "ngay_tao")
     private LocalDateTime createdAt;
-
-    @Column(name = "ngay_cap_nhat")
-    private LocalDateTime updatedAt;
 }

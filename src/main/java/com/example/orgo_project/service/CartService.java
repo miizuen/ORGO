@@ -65,12 +65,21 @@ public class CartService implements ICartService {
 
     @Override
     public CartItemDTO addItem(Integer accountId, Integer productVariantId, Integer quantity) {
+        if (accountId == null) {
+            throw new IllegalArgumentException("Vui lòng đăng nhập trước khi thêm sản phẩm vào giỏ hàng");
+        }
+        if (productVariantId == null) {
+            throw new IllegalArgumentException("Thiếu biến thể sản phẩm để thêm vào giỏ hàng");
+        }
         if (quantity == null || quantity <= 0) quantity = 1;
 
         ShoppingCart cart = getOrCreateCart(accountId);
 
         ProductVariant variant = productVariantRepository.findById(productVariantId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy biến thể sản phẩm"));
+        if (variant.getProductId() == null) {
+            throw new IllegalArgumentException("Biến thể sản phẩm chưa được gắn với sản phẩm cha");
+        }
 
         ShoppingCartItem existing = cartItemRepository.findByCartIdAndProductVariantId(cart.getId(), productVariantId);
         if (existing == null) {
@@ -80,7 +89,8 @@ public class CartService implements ICartService {
             existing.setQuantity(0);
         }
 
-        int newQty = existing.getQuantity() + quantity;
+        int currentQty = existing.getQuantity() == null ? 0 : existing.getQuantity();
+        int newQty = currentQty + quantity;
         if (variant.getStockQuantity() != null && newQty > variant.getStockQuantity()) {
             throw new IllegalArgumentException("Số lượng vượt quá tồn kho");
         }
@@ -156,11 +166,17 @@ public class CartService implements ICartService {
     }
 
     private ShoppingCart getOrCreateCart(Integer accountId) {
+        if (accountId == null) {
+            throw new IllegalArgumentException("Vui lòng đăng nhập trước khi xem giỏ hàng");
+        }
+
         ShoppingCart cart = cartRepository.findByAccountId(accountId);
         if (cart != null) return cart;
 
         cart = new ShoppingCart();
         cart.setAccountId(accountId);
+        cart.setCreatedAt(java.time.LocalDateTime.now());
+        cart.setUpdatedAt(java.time.LocalDateTime.now());
         return cartRepository.save(cart);
     }
 
@@ -171,7 +187,13 @@ public class CartService implements ICartService {
     }
 
     private CartItemDTO toDTO(ShoppingCartItem item, ProductVariant variant) {
+        if (variant == null) {
+            throw new IllegalArgumentException("Không thể hiển thị sản phẩm trong giỏ hàng vì thiếu biến thể");
+        }
         Product product = productRepository.findById(variant.getProductId()).orElse(null);
+        if (product == null) {
+            throw new IllegalArgumentException("Không tìm thấy sản phẩm cha của biến thể");
+        }
 
         BigDecimal unitPrice = variant.getDiscountedPrice() != null ? variant.getDiscountedPrice() : variant.getOriginalPrice();
         if (unitPrice == null) unitPrice = BigDecimal.ZERO;

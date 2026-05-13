@@ -2,7 +2,6 @@ package com.example.orgo_project.service;
 
 import com.example.orgo_project.dto.OrderDetailDTO;
 import com.example.orgo_project.dto.OrderSummaryDTO;
-import com.example.orgo_project.dto.ReturnRequestDTO;
 
 import java.util.List;
 
@@ -11,9 +10,5 @@ public interface IAdminOrderService {
 
     OrderDetailDTO getOrderDetail(Integer orderId);
 
-    List<ReturnRequestDTO> getReturnRequests();
-
-    boolean approveReturn(Integer returnId);
-
-    boolean rejectReturn(Integer returnId);
+    boolean approveOrder(Integer orderId);
 }

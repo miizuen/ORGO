@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface ICustomerOrderItemRepository extends JpaRepository<CustomerOrderItem, Integer> {
     List<CustomerOrderItem> findByOrderId(Integer orderId);
+
+    List<CustomerOrderItem> findByOrderIdIn(List<Integer> orderIds);
 }

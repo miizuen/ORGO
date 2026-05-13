@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.servlet.http.HttpSession;
 
 import com.example.orgo_project.entity.OrganicCertificate;
 import com.example.orgo_project.entity.Product;
@@ -80,8 +81,14 @@ public class ProductController {
 
     // Trang chi tiết sản phẩm (T026)
     @GetMapping("/products/{id}")
-    public String showProductDetail(@PathVariable Integer id, Model model,
+    public String showProductDetail(@PathVariable Integer id,
+                                    @RequestParam(required = false) Integer articleId,
+                                    HttpSession session,
+                                    Model model,
                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (articleId != null) {
+            session.setAttribute("articleId", articleId);
+        }
         Product product = productService.getProductById(id);
         if (product == null) return "redirect:/products";
 
