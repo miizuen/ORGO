@@ -6,10 +6,7 @@ import com.example.orgo_project.dto.ReturnRequestDTO;
 import com.example.orgo_project.service.IAdminOrderService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -45,17 +42,5 @@ public class AdminOrderController {
         adminOrderService.approveOrder(orderId);
         redirectAttributes.addFlashAttribute("successMessage", "Đã duyệt đơn hàng và kích hoạt chia tiền.");
         return "redirect:/admin/orders/" + orderId;
-    }
-
-    @PutMapping("/returns/{returnId}/approve")
-    public String approveReturn(@PathVariable Integer returnId) {
-        adminOrderService.approveReturn(returnId);
-        return "Đã duyệt yêu cầu hoàn trả";
-    }
-
-    @PutMapping("/returns/{returnId}/reject")
-    public String rejectReturn(@PathVariable Integer returnId) {
-        adminOrderService.rejectReturn(returnId);
-        return "Đã từ chối yêu cầu hoàn trả";
     }
 }
