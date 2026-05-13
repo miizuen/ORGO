@@ -98,6 +98,11 @@ public class CheckoutService implements ICheckoutService {
 
     @Override
     public CheckoutResponseDTO checkout(Integer accountId, CheckoutRequestDTO request, String selectedItemIds) {
+        return checkout(accountId, request, selectedItemIds, null);
+    }
+
+    @Override
+    public CheckoutResponseDTO checkout(Integer accountId, CheckoutRequestDTO request, String selectedItemIds, Integer articleId) {
         ShoppingCart cart = cartRepository.findByAccountId(accountId);
         if (cart == null) throw new RuntimeException("Không tìm thấy giỏ hàng");
         List<ShoppingCartItem> allItems = cartItemRepository.findByCartId(cart.getId());
@@ -108,7 +113,7 @@ public class CheckoutService implements ICheckoutService {
 
         BigDecimal totalAmount = calculateTotal(cartItems);
         Integer sellerId = resolveOrderSellerId(cartItems);
-        CustomerOrder savedOrder = saveOrder(accountId, request, totalAmount, sellerId);
+        CustomerOrder savedOrder = saveOrder(accountId, request, totalAmount, sellerId, articleId);
         saveOrderItems(savedOrder, cartItems);
         cartItemRepository.deleteAll(cartItems);
         upsertPaymentQrSession(savedOrder, totalAmount);
@@ -196,7 +201,7 @@ public class CheckoutService implements ICheckoutService {
         return product != null ? product.getSellerId() : null;
     }
 
-    private CustomerOrder saveOrder(Integer accountId, CheckoutRequestDTO request, BigDecimal totalAmount, Integer sellerId) {
+    private CustomerOrder saveOrder(Integer accountId, CheckoutRequestDTO request, BigDecimal totalAmount, Integer sellerId, Integer articleId) {
         CustomerOrder order = new CustomerOrder();
         order.setUserId(accountId);
         order.setSellerId(sellerId);
@@ -209,6 +214,7 @@ public class CheckoutService implements ICheckoutService {
         order.setPaymentStatus(PaymentStatus.PENDING);
         order.setOrderStatus(OrderStatus.PENDING);
         order.setNote(buildOrderNote(request != null ? request.getShipperNote() : null, request != null ? request.getShopNote() : null));
+        order.setArticleId(articleId);
         return orderRepository.save(order);
     }
 

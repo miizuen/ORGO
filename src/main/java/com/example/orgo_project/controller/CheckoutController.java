@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/checkout")
@@ -45,10 +46,13 @@ public class CheckoutController {
     public String placeOrder(@AuthenticationPrincipal CustomUserDetails userDetails,
                              @ModelAttribute CheckoutRequestDTO request,
                              @RequestParam(required = false) String selectedItemIds,
+                             HttpSession session,
                              RedirectAttributes redirectAttributes) {
         if (userDetails == null || userDetails.getAccount() == null) return "redirect:/login";
         try {
-            var response = checkoutService.checkout(userDetails.getAccount().getId(), request, selectedItemIds);
+            Integer articleId = (Integer) session.getAttribute("articleId");
+            session.removeAttribute("articleId");
+            var response = checkoutService.checkout(userDetails.getAccount().getId(), request, selectedItemIds, articleId);
             redirectAttributes.addFlashAttribute("checkoutResult", response);
             redirectAttributes.addAttribute("orderId", response.getOrderId());
             redirectAttributes.addAttribute("orderCode", response.getOrderCode());

@@ -8,6 +8,7 @@ public interface ICheckoutService {
     CheckoutPageDataDTO getCheckoutPageData(Integer accountId, String selectedItemIds);
 
     CheckoutResponseDTO checkout(Integer accountId, CheckoutRequestDTO request, String selectedItemIds);
+    CheckoutResponseDTO checkout(Integer accountId, CheckoutRequestDTO request, String selectedItemIds, Integer articleId);
 
     CheckoutResponseDTO confirmPayment(Integer orderId, String transactionCode);
 }

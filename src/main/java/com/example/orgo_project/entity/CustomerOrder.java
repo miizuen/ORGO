@@ -63,4 +63,7 @@ public class CustomerOrder {
 
     @Column(name = "ly_do_huy")
     private String cancellationReason;
+
+    @Column(name = "id_bai_viet")
+    private Integer articleId;
 }

@@ -1,6 +1,8 @@
 package com.example.orgo_project.controller;
 
 import com.example.orgo_project.dto.ExpertDashboardStats;
+import com.example.orgo_project.entity.TransactionHistory;
+import com.example.orgo_project.entity.WalletBalance;
 import com.example.orgo_project.security.CustomUserDetails;
 import com.example.orgo_project.service.ArticleService;
 import com.example.orgo_project.service.DashboardService;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/expert")
@@ -33,7 +36,7 @@ public class ExpertController {
     @GetMapping("/dashboard")
     public String showExpertDashboard(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String expertName = "Chuyên gia";
+        String expertName = "Chuyen gia";
         Integer accountId = 1;
         if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof CustomUserDetails userDetails) {
             accountId = userDetails.getAccount().getId();
@@ -45,17 +48,40 @@ public class ExpertController {
 
         ExpertDashboardStats stats = dashboardService.getExpertDashboardStats(accountId.longValue());
         Page<com.example.orgo_project.dto.ArticleResponse> articles = articleService.getExpertArticles(accountId, PageRequest.of(0, 10));
+        WalletBalance wallet = payoutService.getWalletByAccountId(accountId);
+        BigDecimal availableBalance = wallet != null && wallet.getAvailableBalance() != null ? wallet.getAvailableBalance() : BigDecimal.ZERO;
+        BigDecimal heldBalance = wallet != null && wallet.getHeldBalance() != null ? wallet.getHeldBalance() : BigDecimal.ZERO;
+        BigDecimal totalWithdrawn = wallet != null && wallet.getTotalWithdrawn() != null ? wallet.getTotalWithdrawn() : BigDecimal.ZERO;
+        BigDecimal totalIncome = availableBalance.add(heldBalance).add(totalWithdrawn);
 
         model.addAttribute("stats", stats);
         model.addAttribute("articles", articles);
+        model.addAttribute("totalIncome", totalIncome);
         model.addAttribute("expertName", expertName);
         model.addAttribute("activePage", ACTIVE_PAGE);
         return "pages/expert/dashboard";
     }
 
     @GetMapping("/payout")
-    public String showPayoutPage(Model model){
+    public String showPayoutPage(Model model) {
+        Integer accountId = currentAccountId();
+        WalletBalance wallet = payoutService.getWalletByAccountId(accountId);
+        BigDecimal availableBalance = wallet != null && wallet.getAvailableBalance() != null ? wallet.getAvailableBalance() : BigDecimal.ZERO;
+        BigDecimal heldBalance = wallet != null && wallet.getHeldBalance() != null ? wallet.getHeldBalance() : BigDecimal.ZERO;
+        BigDecimal totalWithdrawn = wallet != null && wallet.getTotalWithdrawn() != null ? wallet.getTotalWithdrawn() : BigDecimal.ZERO;
+        BigDecimal totalIncome = availableBalance.add(heldBalance).add(totalWithdrawn);
+
+        List<TransactionHistory> commissions = payoutService.findTransactionHistoryByAccountId(accountId).stream()
+                .filter(item -> "EXPERT_COMMISSION".equals(item.getType()))
+                .toList();
+
         model.addAttribute("activePage", ACTIVE_PAGE);
+        model.addAttribute("wallet", wallet);
+        model.addAttribute("commissions", commissions);
+        model.addAttribute("historyRequests", payoutService.findByAccountId(accountId));
+        model.addAttribute("pendingAmount", heldBalance);
+        model.addAttribute("totalWithdrawn", totalWithdrawn);
+        model.addAttribute("totalIncome", totalIncome);
         return "pages/expert/payout";
     }
 
@@ -68,12 +94,11 @@ public class ExpertController {
             Model model) {
         try {
             payoutService.createRequest(currentAccountId(), amount, bankName, bankAccount, accountHolderName);
-            model.addAttribute("successMessage", "Yêu cầu rút tiền đã được gửi");
+            model.addAttribute("successMessage", "Yeu cau rut tien da duoc gui");
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
         }
-        model.addAttribute("activePage", ACTIVE_PAGE);
-        return "pages/expert/payout";
+        return showPayoutPage(model);
     }
 
     private Integer currentAccountId() {

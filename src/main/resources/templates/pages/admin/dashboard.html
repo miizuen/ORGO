@@ -74,11 +74,6 @@
                 </div>
                 <div class="hero-side">
                     <div class="hero-pill">
-                        <div class="label">Đơn chờ duyệt</div>
-                        <div class="value" th:text="${pendingOrderCount != null ? pendingOrderCount : 0}">0</div>
-                        <div class="sub">Đã thanh toán, cần admin duyệt để chia tiền</div>
-                    </div>
-                    <div class="hero-pill">
                         <div class="label">Hoa hồng admin</div>
                         <div class="value" th:text="${totalAdminCommission != null ? totalAdminCommission : 0}">0</div>
                         <div class="sub">Tổng phần 5% từ các đơn đã được xử lý</div>
@@ -91,7 +86,6 @@
             <div class="stat-card"><div class="stat-top"><div class="stat-label">Tổng số seller</div><div class="stat-icon">🛍️</div></div><div class="stat-value" th:text="${sellerCount != null ? sellerCount : 0}">0</div><div class="stat-note">Seller đã được ghi nhận trong hệ thống</div></div>
             <div class="stat-card"><div class="stat-top"><div class="stat-label">Tổng số expert</div><div class="stat-icon">🎓</div></div><div class="stat-value" th:text="${expertCount != null ? expertCount : 0}">0</div><div class="stat-note">Chuyên gia đang hoạt động</div></div>
             <div class="stat-card"><div class="stat-top"><div class="stat-label">Chờ duyệt seller / expert / bài viết</div><div class="stat-icon">⏳</div></div><div class="stat-value" th:text="${pendingSellerCount != null ? pendingSellerCount + pendingExpertCount + pendingArticleCount : 0}">0</div><div class="stat-note">Nội dung và hồ sơ đang chờ xác minh</div></div>
-            <div class="stat-card"><div class="stat-top"><div class="stat-label">Đơn chờ duyệt</div><div class="stat-icon">📦</div></div><div class="stat-value" th:text="${pendingOrderCount != null ? pendingOrderCount : 0}">0</div><div class="stat-note">Đã thanh toán, đang chờ admin duyệt</div><a th:href="@{/admin/orders}" class="stat-link">Xem danh sách đơn →</a></div>
             <div class="stat-card"><div class="stat-top"><div class="stat-label">Hoa hồng admin</div><div class="stat-icon">💰</div></div><div class="stat-value" th:text="${totalAdminCommission != null ? totalAdminCommission : 0}">0</div><div class="stat-note">Tổng hoa hồng đã thu về từ giao dịch</div><a th:href="@{/admin/revenue-reconciliation}" class="stat-link">Xem đối soát →</a></div>
         </section>
         <section class="content-grid">

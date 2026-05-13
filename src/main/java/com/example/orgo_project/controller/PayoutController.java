@@ -1,6 +1,11 @@
 package com.example.orgo_project.controller;
 
+import com.example.orgo_project.entity.Account;
+import com.example.orgo_project.entity.CustomerOrder;
+import com.example.orgo_project.entity.TransactionHistory;
+import com.example.orgo_project.entity.WalletBalance;
 import com.example.orgo_project.entity.WithdrawalRequest;
+import com.example.orgo_project.enums.RoleName;
 import com.example.orgo_project.enums.WithdrawalStatus;
 import com.example.orgo_project.security.CustomUserDetails;
 import com.example.orgo_project.service.PayoutService;
@@ -20,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/admin/payouts")
@@ -28,15 +34,31 @@ public class PayoutController {
 
     @Autowired
     private PayoutService payoutService;
+    @Autowired
+    private com.example.orgo_project.repository.IAccountRepository accountRepository;
+    @Autowired
+    private com.example.orgo_project.repository.IWalletBalanceRepository walletBalanceRepository;
+    @Autowired
+    private com.example.orgo_project.repository.ITransactionHistoryRepository transactionHistoryRepository;
+    @Autowired
+    private com.example.orgo_project.repository.ICustomerOrderRepository customerOrderRepository;
 
     @GetMapping
-    @Operation(summary = "Xem danh sach payout", description = "Lay danh sach payout, lich su cua user hien tai va cac request dang pending")
+    @Operation(summary = "Xem danh sach payout", description = "Lay danh sach payout va tach theo seller/expert")
     public String index(@RequestParam(required = false, defaultValue = "ALL") String status, Model model) {
         List<WithdrawalRequest> requests = "ALL".equalsIgnoreCase(status)
                 ? payoutService.findAll()
                 : payoutService.findByStatus(WithdrawalStatus.valueOf(status));
-        model.addAttribute("allPayouts", requests);
-        model.addAttribute("pendingPayouts", payoutService.findPending());
+
+        List<WithdrawalRequest> sellerPayouts = requests.stream().filter(this::isSellerRequest).toList();
+        List<WithdrawalRequest> expertPayouts = requests.stream().filter(this::isExpertRequest).toList();
+        List<WithdrawalRequest> pendingSellerPayouts = sellerPayouts.stream().filter(p -> p.getStatus() == WithdrawalStatus.PENDING).toList();
+        List<WithdrawalRequest> pendingExpertPayouts = expertPayouts.stream().filter(p -> p.getStatus() == WithdrawalStatus.PENDING).toList();
+
+        model.addAttribute("sellerPayouts", sellerPayouts);
+        model.addAttribute("expertPayouts", expertPayouts);
+        model.addAttribute("pendingSellerPayouts", pendingSellerPayouts);
+        model.addAttribute("pendingExpertPayouts", pendingExpertPayouts);
         model.addAttribute("historyRequests", payoutService.findCurrentUserHistory());
         model.addAttribute("selectedStatus", status);
         model.addAttribute("currentWallet", currentWallet());
@@ -51,9 +73,25 @@ public class PayoutController {
     }
 
     @GetMapping("/expert/{id}")
-    @Operation(summary = "Xem chi tiet payout expert", description = "Hien thi chi tiet request payout cua expert")
+    @Operation(summary = "Xem chi tiet payout expert", description = "Hien thi chi tiet request payout cua expert + bang chung commission")
     public String expertDetail(@PathVariable Integer id, Model model) {
-        model.addAttribute("request", payoutService.findById(id));
+        WithdrawalRequest request = payoutService.findById(id);
+        model.addAttribute("request", request);
+
+        WalletBalance wallet = walletBalanceRepository.findByAccountId(request.getRequesterId()).orElse(null);
+        List<TransactionHistory> commissionRows = wallet != null
+                ? transactionHistoryRepository.findByWalletIdAndTypeOrderByCreatedAtDesc(wallet.getId(), "EXPERT_COMMISSION")
+                : List.of();
+        Set<Integer> orderIds = commissionRows.stream()
+                .map(TransactionHistory::getReferenceId)
+                .filter(ref -> ref != null && ref > 0)
+                .collect(java.util.stream.Collectors.toSet());
+        List<CustomerOrder> proofOrders = customerOrderRepository.findAllById(orderIds).stream()
+                .filter(o -> o.getArticleId() != null)
+                .toList();
+
+        model.addAttribute("commissionRows", commissionRows);
+        model.addAttribute("proofOrders", proofOrders);
         return "pages/admin/payout-detail-expert";
     }
 
@@ -114,6 +152,16 @@ public class PayoutController {
     public String markPaid(@PathVariable Integer id) {
         payoutService.markPaid(id);
         return "redirect:/admin/payouts";
+    }
+
+    private boolean isSellerRequest(WithdrawalRequest request) {
+        Account account = accountRepository.findById(request.getRequesterId()).orElse(null);
+        return account != null && account.getRole() != null && account.getRole().getRoleName() == RoleName.SELLER;
+    }
+
+    private boolean isExpertRequest(WithdrawalRequest request) {
+        Account account = accountRepository.findById(request.getRequesterId()).orElse(null);
+        return account != null && account.getRole() != null && account.getRole().getRoleName() == RoleName.EXPERT;
     }
 
     private Integer currentWallet() {

@@ -76,14 +76,7 @@ public class PayoutServiceImpl implements PayoutService {
         if (wallet == null) {
             return List.of();
         }
-        TransactionHistory history = new TransactionHistory();
-        history.setWalletId(wallet.getId());
-        history.setType("SUMMARY");
-        history.setAmount(wallet.getAvailableBalance());
-        history.setBalanceAfter(wallet.getAvailableBalance());
-        history.setDescription("Tong quan giao dich vi");
-        history.setCreatedAt(LocalDateTime.now());
-        return List.of(history);
+        return transactionHistoryRepository.findByWalletIdOrderByCreatedAtDesc(wallet.getId());
     }
 
     @Override

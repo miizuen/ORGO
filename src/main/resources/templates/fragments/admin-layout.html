@@ -364,11 +364,6 @@
                class="adm-nav-item">
                 <span class="icon">📋</span> Duyệt nội dung
             </a>
-            <a th:href="@{/admin/orders}"
-               th:classappend="${activePage == 'orders'} ? 'active' : ''"
-               class="adm-nav-item">
-                <span class="icon">📦</span> Đơn hàng
-            </a>
             <a th:href="@{/admin/payouts}"
                th:classappend="${activePage == 'payouts'} ? 'active' : ''"
                class="adm-nav-item">
@@ -378,6 +373,11 @@
                th:classappend="${activePage == 'reports'} ? 'active' : ''"
                class="adm-nav-item">
                 <span class="icon">📊</span> Báo cáo
+            </a>
+            <a th:href="@{/admin/bank-config}"
+               th:classappend="${activePage == 'reports'} ? 'active' : ''"
+               class="adm-nav-item">
+                <span class="icon">🏦</span> Cấu hình tài khoản trung gian
             </a>
         </nav>
         <div class="adm-sidebar-bottom">
