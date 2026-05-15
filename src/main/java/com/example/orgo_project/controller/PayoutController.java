@@ -155,11 +155,17 @@ public class PayoutController {
     }
 
     private boolean isSellerRequest(WithdrawalRequest request) {
+        if (request.getRequesterId() == null) {
+            return false;
+        }
         Account account = accountRepository.findById(request.getRequesterId()).orElse(null);
         return account != null && account.getRole() != null && account.getRole().getRoleName() == RoleName.SELLER;
     }
 
     private boolean isExpertRequest(WithdrawalRequest request) {
+        if (request.getRequesterId() == null) {
+            return false;
+        }
         Account account = accountRepository.findById(request.getRequesterId()).orElse(null);
         return account != null && account.getRole() != null && account.getRole().getRoleName() == RoleName.EXPERT;
     }
