@@ -317,6 +317,18 @@
 </div>
 
 <script>
+// Xử lý màu active cho tab
+document.querySelectorAll('#productTabs .nav-link').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('#productTabs .nav-link').forEach(function(t) {
+            t.classList.remove('text-success');
+            t.classList.add('text-secondary');
+        });
+        this.classList.remove('text-secondary');
+        this.classList.add('text-success');
+    });
+});
+
 document.querySelectorAll('.variant-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.variant-btn').forEach(function(b) {
