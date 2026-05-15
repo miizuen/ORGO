@@ -138,10 +138,12 @@ public class ProductController {
             if (user != null) {
                 model.addAttribute("hasReviewed", productService.hasReviewed(id, user.getId()));
                 model.addAttribute("currentUserId", user.getId());
+                model.addAttribute("hasPurchased", productService.hasPurchased(id, user.getId()));
             } else {
                 // Vẫn cho phép xem form nếu đã login
                 model.addAttribute("hasReviewed", false);
                 model.addAttribute("currentUserId", userDetails.getAccount() != null ? userDetails.getAccount().getId() : null);
+                model.addAttribute("hasPurchased", false);
             }
         }
 
@@ -353,6 +355,7 @@ public class ProductController {
     public String addReview(@RequestParam Integer productId,
                              @RequestParam Integer stars,
                              @RequestParam String content,
+                             @RequestParam(required = false) MultipartFile reviewImage,
                              @AuthenticationPrincipal CustomUserDetails userDetails) {
         if (userDetails == null) return "redirect:/login";
 
@@ -371,6 +374,11 @@ public class ProductController {
             return "redirect:/products/" + productId + "?error=already_reviewed";
         }
 
+        // Kiểm tra đã mua chưa
+        if (!productService.hasPurchased(productId, userId)) {
+            return "redirect:/products/" + productId + "?error=not_purchased";
+        }
+
         ProductReview review = new ProductReview();
         review.setProductId(productId);
         review.setUserId(userId);
@@ -378,6 +386,12 @@ public class ProductController {
         review.setContent(content);
         review.setReviewedAt(java.time.LocalDateTime.now());
         review.setStatus(com.example.orgo_project.enums.ReviewStatus.APPROVED);
+
+        // Upload ảnh đánh giá nếu có
+        if (reviewImage != null && !reviewImage.isEmpty()) {
+            String imageUrl = productService.saveReviewImage(reviewImage);
+            review.setImageUrl(imageUrl);
+        }
 
         productService.addReview(review);
         return "redirect:/products/" + productId + "?success=reviewed#reviews";
