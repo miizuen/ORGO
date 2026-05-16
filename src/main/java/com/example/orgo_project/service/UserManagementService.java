@@ -56,6 +56,7 @@ public class UserManagementService {
         response.setPhoneNumber(user.getPhoneNumber());
         response.setStatus(user.getStatus());
         response.setRole(user.getAccount() != null ? user.getAccount().getRole().toString() : "USER");
+        response.setCreatedAt(null); // UserProfile không có trường createdAt
         return response;
     }
 }

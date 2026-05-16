@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Đơn hàng - Seller</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        .orders-page {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 2rem;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+        
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+        
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #86efac;
+        }
+        
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1e293b;
+        }
+        
+        .orders-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .filter-tab:hover {
+            border-color: #2e7d32;
+            color: #2e7d32;
+        }
+        
+        .filter-tab.active {
+            background: #2e7d32;
+            color: white;
+            border-color: #2e7d32;
+        }
+        
+        .orders-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .orders-table thead {
+            background: #f8fafc;
+        }
+        
+        .orders-table th {
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .orders-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+        
+        .orders-table tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .orders-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        .order-code {
+            font-weight: 700;
+            color: #2e7d32;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-processing {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .status-shipped {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+        
+        .status-delivered {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .payment-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        
+        .payment-paid {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .payment-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .amount-highlight {
+            font-weight: 700;
+            color: #2e7d32;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #2e7d32;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1a5c1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #94a3b8;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .orders-page {
+                padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .orders-table {
+                font-size: 0.85rem;
+            }
+            
+            .orders-table th,
+            .orders-table td {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .filter-tabs {
+                flex-direction: column;
+            }
+            
+            .filter-tab {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/seller-layout :: sellerLayout('Đơn hàng', 'orders', ~{::main})}">
+    <main class="orders-page">
+        <div class="page-header">
+            <h1 class="page-title">📦 Quản lý Đơn hàng</h1>
+            <p class="page-subtitle">Quản lý và xử lý các đơn hàng của khách hàng</p>
+        </div>
+        
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+        
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Tổng đơn hàng</div>
+                <div class="stat-value" th:text="${orders != null ? #lists.size(orders) : 0}">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Chờ xử lý</div>
+                <div class="stat-value" id="pending-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Đang giao</div>
+                <div class="stat-value" id="shipped-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Hoàn thành</div>
+                <div class="stat-value" id="delivered-count">0</div>
+            </div>
+        </div>
+        
+        <!-- Orders Table -->
+        <div class="orders-card">
+            <div class="card-header">
+                <h2 class="card-title">Danh sách đơn hàng</h2>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-status="">Tất cả</button>
+                    <button class="filter-tab" data-status="PENDING">Chờ xử lý</button>
+                    <button class="filter-tab" data-status="PROCESSING">Đang xử lý</button>
+                    <button class="filter-tab" data-status="SHIPPED">Đang giao</button>
+                    <button class="filter-tab" data-status="DELIVERED">Hoàn thành</button>
+                    <button class="filter-tab" data-status="CANCELLED">Đã hủy</button>
+                </div>
+            </div>
+            
+            <div th:if="${orders == null or #lists.isEmpty(orders)}" class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p class="empty-text">Chưa có đơn hàng nào</p>
+            </div>
+            
+            <table th:if="${orders != null and !#lists.isEmpty(orders)}" class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Trạng thái</th>
+                        <th>Thanh toán</th>
+                        <th>Tổng tiền</th>
+                        <th>Ngày đặt</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="order : ${orders}" th:attr="data-status=${order.orderStatus}">
+                        <td>
+                            <span class="order-code" th:text="${order.orderCode}">ORD-001</span>
+                        </td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${order.orderStatus == 'PENDING' ? 'status-pending' : 
+                                                   order.orderStatus == 'PROCESSING' ? 'status-processing' : 
+                                                   order.orderStatus == 'SHIPPED' ? 'status-shipped' : 
+                                                   order.orderStatus == 'DELIVERED' ? 'status-delivered' : 'status-cancelled'}"
+                                  th:text="${order.orderStatus == 'PENDING' ? 'Chờ xử lý' : 
+                                            order.orderStatus == 'PROCESSING' ? 'Đang xử lý' : 
+                                            order.orderStatus == 'SHIPPED' ? 'Đang giao' : 
+                                            order.orderStatus == 'DELIVERED' ? 'Hoàn thành' : 'Đã hủy'}">
+                                Chờ xử lý
+                            </span>
+                        </td>
+                        <td>
+                            <span class="payment-badge"
+                                  th:classappend="${order.paymentStatus == 'PAID' ? 'payment-paid' : 'payment-pending'}"
+                                  th:text="${order.paymentStatus == 'PAID' ? 'Đã thanh toán' : 'Chờ thanh toán'}">
+                                Chờ thanh toán
+                            </span>
+                        </td>
+                        <td>
+                            <span class="amount-highlight" 
+                                  th:text="${order.totalAmount != null ? #numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ'}">
+                                1,000,000đ
+                            </span>
+                        </td>
+                        <td th:text="${order.orderedAt != null ? #temporals.format(order.orderedAt, 'dd/MM/yyyy HH:mm') : '-'}">
+                            01/01/2024 10:00
+                        </td>
+                        <td>
+                            <a th:href="@{/seller/orders/{id}(id=${order.id})}" class="btn btn-primary">
+                                Chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter functionality
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        const tableRows = document.querySelectorAll('.orders-table tbody tr');
+        
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const status = this.getAttribute('data-status');
+                
+                // Update active tab
+                filterTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Filter rows
+                tableRows.forEach(row => {
+                    const rowStatus = row.getAttribute('data-status');
+                    if (status === '' || rowStatus === status) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // Calculate statistics
+        updateStats();
+        
+        function updateStats() {
+            const allRows = document.querySelectorAll('.orders-table tbody tr');
+            let pendingCount = 0;
+            let shippedCount = 0;
+            let deliveredCount = 0;
+            
+            allRows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                if (status === 'PENDING') pendingCount++;
+                if (status === 'SHIPPED') shippedCount++;
+                if (status === 'DELIVERED') deliveredCount++;
+            });
+            
+            document.getElementById('pending-count').textContent = pendingCount;
+            document.getElementById('shipped-count').textContent = shippedCount;
+            document.getElementById('delivered-count').textContent = deliveredCount;
+        }
+    });
+</script>
+</body>
+</html>
