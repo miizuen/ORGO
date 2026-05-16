@@ -19,13 +19,29 @@ public class OrderController {
     }
 
     @GetMapping
-    public String myOrders(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+    public String myOrders(@AuthenticationPrincipal CustomUserDetails userDetails,
+                           @RequestParam(required = false) String status,
+                           Model model) {
         if (userDetails == null || userDetails.getAccount() == null) {
             return "redirect:/login";
         }
 
         Integer accountId = userDetails.getAccount().getId();
-        model.addAttribute("orders", orderService.getMyOrders(accountId));
+
+        if (status != null && !status.isBlank()) {
+            try {
+                com.example.orgo_project.enums.OrderStatus orderStatus =
+                        com.example.orgo_project.enums.OrderStatus.valueOf(status);
+                model.addAttribute("orders", ((com.example.orgo_project.service.OrderService) orderService)
+                        .getMyOrdersByStatus(accountId, orderStatus));
+            } catch (IllegalArgumentException e) {
+                model.addAttribute("orders", orderService.getMyOrders(accountId));
+            }
+        } else {
+            model.addAttribute("orders", orderService.getMyOrders(accountId));
+        }
+
+        model.addAttribute("currentStatus", status);
         return "pages/user/orders";
     }
 

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Lịch sử đơn hàng - ORGO', ~{::#orders-content})}">
+<body>
+<div id="orders-content">
+<main class="container py-5">
+
+    <!-- Header -->
+    <div class="mb-4">
+        <h1 class="fw-bold fs-2 text-dark mb-1">📦 Lịch sử đơn hàng</h1>
+        <p class="text-secondary mb-0">Theo dõi, quản lý và xem các vụ thu hoạch hữu cơ trước đây của bạn.</p>
+    </div>
+
+    <!-- Filter Tabs -->
+    <ul class="nav gap-1 mb-4" id="orderTabs">
+        <li class="nav-item">
+            <a th:href="@{/orders}" class="nav-link px-4 py-2 rounded-pill fw-semibold"
+               th:classappend="${currentStatus == null} ? 'bg-success text-white' : 'text-secondary bg-white border'">
+                Tất cả
+            </a>
+        </li>
+        <li class="nav-item">
+            <a th:href="@{/orders(status='PENDING')}" class="nav-link px-4 py-2 rounded-pill fw-semibold"
+               th:classappend="${currentStatus == 'PENDING'} ? 'bg-warning text-dark' : 'text-secondary bg-white border'">
+                Chờ xử lý
+            </a>
+        </li>
+        <li class="nav-item">
+            <a th:href="@{/orders(status='PROCESSING')}" class="nav-link px-4 py-2 rounded-pill fw-semibold"
+               th:classappend="${currentStatus == 'PROCESSING'} ? 'bg-info text-white' : 'text-secondary bg-white border'">
+                Đang xử lý
+            </a>
+        </li>
+        <li class="nav-item">
+            <a th:href="@{/orders(status='SHIPPED')}" class="nav-link px-4 py-2 rounded-pill fw-semibold"
+               th:classappend="${currentStatus == 'SHIPPED'} ? 'bg-primary text-white' : 'text-secondary bg-white border'">
+                Đang giao
+            </a>
+        </li>
+        <li class="nav-item">
+            <a th:href="@{/orders(status='DELIVERED')}" class="nav-link px-4 py-2 rounded-pill fw-semibold"
+               th:classappend="${currentStatus == 'DELIVERED'} ? 'bg-success text-white' : 'text-secondary bg-white border'">
+                Đã nhận
+            </a>
+        </li>
+        <li class="nav-item">
+            <a th:href="@{/orders(status='CANCELLED')}" class="nav-link px-4 py-2 rounded-pill fw-semibold"
+               th:classappend="${currentStatus == 'CANCELLED'} ? 'bg-danger text-white' : 'text-secondary bg-white border'">
+                Đã hủy
+            </a>
+        </li>
+    </ul>
+
+    <!-- Order List -->
+    <div th:if="${orders != null and !orders.isEmpty()}">
+        <div th:each="order : ${orders}"
+             class="bg-white rounded-4 shadow-sm mb-3 overflow-hidden order-card"
+             style="transition: box-shadow 0.2s ease;">
+
+            <!-- Order Header -->
+            <div class="d-flex align-items-center justify-content-between px-4 py-3 border-bottom bg-light">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-secondary small">🏪</span>
+                    <span class="fw-semibold text-dark" th:text="${order.shopName != null ? order.shopName : 'ORGO Shop'}">Shop</span>
+                    <span class="text-secondary small">|</span>
+                    <span class="text-secondary small fw-semibold" th:text="${order.orderCode}">ORD-001</span>
+                </div>
+                <!-- Status Badge -->
+                <span th:switch="${order.orderStatus}">
+                    <span th:case="'PENDING'"    class="badge rounded-pill px-3 py-2" style="background:#fff3cd;color:#856404;font-size:0.75rem;">⏳ Chờ xử lý</span>
+                    <span th:case="'PROCESSING'" class="badge rounded-pill px-3 py-2" style="background:#cff4fc;color:#055160;font-size:0.75rem;">⚙️ Đang xử lý</span>
+                    <span th:case="'SHIPPED'"    class="badge rounded-pill px-3 py-2" style="background:#cfe2ff;color:#084298;font-size:0.75rem;">🚚 Đang giao</span>
+                    <span th:case="'DELIVERED'"  class="badge rounded-pill px-3 py-2" style="background:#d1e7dd;color:#0a3622;font-size:0.75rem;">✅ Đã nhận</span>
+                    <span th:case="'CANCELLED'"  class="badge rounded-pill px-3 py-2" style="background:#f8d7da;color:#842029;font-size:0.75rem;">❌ Đã hủy</span>
+                    <span th:case="'RETURNED'"   class="badge rounded-pill px-3 py-2" style="background:#e2e3e5;color:#41464b;font-size:0.75rem;">↩️ Hoàn trả</span>
+                    <span th:case="*"            class="badge bg-secondary rounded-pill px-3 py-2" style="font-size:0.75rem;" th:text="${order.orderStatus}"></span>
+                </span>
+            </div>
+
+            <!-- Order Body -->
+            <div class="px-4 py-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <!-- Left: product summary + date -->
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Product image placeholder -->
+                        <div class="rounded-3 bg-light d-flex align-items-center justify-content-center flex-shrink-0"
+                             style="width:60px;height:60px;font-size:1.8rem;">
+                            🛒
+                        </div>
+                        <div>
+                            <div class="fw-semibold text-dark mb-1"
+                                 th:text="${order.itemSummary != null ? order.itemSummary : 'Xem chi tiết đơn hàng'}">
+                                Sản phẩm
+                            </div>
+                            <div class="text-secondary small">
+                                Đặt ngày:
+                                <span th:text="${order.orderedAt != null ? #temporals.format(order.orderedAt, 'dd/MM/yyyy') : ''}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: total + actions -->
+                    <div class="text-end">
+                        <div class="fw-bold text-success fs-5 mb-2"
+                             th:text="${order.totalAmount != null ? #numbers.formatInteger(order.totalAmount.intValue(), 3, 'COMMA') + 'đ' : ''}">
+                        </div>
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a th:href="@{/orders/{id}(id=${order.id})}"
+                               class="btn btn-outline-success btn-sm rounded-3 fw-semibold">
+                                Xem chi tiết →
+                            </a>
+                            <a th:if="${order.orderStatus == 'DELIVERED'}"
+                               th:href="@{/products}"
+                               class="btn btn-success btn-sm rounded-3 fw-semibold">
+                                🔄 Mua lại
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div th:if="${orders == null or orders.isEmpty()}"
+         class="text-center py-5 bg-white rounded-4 shadow-sm">
+        <div class="fs-1 mb-3">📭</div>
+        <h5 class="fw-bold text-dark mb-2">Chưa có đơn hàng nào</h5>
+        <p class="text-secondary mb-4">Hãy khám phá các sản phẩm hữu cơ tươi ngon của chúng tôi!</p>
+        <a href="/products" class="btn btn-success fw-bold px-5 rounded-3">🛒 Mua sắm ngay</a>
+    </div>
+
+</main>
+</div>
+
+<style>
+.order-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.10) !important;
+}
+.nav-link {
+    transition: all 0.2s ease;
+}
+</style>
+</body>
+</html>

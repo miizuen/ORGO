@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Chi tiết đơn hàng - ORGO', ~{::#order-detail-content})}">
+<body>
+<div id="order-detail-content">
+<main class="container py-5">
+
+    <!-- Back + Header -->
+    <div class="mb-4">
+        <a th:href="@{/orders}" class="text-secondary text-decoration-none small">← Quay lại lịch sử đơn hàng</a>
+        <div class="d-flex align-items-start justify-content-between mt-2 flex-wrap gap-3">
+            <div>
+                <h1 class="fw-bold fs-2 text-dark mb-1"
+                    th:text="'Đơn hàng #' + ${order.orderCode}">Đơn hàng</h1>
+                <p class="text-secondary mb-0">
+                    Đặt ngày
+                    <span th:text="${order.orderedAt != null ? #temporals.format(order.orderedAt, 'dd/MM/yyyy') : ''}"></span>
+                    <span th:if="${order.items != null}">
+                        • <span th:text="${order.items.size()}"></span> sản phẩm
+                    </span>
+                </p>
+            </div>
+            <!-- Nút hủy đơn (chỉ hiện khi PENDING hoặc PROCESSING) -->
+            <form th:if="${order.orderStatus == 'PENDING' or order.orderStatus == 'PROCESSING'}"
+                  th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post">
+                <button type="submit" class="btn btn-outline-danger rounded-3 fw-semibold px-4"
+                        onclick="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">
+                    Hủy đơn
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- LEFT COLUMN -->
+        <div class="col-12 col-lg-8">
+
+            <!-- Trạng thái giao hàng -->
+            <div class="bg-white rounded-4 shadow-sm p-4 mb-4">
+                <h5 class="fw-bold mb-4">🚚 Trạng thái giao hàng</h5>
+
+                <!-- Progress Steps -->
+                <div class="position-relative mb-4">
+                    <!-- Progress line -->
+                    <div class="position-absolute top-50 start-0 end-0" style="height:3px;background:#e9ecef;z-index:0;transform:translateY(-50%);margin:0 40px;"></div>
+
+                    <div th:with="
+                        isPending=${order.orderStatus == 'PENDING' or order.orderStatus == 'PROCESSING' or order.orderStatus == 'SHIPPED' or order.orderStatus == 'DELIVERED'},
+                        isProcessing=${order.orderStatus == 'PROCESSING' or order.orderStatus == 'SHIPPED' or order.orderStatus == 'DELIVERED'},
+                        isShipped=${order.orderStatus == 'SHIPPED' or order.orderStatus == 'DELIVERED'},
+                        isDelivered=${order.orderStatus == 'DELIVERED'},
+                        isCancelled=${order.orderStatus == 'CANCELLED'}"
+                         class="d-flex justify-content-between position-relative" style="z-index:1;">
+
+                        <!-- Bước 1: Đã đặt -->
+                        <div class="text-center" style="flex:1;">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 fw-bold"
+                                 th:classappend="${isPending} ? 'bg-success text-white' : 'bg-light text-secondary border'"
+                                 style="width:40px;height:40px;font-size:1rem;">
+                                <span th:if="${isPending}">✓</span>
+                                <span th:unless="${isPending}">1</span>
+                            </div>
+                            <div class="small fw-semibold" th:classappend="${isPending} ? 'text-success' : 'text-secondary'">Đã đặt</div>
+                        </div>
+
+                        <!-- Bước 2: Đang xử lý -->
+                        <div class="text-center" style="flex:1;">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 fw-bold"
+                                 th:classappend="${isProcessing} ? 'bg-success text-white' : 'bg-light text-secondary border'"
+                                 style="width:40px;height:40px;font-size:1rem;">
+                                <span th:if="${isProcessing}">✓</span>
+                                <span th:unless="${isProcessing}">2</span>
+                            </div>
+                            <div class="small fw-semibold" th:classappend="${isProcessing} ? 'text-success' : 'text-secondary'">Đang xử lý</div>
+                        </div>
+
+                        <!-- Bước 3: Đang giao -->
+                        <div class="text-center" style="flex:1;">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 fw-bold"
+                                 th:classappend="${isShipped} ? 'bg-success text-white' : (${order.orderStatus == 'SHIPPED'} ? 'border border-success text-success' : 'bg-light text-secondary border')"
+                                 style="width:40px;height:40px;font-size:1rem;">
+                                <span th:if="${isShipped}">✓</span>
+                                <span th:unless="${isShipped}">🚚</span>
+                            </div>
+                            <div class="small fw-semibold" th:classappend="${isShipped} ? 'text-success' : 'text-secondary'">Đang giao</div>
+                        </div>
+
+                        <!-- Bước 4: Đã nhận -->
+                        <div class="text-center" style="flex:1;">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 fw-bold"
+                                 th:classappend="${isDelivered} ? 'bg-success text-white' : 'bg-light text-secondary border'"
+                                 style="width:40px;height:40px;font-size:1rem;">
+                                <span th:if="${isDelivered}">✓</span>
+                                <span th:unless="${isDelivered}">📦</span>
+                            </div>
+                            <div class="small fw-semibold" th:classappend="${isDelivered} ? 'text-success' : 'text-secondary'">Đã nhận</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trạng thái đặc biệt: Đã hủy -->
+                <div th:if="${order.orderStatus == 'CANCELLED'}"
+                     class="p-3 rounded-3 bg-danger bg-opacity-10 border border-danger border-opacity-25">
+                    <p class="mb-1 fw-semibold text-danger">❌ Đơn hàng đã bị hủy</p>
+                    <p th:if="${order.cancellationReason != null}" class="mb-0 text-secondary small"
+                       th:text="'Lý do: ' + ${order.cancellationReason}"></p>
+                </div>
+
+                <!-- Ghi chú -->
+                <div th:if="${order.note != null and !order.note.isBlank()}"
+                     class="mt-3 p-3 rounded-3 bg-light">
+                    <p class="mb-0 text-secondary small">📝 Ghi chú: <span th:text="${order.note}"></span></p>
+                </div>
+            </div>
+
+            <!-- Danh sách sản phẩm -->
+            <div class="bg-white rounded-4 shadow-sm p-4">
+                <h5 class="fw-bold mb-4">🛍️ Sản phẩm trong đơn</h5>
+
+                <div th:if="${order.items != null and !order.items.isEmpty()}">
+                    <div th:each="item, stat : ${order.items}"
+                         th:classappend="${!stat.last} ? 'border-bottom pb-3 mb-3' : ''"
+                         class="d-flex align-items-center gap-3">
+                        <!-- Ảnh sản phẩm -->
+                        <div class="rounded-3 overflow-hidden flex-shrink-0 bg-light"
+                             style="width:72px;height:72px;">
+                            <img th:if="${item.sellerName != null}"
+                                 th:src="${item.sellerName}"
+                                 th:alt="${item.productName}"
+                                 class="w-100 h-100" style="object-fit:cover;"/>
+                            <div th:unless="${item.sellerName != null}"
+                                 class="w-100 h-100 d-flex align-items-center justify-content-center fs-2">🌿</div>
+                        </div>
+
+                        <!-- Thông tin sản phẩm -->
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold text-dark mb-1"
+                                 th:text="${item.productName != null ? item.productName : 'Sản phẩm'}"></div>
+                            <div class="text-secondary small mb-1"
+                                 th:text="${item.variantName != null ? item.variantName : ''}"></div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-light text-secondary border rounded-pill px-2">
+                                    Số lượng: <span th:text="${item.quantity}"></span>
+                                </span>
+                                <a th:if="${order.orderStatus == 'DELIVERED'}"
+                                   th:href="@{/products/{id}(id=${item.productId})}"
+                                   class="text-success small fw-semibold text-decoration-none">
+                                    ✍️ Viết đánh giá
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Giá -->
+                        <div class="text-end flex-shrink-0">
+                            <div class="fw-bold text-dark"
+                                 th:text="${item.lineTotal != null ? #numbers.formatInteger(item.lineTotal.intValue(), 3, 'COMMA') + 'đ' : ''}"></div>
+                            <div class="text-secondary small"
+                                 th:text="${item.unitPrice != null ? #numbers.formatInteger(item.unitPrice.intValue(), 3, 'COMMA') + 'đ/sp' : ''}"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${order.items == null or order.items.isEmpty()}"
+                     class="text-center text-secondary py-3">Không có sản phẩm</div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-12 col-lg-4">
+
+            <!-- Tổng đơn hàng -->
+            <div class="bg-white rounded-4 shadow-sm p-4 mb-4">
+                <h5 class="fw-bold mb-3">💰 Tổng đơn hàng</h5>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-secondary">Tạm tính</span>
+                    <span th:text="${order.totalAmount != null and order.shippingFee != null ?
+                        #numbers.formatInteger((order.totalAmount.subtract(order.shippingFee)).intValue(), 3, 'COMMA') + 'đ' :
+                        (order.totalAmount != null ? #numbers.formatInteger(order.totalAmount.intValue(), 3, 'COMMA') + 'đ' : '—')}"></span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-secondary">Phí giao hàng</span>
+                    <span th:text="${order.shippingFee != null ? #numbers.formatInteger(order.shippingFee.intValue(), 3, 'COMMA') + 'đ' : '0đ'}"></span>
+                </div>
+                <div class="border-top pt-3 d-flex justify-content-between">
+                    <span class="fw-bold fs-5">Tổng</span>
+                    <span class="fw-bold fs-5 text-success"
+                          th:text="${order.totalAmount != null ? #numbers.formatInteger(order.totalAmount.intValue(), 3, 'COMMA') + 'đ' : '—'}"></span>
+                </div>
+                <!-- Trạng thái thanh toán -->
+                <div class="mt-3 pt-3 border-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-secondary small">Thanh toán</span>
+                        <span th:switch="${order.paymentStatus}">
+                            <span th:case="'PAID'" class="badge bg-success rounded-pill">✅ Đã thanh toán</span>
+                            <span th:case="'PENDING'" class="badge bg-warning text-dark rounded-pill">⏳ Chờ thanh toán</span>
+                            <span th:case="'FAILED'" class="badge bg-danger rounded-pill">❌ Thất bại</span>
+                            <span th:case="*" class="badge bg-secondary rounded-pill" th:text="${order.paymentStatus}"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Địa chỉ giao hàng -->
+            <div class="bg-white rounded-4 shadow-sm p-4 mb-4"
+                 th:if="${order.recipientName != null or order.recipientAddress != null}">
+                <h6 class="fw-bold text-uppercase text-secondary small mb-3 letter-spacing">📍 Địa chỉ giao hàng</h6>
+                <div class="d-flex gap-2">
+                    <span class="text-success mt-1">📌</span>
+                    <div>
+                        <div class="fw-semibold" th:text="${order.recipientName}"></div>
+                        <div class="text-secondary small" th:text="${order.recipientAddress}"></div>
+                        <div class="text-success small mt-1" th:text="${order.recipientPhone}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tên shop -->
+            <div class="bg-white rounded-4 shadow-sm p-4 mb-4" th:if="${order.shopName != null}">
+                <h6 class="fw-bold text-uppercase text-secondary small mb-3">🏪 Người bán</h6>
+                <div class="fw-semibold text-dark" th:text="${order.shopName}"></div>
+            </div>
+
+            <!-- Cần hỗ trợ -->
+            <div class="bg-white rounded-4 shadow-sm p-4">
+                <h6 class="fw-bold text-uppercase text-secondary small mb-3">❓ Cần hỗ trợ?</h6>
+                <a href="/products" class="d-flex align-items-center gap-2 text-success text-decoration-none mb-2">
+                    <span>🌿</span> <span class="small fw-semibold">Tiếp tục mua sắm</span>
+                </a>
+                <a href="/orders" class="d-flex align-items-center gap-2 text-success text-decoration-none">
+                    <span>📦</span> <span class="small fw-semibold">Xem tất cả đơn hàng</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</main>
+</div>
+</body>
+</html>
