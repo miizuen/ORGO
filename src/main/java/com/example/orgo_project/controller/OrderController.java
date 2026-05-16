@@ -18,6 +18,14 @@ public class OrderController {
         this.orderService = orderService;
     }
 
+    private Integer getUserId(CustomUserDetails userDetails) {
+        if (userDetails == null || userDetails.getAccount() == null) return null;
+        if (userDetails.getAccount().getUser() != null) {
+            return userDetails.getAccount().getUser().getId();
+        }
+        return userDetails.getAccount().getId();
+    }
+
     @GetMapping
     public String myOrders(@AuthenticationPrincipal CustomUserDetails userDetails,
                            @RequestParam(required = false) String status,
@@ -26,19 +34,19 @@ public class OrderController {
             return "redirect:/login";
         }
 
-        Integer accountId = userDetails.getAccount().getId();
+        Integer userId = getUserId(userDetails);
 
         if (status != null && !status.isBlank()) {
             try {
                 com.example.orgo_project.enums.OrderStatus orderStatus =
                         com.example.orgo_project.enums.OrderStatus.valueOf(status);
                 model.addAttribute("orders", ((com.example.orgo_project.service.OrderService) orderService)
-                        .getMyOrdersByStatus(accountId, orderStatus));
+                        .getMyOrdersByStatus(userId, orderStatus));
             } catch (IllegalArgumentException e) {
-                model.addAttribute("orders", orderService.getMyOrders(accountId));
+                model.addAttribute("orders", orderService.getMyOrders(userId));
             }
         } else {
-            model.addAttribute("orders", orderService.getMyOrders(accountId));
+            model.addAttribute("orders", orderService.getMyOrders(userId));
         }
 
         model.addAttribute("currentStatus", status);
@@ -53,8 +61,8 @@ public class OrderController {
             return "redirect:/login";
         }
 
-        Integer accountId = userDetails.getAccount().getId();
-        model.addAttribute("order", orderService.getOrderDetail(accountId, orderId));
+        Integer userId = getUserId(userDetails);
+        model.addAttribute("order", orderService.getOrderDetail(userId, orderId));
         return "pages/user/order-detail";
     }
 
@@ -67,13 +75,30 @@ public class OrderController {
             return "redirect:/login";
         }
 
-        boolean success = orderService.cancelOrder(userDetails.getAccount().getId(), orderId, reason);
+        boolean success = orderService.cancelOrder(getUserId(userDetails), orderId, reason);
         if (success) {
             redirectAttributes.addFlashAttribute("successMessage", "Đã hủy đơn hàng thành công!");
         } else {
             redirectAttributes.addFlashAttribute("errorMessage", "Không thể hủy đơn hàng.");
         }
 
+        return "redirect:/orders/" + orderId;
+    }
+
+    @PostMapping("/{orderId}/confirm-delivery")
+    public String confirmDelivery(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                  @PathVariable Integer orderId,
+                                  RedirectAttributes redirectAttributes) {
+        if (userDetails == null || userDetails.getAccount() == null) {
+            return "redirect:/login";
+        }
+        boolean success = ((com.example.orgo_project.service.OrderService) orderService)
+                .confirmDelivery(getUserId(userDetails), orderId);
+        if (success) {
+            redirectAttributes.addFlashAttribute("successMessage", "Đã xác nhận nhận hàng thành công!");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể xác nhận nhận hàng.");
+        }
         return "redirect:/orders/" + orderId;
     }
 

@@ -52,6 +52,16 @@ public class OrderService implements IOrderService {
                 .stream().map(this::toSummary).toList();
     }
 
+    public boolean confirmDelivery(Integer accountId, Integer orderId) {
+        com.example.orgo_project.entity.CustomerOrder order = orderRepository.findById(orderId)
+                .orElse(null);
+        if (order == null || !order.getUserId().equals(accountId)) return false;
+        if (order.getOrderStatus() != com.example.orgo_project.enums.OrderStatus.SHIPPED) return false;
+        order.setOrderStatus(com.example.orgo_project.enums.OrderStatus.DELIVERED);
+        orderRepository.save(order);
+        return true;
+    }
+
     public List<OrderSummaryDTO> getMyOrdersByStatus(Integer accountId, OrderStatus status) {
         return orderRepository.findByUserIdAndOrderStatusOrderByOrderedAtDesc(accountId, status)
                 .stream().map(this::toSummary).toList();
@@ -61,8 +71,6 @@ public class OrderService implements IOrderService {
     public OrderDetailDTO getOrderDetail(Integer accountId, Integer orderId) {
         CustomerOrder order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
-        if (!order.getUserId().equals(accountId))
-            throw new RuntimeException("Không có quyền xem đơn này");
 
         // Lấy tên shop
         String shopName = null;
@@ -79,8 +87,9 @@ public class OrderService implements IOrderService {
             if (addr != null) {
                 recipientName = addr.getRecipientName();
                 recipientPhone = addr.getRecipientPhone();
-                recipientAddress = addr.getDetailedAddress()
-                        + (addr.getProvinceOrCity() != null ? ", " + addr.getProvinceOrCity() : "");
+                String detail = addr.getDetailedAddress() != null ? addr.getDetailedAddress() : "";
+                String province = addr.getProvinceOrCity() != null ? ", " + addr.getProvinceOrCity() : "";
+                recipientAddress = detail + province;
             }
         }
 
@@ -97,7 +106,7 @@ public class OrderService implements IOrderService {
                                 if (p != null) {
                                     dto.setProductName(p.getProductName());
                                     dto.setProductId(p.getId());
-                                    dto.setSellerName(p.getSlug()); // slug lưu imageUrl
+                                    dto.setSellerName(p.getSlug());
                                 }
                             }
                         }
