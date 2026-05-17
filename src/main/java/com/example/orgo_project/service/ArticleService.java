@@ -127,7 +127,7 @@ public class ArticleService {
         Page<Article> articles = articleRepository.findPublishedArticles(pageable);
         if (category != null && !category.isBlank()) {
             List<Article> filtered = articles.getContent().stream()
-                    .filter(article -> category.equalsIgnoreCase(article.getSummary()))
+                    .filter(article -> category.equalsIgnoreCase(article.getCategory()))
                     .collect(Collectors.toList());
             return new PageImpl<>(filtered.stream().map(this::mapToResponse).collect(Collectors.toList()), pageable, filtered.size());
         }
@@ -199,9 +199,10 @@ public class ArticleService {
         response.setTitle(article.getTitle());
         response.setReadTime("5 phút đọc");
         response.setContent(article.getContent());
+        response.setSummary(article.getSummary());
         response.setStatus(article.getStatus());
         response.setThumbnail(article.getCoverImage());
-        response.setCategory(article.getSummary());
+        response.setCategory(article.getCategory());
         response.setRejectNote(article.getRejectionReason());
         response.setPublishedAt(article.getPublishedAt());
         response.setCreatedAt(article.getUpdatedAt());

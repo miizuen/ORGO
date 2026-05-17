@@ -419,7 +419,11 @@ public class ProductController {
     private Integer getSellerIdFromUser(CustomUserDetails userDetails) {
         if (userDetails == null || userDetails.getAccount() == null) return null;
 
-        return sellerRepository.findByAccount(userDetails.getAccount())
+        // Lấy seller bằng cách tạo Account object với ID
+        com.example.orgo_project.entity.Account account = new com.example.orgo_project.entity.Account();
+        account.setId(userDetails.getAccount().getId());
+        
+        return sellerRepository.findByAccount(account)
                 .map(com.example.orgo_project.entity.Seller::getId)
                 .orElse(null);
     }

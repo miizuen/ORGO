@@ -194,6 +194,12 @@ public class AdminController {
         return "/pages/seller/wallet";
     }
 
+    @GetMapping("/users")
+    public String showUserManagement(Model model) {
+        model.addAttribute("activePage", "users");
+        return "/pages/admin/user-management";
+    }
+
     @GetMapping("/bank-config")
     public String bankConfig(Model model) {
         model.addAttribute("activePage", "bank-config");
