@@ -1,162 +1,809 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Rút tiền</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        .payout-management-page {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2e7d32 0%, #1a5c1a 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        
+        .payout-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #2e7d32 0%, #1a5c1a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -0.02em;
+        }
+        
+        .page-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+            margin: 0;
+        }
+        
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #86efac;
+        }
+        
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .filter-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filter-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 0.75rem 1.75rem;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            color: #64748b;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #2e7d32 0%, #1a5c1a 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 8px 25px rgba(46, 125, 50, 0.4);
+        }
+        
+        .payout-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            display: none;
+        }
+        
+        .payout-section.show {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 1.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .section-badge {
+            background: linear-gradient(135deg, #2e7d32 0%, #1a5c1a 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .payout-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        
+        .payout-table thead {
+            background: linear-gradient(135deg, #2e7d32 0%, #1a5c1a 100%);
+        }
+        
+        .payout-table th {
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .payout-table tbody tr {
+            background: white;
+            transition: all 0.2s ease;
+        }
+        
+        .payout-table tbody tr:hover {
+            background: #f8fafc;
+            transform: scale(1.005);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .payout-table td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+        
+        .payout-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-paid {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: white;
+            border: 2px solid #e2e8f0;
+            color: #64748b;
+        }
+        
+        .btn-outline:hover {
+            border-color: #2e7d32;
+            color: #2e7d32;
+        }
+        
+        .amount-highlight {
+            font-weight: 700;
+            color: #10b981;
+            font-size: 1.05rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1100;
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 1.5rem 0;
+        }
+        
+        .modal-info {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: #64748b;
+        }
+        
+        .modal-info-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .modal-info-value {
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #2e7d32;
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .filter-tabs {
+                flex-direction: column;
+            }
+            
+            .filter-btn {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .payout-table {
+                font-size: 0.85rem;
+            }
+            
+            .payout-table th,
+            .payout-table td {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
 <body>
-<div th:replace="~{fragments/admin-layout :: adminLayout('Quan ly rut tien', 'payouts', ~{::main})}">
-    <main class="p-3">
-        <h1>Quan ly payout</h1>
-        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
-
-        <h3>Cho duyet - Seller</h3>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Requester</th>
-                <th>So tien</th>
-                <th>Ngan hang</th>
-                <th>Ngay tao</th>
-                <th>Hanh dong</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:if="${#lists.isEmpty(pendingSellerPayouts)}"><td colspan="6">Khong co.</td></tr>
-            <tr th:each="p : ${pendingSellerPayouts}">
-                <td th:text="${p.id}"></td>
-                <td th:text="${p.requesterId}"></td>
-                <td th:text="${#numbers.formatDecimal(p.requestedAmount,0,'POINT',0,'COMMA') + 'd'}"></td>
-                <td th:text="${p.bankName + ' - ' + p.recipientBankAccount}"></td>
-                <td th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></td>
-                <td>
-                    <a class="btn btn-sm btn-outline-primary"
-                       th:if="${p.requesterId != null or p.processorId != null}"
-                       th:href="@{/admin/revenue-reconciliation(sellerId=${p.requesterId != null ? p.requesterId : p.processorId})}">Doi soat doanh thu</a>
-                    <button type="button"
-                            class="btn btn-sm btn-success btn-open-approve"
-                            th:attr="data-id=${p.id},
-                                         data-amount=${#numbers.formatDecimal(p.requestedAmount, 0, 'POINT', 0, 'COMMA')},
-                                         data-account=${p.recipientBankAccount},
-                                         data-bank=${p.bankName}">
-                        Duyệt
+<div th:replace="~{fragments/admin-layout :: adminLayout('Quản lý Rút tiền', 'payouts', ~{::main})}">
+    <main class="payout-management-page">
+        <div class="payout-container">
+            <div class="page-header">
+                <h1 class="page-title">💰 Đối soát thanh toán</h1>
+                <p class="page-subtitle">Quản lý và duyệt các yêu cầu rút tiền từ Seller và Expert</p>
+            </div>
+            
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+            
+            <!-- Bộ lọc -->
+            <div class="filter-section">
+                <label class="filter-label">🔍 Lọc theo loại người dùng:</label>
+                <div class="filter-tabs">
+                    <button class="filter-btn active" data-filter="all">
+                        📊 Xem tất cả
                     </button>
-                    <form th:action="@{/admin/payouts/{id}/reject(id=${p.id})}" method="post"
-                          onsubmit="this.querySelector('[name=reason]').value = prompt('Ly do tu choi:') || ''">
-                        <input type="hidden" name="reason">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Từ chối</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                    <button class="filter-btn" data-filter="seller">
+                        🛍️ Chỉ Seller
+                    </button>
+                    <button class="filter-btn" data-filter="expert">
+                        👨‍🏫 Chỉ Expert
+                    </button>
+                </div>
+            </div>
 
-        <h3>Cho duyet - Expert</h3>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Requester</th>
-                <th>So tien</th>
-                <th>Ngan hang</th>
-                <th>Ngay tao</th>
-                <th>Hanh dong</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:if="${#lists.isEmpty(pendingExpertPayouts)}"><td colspan="6">Khong co.</td></tr>
-            <tr th:each="p : ${pendingExpertPayouts}">
-                <td th:text="${p.id}"></td>
-                <td th:text="${p.requesterId}"></td>
-                <td th:text="${#numbers.formatDecimal(p.requestedAmount,0,'POINT',0,'COMMA') + 'd'}"></td>
-                <td th:text="${p.bankName + ' - ' + p.recipientBankAccount}"></td>
-                <td th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></td>
-                <td>
-                    <a class="btn btn-sm btn-outline-primary" th:href="@{/admin/payouts/expert/{id}(id=${p.id})}">Chi tiet + doi soat</a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+            <!-- Chờ duyệt - Seller -->
+            <div class="payout-section seller-section show" id="pending-seller">
+                <h2 class="section-title">
+                    🛍️ Chờ duyệt - Seller
+                    <span class="section-badge" th:text="${#lists.size(pendingSellerPayouts)}">0</span>
+                </h2>
+                <div th:if="${#lists.isEmpty(pendingSellerPayouts)}" class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <p>Không có yêu cầu rút tiền nào đang chờ duyệt</p>
+                </div>
+                <table th:if="${!#lists.isEmpty(pendingSellerPayouts)}" class="payout-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Người yêu cầu</th>
+                            <th>Số tiền</th>
+                            <th>Ngân hàng</th>
+                            <th>Ngày tạo</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${pendingSellerPayouts}">
+                            <td><strong th:text="'#' + ${p.id}">#1</strong></td>
+                            <td th:text="${sellerRequesterNames[p.requesterId] ?: p.requesterId}">User123</td>
+                            <td>
+                                <span class="amount-highlight" 
+                                      th:text="${#numbers.formatDecimal(p.requestedAmount,0,'POINT',0,'COMMA') + 'đ'}">
+                                    1,000,000đ
+                                </span>
+                            </td>
+                            <td th:text="${p.bankName + ' - ' + p.recipientBankAccount}">Vietcombank - 123456</td>
+                            <td th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2024</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a class="btn btn-outline"
+                                       th:if="${p.requesterId != null or p.processorId != null}"
+                                       th:href="@{/admin/revenue-reconciliation(sellerId=${p.requesterId != null ? p.requesterId : p.processorId})}">
+                                        📊 Đối soát
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-success btn-open-approve"
+                                            th:attr="data-id=${p.id},
+                                                     data-amount=${#numbers.formatDecimal(p.requestedAmount, 0, 'POINT', 0, 'COMMA')},
+                                                     data-account=${p.recipientBankAccount},
+                                                     data-bank=${p.bankName}">
+                                        ✓ Duyệt
+                                    </button>
+                                    <form th:action="@{/admin/payouts/{id}/reject(id=${p.id})}" method="post" style="display: inline;"
+                                          onsubmit="return confirmReject(this)">
+                                        <input type="hidden" name="reason">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <button type="submit" class="btn btn-danger">✗ Từ chối</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-        <h3>Tat ca payout Seller</h3>
-        <table class="table">
-            <thead><tr><th>ID</th><th>Requester</th><th>So tien</th><th>Trang thai</th><th>Ngay tao</th></tr></thead>
-            <tbody>
-            <tr th:if="${#lists.isEmpty(sellerPayouts)}"><td colspan="5">Khong co.</td></tr>
-            <tr th:each="p : ${sellerPayouts}">
-                <td th:text="${p.id}"></td><td th:text="${p.requesterId}"></td>
-                <td th:text="${#numbers.formatDecimal(p.requestedAmount,0,'POINT',0,'COMMA') + 'd'}"></td>
-                <td th:text="${p.status}"></td>
-                <td th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></td>
-            </tr>
-            </tbody>
-        </table>
+            <!-- Chờ duyệt - Expert -->
+            <div class="payout-section expert-section show" id="pending-expert">
+                <h2 class="section-title">
+                    👨‍🏫 Chờ duyệt - Expert
+                    <span class="section-badge" th:text="${#lists.size(pendingExpertPayouts)}">0</span>
+                </h2>
+                <div th:if="${#lists.isEmpty(pendingExpertPayouts)}" class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <p>Không có yêu cầu rút tiền nào đang chờ duyệt</p>
+                </div>
+                <table th:if="${!#lists.isEmpty(pendingExpertPayouts)}" class="payout-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Người yêu cầu</th>
+                            <th>Số tiền</th>
+                            <th>Ngân hàng</th>
+                            <th>Ngày tạo</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${pendingExpertPayouts}">
+                            <td><strong th:text="'#' + ${p.id}">#1</strong></td>
+                            <td th:text="${expertRequesterNames[p.requesterId] ?: ('Tài khoản #' + p.requesterId)}">Expert123</td>
+                            <td>
+                                <span class="amount-highlight" 
+                                      th:text="${#numbers.formatDecimal(p.requestedAmount,0,'POINT',0,'COMMA') + 'đ'}">
+                                    1,000,000đ
+                                </span>
+                            </td>
+                            <td th:text="${p.bankName + ' - ' + p.recipientBankAccount}">Vietcombank - 123456</td>
+                            <td th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2024</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a class="btn btn-primary" th:href="@{/admin/payouts/expert/{id}(id=${p.id})}">
+                                        📄 Chi tiết + Đối soát
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-        <h3>Tat ca payout Expert</h3>
-        <table class="table">
-            <thead><tr><th>ID</th><th>Requester</th><th>So tien</th><th>Trang thai</th><th>Ngay tao</th></tr></thead>
-            <tbody>
-            <tr th:if="${#lists.isEmpty(expertPayouts)}"><td colspan="5">Khong co.</td></tr>
-            <tr th:each="p : ${expertPayouts}">
-                <td th:text="${p.id}"></td><td th:text="${p.requesterId}"></td>
-                <td th:text="${#numbers.formatDecimal(p.requestedAmount,0,'POINT',0,'COMMA') + 'd'}"></td>
-                <td th:text="${p.status}"></td>
-                <td th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></td>
-            </tr>
-            </tbody>
-        </table>
+            <!-- Tất cả payout Seller -->
+            <div class="payout-section seller-section show" id="all-seller">
+                <h2 class="section-title">
+                    📊 Tất cả Payout - Seller
+                    <span class="section-badge" th:text="${#lists.size(sellerPayouts)}">0</span>
+                </h2>
+                <div th:if="${#lists.isEmpty(sellerPayouts)}" class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <p>Chưa có yêu cầu rút tiền nào</p>
+                </div>
+                <table th:if="${!#lists.isEmpty(sellerPayouts)}" class="payout-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Người yêu cầu</th>
+                            <th>Số tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${sellerPayouts}">
+                            <td><strong th:text="'#' + ${p.id}">#1</strong></td>
+                            <td th:text="${pendingSellerRequesterNames[p.requesterId] ?: ('Tài khoản #' + p.requesterId)}">User123</td>
+                            <td>
+                                <span class="amount-highlight" 
+                                      th:text="${#numbers.formatDecimal(p.requestedAmount,0,'POINT',0,'COMMA') + 'đ'}">
+                                    1,000,000đ
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge"
+                                      th:classappend="${p.status == T(com.example.orgo_project.enums.WithdrawalStatus).PENDING ? 'status-pending' : 
+                                                       p.status == T(com.example.orgo_project.enums.WithdrawalStatus).APPROVED ? 'status-approved' : 
+                                                       p.status == T(com.example.orgo_project.enums.WithdrawalStatus).REJECTED ? 'status-rejected' : 'status-paid'}"
+                                      th:text="${p.status == T(com.example.orgo_project.enums.WithdrawalStatus).PENDING ? 'Chờ duyệt' : 
+                                                p.status == T(com.example.orgo_project.enums.WithdrawalStatus).APPROVED ? 'Đã duyệt' : 
+                                                p.status == T(com.example.orgo_project.enums.WithdrawalStatus).REJECTED ? 'Từ chối' : 'Đã thanh toán'}">
+                                    Chờ duyệt
+                                </span>
+                            </td>
+                            <td th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2024</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-        <div id="approve-modal" style="display:none;position:fixed;inset:0;background:rgba(17,24,39,.6);z-index:1100;">
-            <div style="max-width:520px;margin:8vh auto;background:#fff;border-radius:12px;padding:20px 20px 16px;">
-                <h5 style="margin:0 0 12px;font-weight:800;">Xác nhận đã chuyển khoản</h5>
-                <div style="margin-bottom:6px;">Số tiền: <strong id="modal-amount">0d</strong></div>
-                <div style="margin-bottom:14px;">Đến tài khoản: <strong id="modal-bank">-</strong></div>
+            <!-- Tất cả payout Expert -->
+            <div class="payout-section expert-section show" id="all-expert">
+                <h2 class="section-title">
+                    📈 Tất cả Payout - Expert
+                    <span class="section-badge" th:text="${#lists.size(expertPayouts)}">0</span>
+                </h2>
+                <div th:if="${#lists.isEmpty(expertPayouts)}" class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <p>Chưa có yêu cầu rút tiền nào</p>
+                </div>
+                <table th:if="${!#lists.isEmpty(expertPayouts)}" class="payout-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Người yêu cầu</th>
+                            <th>Số tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${expertPayouts}">
+                            <td><strong th:text="'#' + ${p.id}">#1</strong></td>
+                            <td th:text="${pendingExpertRequesterNames[p.requesterId] ?: ('Tài khoản #' + p.requesterId)}">Expert123</td>
+                            <td>
+                                <span class="amount-highlight" 
+                                      th:text="${#numbers.formatDecimal(p.requestedAmount,0,'POINT',0,'COMMA') + 'đ'}">
+                                    1,000,000đ
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge"
+                                      th:classappend="${p.status == T(com.example.orgo_project.enums.WithdrawalStatus).PENDING ? 'status-pending' : 
+                                                       p.status == T(com.example.orgo_project.enums.WithdrawalStatus).APPROVED ? 'status-approved' : 
+                                                       p.status == T(com.example.orgo_project.enums.WithdrawalStatus).REJECTED ? 'status-rejected' : 'status-paid'}"
+                                      th:text="${p.status == T(com.example.orgo_project.enums.WithdrawalStatus).PENDING ? 'Chờ duyệt' : 
+                                                p.status == T(com.example.orgo_project.enums.WithdrawalStatus).APPROVED ? 'Đã duyệt' : 
+                                                p.status == T(com.example.orgo_project.enums.WithdrawalStatus).REJECTED ? 'Từ chối' : 'Đã thanh toán'}">
+                                    Chờ duyệt
+                                </span>
+                            </td>
+                            <td th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2024</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal xác nhận duyệt -->
+        <div id="approve-modal" class="modal">
+            <div class="modal-content">
+                <h3 class="modal-header">✅ Xác nhận đã chuyển khoản</h3>
+                <div class="modal-info">
+                    <div class="modal-info-row">
+                        <span>Số tiền:</span>
+                        <span class="modal-info-value" id="modal-amount">0đ</span>
+                    </div>
+                    <div class="modal-info-row">
+                        <span>Đến tài khoản:</span>
+                        <span class="modal-info-value" id="modal-bank">-</span>
+                    </div>
+                </div>
                 <form id="approve-form" method="post">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <label for="transactionCode" style="font-weight:700;">Mã giao dịch *</label>
-                    <input id="transactionCode" name="transactionCode" type="text" required
-                           style="width:100%;height:40px;border:1px solid #d1d5db;border-radius:8px;padding:0 10px;margin:8px 0 14px;">
-                    <div style="display:flex;justify-content:flex-end;gap:10px;">
-                        <button type="button" id="btn-close-modal" class="btn btn-outline-secondary btn-sm">Đóng</button>
-                        <button type="submit" class="btn btn-success btn-sm">Xác nhận duyệt</button>
+                    <div class="form-group">
+                        <label for="transactionCode" class="form-label">Mã giao dịch *</label>
+                        <input id="transactionCode" 
+                               name="transactionCode" 
+                               type="text" 
+                               class="form-input"
+                               placeholder="Nhập mã giao dịch ngân hàng"
+                               required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="btn-close-modal" class="btn btn-outline">Đóng</button>
+                        <button type="submit" class="btn btn-success">Xác nhận duyệt</button>
                     </div>
                 </form>
             </div>
         </div>
-
     </main>
 </div>
+
 <script>
-    (function () {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const sellerSections = document.querySelectorAll('.seller-section');
+        const expertSections = document.querySelectorAll('.expert-section');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const filter = this.getAttribute('data-filter');
+                
+                // Update active button
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show/hide sections based on filter
+                if (filter === 'all') {
+                    // Show all sections
+                    sellerSections.forEach(section => section.classList.add('show'));
+                    expertSections.forEach(section => section.classList.add('show'));
+                } else if (filter === 'seller') {
+                    // Show only seller sections
+                    sellerSections.forEach(section => section.classList.add('show'));
+                    expertSections.forEach(section => section.classList.remove('show'));
+                } else if (filter === 'expert') {
+                    // Show only expert sections
+                    sellerSections.forEach(section => section.classList.remove('show'));
+                    expertSections.forEach(section => section.classList.add('show'));
+                }
+            });
+        });
+        
+        // Modal functionality
         const modal = document.getElementById('approve-modal');
         const approveForm = document.getElementById('approve-form');
         const amountEl = document.getElementById('modal-amount');
         const bankEl = document.getElementById('modal-bank');
         const txInput = document.getElementById('transactionCode');
-
+        const closeBtn = document.getElementById('btn-close-modal');
+        
         function closeModal() {
-            modal.style.display = 'none';
+            modal.classList.remove('show');
             approveForm.setAttribute('action', '');
             txInput.value = '';
         }
-
-        document.querySelectorAll('.btn-open-approve').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                const amount = btn.getAttribute('data-amount') || '0';
-                const account = btn.getAttribute('data-account') || '-';
-                const bank = btn.getAttribute('data-bank') || '';
-                amountEl.textContent = amount + 'd';
-                bankEl.textContent = account + (bank ? ' - ' + bank : '');
-                approveForm.setAttribute('action', '/admin/payouts/' + id + '/approve');
-                modal.style.display = 'block';
-                txInput.focus();
+        
+        function openModal(id, amount, account, bank) {
+            amountEl.textContent = amount + 'đ';
+            bankEl.textContent = account + (bank ? ' - ' + bank : '');
+            approveForm.setAttribute('action', '/admin/payouts/' + id + '/approve');
+            modal.classList.add('show');
+            setTimeout(() => txInput.focus(), 100);
+        }
+        
+        // Open approve modal
+        document.querySelectorAll('.btn-open-approve').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const amount = this.getAttribute('data-amount') || '0';
+                const account = this.getAttribute('data-account') || '-';
+                const bank = this.getAttribute('data-bank') || '';
+                openModal(id, amount, account, bank);
             });
         });
-
-        document.getElementById('btn-close-modal').addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
+        
+        // Close modal
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
         });
-    })();
+        
+        // ESC key to close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('show')) {
+                closeModal();
+            }
+        });
+    });
+    
+    // Confirm reject with reason
+    function confirmReject(form) {
+        const reason = prompt('Vui lòng nhập lý do từ chối:');
+        if (reason === null || reason.trim() === '') {
+            return false;
+        }
+        form.querySelector('[name=reason]').value = reason;
+        return true;
+    }
 </script>
 </body>
 </html>

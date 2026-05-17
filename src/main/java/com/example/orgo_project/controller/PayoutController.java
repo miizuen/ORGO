@@ -59,6 +59,12 @@ public class PayoutController {
         model.addAttribute("expertPayouts", expertPayouts);
         model.addAttribute("pendingSellerPayouts", pendingSellerPayouts);
         model.addAttribute("pendingExpertPayouts", pendingExpertPayouts);
+        model.addAttribute("sellerRequesterNames", buildRequesterNames(sellerPayouts));
+        model.addAttribute("expertRequesterNames", buildRequesterNames(expertPayouts));
+        model.addAttribute("pendingSellerRequesterNames", buildRequesterNames(pendingSellerPayouts));
+        model.addAttribute("pendingExpertRequesterNames", buildRequesterNames(pendingExpertPayouts));
+        model.addAttribute("sellerNamesById", buildAccountNamesById(sellerPayouts));
+        model.addAttribute("expertNamesById", buildAccountNamesById(expertPayouts));
         model.addAttribute("historyRequests", payoutService.findCurrentUserHistory());
         model.addAttribute("selectedStatus", status);
         model.addAttribute("currentWallet", currentWallet());
@@ -155,11 +161,17 @@ public class PayoutController {
     }
 
     private boolean isSellerRequest(WithdrawalRequest request) {
+        if (request.getRequesterId() == null) {
+            return false;
+        }
         Account account = accountRepository.findById(request.getRequesterId()).orElse(null);
         return account != null && account.getRole() != null && account.getRole().getRoleName() == RoleName.SELLER;
     }
 
     private boolean isExpertRequest(WithdrawalRequest request) {
+        if (request.getRequesterId() == null) {
+            return false;
+        }
         Account account = accountRepository.findById(request.getRequesterId()).orElse(null);
         return account != null && account.getRole() != null && account.getRole().getRoleName() == RoleName.EXPERT;
     }
@@ -174,5 +186,59 @@ public class PayoutController {
             return details.getAccount().getId();
         }
         return null;
+    }
+
+    private java.util.Map<Integer, String> buildRequesterNames(List<WithdrawalRequest> requests) {
+        java.util.Map<Integer, String> names = new java.util.HashMap<>();
+        for (WithdrawalRequest request : requests) {
+            Integer requesterId = request.getRequesterId();
+            if (requesterId == null || names.containsKey(requesterId)) {
+                continue;
+            }
+            String displayName = accountRepository.findById(requesterId)
+                    .map(account -> {
+                        String fullName = account.getUser() != null ? account.getUser().getFullName() : null;
+                        String username = account.getUsername();
+                        if (fullName != null && !fullName.isBlank()) {
+                            return username != null && !username.isBlank() && !fullName.equals(username)
+                                    ? fullName + " (" + username + ")"
+                                    : fullName;
+                        }
+                        if (username != null && !username.isBlank()) {
+                            return username;
+                        }
+                        return "Tài khoản #" + requesterId;
+                    })
+                    .orElse("Tài khoản #" + requesterId);
+            names.put(requesterId, displayName);
+        }
+        return names;
+    }
+
+    private java.util.Map<Integer, String> buildAccountNamesById(List<WithdrawalRequest> requests) {
+        java.util.Map<Integer, String> names = new java.util.HashMap<>();
+        for (WithdrawalRequest request : requests) {
+            Integer requesterId = request.getRequesterId();
+            if (requesterId == null || names.containsKey(requesterId)) {
+                continue;
+            }
+            String displayName = accountRepository.findById(requesterId)
+                    .map(account -> {
+                        String fullName = account.getUser() != null ? account.getUser().getFullName() : null;
+                        String username = account.getUsername();
+                        if (fullName != null && !fullName.isBlank()) {
+                            return username != null && !username.isBlank() && !fullName.equals(username)
+                                    ? fullName + " (" + username + ")"
+                                    : fullName;
+                        }
+                        if (username != null && !username.isBlank()) {
+                            return username;
+                        }
+                        return "Tài khoản #" + requesterId;
+                    })
+                    .orElse("Tài khoản #" + requesterId);
+            names.put(requesterId, displayName);
+        }
+        return names;
     }
 }
