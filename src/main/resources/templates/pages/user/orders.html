@@ -70,12 +70,15 @@
                 </div>
                 <!-- Status Badge - màu khác nhau theo trạng thái -->
                 <span th:switch="${order.orderStatus}">
+                    <span th:case="'PENDING_PAYMENT'"
+                          class="badge rounded-pill px-3 py-2"
+                          style="background:#fff3cd;color:#856404;">Chờ thanh toán</span>
                     <span th:case="'PENDING'"
                           class="badge rounded-pill px-3 py-2"
-                          style="background:#fff3cd;color:#856404;">Chờ xử lý</span>
+                          style="background:#cfe2ff;color:#084298;">Chờ seller duyệt</span>
                     <span th:case="'PROCESSING'"
                           class="badge rounded-pill px-3 py-2"
-                          style="background:#cff4fc;color:#055160;">Đang xử lý</span>
+                          style="background:#cff4fc;color:#055160;">Đang đóng gói</span>
                     <span th:case="'SHIPPED'"
                           class="badge rounded-pill px-3 py-2"
                           style="background:#cfe2ff;color:#084298;">Đang giao</span>
@@ -113,7 +116,7 @@
                              th:text="${order.totalAmount != null ? #numbers.formatInteger(order.totalAmount.intValue(), 3, 'COMMA') + 'đ' : ''}"></div>
                         <div class="d-flex gap-2 justify-content-end flex-wrap">
 
-                            <!-- Nút xác nhận nhận hàng (chỉ khi SHIPPED) -->
+                            <!-- Nút xác nhận nhận hàng (chỉ khi seller đã giao cho đơn vị vận chuyển) -->
                             <form th:if="${order.orderStatus == 'SHIPPED'}"
                                   th:action="@{/orders/{id}/confirm-delivery(id=${order.id})}"
                                   method="post" class="d-inline">

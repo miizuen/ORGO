@@ -130,8 +130,10 @@ public class CheckoutService implements ICheckoutService {
             return buildPaymentResponse(order, "Đơn hàng đã được xác nhận thanh toán");
         }
 
+        LocalDateTime now = LocalDateTime.now();
         order.setPaymentStatus(PaymentStatus.PAID);
-        order.setOrderStatus(OrderStatus.PROCESSING); // auto chuyển trạng thái xử lý
+        order.setPaidAt(now);
+        order.setOrderStatus(OrderStatus.PENDING); // đã thanh toán xong, chờ seller duyệt
         orderRepository.save(order);
 
         paymentQrSessionRepository.findByOrderId(orderId).ifPresent(session -> {

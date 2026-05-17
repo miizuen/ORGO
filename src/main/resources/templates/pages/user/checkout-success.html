@@ -4,12 +4,14 @@
       th:replace="~{fragments/layout :: layout('Xác nhận thanh toán - ORGO', ~{::content})}">
 
 <th:block th:fragment="content">
-    <section class="py-5">
-        <div class="container" style="max-width: 920px;">
-            <div class="bg-white rounded-4 shadow-sm border p-4 p-md-5 text-center">
-                <div style="font-size:56px; line-height:1;">🏦</div>
-                <h1 class="fw-bold mt-3 mb-2">Đơn hàng đã được tạo</h1>
-                <p class="text-secondary mb-4">Vui lòng chuyển khoản theo thông tin bên dưới để hoàn tất thanh toán.</p>
+    <section class="py-5" style="background: linear-gradient(180deg, #f7f9fc 0%, #eef6ef 100%); min-height: 100vh;">
+        <div class="container" style="max-width: 980px;">
+            <div class="bg-white rounded-4 shadow-sm border p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div style="font-size: 56px; line-height: 1;">🏦</div>
+                    <h1 class="fw-bold mt-3 mb-2">Đơn hàng đã được tạo</h1>
+                    <p class="text-secondary mb-0">Vui lòng chuyển khoản theo thông tin bên dưới để hoàn tất thanh toán.</p>
+                </div>
 
                 <div class="row g-3 text-start justify-content-center mb-4">
                     <div class="col-12 col-md-6">
@@ -41,7 +43,7 @@
                                     Chưa có QR
                                 </div>
                             </div>
-                            <div class="small text-secondary">Quét mã QR để thanh toán nhanh</div>
+                            <div class="small text-secondary text-center">Quét mã QR để thanh toán nhanh, đơn sẽ ở trạng thái <strong>PENDING_PAYMENT</strong> trước khi được xác nhận.</div>
                         </div>
                     </div>
 
@@ -82,21 +84,18 @@
                 </div>
 
                 <div class="alert alert-warning rounded-4 text-start mb-3">
-                    Vui lòng dùng đúng nội dung chuyển khoản để hệ thống đối soát tự động.
+                    Sau khi chuyển khoản xong, bấm <strong>Xác nhận đã thanh toán</strong> để đơn chuyển sang trạng thái <strong>PENDING</strong> và chờ seller duyệt.
                 </div>
 
-                <form class="d-flex gap-3 justify-content-center flex-wrap" th:if="${paymentQrSession != null}"
-                      th:action="@{/checkout/{orderId}/confirm-payment(orderId=${paymentQrSession.orderId})}"
-                      method="post">
-                    <input type="hidden" name="transactionCode" value="BANK-TRANSFER-OK">
-                    <button type="submit" class="btn btn-success px-4 rounded-3">Xác nhận đã thanh toán</button>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <form th:if="${paymentQrSession != null}"
+                          th:action="@{/checkout/{orderId}/confirm-payment(orderId=${paymentQrSession.orderId})}"
+                          method="post">
+                        <input type="hidden" name="transactionCode" value="BANK-TRANSFER-OK">
+                        <button type="submit" class="btn btn-success px-4 rounded-3">Xác nhận đã thanh toán</button>
+                    </form>
                     <a href="/products" class="btn btn-outline-success px-4 rounded-3">Tiếp tục mua sắm</a>
                     <a href="/user/cart" class="btn btn-outline-secondary px-4 rounded-3">Xem giỏ hàng</a>
-                </form>
-
-                <div class="d-flex gap-3 justify-content-center mt-4 flex-wrap" th:if="${paymentQrSession == null}">
-                    <a href="/products" class="btn btn-outline-success px-4 rounded-3">Tiếp tục mua sắm</a>
-                    <a href="/user/cart" class="btn btn-success px-4 rounded-3">Xem giỏ hàng</a>
                 </div>
             </div>
         </div>

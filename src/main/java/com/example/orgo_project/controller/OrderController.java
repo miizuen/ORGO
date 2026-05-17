@@ -56,14 +56,23 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public String orderDetail(@AuthenticationPrincipal CustomUserDetails userDetails,
                               @PathVariable Integer orderId,
-                              Model model) {
+                              Model model,
+                              RedirectAttributes redirectAttributes) {
         if (userDetails == null || userDetails.getAccount() == null) {
             return "redirect:/login";
         }
 
-        Integer userId = getUserId(userDetails);
-        model.addAttribute("order", orderService.getOrderDetail(userId, orderId));
-        return "pages/user/order-detail";
+        try {
+            Integer userId = getUserId(userDetails);
+            model.addAttribute("order", orderService.getOrderDetail(userId, orderId));
+            return "pages/user/order-detail";
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    ex.getMessage() != null && !ex.getMessage().isBlank()
+                            ? ex.getMessage()
+                            : "Không thể xem chi tiết đơn hàng này.");
+            return "redirect:/orders";
+        }
     }
 
     @PostMapping("/{orderId}/cancel")
