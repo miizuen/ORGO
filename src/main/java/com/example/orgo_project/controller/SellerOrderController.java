@@ -93,21 +93,6 @@ public class SellerOrderController {
         return "redirect:/seller/orders/" + orderId;
     }
 
-    @PostMapping("/{orderId}/deliver")
-    public String deliverOrder(@AuthenticationPrincipal CustomUserDetails userDetails,
-                               @PathVariable Integer orderId,
-                               RedirectAttributes redirectAttributes) {
-        Integer sellerId = getSellerIdFromAccount(userDetails.getAccount().getId());
-        if (sellerId == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy thông tin seller");
-            return "redirect:/seller/orders";
-        }
-
-        boolean success = sellerOrderService.deliverOrder(sellerId, orderId);
-        redirectAttributes.addFlashAttribute(success ? "successMessage" : "errorMessage",
-                success ? "Đơn hàng đã giao thành công!" : "Không thể hoàn tất đơn.");
-        return "redirect:/seller/orders/" + orderId;
-    }
 
     private Integer getSellerIdFromAccount(Integer accountId) {
         // Tạo Account object với ID để query

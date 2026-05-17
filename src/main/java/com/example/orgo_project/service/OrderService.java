@@ -58,6 +58,7 @@ public class OrderService implements IOrderService {
         if (order == null || !order.getUserId().equals(accountId)) return false;
         if (order.getOrderStatus() != com.example.orgo_project.enums.OrderStatus.SHIPPED) return false;
         order.setOrderStatus(com.example.orgo_project.enums.OrderStatus.DELIVERED);
+        order.setDeliveredAt(java.time.LocalDateTime.now());
         orderRepository.save(order);
         return true;
     }
@@ -126,6 +127,10 @@ public class OrderService implements IOrderService {
                 .note(order.getNote())
                 .cancellationReason(order.getCancellationReason())
                 .orderedAt(order.getOrderedAt())
+                .paidAt(order.getPaidAt())
+                .confirmedAt(order.getConfirmedAt())
+                .shippedAt(order.getShippedAt())
+                .deliveredAt(order.getDeliveredAt())
                 .items(items)
                 .shopName(shopName)
                 .recipientName(recipientName)

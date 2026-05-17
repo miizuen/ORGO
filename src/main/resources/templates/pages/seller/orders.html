@@ -179,6 +179,23 @@
             color: #2e7d32;
         }
         
+        .customer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .customer-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+        
+        .customer-phone {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        
         .status-badge {
             display: inline-block;
             padding: 0.35rem 0.75rem;
@@ -365,6 +382,7 @@
                 <thead>
                     <tr>
                         <th>Mã đơn hàng</th>
+                        <th>Khách hàng</th>
                         <th>Trạng thái</th>
                         <th>Thanh toán</th>
                         <th>Tổng tiền</th>
@@ -376,6 +394,12 @@
                     <tr th:each="order : ${orders}" th:attr="data-status=${order.orderStatus}">
                         <td>
                             <span class="order-code" th:text="${order.orderCode}">ORD-001</span>
+                        </td>
+                        <td>
+                            <div class="customer-info">
+                                <div class="customer-name" th:text="${order.customerName != null ? order.customerName : 'N/A'}">Nguyễn Văn A</div>
+                                <div class="customer-phone" th:text="${order.customerPhone != null ? order.customerPhone : '-'}">0912 345 678</div>
+                            </div>
                         </td>
                         <td>
                             <span class="status-badge"

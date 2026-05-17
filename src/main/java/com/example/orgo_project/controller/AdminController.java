@@ -1,24 +1,12 @@
 package com.example.orgo_project.controller;
 
-import com.example.orgo_project.config.PaymentQrProperties;
-import com.example.orgo_project.dto.ExpertDTO;
-import com.example.orgo_project.entity.Account;
-import com.example.orgo_project.entity.OrderSettlement;
-import com.example.orgo_project.entity.PaymentBankConfig;
-import com.example.orgo_project.entity.Seller;
-import com.example.orgo_project.entity.WalletBalance;
-import com.example.orgo_project.repository.ArticleRepository;
-import com.example.orgo_project.repository.IAccountRepository;
-import com.example.orgo_project.repository.IExpertRepository;
-import com.example.orgo_project.repository.IOrderSettlementRepository;
-import com.example.orgo_project.repository.IPaymentBankConfigRepository;
-import com.example.orgo_project.repository.ISellerRepository;
-import com.example.orgo_project.repository.IWalletBalanceRepository;
-import com.example.orgo_project.repository.ProductRepository;
-import com.example.orgo_project.service.IAdminOrderService;
-import com.example.orgo_project.service.IExpertService;
-import com.example.orgo_project.service.ISellerService;
-import com.example.orgo_project.service.PaymentBankConfigService;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,12 +15,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.example.orgo_project.config.PaymentQrProperties;
+import com.example.orgo_project.dto.ExpertDTO;
+import com.example.orgo_project.entity.Account;
+import com.example.orgo_project.entity.OrderSettlement;
+import com.example.orgo_project.entity.PaymentBankConfig;
+import com.example.orgo_project.entity.Seller;
+import com.example.orgo_project.repository.ArticleRepository;
+import com.example.orgo_project.repository.IAccountRepository;
+import com.example.orgo_project.repository.IExpertRepository;
+import com.example.orgo_project.repository.IOrderSettlementRepository;
+import com.example.orgo_project.repository.ISellerRepository;
+import com.example.orgo_project.repository.IWalletBalanceRepository;
+import com.example.orgo_project.repository.ProductRepository;
+import com.example.orgo_project.service.IAdminOrderService;
+import com.example.orgo_project.service.IExpertService;
+import com.example.orgo_project.service.ISellerService;
+import com.example.orgo_project.service.PaymentBankConfigService;
 
 @Controller
 @RequestMapping("/admin")
@@ -162,12 +161,30 @@ public class AdminController {
             }
         }
 
+        // Lấy tên seller
+        Map<Integer, String> sellerNamesById = new HashMap<>();
+        for (OrderSettlement settlement : settlements) {
+            if (settlement.getSellerId() != null && !sellerNamesById.containsKey(settlement.getSellerId())) {
+                try {
+                    var seller = sellerRepository.findById(settlement.getSellerId());
+                    if (seller.isPresent() && seller.get().getAccount() != null) {
+                        var account = accountRepository.findById(seller.get().getAccount().getId());
+                        if (account.isPresent()) {
+                            sellerNamesById.put(settlement.getSellerId(), account.get().getUsername());
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        }
+
         model.addAttribute("activePage", "revenue-reconciliation");
         model.addAttribute("adminWallet", walletBalanceRepository.findByAccountId(resolveAdminAccountId()).orElse(null));
         model.addAttribute("orderIdFilter", orderIdFilter);
         model.addAttribute("sellerIdFilter", sellerIdFilter);
         model.addAttribute("settlementRows", settlements);
         model.addAttribute("orderDetailsByOrderId", orderDetailsByOrderId);
+        model.addAttribute("sellerNamesById", sellerNamesById);
         model.addAttribute("bankConfig", paymentBankConfigService.getActiveConfig());
         return "/pages/admin/escrow-reconciliation";
     }

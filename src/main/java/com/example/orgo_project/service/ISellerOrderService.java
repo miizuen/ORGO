@@ -13,6 +13,4 @@ public interface ISellerOrderService {
     boolean confirmOrder(Integer sellerAccountId, Integer orderId);
 
     boolean shipOrder(Integer sellerAccountId, Integer orderId);
-
-    boolean deliverOrder(Integer sellerAccountId, Integer orderId);
 }
