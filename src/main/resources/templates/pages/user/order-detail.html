@@ -230,6 +230,13 @@
                               th:text="${order.paymentStatus}"></span>
                     </span>
                 </div>
+                <!-- Nút thanh toán nếu chưa thanh toán -->
+                <div th:if="${order.paymentStatus == 'PENDING'}" class="mt-3">
+                    <a th:href="@{/checkout/success(orderId=${order.id}, orderCode=${order.orderCode}, totalAmount=${order.totalAmount})}"
+                       class="btn btn-success fw-semibold w-100 rounded-3">
+                        Thanh toán ngay
+                    </a>
+                </div>
             </div>
 
             <!-- Địa chỉ giao hàng -->
