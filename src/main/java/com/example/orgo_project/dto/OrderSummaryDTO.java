@@ -21,4 +21,6 @@ public class OrderSummaryDTO {
     private String paymentStatus;
     private BigDecimal totalAmount;
     private LocalDateTime orderedAt;
+    private String shopName;
+    private String itemSummary;
 }

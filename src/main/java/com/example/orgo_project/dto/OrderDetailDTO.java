@@ -28,4 +28,9 @@ public class OrderDetailDTO {
     private String cancellationReason;
     private LocalDateTime orderedAt;
     private List<OrderItemDTO> items;
+    // Thêm mới
+    private String shopName;
+    private String recipientName;
+    private String recipientPhone;
+    private String recipientAddress;
 }
