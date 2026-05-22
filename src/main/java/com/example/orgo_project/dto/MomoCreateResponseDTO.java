@@ -6,17 +6,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class CheckoutResponseDTO {
-    private Integer orderId;
-    private String orderCode;
-    private BigDecimal totalAmount;
+public class MomoCreateResponseDTO {
+    private String partnerCode;
+    private String requestId;
+    private String orderId;
+    private long amount;
+    private long responseTime;
     private String message;
+    private int resultCode;
     private String payUrl;
+    private String deeplink;
+    private String qrCodeUrl;
 }
