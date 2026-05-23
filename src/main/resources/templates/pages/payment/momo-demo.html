@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Demo thanh toán MoMo', ~{::content})}">
+<th:block th:fragment="content">
+    <div class="container py-5" style="max-width: 860px;">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="h3 mb-2">Demo thanh toán MoMo</h1>
+                <p class="text-muted mb-4">Trang demo này dùng để tạo giao dịch MoMo nhanh và kiểm tra callback IPN.</p>
+
+                <form th:action="@{/momo/demo/create}" method="post" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Số tiền</label>
+                        <input type="number" min="1000" step="1" class="form-control" name="amount" th:value="${amount}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nội dung đơn hàng</label>
+                        <input type="text" class="form-control" name="orderInfo" th:value="${orderInfo}">
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-primary px-4" type="submit">Tạo thanh toán MoMo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</th:block>
+</html>

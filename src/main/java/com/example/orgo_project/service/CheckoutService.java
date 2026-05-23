@@ -49,6 +49,7 @@ public class CheckoutService implements ICheckoutService {
     private final IPaymentHistoryRepository paymentHistoryRepository;
     private final PaymentQrService paymentQrService;
     private final IRevenueDistributionService revenueDistributionService;
+    private final MomoPaymentService momoPaymentService;
 
     public CheckoutService(IShoppingCartRepository cartRepository,
                            IShoppingCartItemRepository cartItemRepository,
@@ -60,7 +61,8 @@ public class CheckoutService implements ICheckoutService {
                            IPaymentQrSessionRepository paymentQrSessionRepository,
                            IPaymentHistoryRepository paymentHistoryRepository,
                            PaymentQrService paymentQrService,
-                           IRevenueDistributionService revenueDistributionService) {
+                           IRevenueDistributionService revenueDistributionService,
+                           MomoPaymentService momoPaymentService) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productVariantRepository = productVariantRepository;
@@ -72,6 +74,7 @@ public class CheckoutService implements ICheckoutService {
         this.paymentHistoryRepository = paymentHistoryRepository;
         this.paymentQrService = paymentQrService;
         this.revenueDistributionService = revenueDistributionService;
+        this.momoPaymentService = momoPaymentService;
     }
 
     @Override
@@ -116,9 +119,19 @@ public class CheckoutService implements ICheckoutService {
         CustomerOrder savedOrder = saveOrder(accountId, request, totalAmount, sellerId, articleId);
         saveOrderItems(savedOrder, cartItems);
         cartItemRepository.deleteAll(cartItems);
-        upsertPaymentQrSession(savedOrder, totalAmount);
 
-        return CheckoutResponseDTO.builder().orderId(savedOrder.getId()).orderCode(savedOrder.getOrderCode()).totalAmount(totalAmount).message("Đặt hàng thành công, chờ thanh toán QR trung gian").build();
+        var momoResponse = momoPaymentService.createPayment(savedOrder.getId(), savedOrder.getOrderCode(), "Thanh toan don hang " + savedOrder.getOrderCode(), totalAmount.longValue());
+        if (momoResponse == null || momoResponse.getPayUrl() == null || momoResponse.getPayUrl().isBlank()) {
+            throw new RuntimeException("MoMo chưa trả về payUrl hợp lệ");
+        }
+
+        return CheckoutResponseDTO.builder()
+                .orderId(savedOrder.getId())
+                .orderCode(savedOrder.getOrderCode())
+                .totalAmount(totalAmount)
+                .message("Đơn hàng đã được tạo và chuyển sang MoMo để thanh toán")
+                .payUrl(momoResponse.getPayUrl())
+                .build();
     }
 
     @Override
