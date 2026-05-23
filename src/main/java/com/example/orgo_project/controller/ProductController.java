@@ -170,17 +170,65 @@ public class ProductController {
     // Danh sách sản phẩm của seller (T027)
     @GetMapping("/seller/products")
     public String sellerProducts(@RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "") String search,
+                                  @RequestParam(defaultValue = "all") String status,
                                   @AuthenticationPrincipal CustomUserDetails userDetails,
                                   Model model) {
         Integer sellerId = getSellerIdFromUser(userDetails);
         if (sellerId == null) return "redirect:/";
 
-        Page<Product> products = productService.getProductsBySeller(sellerId, PageRequest.of(page, 10));
+        Page<Product> products = productService.getProductsBySellerWithFilters(sellerId, search, status, PageRequest.of(page, 12));
         model.addAttribute("activePage", "products");
         model.addAttribute("products", products);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", products.getTotalPages());
+        model.addAttribute("searchQuery", search);
+        model.addAttribute("statusFilter", status);
         return "pages/seller/products";
+    }
+
+    @PostMapping("/seller/products/{id}/stop-selling")
+    public String stopSellingProduct(@PathVariable Integer id,
+                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Integer sellerId = getSellerIdFromUser(userDetails);
+        Product product = productService.getProductById(id);
+        if (product != null && product.getSellerId().equals(sellerId)) {
+            productService.stopSellingProduct(id);
+        }
+        return "redirect:/seller/products?success=stopped";
+    }
+
+    @PostMapping("/seller/products/{id}/resume-selling")
+    public String resumeSellingProduct(@PathVariable Integer id,
+                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Integer sellerId = getSellerIdFromUser(userDetails);
+        Product product = productService.getProductById(id);
+        if (product != null && product.getSellerId().equals(sellerId)) {
+            productService.resumeSellingProduct(id);
+        }
+        return "redirect:/seller/products?success=resumed";
+    }
+
+    @PostMapping("/seller/products/{id}/hide")
+    public String hideProduct(@PathVariable Integer id,
+                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Integer sellerId = getSellerIdFromUser(userDetails);
+        Product product = productService.getProductById(id);
+        if (product != null && product.getSellerId().equals(sellerId)) {
+            productService.hideProduct(id);
+        }
+        return "redirect:/seller/products?success=hidden";
+    }
+
+    @PostMapping("/seller/products/{id}/show")
+    public String showProduct(@PathVariable Integer id,
+                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Integer sellerId = getSellerIdFromUser(userDetails);
+        Product product = productService.getProductById(id);
+        if (product != null && product.getSellerId().equals(sellerId)) {
+            productService.showProduct(id);
+        }
+        return "redirect:/seller/products?success=shown";
     }
 
     // Form thêm sản phẩm
@@ -276,7 +324,7 @@ public class ProductController {
         Integer sellerId = getSellerIdFromUser(userDetails);
         Product product = productService.getProductById(id);
         if (product != null && product.getSellerId().equals(sellerId)) {
-            productService.softDeleteProduct(id);
+            productService.stopSellingProduct(id);
         }
         return "redirect:/seller/products?success=deleted";
     }

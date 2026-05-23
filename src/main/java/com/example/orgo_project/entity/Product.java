@@ -9,10 +9,13 @@ import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Table(name = "SanPham")
@@ -60,6 +63,9 @@ public class Product {
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     private com.example.orgo_project.enums.ProductStatus status;
 
+    @Column(name = "an_san_pham")
+    private Boolean hidden;
+
     @Column(name = "sao_trung_binh")
     private Float averageRating;
 
@@ -68,6 +74,9 @@ public class Product {
 
     @Column(name = "hinh_anh", columnDefinition = "NVARCHAR(255)")
     private String imageUrl;
+
+    @Transient
+    private List<ProductVariant> variants;
 
     @PostLoad
     private void loadLegacyImageUrl() {
