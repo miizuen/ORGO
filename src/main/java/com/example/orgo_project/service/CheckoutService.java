@@ -1,5 +1,16 @@
 package com.example.orgo_project.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.orgo_project.dto.CartItemDTO;
 import com.example.orgo_project.dto.CheckoutPageDataDTO;
 import com.example.orgo_project.dto.CheckoutRequestDTO;
@@ -23,16 +34,6 @@ import com.example.orgo_project.repository.IProductVariantRepository;
 import com.example.orgo_project.repository.IShippingAddressRepository;
 import com.example.orgo_project.repository.IShoppingCartItemRepository;
 import com.example.orgo_project.repository.IShoppingCartRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -226,8 +227,10 @@ public class CheckoutService implements ICheckoutService {
         order.setOrderedAt(LocalDateTime.now());
         order.setTotalAmount(totalAmount);
         order.setShippingFee(BigDecimal.ZERO);
+        // Trạng thái thanh toán: PENDING (chờ thanh toán qua MoMo)
         order.setPaymentStatus(PaymentStatus.PENDING);
-        order.setOrderStatus(OrderStatus.PENDING);
+        // Trạng thái đơn hàng: PENDING_PAYMENT (chờ thanh toán)
+        order.setOrderStatus(OrderStatus.PENDING_PAYMENT);
         order.setNote(buildOrderNote(request != null ? request.getShipperNote() : null, request != null ? request.getShopNote() : null));
         order.setArticleId(articleId);
         return orderRepository.save(order);

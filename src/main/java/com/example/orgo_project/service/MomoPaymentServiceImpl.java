@@ -1,5 +1,20 @@
 package com.example.orgo_project.service;
 
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.HexFormat;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClient;
+
 import com.example.orgo_project.config.MomoProperties;
 import com.example.orgo_project.dto.MomoCreateRequestDTO;
 import com.example.orgo_project.dto.MomoCreateResponseDTO;
@@ -11,19 +26,6 @@ import com.example.orgo_project.enums.PaymentStatus;
 import com.example.orgo_project.repository.ICustomerOrderRepository;
 import com.example.orgo_project.repository.IPaymentHistoryRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClient;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.HexFormat;
 
 @Service
 @Transactional
@@ -145,11 +147,13 @@ public class MomoPaymentServiceImpl implements MomoPaymentService {
         order.setPaymentStatus(mappedStatus);
         if (mappedStatus == PaymentStatus.PAID) {
             order.setPaidAt(LocalDateTime.now());
-            if (order.getOrderStatus() == null || order.getOrderStatus() == OrderStatus.PENDING) {
+            // Khi thanh toán thành công, chuyển từ PENDING_PAYMENT sang PENDING (chờ seller duyệt)
+            if (order.getOrderStatus() == OrderStatus.PENDING_PAYMENT) {
                 order.setOrderStatus(OrderStatus.PENDING);
             }
         } else if (mappedStatus == PaymentStatus.FAILED) {
-            if (order.getOrderStatus() == null || order.getOrderStatus() == OrderStatus.PENDING) {
+            // Khi thanh toán thất bại, hủy đơn hàng
+            if (order.getOrderStatus() == OrderStatus.PENDING_PAYMENT) {
                 order.setOrderStatus(OrderStatus.CANCELLED);
             }
         }
