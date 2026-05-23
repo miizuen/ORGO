@@ -5,11 +5,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Table(name = "SanPham")
@@ -57,12 +63,33 @@ public class Product {
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     private com.example.orgo_project.enums.ProductStatus status;
 
+    @Column(name = "an_san_pham")
+    private Boolean hidden;
+
     @Column(name = "sao_trung_binh")
     private Float averageRating;
 
     @Column(name = "tong_danh")
     private Integer totalReviews;
 
-    @jakarta.persistence.Transient
+    @Column(name = "hinh_anh", columnDefinition = "NVARCHAR(255)")
     private String imageUrl;
+
+    @Transient
+    private List<ProductVariant> variants;
+
+    @PostLoad
+    private void loadLegacyImageUrl() {
+        if ((imageUrl == null || imageUrl.isBlank()) && slug != null && slug.startsWith("/uploads/")) {
+            imageUrl = slug;
+        }
+    }
+
+    @PrePersist
+    @PreUpdate
+    private void syncLegacyImageUrl() {
+        if ((imageUrl == null || imageUrl.isBlank()) && slug != null && slug.startsWith("/uploads/")) {
+            imageUrl = slug;
+        }
+    }
 }

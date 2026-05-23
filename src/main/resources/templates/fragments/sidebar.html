@@ -139,6 +139,13 @@
                 <span class="sidebar-link-dot"></span>
                 <span>Duyệt sản phẩm</span>
             </a>
+            <a th:href="@{/admin/bank-config}"
+               th:classappend="${activePage == 'bank-config'} ? ' active' : ''"
+               class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 rounded text-decoration-none"
+               style="font-size: 13px;">
+                <span class="sidebar-link-dot"></span>
+                <span>Ngân hàng trung gian</span>
+            </a>
         </th:block>
 
         <!-- Expert -->

@@ -22,6 +22,7 @@ import com.example.orgo_project.entity.ProductCategory;
 import com.example.orgo_project.entity.ProductReview;
 import com.example.orgo_project.entity.ProductVariant;
 import com.example.orgo_project.enums.ProductStatus;
+import com.example.orgo_project.repository.ICustomerOrderItemRepository;
 import com.example.orgo_project.repository.IOrganicCertificateRepository;
 import com.example.orgo_project.repository.IProductCategoryRepository;
 import com.example.orgo_project.repository.IProductRepository;
@@ -45,6 +46,9 @@ public class ProductService {
 
     @Autowired
     private IOrganicCertificateRepository certRepository;
+
+    @Autowired
+    private ICustomerOrderItemRepository orderItemRepository;
 
     // ==================== PUBLIC ====================
 
@@ -76,6 +80,17 @@ public class ProductService {
         return productRepository.findTop8ByStatusOrderByAverageRatingDesc(ProductStatus.ACTIVE);
     }
 
+    public List<Product> getRandomActiveProducts(int limit) {
+        return productRepository.findRandomTop4ActiveProducts();
+    }
+
+    public List<Product> getRandomActiveProductsExcluding(java.util.Set<Integer> excludedIds, int limit) {
+        if (excludedIds == null || excludedIds.isEmpty()) {
+            return getRandomActiveProducts(limit);
+        }
+        return productRepository.findRandomTop4ActiveProductsExcluding(excludedIds);
+    }
+
     public Product getProductById(Integer id) {
         return productRepository.findById(id).orElse(null);
     }
@@ -103,7 +118,17 @@ public class ProductService {
     // ==================== SELLER ====================
 
     public Page<Product> getProductsBySeller(Integer sellerId, Pageable pageable) {
-        return productRepository.findBySellerId(sellerId, pageable);
+        Page<Product> products = productRepository.findBySellerId(sellerId, pageable);
+        // Load variants for each product to display stock information
+        products.getContent().forEach(product -> {
+            List<ProductVariant> variants = variantRepository.findByProductId(product.getId());
+            product.setVariants(variants);
+        });
+        return products;
+    }
+
+    public Page<Product> getVisibleProductsBySeller(Integer sellerId, Pageable pageable) {
+        return productRepository.findBySellerIdAndHiddenFalse(sellerId, pageable);
     }
 
     @Transactional
@@ -111,7 +136,7 @@ public class ProductService {
         product.setStatus(ProductStatus.PENDING);
         if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = saveImage(imageFile);
-            // Store image URL in slug field temporarily (or add imageUrl field)
+            product.setImageUrl(imageUrl);
             product.setSlug(imageUrl);
         }
         Product saved = productRepository.save(product);
@@ -134,8 +159,10 @@ public class ProductService {
         }
         if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = saveImage(imageFile);
+            product.setImageUrl(imageUrl);
             product.setSlug(imageUrl);
         } else {
+            product.setImageUrl(existing.getImageUrl());
             product.setSlug(existing.getSlug());
         }
         Product saved = productRepository.save(product);
@@ -150,10 +177,64 @@ public class ProductService {
     }
 
     @Transactional
-    public void softDeleteProduct(Integer productId) {
+    public void stopSellingProduct(Integer productId) {
         Product p = productRepository.findById(productId).orElse(null);
         if (p != null) {
             p.setStatus(ProductStatus.INACTIVE);
+            productRepository.save(p);
+        }
+    }
+
+    @Transactional
+    public void resumeSellingProduct(Integer productId) {
+        Product p = productRepository.findById(productId).orElse(null);
+        if (p != null) {
+            p.setStatus(ProductStatus.ACTIVE);
+            productRepository.save(p);
+        }
+    }
+
+    public Page<Product> getProductsBySellerWithFilters(Integer sellerId, String search, String status, Pageable pageable) {
+        Page<Product> products;
+        if (search != null && !search.trim().isEmpty()) {
+            if ("all".equals(status)) {
+                products = productRepository.findBySellerIdAndProductNameContainingIgnoreCase(sellerId, search.trim(), pageable);
+            } else {
+                ProductStatus productStatus = ProductStatus.valueOf(status.toUpperCase());
+                products = productRepository.findBySellerIdAndProductNameContainingIgnoreCaseAndStatus(sellerId, search.trim(), productStatus, pageable);
+            }
+        } else {
+            if ("all".equals(status)) {
+                products = productRepository.findBySellerId(sellerId, pageable);
+            } else {
+                ProductStatus productStatus = ProductStatus.valueOf(status.toUpperCase());
+                products = productRepository.findBySellerIdAndStatus(sellerId, productStatus, pageable);
+            }
+        }
+        
+        // Load variants for each product to display stock information
+        products.getContent().forEach(product -> {
+            List<ProductVariant> variants = variantRepository.findByProductId(product.getId());
+            product.setVariants(variants);
+        });
+        
+        return products;
+    }
+
+    @Transactional
+    public void hideProduct(Integer productId) {
+        Product p = productRepository.findById(productId).orElse(null);
+        if (p != null) {
+            p.setHidden(Boolean.TRUE);
+            productRepository.save(p);
+        }
+    }
+
+    @Transactional
+    public void showProduct(Integer productId) {
+        Product p = productRepository.findById(productId).orElse(null);
+        if (p != null) {
+            p.setHidden(Boolean.FALSE);
             productRepository.save(p);
         }
     }
@@ -216,6 +297,14 @@ public class ProductService {
 
     public boolean hasReviewed(Integer productId, Integer userId) {
         return reviewRepository.existsByProductIdAndUserId(productId, userId);
+    }
+
+    public boolean hasPurchased(Integer productId, Integer userId) {
+        return orderItemRepository.existsByUserIdAndProductId(userId, productId);
+    }
+
+    public String saveReviewImage(MultipartFile file) {
+        return saveImage(file);
     }
 
     // ==================== CERTIFICATE ====================

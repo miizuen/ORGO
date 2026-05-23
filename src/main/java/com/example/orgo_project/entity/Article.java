@@ -62,6 +62,9 @@ public class Article {
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     private com.example.orgo_project.enums.ArticleStatus status;
 
+    @Column(name = "danh_muc", columnDefinition = "NVARCHAR(100)")
+    private String category;
+
     @Column(name = "ly_do_tu_choi", columnDefinition = "NVARCHAR(255)")
     private String rejectionReason;
 }

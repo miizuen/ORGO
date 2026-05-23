@@ -35,12 +35,12 @@ public class WebSecurityConfig {
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/seller/**").hasRole("SELLER")
                 .requestMatchers("/expert/**").hasRole("EXPERT")
-                .requestMatchers("/buyer/**").hasRole("BUYER")
-                // FIX: Cho phép USER, SELLER, EXPERT vào /user/** (để xem lại form đăng ký)
+                // Cho phép USER, SELLER, EXPERT vào /user/** (để xem lại form đăng ký)
                 .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER", "SELLER", "EXPERT")
                 // Các đường dẫn cho phép public
                 .requestMatchers("/login", "/register", "/forgot-password", "/verify-otp", "/reset-password", "/guest-login").permitAll()
                 .requestMatchers("/", "/welcome", "/search", "/products", "/products/**", "/blog", "/blog/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "/webjars/**", "/articles").permitAll()
+                .requestMatchers("/momo/demo", "/momo/demo/create", "/momo/demo/result", "/momo/return", "/momo/ipn").permitAll()
                 .requestMatchers("/reviews/add").authenticated()
                 // Bất kỳ request nào khác đều bắt buộc đăng nhập
                 .anyRequest().authenticated()
@@ -57,8 +57,8 @@ public class WebSecurityConfig {
                             .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_SELLER"));
                     boolean isExpert = authentication.getAuthorities().stream()
                             .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_EXPERT"));
-                    boolean isBuyer = authentication.getAuthorities().stream()
-                            .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_BUYER"));
+                    boolean isUser = authentication.getAuthorities().stream()
+                            .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_USER"));
 
                     if (isAdmin) {
                         response.sendRedirect("/admin/dashboard");
@@ -66,8 +66,8 @@ public class WebSecurityConfig {
                         response.sendRedirect("/seller/dashboard");
                     } else if (isExpert) {
                         response.sendRedirect("/expert/dashboard");
-                    } else if (isBuyer) {
-                        response.sendRedirect("/buyer/dashboard");
+                    } else if (isUser) {
+                        response.sendRedirect("/");
                     } else {
                         response.sendRedirect("/");
                     }

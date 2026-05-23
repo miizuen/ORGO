@@ -49,6 +49,15 @@ public class Seller {
     @Column(name = "mo_ta_shop", columnDefinition = "NVARCHAR(MAX)")
     private String shopDescription;
 
+    @Column(name = "ten_ngan_hang", columnDefinition = "NVARCHAR(255)")
+    private String bankName;
+
+    @Column(name = "so_tai_khoan", columnDefinition = "NVARCHAR(255)")
+    private String bankAccount;
+
+    @Column(name = "ten_chu_tai_khoan", columnDefinition = "NVARCHAR(255)")
+    private String accountHolderName;
+
     @ManyToOne
     @JoinColumn(name="id_tai_khoan")
     private Account account;

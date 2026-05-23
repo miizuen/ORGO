@@ -107,6 +107,7 @@ public class ExpertArticleController {
         article.setContent(request.getContent());
         article.setCoverImage(request.getThumbnail());
         article.setSummary(request.getSummary());
+        article.setCategory(request.getCategory());
         article.setStatus(ArticleStatus.PENDING);
         article.setUpdatedAt(LocalDateTime.now());
         article.setViewCount(0);

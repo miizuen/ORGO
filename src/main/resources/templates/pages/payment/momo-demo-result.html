@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('MoMo demo result', ~{::content})}">
+<th:block th:fragment="content">
+    <div class="container py-5" style="max-width: 980px;">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+                    <div>
+                        <h1 class="h3 mb-2">Kết quả tạo giao dịch MoMo</h1>
+                        <p class="text-muted mb-0">Kiểm tra phản hồi từ API create và mở link thanh toán nếu có.</p>
+                    </div>
+                    <span class="badge rounded-pill text-bg-light border px-3 py-2">Demo Result</span>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-lg-5">
+                        <div class="p-3 p-md-4 border rounded-4 bg-light h-100">
+                            <h2 class="h6 mb-3">Thông tin đơn demo</h2>
+                            <dl class="row mb-0">
+                                <dt class="col-5 text-muted fw-normal">Order code</dt>
+                                <dd class="col-7 fw-semibold" th:text="${order.orderCode} ?: 'N/A'">N/A</dd>
+
+                                <dt class="col-5 text-muted fw-normal">Số tiền</dt>
+                                <dd class="col-7 fw-semibold" th:text="${order.totalAmount} ?: 'N/A'">N/A</dd>
+
+                                <dt class="col-5 text-muted fw-normal">Payment status</dt>
+                                <dd class="col-7 fw-semibold" th:text="${order.paymentStatus} ?: 'N/A'">N/A</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <div class="p-3 p-md-4 border rounded-4 bg-light h-100">
+                            <h2 class="h6 mb-3">Phản hồi MoMo</h2>
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4 text-muted fw-normal">Result code</dt>
+                                <dd class="col-sm-8 fw-semibold" th:text="${response.resultCode} ?: 'N/A'">N/A</dd>
+
+                                <dt class="col-sm-4 text-muted fw-normal">Message</dt>
+                                <dd class="col-sm-8 fw-semibold" th:text="${response.message} ?: 'N/A'">N/A</dd>
+
+                                <dt class="col-sm-4 text-muted fw-normal">Request ID</dt>
+                                <dd class="col-sm-8 fw-semibold text-break" th:text="${response.requestId} ?: 'N/A'">N/A</dd>
+
+                                <dt class="col-sm-4 text-muted fw-normal">Pay URL</dt>
+                                <dd class="col-sm-8">
+                                    <a class="link-primary text-break" th:href="${response.payUrl}" th:text="${response.payUrl} ?: 'N/A'" target="_blank" rel="noopener">N/A</a>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning border-0 rounded-4 mb-4" th:if="${response == null or response.payUrl == null}">
+                    Không có `payUrl`. Hãy kiểm tra lại cấu hình MoMo hoặc phản hồi API create.
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-primary" th:if="${response != null and response.payUrl != null}" th:href="${response.payUrl}" target="_blank" rel="noopener">Mở payUrl</a>
+                    <a class="btn btn-outline-primary" th:href="@{/momo/demo}">Tạo giao dịch mới</a>
+                    <a class="btn btn-outline-secondary" th:href="@{/momo/return}">Xem trang return</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</html>

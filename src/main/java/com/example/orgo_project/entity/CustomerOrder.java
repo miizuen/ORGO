@@ -41,6 +41,18 @@ public class CustomerOrder {
     @Column(name = "ngay_dat")
     private LocalDateTime orderedAt;
 
+    @Column(name = "ngay_thanh_toan")
+    private LocalDateTime paidAt;
+
+    @Column(name = "ngay_xac_nhan")
+    private LocalDateTime confirmedAt;
+
+    @Column(name = "ngay_giao_van_chuyen")
+    private LocalDateTime shippedAt;
+
+    @Column(name = "ngay_da_nhan")
+    private LocalDateTime deliveredAt;
+
     @Column(name = "tong_tien")
     private BigDecimal totalAmount;
 
@@ -63,4 +75,7 @@ public class CustomerOrder {
 
     @Column(name = "ly_do_huy")
     private String cancellationReason;
+
+    @Column(name = "id_bai_viet")
+    private Integer articleId;
 }

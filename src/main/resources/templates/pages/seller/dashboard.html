@@ -14,6 +14,16 @@
         .card-title { font-size:16px; font-weight:700; margin-bottom:16px; }
         .order-row { display:flex; justify-content:space-between; padding:14px 0; border-bottom:1px solid #f3f4f6; font-size:14px; }
         .order-row:last-child { border-bottom:none; }
+        .subtle { color:#6b7280; font-size:12px; }
+        .top-product { display:flex; gap:14px; align-items:center; width:100%; }
+        .top-product img { width:62px; height:62px; border-radius:16px; object-fit:cover; background:#f3f4f6; flex-shrink:0; border:1px solid #e5e7eb; }
+        .top-product-meta { min-width:0; flex:1; }
+        .top-product-name { font-weight:800; line-height:1.35; color:#111827; display:flex; align-items:center; gap:8px; }
+        .top-product-badge { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:999px; background:#ecfdf5; color:#16a34a; font-size:12px; flex-shrink:0; }
+        .top-product-stats { display:flex; flex-direction:column; align-items:flex-end; gap:6px; text-align:right; }
+        .top-product-rating { display:inline-flex; align-items:center; gap:4px; padding:6px 10px; border-radius:999px; background:#fff7ed; color:#c2410c; font-size:12px; font-weight:800; }
+        @media (max-width: 1024px){.section-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}}
+        @media (max-width: 640px){.stats-grid{grid-template-columns:1fr}}
     </style>
 </head>
 <body>
@@ -26,35 +36,60 @@
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Doanh thu tháng này</div>
-                <div class="stat-value">$12,480</div>
+                <div class="stat-label">Tổng thu nhập</div>
+                <div class="stat-value" th:text="${totalIncome != null ? #numbers.formatDecimal(totalIncome, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ'}">0đ</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Đơn hàng</div>
-                <div class="stat-value">158</div>
+                <div class="stat-label">Số dư ví hiện tại</div>
+                <div class="stat-value" th:text="${currentBalance != null ? #numbers.formatDecimal(currentBalance, 0, 'POINT', 0, 'COMMA') + 'đ' : (wallet != null && wallet.availableBalance != null ? #numbers.formatDecimal(wallet.availableBalance, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ')}">0đ</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Đánh giá</div>
-                <div class="stat-value">4.92</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Khách hàng</div>
-                <div class="stat-value">2,104</div>
+                <div class="stat-label">Tổng đã rút</div>
+                <div class="stat-value" th:text="${totalWithdrawn != null ? #numbers.formatDecimal(totalWithdrawn, 0, 'POINT', 0, 'COMMA') + 'đ' : (wallet != null && wallet.totalWithdrawn != null ? #numbers.formatDecimal(wallet.totalWithdrawn, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ')}">0đ</div>
             </div>
         </div>
 
         <div class="section-grid">
             <div class="card-box">
                 <div class="card-title">Đơn hàng gần đây</div>
-                <div class="order-row"><span>#ORG-8921</span><strong>Processing</strong></div>
-                <div class="order-row"><span>#ORG-8920</span><strong>Pending</strong></div>
-                <div class="order-row"><span>#ORG-8919</span><strong>Processing</strong></div>
+                <div th:if="${stats != null && stats.recentOrders != null && !stats.recentOrders.isEmpty()}">
+                    <div th:each="order : ${stats.recentOrders}" class="order-row">
+                        <div>
+                            <div style="font-weight:700;" th:text="${order.orderCode}">#ORG-0000</div>
+                            <div class="subtle" th:text="${order.orderedAt}">00/00 00:00</div>
+                        </div>
+                        <strong th:text="${order.orderStatus}">PENDING</strong>
+                    </div>
+                </div>
+                <div th:if="${stats == null || stats.recentOrders == null || stats.recentOrders.isEmpty()}" class="subtle">Chưa có đơn hàng gần đây.</div>
             </div>
             <div class="card-box">
-                <div class="card-title">Top sản phẩm</div>
-                <div class="order-row"><span>Heirloom Tomatoes</span><strong>$3,410</strong></div>
-                <div class="order-row"><span>Wildflower Honey</span><strong>$2,850</strong></div>
-                <div class="order-row"><span>Curly Kale Bunch</span><strong>$1,180</strong></div>
+                <div class="card-title" style="display:flex;align-items:center;gap:10px;">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:12px;background:#ecfdf5;color:#16a34a;">★</span>
+                    Top sản phẩm bán chạy
+                </div>
+                <div th:if="${stats != null && stats.topProducts != null && !stats.topProducts.isEmpty()}">
+                    <div th:each="product : ${stats.topProducts}" class="order-row" style="align-items:center;gap:16px;">
+                        <div class="top-product">
+                            <img th:src="${product.imageUrl != null && !product.imageUrl.isBlank() ? product.imageUrl : '/images/placeholder-product.png'}" alt="Product image">
+                            <div class="top-product-meta">
+                                <div class="top-product-name">
+                                    <span class="top-product-badge">🌿</span>
+                                    <span th:text="${product.productName}">Product</span>
+                                </div>
+                                <div class="subtle" style="margin-top:6px; display:flex; gap:14px; flex-wrap:wrap;">
+                                    <span>🛒 <span th:text="${product.soldQuantity} + ' lượt mua'">0 lượt mua</span></span>
+                                    <span>💬 <span th:text="${product.reviewCount != null ? product.reviewCount : 0} + ' đánh giá'">0 đánh giá</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="top-product-stats">
+                            <span class="top-product-rating">⭐ <span th:text="${product.averageRating != null ? #numbers.formatDecimal(product.averageRating, 1, 1) : '0.0'}">0.0</span>/5</span>
+                            <span class="subtle" th:text="${#numbers.formatDecimal(product.revenue != null ? product.revenue : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${stats == null || stats.topProducts == null || stats.topProducts.isEmpty()}" class="subtle">Chưa có dữ liệu top sản phẩm.</div>
             </div>
         </div>
     </main>

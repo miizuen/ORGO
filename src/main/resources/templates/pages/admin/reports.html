@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Báo cáo thống kê</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .reports-shell{display:flex;flex-direction:column;gap:24px}
+        .hero-card{background:linear-gradient(135deg,#0f172a 0%,#1e40af 52%,#3b82f6 100%);color:#fff;border-radius:28px;padding:32px;box-shadow:0 20px 50px rgba(15,23,42,.2)}
+        .hero-title{font-size:32px;font-weight:900;line-height:1.1}
+        .hero-desc{margin-top:12px;font-size:14px;line-height:1.7;opacity:.9;max-width:800px}
+        .tabs-nav{display:flex;gap:8px;background:var(--color-surface);border-radius:16px;padding:6px;border:1px solid rgba(15,23,42,.06);box-shadow:0 4px 12px rgba(15,23,42,.03)}
+        .tab-btn{flex:1;padding:12px 20px;border-radius:12px;border:none;background:transparent;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;color:var(--color-text-muted)}
+        .tab-btn.active{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;box-shadow:0 4px 12px rgba(59,130,246,.3)}
+        .tab-content{display:none}
+        .tab-content.active{display:block}
+        .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+        .metric-card{background:var(--color-surface);border-radius:20px;padding:24px;border:1px solid rgba(15,23,42,.06);box-shadow:0 8px 24px rgba(15,23,42,.04);transition:transform .2s,box-shadow .2s}
+        .metric-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(15,23,42,.08)}
+        .metric-label{font-size:12px;font-weight:800;color:var(--color-text-faint);text-transform:uppercase;letter-spacing:.08em}
+        .metric-value{font-size:36px;font-weight:900;margin-top:12px;color:var(--color-text);line-height:1}
+        .metric-change{margin-top:8px;font-size:13px;font-weight:700}
+        .metric-change.positive{color:#16a34a}
+        .metric-change.negative{color:#dc2626}
+        .chart-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+        .chart-card{background:var(--color-surface);border-radius:24px;padding:28px;border:1px solid rgba(15,23,42,.06);box-shadow:0 10px 28px rgba(15,23,42,.04)}
+        .chart-card.full{grid-column:1/-1}
+        .chart-title{font-size:18px;font-weight:900;margin-bottom:20px;color:var(--color-text)}
+        .chart-subtitle{font-size:13px;color:var(--color-text-muted);margin-top:4px}
+        .chart-container{position:relative;height:320px}
+        .chart-container.tall{height:400px}
+        .table-card{background:var(--color-surface);border-radius:24px;padding:28px;border:1px solid rgba(15,23,42,.06);box-shadow:0 10px 28px rgba(15,23,42,.04)}
+        .data-table{width:100%;border-collapse:separate;border-spacing:0 8px}
+        .data-table thead th{font-size:11px;text-transform:uppercase;color:var(--color-text-faint);font-weight:800;padding:0 14px 8px;text-align:left}
+        .data-table tbody tr{background:#fff;transition:transform .2s,box-shadow .2s}
+        .data-table tbody tr:hover{transform:scale(1.01);box-shadow:0 8px 20px rgba(15,23,42,.08)}
+        .data-table td{padding:16px 14px;border-top:1px solid #eef2f7;border-bottom:1px solid #eef2f7;font-size:14px;vertical-align:middle}
+        .data-table td:first-child{border-left:1px solid #eef2f7;border-radius:12px 0 0 12px}
+        .data-table td:last-child{border-right:1px solid #eef2f7;border-radius:0 12px 12px 0}
+        .rank-badge{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;font-weight:900;font-size:14px}
+        .rank-1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff}
+        .rank-2{background:linear-gradient(135deg,#94a3b8,#64748b);color:#fff}
+        .rank-3{background:linear-gradient(135deg,#fb923c,#f97316);color:#fff}
+        .rank-other{background:#f1f5f9;color:#64748b}
+        .status-good{color:#16a34a;font-weight:700}
+        .status-warning{color:#ea580c;font-weight:700}
+        @media (max-width:1024px){.chart-grid{grid-template-columns:1fr}.chart-card.full{grid-column:1}}
+        @media (max-width:768px){.metrics-grid{grid-template-columns:repeat(2,1fr)}.tabs-nav{flex-direction:column}.tab-btn{text-align:center}}
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/admin-layout :: adminLayout('Báo cáo thống kê', 'reports', ~{::main})}">
+    <main class="reports-shell">
+        <section class="hero-card">
+            <div class="hero-title">📊 Báo cáo thống kê toàn diện</div>
+            <div class="hero-desc">Phân tích chi tiết doanh thu, đơn hàng, seller và khách hàng. Theo dõi xu hướng tăng trưởng và hiệu suất kinh doanh qua các biểu đồ trực quan.</div>
+        </section>
+
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('revenue')">💰 Doanh thu</button>
+            <button class="tab-btn" onclick="switchTab('sellers')">🛍️ Seller</button>
+            <button class="tab-btn" onclick="switchTab('customers')">👥 Khách hàng</button>
+        </div>
+
+        <!-- Revenue Tab -->
+        <div id="revenue-tab" class="tab-content active">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Tổng doanh thu</div>
+                    <div class="metric-value" th:text="${#numbers.formatDecimal(stats.totalRevenue != null ? stats.totalRevenue : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</div>
+                    <div class="metric-change positive" th:if="${stats.revenueGrowth != null && stats.revenueGrowth > 0}" th:text="'↑ ' + ${#numbers.formatDecimal(stats.revenueGrowth, 1, 2)} + '%'">↑ 0%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Hoa hồng admin</div>
+                    <div class="metric-value" th:text="${#numbers.formatDecimal(stats.totalCommission != null ? stats.totalCommission : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Tổng đơn hàng</div>
+                    <div class="metric-value" th:text="${stats.totalOrders != null ? stats.totalOrders : 0}">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Hoàn trả</div>
+                    <div class="metric-value" th:text="${#numbers.formatDecimal(stats.totalRefunds != null ? stats.totalRefunds : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <div class="chart-title">Xu hướng doanh thu 7 ngày qua</div>
+                    <div class="chart-subtitle">Theo dõi doanh thu và số lượng đơn hàng theo ngày</div>
+                    <div class="chart-container tall">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">Phân bố theo danh mục</div>
+                    <div class="chart-subtitle">Doanh thu theo từng seller</div>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">Phương thức thanh toán</div>
+                    <div class="chart-subtitle">Tỷ lệ sử dụng các phương thức</div>
+                    <div class="chart-container">
+                        <canvas id="paymentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sellers Tab -->
+        <div id="sellers-tab" class="tab-content">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Tổng số seller</div>
+                    <div class="metric-value" th:text="${stats.totalSellers != null ? stats.totalSellers : 0}">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Seller hoạt động</div>
+                    <div class="metric-value" th:text="${stats.activeSellers != null ? stats.activeSellers : 0}">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Thời gian giao hàng TB</div>
+                    <div class="metric-value" th:text="${stats.avgDeliveryTime != null ? #numbers.formatDecimal(stats.avgDeliveryTime, 1, 1) + ' ngày' : '0 ngày'}">0 ngày</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Tỷ lệ giao đúng hẹn</div>
+                    <div class="metric-value" th:text="${stats.onTimeDeliveryRate != null ? #numbers.formatDecimal(stats.onTimeDeliveryRate, 1, 1) + '%' : '0%'}">0%</div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <div class="chart-title">Hiệu suất seller</div>
+                    <div class="chart-subtitle">So sánh doanh thu top 10 seller</div>
+                    <div class="chart-container tall">
+                        <canvas id="sellerPerformanceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">Phân bố hoa hồng</div>
+                    <div class="chart-subtitle">Tỷ lệ hoa hồng admin vs seller</div>
+                    <div class="chart-container tall">
+                        <canvas id="commissionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="chart-title">Top 10 seller xuất sắc</div>
+                <div class="chart-subtitle">Xếp hạng theo doanh thu</div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Hạng</th>
+                            <th>Tên shop</th>
+                            <th>Doanh thu</th>
+                            <th>Đơn hàng</th>
+                            <th>Đánh giá TB</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${stats.topSellers == null || stats.topSellers.isEmpty()}">
+                            <td colspan="6" style="text-align:center;color:var(--color-text-muted)">Chưa có dữ liệu</td>
+                        </tr>
+                        <tr th:each="seller, iter : ${stats.topSellers}">
+                            <td>
+                                <span class="rank-badge" th:classappend="${iter.index == 0 ? 'rank-1' : (iter.index == 1 ? 'rank-2' : (iter.index == 2 ? 'rank-3' : 'rank-other'))}" th:text="${iter.index + 1}">1</span>
+                            </td>
+                            <td>
+                                <div style="font-weight:800;color:var(--color-text)" th:text="${seller.shopName}">Shop Name</div>
+                                <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px" th:text="'ID: ' + ${seller.sellerId}">ID: 1</div>
+                            </td>
+                            <td style="font-weight:800;color:#3b82f6" th:text="${#numbers.formatDecimal(seller.totalRevenue != null ? seller.totalRevenue : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</td>
+                            <td th:text="${seller.totalOrders}">0</td>
+                            <td>
+                                <span style="color:#f59e0b;font-weight:700" th:text="'⭐ ' + ${#numbers.formatDecimal(seller.avgRating != null ? seller.avgRating : 0, 1, 1)}">⭐ 0.0</span>
+                            </td>
+                            <td>
+                                <span class="status-good" th:if="${seller.status == 'Tốt'}" th:text="${seller.status}">Tốt</span>
+                                <span class="status-warning" th:if="${seller.status != 'Tốt'}" th:text="${seller.status}">Cảnh báo</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Customers Tab -->
+        <div id="customers-tab" class="tab-content">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Tổng khách hàng</div>
+                    <div class="metric-value" th:text="${stats.totalUsers != null ? stats.totalUsers : 0}">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Khách hàng mới</div>
+                    <div class="metric-value" th:text="${stats.newUsers != null ? stats.newUsers : 0}">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Khách hàng hoạt động</div>
+                    <div class="metric-value" th:text="${stats.activeUsers != null ? stats.activeUsers : 0}">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Tỷ lệ chuyển đổi</div>
+                    <div class="metric-value" th:text="${stats.conversionRate != null ? #numbers.formatDecimal(stats.conversionRate, 1, 1) + '%' : '0%'}">0%</div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <div class="chart-title">Hành trình khách hàng</div>
+                    <div class="chart-subtitle">Từ truy cập đến mua hàng</div>
+                    <div class="chart-container tall">
+                        <canvas id="customerJourneyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">Tỷ lệ giữ chân khách hàng</div>
+                    <div class="chart-subtitle">Khách hàng quay lại mua hàng</div>
+                    <div class="chart-container tall">
+                        <canvas id="retentionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Tab switching
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById(tabName + '-tab').classList.add('active');
+    }
+
+    // Chart.js default config
+    Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+    Chart.defaults.color = '#64748b';
+    Chart.defaults.plugins.legend.display = true;
+    Chart.defaults.plugins.legend.position = 'bottom';
+
+    // Revenue data from backend
+    const revenueLabels = /*[[${stats.revenueLabels}]]*/ [];
+    const revenueData = /*[[${stats.revenueData}]]*/ [];
+    const orderCountData = /*[[${stats.orderCountData}]]*/ [];
+
+    // Revenue Trend Chart
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: revenueLabels,
+            datasets: [{
+                label: 'Doanh thu (đ)',
+                data: revenueData,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                yAxisID: 'y'
+            }, {
+                label: 'Số đơn hàng',
+                data: orderCountData,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Doanh thu (đ)',
+                        font: { weight: 'bold' }
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('vi-VN') + 'đ';
+                        }
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Số đơn hàng',
+                        font: { weight: 'bold' }
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                if (context.datasetIndex === 0) {
+                                    label += context.parsed.y.toLocaleString('vi-VN') + 'đ';
+                                } else {
+                                    label += context.parsed.y + ' đơn';
+                                }
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Category Revenue Chart
+    const categoryRevenue = /*[[${stats.categoryRevenue}]]*/ {};
+    const categoryLabels = Object.keys(categoryRevenue);
+    const categoryData = Object.values(categoryRevenue);
+
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                data: categoryData,
+                backgroundColor: [
+                    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+                    '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#84cc16'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return label + ': ' + value.toLocaleString('vi-VN') + 'đ (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Payment Methods Chart
+    const paymentMethods = /*[[${stats.paymentMethods}]]*/ {};
+    const paymentLabels = Object.keys(paymentMethods);
+    const paymentData = Object.values(paymentMethods);
+
+    const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+    new Chart(paymentCtx, {
+        type: 'pie',
+        data: {
+            labels: paymentLabels,
+            datasets: [{
+                data: paymentData,
+                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return label + ': ' + value + ' đơn (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Seller Performance Chart
+    const topSellers = /*[[${stats.topSellers}]]*/ [];
+    const sellerNames = topSellers.map(s => s.shopName);
+    const sellerRevenues = topSellers.map(s => s.totalRevenue);
+
+    const sellerPerfCtx = document.getElementById('sellerPerformanceChart').getContext('2d');
+    new Chart(sellerPerfCtx, {
+        type: 'bar',
+        data: {
+            labels: sellerNames,
+            datasets: [{
+                label: 'Doanh thu (đ)',
+                data: sellerRevenues,
+                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                borderColor: '#3b82f6',
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Doanh thu (đ)',
+                        font: { weight: 'bold' }
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('vi-VN') + 'đ';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Doanh thu: ' + context.parsed.x.toLocaleString('vi-VN') + 'đ';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Commission Distribution Chart
+    const totalRevenue = /*[[${stats.totalRevenue}]]*/ 0;
+    const totalCommission = /*[[${stats.totalCommission}]]*/ 0;
+    const sellerRevenue = totalRevenue - totalCommission;
+
+    const commissionCtx = document.getElementById('commissionChart').getContext('2d');
+    new Chart(commissionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Doanh thu Seller (95%)', 'Hoa hồng Admin (5%)'],
+            datasets: [{
+                data: [sellerRevenue, totalCommission],
+                backgroundColor: ['#10b981', '#3b82f6'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            return label + ': ' + value.toLocaleString('vi-VN') + 'đ';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Customer Journey Funnel Chart
+    const totalUsers = /*[[${stats.totalUsers}]]*/ 0;
+    const activeUsers = /*[[${stats.activeUsers}]]*/ 0;
+    const totalOrders = /*[[${stats.totalOrders}]]*/ 0;
+
+    const journeyCtx = document.getElementById('customerJourneyChart').getContext('2d');
+    new Chart(journeyCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Tổng khách hàng', 'Khách hoạt động', 'Đã mua hàng'],
+            datasets: [{
+                label: 'Số lượng',
+                data: [totalUsers, activeUsers, totalOrders],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(245, 158, 11, 0.8)'
+                ],
+                borderColor: ['#3b82f6', '#10b981', '#f59e0b'],
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Số lượng',
+                        font: { weight: 'bold' }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.parsed.y;
+                            const total = totalUsers;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return 'Số lượng: ' + value + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Customer Retention Chart
+    const retentionCtx = document.getElementById('retentionChart').getContext('2d');
+    new Chart(retentionCtx, {
+        type: 'line',
+        data: {
+            labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
+            datasets: [{
+                label: 'Tỷ lệ giữ chân (%)',
+                data: [100, 85, 78, 72, 68, 65],
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#8b5cf6',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Tỷ lệ (%)',
+                        font: { weight: 'bold' }
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Tỷ lệ giữ chân: ' + context.parsed.y + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

@@ -2,81 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý người dùng - ORGO Admin</title>
+    <title>Quản lý người dùng</title>
+</head>
+<body>
+<th:block th:replace="~{fragments/admin-layout :: adminLayout(
+    title='Quản lý người dùng',
+    activePage=${activePage},
+    content=~{::main}
+)}">
+<main>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8f9fa;
-        }
-        
-        .container {
-            display: flex;
-            min-height: 100vh;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            width: 260px;
-            background: white;
-            border-right: 1px solid #e5e7eb;
-            padding: 24px 0;
-        }
-        
-        .logo {
-            padding: 0 24px 24px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .logo h2 {
-            color: #10b981;
-            font-size: 20px;
-        }
-        
-        .logo p {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 4px;
-        }
-        
-        .sidebar-menu {
-            padding: 16px 0;
-        }
-        
-        .menu-item {
-            padding: 12px 24px;
-            color: #6b7280;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        
-        .menu-item:hover {
-            background: #f3f4f6;
-            color: #111827;
-        }
-        
-        .menu-item.active {
-            background: #d1fae5;
-            color: #059669;
-            border-right: 3px solid #059669;
-        }
-        
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 32px;
-        }
-        
         .header {
             display: flex;
             justify-content: space-between;
@@ -285,6 +220,21 @@
             height: 40px;
             border-radius: 50%;
             object-fit: cover;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
         }
         
         .user-info h4 {
@@ -316,7 +266,7 @@
             color: #4338ca;
         }
         
-        .role-buyer {
+        .role-user {
             background: #f3f4f6;
             color: #6b7280;
         }
@@ -358,6 +308,7 @@
             cursor: pointer;
             font-size: 18px;
             padding: 4px 8px;
+            position: relative;
         }
         
         .action-btn:hover {
@@ -401,8 +352,13 @@
             border-color: #10b981;
         }
         
-        .page-btn:hover:not(.active) {
+        .page-btn:hover:not(.active):not(:disabled) {
             background: #f3f4f6;
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         .items-per-page {
@@ -413,196 +369,367 @@
             background: white;
         }
     </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="logo">
-                <h2>ORGO Admin</h2>
-                <p>System Management</p>
+    
+    <div class="header">
+        <div class="header-left">
+            <h1>Quản lý người dùng</h1>
+            <p class="header-subtitle">Quản lý và giám sát người dùng trên hệ thống</p>
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon" style="background: #d1fae5;">👥</div>
+                <span class="stat-badge badge-green">Total</span>
             </div>
-            <div class="sidebar-menu">
-                <a href="#" class="menu-item">📊 Tổng quan</a>
-                <a href="#" class="menu-item active">👥 Quản lý người dùng</a>
-                <a href="#" class="menu-item">🏪 Duyệt Seller</a>
-                <a href="#" class="menu-item">👨‍⚕️ Duyệt Expert</a>
-                <a href="#" class="menu-item">📝 Duyệt nội dung</a>
-                <a href="#" class="menu-item">📦 Đơn đặt hàng</a>
-                <a href="#" class="menu-item">📢 Marketing</a>
-                <a href="#" class="menu-item">📈 Báo cáo hệ thống</a>
+            <div class="stat-value" id="total-count">0</div>
+            <div class="stat-label">Tổng số người dùng</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon" style="background: #dbeafe;">✓</div>
+                <span class="stat-badge badge-blue">Active</span>
+            </div>
+            <div class="stat-value" id="active-count">0</div>
+            <div class="stat-label">Người dùng hoạt động</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon" style="background: #fee2e2;">🚫</div>
+                <span class="stat-badge badge-red">Banned</span>
+            </div>
+            <div class="stat-value" id="banned-count">0</div>
+            <div class="stat-label">Tài khoản bị cấm</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon" style="background: #e0e7ff;">📊</div>
+                <span class="stat-badge badge-purple">Stats</span>
+            </div>
+            <div class="stat-value" id="today-count">-</div>
+            <div class="stat-label">Thống kê</div>
+        </div>
+    </div>
+    
+    <!-- Users Table -->
+    <div class="users-card">
+        <div class="table-header">
+            <div class="filter-tabs">
+                <button class="tab active" data-status="">Tất cả</button>
+                <button class="tab" data-status="ACTIVE">Hoạt động</button>
+                <button class="tab" data-status="BANNED">Bị cấm</button>
             </div>
         </div>
         
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="header">
-                <div class="header-left">
-                    <h1>Quản lý người dùng</h1>
-                    <p class="header-subtitle">Oversee the platform ecosystem and manage user access roles.</p>
-                </div>
-                <div class="header-actions">
-                    <button class="btn btn-secondary">📥 Export List</button>
-                    <button class="btn btn-primary">➕ Invite User</button>
-                </div>
+        <div class="table-info">Đang tải...</div>
+        
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>TÊN NGƯỜI DÙNG</th>
+                    <th>VAI TRÒ</th>
+                    <th>EMAIL</th>
+                    <th>SỐ ĐIỆN THOẠI</th>
+                    <th>TRẠNG THÁI</th>
+                    <th>THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 40px;">Đang tải dữ liệu...</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Pagination -->
+        <div class="pagination">
+            <div class="pagination-info">
+                Hiển thị: 
+                <select class="items-per-page">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                </select>
             </div>
-            
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: #d1fae5;">👥</div>
-                        <span class="stat-badge badge-green">+12%</span>
-                    </div>
-                    <div class="stat-value">12,482</div>
-                    <div class="stat-label">Tổng số người dùng đang hoạt động</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: #dbeafe;">🏪</div>
-                        <span class="stat-badge badge-blue">+5%</span>
-                    </div>
-                    <div class="stat-value">842</div>
-                    <div class="stat-label">Seller</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: #e0e7ff;">👨‍⚕️</div>
-                        <span class="stat-badge badge-purple">+8%</span>
-                    </div>
-                    <div class="stat-value">156</div>
-                    <div class="stat-label">Experts</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: #fee2e2;">🚫</div>
-                        <span class="stat-badge badge-red">-2%</span>
-                    </div>
-                    <div class="stat-value">24</div>
-                    <div class="stat-label">Tài khoản bị giới hạn</div>
-                </div>
-            </div>
-            
-            <!-- Users Table -->
-            <div class="users-card">
-                <div class="table-header">
-                    <div class="filter-tabs">
-                        <button class="tab active">All Users</button>
-                        <button class="tab">Buyers</button>
-                        <button class="tab">Sellers</button>
-                        <button class="tab">Experts</button>
-                    </div>
-                    <button class="filter-btn">☰ More Filters</button>
-                </div>
-                
-                <div class="table-info">Showing 1-10 of 12,482 users</div>
-                
-                <table class="users-table">
-                    <thead>
-                        <tr>
-                            <th>USER NAME</th>
-                            <th>ROLE</th>
-                            <th>EMAIL ADDRESS</th>
-                            <th>JOINED DATE</th>
-                            <th>STATUS</th>
-                            <th>ACTIONS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <div class="user-cell">
-                                    <img src="/api/placeholder/40/40" alt="User" class="user-avatar">
-                                    <div class="user-info">
-                                        <h4>Elena Rodriguez</h4>
-                                        <div class="user-id">ID: #98214</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="role-badge role-expert">EXPERT</span></td>
-                            <td>elena.r@organic-life.com</td>
-                            <td>Oct 12, 2023</td>
-                            <td><span class="status-badge status-active">ACTIVE</span></td>
-                            <td><button class="action-btn">⋮</button></td>
-                        </tr>
-                        
-                        <tr>
-                            <td>
-                                <div class="user-cell">
-                                    <img src="/api/placeholder/40/40" alt="User" class="user-avatar">
-                                    <div class="user-info">
-                                        <h4>Marcus Chen</h4>
-                                        <div class="user-id">ID: #98105</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="role-badge role-seller">SELLER</span></td>
-                            <td>chen.gardens@farm.io</td>
-                            <td>Sep 28, 2023</td>
-                            <td><span class="status-badge status-active">ACTIVE</span></td>
-                            <td><button class="action-btn">⋮</button></td>
-                        </tr>
-                        
-                        <tr>
-                            <td>
-                                <div class="user-cell">
-                                    <img src="/api/placeholder/40/40" alt="User" class="user-avatar">
-                                    <div class="user-info">
-                                        <h4>Jordan Smyth</h4>
-                                        <div class="user-id">ID: #97956</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="role-badge role-buyer">BUYER</span></td>
-                            <td>jsmyth82@gmail.com</td>
-                            <td>Aug 05, 2023</td>
-                            <td><span class="status-badge status-blocked">BLOCKED</span></td>
-                            <td><button class="action-btn">⋮</button></td>
-                        </tr>
-                        
-                        <tr>
-                            <td>
-                                <div class="user-cell">
-                                    <img src="/api/placeholder/40/40" alt="User" class="user-avatar">
-                                    <div class="user-info">
-                                        <h4>Dr. Sarah Khalil</h4>
-                                        <div class="user-id">ID: #97341</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="role-badge role-expert">EXPERT</span></td>
-                            <td>khalil.science@orgo.org</td>
-                            <td>July 15, 2023</td>
-                            <td><span class="status-badge status-active">ACTIVE</span></td>
-                            <td><button class="action-btn">⋮</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-                
-                <!-- Pagination -->
-                <div class="pagination">
-                    <div class="pagination-info">Items per page: 
-                        <select class="items-per-page">
-                            <option>10</option>
-                            <option>25</option>
-                            <option>50</option>
-                        </select>
-                    </div>
-                    <div class="pagination-controls">
-                        <button class="page-btn">Previous</button>
-                        <button class="page-btn active">1</button>
-                        <button class="page-btn">2</button>
-                        <button class="page-btn">3</button>
-                        <span style="color: #9ca3af;">...</span>
-                        <button class="page-btn">128</button>
-                        <button class="page-btn">Next</button>
-                    </div>
-                </div>
-            </div>
+            <div class="pagination-controls"></div>
         </div>
     </div>
+    
+    <script>
+        let currentPage = 0;
+        let currentSize = 10;
+        let currentStatus = null;
+        let totalPages = 0;
+        let totalElements = 0;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
+            setupEventListeners();
+        });
+        
+        function setupEventListeners() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentStatus = this.dataset.status || null;
+                    currentPage = 0;
+                    loadUsers();
+                });
+            });
+            
+            document.querySelector('.items-per-page').addEventListener('change', function() {
+                currentSize = parseInt(this.value);
+                currentPage = 0;
+                loadUsers();
+            });
+        }
+        
+        function loadUsers() {
+            let url = `/api/admin/users?page=${currentPage}&size=${currentSize}`;
+            if (currentStatus) {
+                url += `&status=${currentStatus}`;
+            }
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    totalPages = data.totalPages;
+                    totalElements = data.totalElements;
+                    renderUsers(data.content);
+                    renderPagination(data);
+                    updateStats();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.querySelector('.users-table tbody').innerHTML = 
+                        '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #dc2626;">Không thể tải dữ liệu</td></tr>';
+                });
+        }
+        
+        function renderUsers(users) {
+            const tbody = document.querySelector('.users-table tbody');
+            tbody.innerHTML = '';
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">Không có người dùng nào</td></tr>';
+                return;
+            }
+            
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                const avatarContent = getAvatarContent(user);
+                
+                tr.innerHTML = `
+                    <td>
+                        <div class="user-cell">
+                            ${avatarContent}
+                            <div class="user-info">
+                                <h4>${user.fullName || 'N/A'}</h4>
+                                <div class="user-id">ID: #${user.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="role-badge ${getRoleClass(user.role)}">${user.role}</span></td>
+                    <td>${user.email || 'N/A'}</td>
+                    <td>${user.phoneNumber || 'N/A'}</td>
+                    <td><span class="status-badge ${getStatusClass(user.status)}">${getStatusText(user.status)}</span></td>
+                    <td>
+                        ${user.status === 'ACTIVE' ? 
+                            `<button class="action-btn" onclick="banUser(${user.id})" title="Ban user">🚫</button>` :
+                            `<button class="action-btn" onclick="unbanUser(${user.id})" title="Unban user">✓</button>`
+                        }
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            const start = currentPage * currentSize + 1;
+            const end = Math.min((currentPage + 1) * currentSize, totalElements);
+            document.querySelector('.table-info').textContent = `Hiển thị ${start}-${end} trong tổng số ${totalElements} người dùng`;
+        }
+        
+        function getAvatarContent(user) {
+            // Nếu có avatarUrl thì hiển thị ảnh
+            if (user.avatarUrl && user.avatarUrl.trim() !== '') {
+                const initial = getLastNameInitial(user.fullName);
+                const bgColor = getAvatarColor(initial);
+                return `<div class="user-avatar" style="background: ${bgColor};">
+                            <img src="${user.avatarUrl}" alt="${user.fullName || 'Avatar'}" onerror="this.style.display='none'; this.parentElement.textContent='${initial}';">
+                        </div>`;
+            }
+            
+            // Nếu không có ảnh thì hiển thị chữ cái cuối của tên với màu ngẫu nhiên
+            const initial = getLastNameInitial(user.fullName);
+            const bgColor = getAvatarColor(initial);
+            return `<div class="user-avatar" style="background: ${bgColor};">${initial}</div>`;
+        }
+        
+        function getLastNameInitial(fullName) {
+            if (!fullName || fullName.trim() === '') {
+                return 'U';
+            }
+            
+            // Tách tên thành các từ và lấy từ cuối cùng
+            const nameParts = fullName.trim().split(/\s+/);
+            const lastName = nameParts[nameParts.length - 1];
+            
+            // Lấy chữ cái đầu của từ cuối cùng
+            return lastName.charAt(0).toUpperCase();
+        }
+        
+        function getAvatarColor(initial) {
+            // Bảng màu đẹp mắt cho avatar
+            const colors = [
+                '#2e7d32', // Xanh lá đậm
+                '#1976d2', // Xanh dương
+                '#d32f2f', // Đỏ
+                '#f57c00', // Cam
+                '#7b1fa2', // Tím
+                '#0097a7', // Xanh ngọc
+                '#c2185b', // Hồng đậm
+                '#5d4037', // Nâu
+                '#455a64', // Xám xanh
+                '#00897b', // Xanh lục
+                '#e64a19', // Cam đậm
+                '#1565c0', // Xanh dương đậm
+                '#6a1b9a', // Tím đậm
+                '#00695c', // Xanh lục đậm
+                '#4527a0', // Tím than
+                '#558b2f', // Xanh lá olive
+                '#f9a825', // Vàng
+                '#ad1457', // Hồng
+                '#6d4c41', // Nâu đậm
+                '#37474f'  // Xám đen
+            ];
+            
+            // Sử dụng mã ASCII của chữ cái để chọn màu (cùng chữ cái = cùng màu)
+            const charCode = initial.charCodeAt(0);
+            const index = charCode % colors.length;
+            
+            return colors[index];
+        }
+        
+        function renderPagination(data) {
+            const controls = document.querySelector('.pagination-controls');
+            controls.innerHTML = '';
+            
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn';
+            prevBtn.textContent = 'Trước';
+            prevBtn.disabled = data.first;
+            prevBtn.onclick = () => {
+                if (!data.first) {
+                    currentPage--;
+                    loadUsers();
+                }
+            };
+            controls.appendChild(prevBtn);
+            
+            const startPage = Math.max(0, currentPage - 2);
+            const endPage = Math.min(totalPages - 1, currentPage + 2);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = 'page-btn' + (i === currentPage ? ' active' : '');
+                pageBtn.textContent = i + 1;
+                pageBtn.onclick = () => {
+                    currentPage = i;
+                    loadUsers();
+                };
+                controls.appendChild(pageBtn);
+            }
+            
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'page-btn';
+            nextBtn.textContent = 'Sau';
+            nextBtn.disabled = data.last;
+            nextBtn.onclick = () => {
+                if (!data.last) {
+                    currentPage++;
+                    loadUsers();
+                }
+            };
+            controls.appendChild(nextBtn);
+        }
+        
+        function updateStats() {
+            fetch('/api/admin/users?page=0&size=1')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('total-count').textContent = data.totalElements.toLocaleString();
+                });
+            
+            fetch('/api/admin/users?status=ACTIVE&page=0&size=1')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('active-count').textContent = data.totalElements.toLocaleString();
+                });
+            
+            fetch('/api/admin/users?status=BANNED&page=0&size=1')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('banned-count').textContent = data.totalElements.toLocaleString();
+                });
+        }
+        
+        function banUser(userId) {
+            if (!confirm('Bạn có chắc chắn muốn cấm người dùng này?')) return;
+            
+            fetch(`/api/admin/users/${userId}/ban`, { method: 'PUT' })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Đã cấm người dùng thành công');
+                        loadUsers();
+                    } else {
+                        alert('Không thể cấm người dùng');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra');
+                });
+        }
+        
+        function unbanUser(userId) {
+            if (!confirm('Bạn có chắc chắn muốn bỏ cấm người dùng này?')) return;
+            
+            fetch(`/api/admin/users/${userId}/unban`, { method: 'PUT' })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Đã bỏ cấm người dùng thành công');
+                        loadUsers();
+                    } else {
+                        alert('Không thể bỏ cấm người dùng');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra');
+                });
+        }
+        
+        function getRoleClass(role) {
+            if (!role) return 'role-user';
+            if (role.includes('EXPERT')) return 'role-expert';
+            if (role.includes('SELLER')) return 'role-seller';
+            return 'role-user';
+        }
+        
+        function getStatusClass(status) {
+            return status === 'ACTIVE' ? 'status-active' : 'status-blocked';
+        }
+        
+        function getStatusText(status) {
+            return status === 'ACTIVE' ? 'Hoạt động' : 'Bị cấm';
+        }
+    </script>
+</main>
+</th:block>
 </body>
 </html>

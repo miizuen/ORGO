@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đối soát doanh thu</title>
+    <style>
+        :root {
+            --green-50: #f0fdf4;
+            --green-100: #dcfce7;
+            --green-200: #bbf7d0;
+            --green-600: #16a34a;
+            --green-700: #15803d;
+            --green-800: #166534;
+            --green-900: #14532d;
+            --text: #173321;
+            --muted: #64786a;
+            --border: rgba(22, 163, 74, .14);
+            --shadow: 0 18px 42px rgba(22, 101, 52, .10);
+            --card: rgba(255, 255, 255, .94);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(34,197,94,.12), transparent 28%),
+                radial-gradient(circle at top right, rgba(16,185,129,.09), transparent 24%),
+                linear-gradient(180deg, #f8fffb 0%, #edf9f0 100%);
+        }
+        .recon-page {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            padding: 22px;
+            min-height: 100vh;
+        }
+        .hero,
+        .panel,
+        .filter-card,
+        .wallet-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(12px);
+        }
+        .hero {
+            padding: 26px;
+            background: linear-gradient(135deg, rgba(236,253,245,.98) 0%, rgba(255,255,255,.98) 56%, rgba(240,253,244,.98) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(34,197,94,.05), transparent 40%);
+            pointer-events: none;
+        }
+        .hero h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -.04em;
+            position: relative;
+            z-index: 1;
+        }
+        .hero p {
+            margin: 10px 0 0;
+            color: var(--muted);
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+        .panel,
+        .filter-card,
+        .wallet-card { padding: 18px; }
+        .wallet-title {
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+        .wallet-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .wallet-item {
+            background: #f8fff9;
+            border: 1px solid #e3f4e8;
+            border-radius: 18px;
+            padding: 14px;
+        }
+        .wallet-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-weight: 900;
+            color: var(--muted);
+        }
+        .wallet-value {
+            margin-top: 8px;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--green-800);
+        }
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 220px;
+        }
+        .field label {
+            font-size: 12px;
+            font-weight: 800;
+            color: #334155;
+        }
+        .form-control {
+            border: 1px solid #cfe8d5;
+            border-radius: 14px;
+            padding: 12px 14px;
+            outline: none;
+            font: inherit;
+            background: #fff;
+            transition: .2s ease;
+        }
+        .form-control:focus {
+            border-color: var(--green-600);
+            box-shadow: 0 0 0 4px rgba(34,197,94,.12);
+        }
+        .btn {
+            border: none;
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: .2s ease;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--green-600), var(--green-700));
+            color: #fff;
+        }
+        .btn-outline-secondary,
+        .btn-outline-primary {
+            background: #fff;
+            border: 1px solid #cfe8d5;
+            color: var(--green-800);
+        }
+        .btn-sm { padding: 10px 12px; border-radius: 12px; }
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .section-head h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 900;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: var(--green-100);
+            color: var(--green-900);
+            font-weight: 800;
+            font-size: 12px;
+        }
+        .table-wrap {
+            overflow: auto;
+            border-radius: 18px;
+            border: 1px solid #e5f4e9;
+            background: #fff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 920px;
+            background: #fff;
+        }
+        thead th {
+            background: linear-gradient(135deg, var(--green-800), var(--green-600));
+            color: #fff;
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        tbody td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #edf7ef;
+            color: #334155;
+            vertical-align: middle;
+        }
+        tbody tr:hover td { background: #f4fff7; }
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+        .status-settled { background: var(--green-100); color: var(--green-800); }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-failed { background: #fee2e2; color: #991b1b; }
+        .empty {
+            padding: 34px 16px;
+            text-align: center;
+            color: var(--muted);
+        }
+        #order-detail-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 33, 18, .62);
+            backdrop-filter: blur(7px);
+            z-index: 1100;
+            padding: 20px;
+        }
+        #order-detail-modal > div {
+            width: min(780px, 100%);
+            margin: 8vh auto;
+            background: #fff;
+            border-radius: 26px;
+            padding: 22px;
+            box-shadow: 0 30px 90px rgba(0,0,0,.24);
+            border: 1px solid #d8f1df;
+        }
+        #order-detail-modal h5 {
+            margin: 0 0 12px;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--text);
+        }
+        #order-detail-content {
+            display: grid;
+            gap: 12px;
+        }
+        #order-detail-content > div,
+        #order-detail-content ul {
+            background: #f8fff9;
+            border: 1px solid #e3f4e8;
+            border-radius: 16px;
+            padding: 14px;
+        }
+        #order-detail-content strong {
+            color: var(--green-900);
+        }
+        #order-detail-content ul {
+            margin: 6px 0 0 18px;
+            padding-left: 16px;
+            background: #fff;
+        }
+        #order-detail-content li {
+            margin: 8px 0;
+            color: #334155;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 14px;
+        }
+        #order-detail-store { display: none; }
+        @media (max-width: 900px) {
+            .recon-page { padding: 14px; }
+            .wallet-grid { grid-template-columns: 1fr; }
+            .field { min-width: 100%; }
+            .hero h1 { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/admin-layout :: adminLayout('Đối soát doanh thu', 'revenue-reconciliation', ~{::main})}">
+    <main class="recon-page">
+        <section class="hero">
+            <h1>Đối soát doanh thu</h1>
+            <p>Theo dõi settlement, lọc theo đơn hàng hoặc seller và xem nhanh chi tiết đơn hàng trong cửa sổ nổi.</p>
+        </section>
+
+        <div th:if="${adminWallet != null}" class="wallet-card">
+            <div class="wallet-title">Ví quản trị</div>
+            <div class="wallet-grid">
+                <div class="wallet-item">
+                    <div class="wallet-label">Số dư khả dụng</div>
+                    <div class="wallet-value">
+                        <span th:text="${#numbers.formatDecimal(adminWallet.availableBalance != null ? adminWallet.availableBalance : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span>
+                    </div>
+                </div>
+                <div class="wallet-item">
+                    <div class="wallet-label">Số dư tạm giữ</div>
+                    <div class="wallet-value">
+                        <span th:text="${#numbers.formatDecimal(adminWallet.heldBalance != null ? adminWallet.heldBalance : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="filter-card">
+            <form method="get" class="filter-bar">
+                <div class="field">
+                    <label>Seller ID / Tên người bán</label>
+                    <input type="number" name="sellerId" th:value="${sellerIdFilter}" class="form-control" placeholder="Nhập seller id"/>
+                </div>
+                <div class="field">
+                    <label>Mã đơn hàng</label>
+                    <input type="number" name="orderId" th:value="${orderIdFilter}" class="form-control" placeholder="Nhập mã đơn hàng"/>
+                </div>
+                <button class="btn btn-primary" type="submit">Lọc dữ liệu</button>
+                <a th:href="@{/admin/revenue-reconciliation}" class="btn btn-outline-secondary">Xóa bộ lọc</a>
+            </form>
+        </section>
+
+        <section class="panel">
+            <div class="section-head">
+                <h2>Bảng đối soát</h2>
+            </div>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Đơn hàng</th>
+                        <th>Seller</th>
+                        <th>Tổng đơn</th>
+                        <th>Hoa hồng</th>
+                        <th>Seller nhận</th>
+                        <th>Trạng thái</th>
+                        <th>Chi tiết đơn</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${settlementRows == null || settlementRows.isEmpty()}">
+                        <td colspan="7"><div class="empty">Không có dữ liệu đối soát.</div></td>
+                    </tr>
+                    <tr th:each="row : ${settlementRows}">
+                        <td th:text="${row.orderId}">1</td>
+                        <td th:text="${sellerNamesById[row.sellerId] ?: ('Tài khoản #' + row.sellerId)}">Người bán</td>
+                        <td th:text="${row.orderAmount != null ? #numbers.formatDecimal(row.orderAmount, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ'}">0đ</td>
+                        <td th:text="${row.commissionAmount != null ? #numbers.formatDecimal(row.commissionAmount, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ'}">0đ</td>
+                        <td th:text="${row.sellerAmount != null ? #numbers.formatDecimal(row.sellerAmount, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ'}">0đ</td>
+                        <td>
+                            <span class="status-pill"
+                                  th:classappend="${row.status == 'SETTLED' ? ' status-settled' : (row.status == 'PENDING' ? ' status-pending' : ' status-failed')}"
+                                  th:text="${row.status == 'SETTLED' ? 'Đã đối soát' : (row.status == 'PENDING' ? 'Đang chờ' : 'Thất bại')}">Đã đối soát</span>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-outline-primary btn-order-detail"
+                                    th:attr="data-order-id=${row.orderId}">Xem chi tiết</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div id="order-detail-modal" style="display:none;">
+            <div>
+                <h5>Chi tiết đơn hàng</h5>
+                <div id="order-detail-content"></div>
+                <div class="modal-actions">
+                    <button type="button" id="btn-close-order-modal" class="btn btn-outline-secondary btn-sm">Đóng</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="order-detail-store" style="display:none;">
+            <div th:each="entry : ${orderDetailsByOrderId}" th:attr="data-order-id=${entry.key}">
+                <div><strong>Mã đơn:</strong> <span th:text="${entry.value.orderCode}">ORD</span></div>
+                <div><strong>Trạng thái đơn:</strong> <span th:text="${entry.value.orderStatus}">PENDING</span></div>
+                <div><strong>Trạng thái thanh toán:</strong> <span th:text="${entry.value.paymentStatus}">PAID</span></div>
+                <div><strong>Tổng tiền:</strong> <span th:text="${entry.value.totalAmount}">0</span></div>
+                <div><strong>Ngày đặt:</strong> <span th:text="${entry.value.orderedAt}">-</span></div>
+                <div style="margin-top:8px;"><strong>Sản phẩm:</strong></div>
+                <ul style="margin:6px 0 0 18px;">
+                    <li th:each="item : ${entry.value.items}"
+                        th:text="${(item.productName != null ? item.productName : 'Sản phẩm') + ' | SL: ' + item.quantity + ' | Thành tiền: ' + item.lineTotal}">
+                        Item
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    (function () {
+        const modal = document.getElementById('order-detail-modal');
+        const content = document.getElementById('order-detail-content');
+        const store = document.getElementById('order-detail-store');
+
+        function closeModal() {
+            modal.style.display = 'none';
+            content.innerHTML = '';
+        }
+
+        document.querySelectorAll('.btn-order-detail').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const orderId = btn.getAttribute('data-order-id');
+                const source = store.querySelector('[data-order-id="' + orderId + '"]');
+                if (!source) {
+                    content.innerHTML = '<div>Không tìm thấy chi tiết đơn hàng.</div>';
+                } else {
+                    content.innerHTML = source.innerHTML;
+                }
+                modal.style.display = 'block';
+            });
+        });
+
+        document.getElementById('btn-close-order-modal').addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+    })();
+</script>
+</body>
+</html>

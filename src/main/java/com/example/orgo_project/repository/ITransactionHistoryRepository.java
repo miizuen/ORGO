@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ITransactionHistoryRepository extends JpaRepository<TransactionHistory, Integer> {
-    List<TransactionHistory> findByWalletIdOrderByCreatedAtDesc(Integer walletId);
+    List<TransactionHistory> findByWalletIdOrderByCreatedAtDesc(Integer id);
+    List<TransactionHistory> findByWalletIdAndTypeOrderByCreatedAtDesc(Integer walletId, String type);
 }

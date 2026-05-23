@@ -1,0 +1,12 @@
+package com.example.orgo_project.repository;
+
+import com.example.orgo_project.entity.PaymentQrSession;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface IPaymentQrSessionRepository extends JpaRepository<PaymentQrSession, Integer> {
+    Optional<PaymentQrSession> findByOrderId(Integer orderId);
+}

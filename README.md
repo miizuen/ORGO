@@ -41,3 +41,47 @@ VALUES (3, N'Nguyễn Văn Phú', 'phu@orgo.com', '0900000003', 'ACTIVE'); --Nê
 
 INSERT INTO NguoiDung (id_tai_khoan, ho_ten, email, so_dien_thoai, trang_thai)
 VALUES (4, N'Nguyễn Hà Vi', 'vi@orgo.com', '0900000004', 'ACTIVE'); -- nên nhập email thật
+
+
+Lệnh chạy chương trình:
+set JAVA_HOME=C:\Program Files\Java\jdk-17
+
+set PATH=%JAVA_HOME%\bin;%PATH%
+
+## Tài Liệu Hệ Thống Escrow
+
+Để hiểu rõ hơn về luồng hoạt động escrow trong hệ thống ORGO, vui lòng tham khảo:
+
+- **[ESCROW_FLOW_DOCUMENTATION.md](ESCROW_FLOW_DOCUMENTATION.md)**: Tài liệu chi tiết về vai trò của từng bảng và luồng hoạt động escrow
+- **Dashboard Admin**: Hiển thị thông tin hoa hồng admin và tài khoản escrow
+
+### Các Bảng Chính Trong Hệ Thống Escrow:
+- **EscrowBalance**: Giữ tiền tạm thời của đơn hàng
+- **PaymentHistory**: Lịch sử thanh toán của user
+- **TransactionHistory**: Nhật ký biến động tài chính
+- **WalletBalance**: Số dư ví của seller/admin
+
+gradlew.bat bootRun
+
+gradlew.bat --stop
+
+---
+
+## Ghi chú về mô hình escrow
+
+- Seller đăng ký tại `/register/seller` và cần khai báo ngân hàng ngay từ đầu.
+- Admin duyệt seller có thể xem thông tin ngân hàng trực tiếp trên màn chi tiết duyệt.
+- Khi đơn hàng hoàn tất, tiền được đi qua luồng escrow và được chia theo từng seller tự động.
+- Seller không còn luồng rút tiền thủ công; email duyệt seller sẽ nhắc lại bank info và quy trình escrow.
+
+## Kiểm thử đã bổ sung
+
+- Unit test cho `EscrowServiceImpl`:
+  - tạo escrow
+  - cộng tổng tiền escrow
+  - cộng tổng hoa hồng admin
+  - settlement cho 1 seller
+  - settlement cho nhiều seller
+  - trường hợp escrow không tồn tại
+
+
