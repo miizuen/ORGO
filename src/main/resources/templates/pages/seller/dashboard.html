@@ -34,11 +34,11 @@
             </div>
             <div class="stat-card">
                 <div class="stat-label">Số dư ví hiện tại</div>
-                <div class="stat-value" th:text="${wallet != null && wallet.heldBalance != null ? #numbers.formatDecimal(wallet.heldBalance, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ'}">0đ</div>
+                <div class="stat-value" th:text="${currentBalance != null ? #numbers.formatDecimal(currentBalance, 0, 'POINT', 0, 'COMMA') + 'đ' : (wallet != null && wallet.availableBalance != null ? #numbers.formatDecimal(wallet.availableBalance, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ')}">0đ</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Tổng đã rút</div>
-                <div class="stat-value" th:text="${wallet != null && wallet.totalWithdrawn != null ? #numbers.formatDecimal(wallet.totalWithdrawn, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ'}">0đ</div>
+                <div class="stat-value" th:text="${totalWithdrawn != null ? #numbers.formatDecimal(totalWithdrawn, 0, 'POINT', 0, 'COMMA') + 'đ' : (wallet != null && wallet.totalWithdrawn != null ? #numbers.formatDecimal(wallet.totalWithdrawn, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ')}">0đ</div>
             </div>
         </div>
 

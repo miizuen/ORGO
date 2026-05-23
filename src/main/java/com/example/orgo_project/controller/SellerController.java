@@ -38,15 +38,20 @@ public class SellerController {
         Seller seller = currentSeller();
         Integer sellerId = seller != null ? seller.getId() : null;
         WalletBalance wallet = payoutService.getWalletByAccountId(accountId);
+        SellerDashboardStats stats = dashboardService.getSellerDashboardStats(sellerId != null ? sellerId.longValue() : 0L);
+
         BigDecimal availableBalance = wallet != null && wallet.getAvailableBalance() != null ? wallet.getAvailableBalance() : BigDecimal.ZERO;
         BigDecimal heldBalance = wallet != null && wallet.getHeldBalance() != null ? wallet.getHeldBalance() : BigDecimal.ZERO;
         BigDecimal totalWithdrawn = wallet != null && wallet.getTotalWithdrawn() != null ? wallet.getTotalWithdrawn() : BigDecimal.ZERO;
         BigDecimal totalIncome = availableBalance.add(heldBalance).add(totalWithdrawn);
-        SellerDashboardStats stats = dashboardService.getSellerDashboardStats(sellerId != null ? sellerId.longValue() : 0L);
+
         model.addAttribute("stats", stats);
         model.addAttribute("activePage", ACTIVE_PAGE);
         model.addAttribute("wallet", wallet);
         model.addAttribute("totalIncome", totalIncome);
+        model.addAttribute("currentBalance", availableBalance);
+        model.addAttribute("totalWithdrawn", totalWithdrawn);
+        model.addAttribute("pendingAmount", heldBalance);
         model.addAttribute("settlements", java.util.List.of());
         return "pages/seller/dashboard";
     }
@@ -78,6 +83,7 @@ public class SellerController {
         model.addAttribute("pendingAmount", heldBalance);
         model.addAttribute("totalWithdrawn", totalWithdrawn);
         model.addAttribute("totalIncome", totalIncome);
+        model.addAttribute("currentBalance", availableBalance);
         return "pages/seller/payout";
     }
 
@@ -116,5 +122,17 @@ public class SellerController {
             return null;
         }
         return sellerRepository.findByAccountId(accountId).orElse(null);
+    }
+
+    private BigDecimal statsTotalIncome(Integer accountId, WalletBalance wallet) {
+        if (accountId == null) {
+            return BigDecimal.ZERO;
+        }
+        Seller seller = sellerRepository.findByAccountId(accountId).orElse(null);
+        if (seller == null) {
+            return BigDecimal.ZERO;
+        }
+        SellerDashboardStats stats = dashboardService.getSellerDashboardStats(seller.getId().longValue());
+        return stats != null && stats.getRevenue() != null ? stats.getRevenue() : BigDecimal.ZERO;
     }
 }
