@@ -13,4 +13,5 @@ import java.util.Optional;
 public interface ISellerRepository extends JpaRepository<Seller, Integer> {
     List<Seller> findByStatus(SellerStatus status);
     Optional<Seller> findByAccount(Account account);
+    Optional<Seller> findByAccountId(Integer accountId);
 }
