@@ -14,6 +14,7 @@ import com.example.orgo_project.repository.ArticleStatsRepository;
 import com.example.orgo_project.repository.ICustomerOrderItemRepository;
 import com.example.orgo_project.repository.ICustomerOrderRepository;
 import com.example.orgo_project.repository.IProductRepository;
+import com.example.orgo_project.repository.IProductReviewRepository;
 import com.example.orgo_project.repository.IProductVariantRepository;
 import com.example.orgo_project.repository.IWalletBalanceRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +35,7 @@ public class DashboardService {
     private final ICustomerOrderRepository customerOrderRepository;
     private final ICustomerOrderItemRepository customerOrderItemRepository;
     private final IProductRepository productRepository;
+    private final IProductReviewRepository productReviewRepository;
     private final IProductVariantRepository productVariantRepository;
     private final IWalletBalanceRepository walletBalanceRepository;
     
@@ -144,7 +145,17 @@ public class DashboardService {
             BigDecimal lineTotal = item.getLineTotal() != null ? item.getLineTotal() : BigDecimal.ZERO;
             SellerDashboardStats.TopProduct current = topMap.get(productId);
             if (current == null) {
-                topMap.put(productId, new SellerDashboardStats.TopProduct(productId, product.getProductName(), quantity, lineTotal));
+                Double averageRating = productReviewRepository.findAverageRatingByProductId(productId);
+                long reviewCount = productReviewRepository.countByProductId(productId);
+                topMap.put(productId, new SellerDashboardStats.TopProduct(
+                        productId,
+                        product.getProductName(),
+                        product.getImageUrl(),
+                        quantity,
+                        averageRating,
+                        reviewCount,
+                        lineTotal
+                ));
             } else {
                 current.setSoldQuantity(current.getSoldQuantity() + quantity);
                 current.setRevenue(current.getRevenue().add(lineTotal));

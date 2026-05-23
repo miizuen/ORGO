@@ -67,7 +67,7 @@ public class WebSecurityConfig {
                     } else if (isExpert) {
                         response.sendRedirect("/expert/dashboard");
                     } else if (isUser) {
-                        response.sendRedirect("/user/dashboard");
+                        response.sendRedirect("/");
                     } else {
                         response.sendRedirect("/");
                     }
