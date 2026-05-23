@@ -1,8 +1,10 @@
 package com.example.orgo_project.controller;
 
 import com.example.orgo_project.dto.SellerDashboardStats;
+import com.example.orgo_project.entity.Seller;
 import com.example.orgo_project.entity.WalletBalance;
 import com.example.orgo_project.entity.WithdrawalRequest;
+import com.example.orgo_project.repository.ISellerRepository;
 import com.example.orgo_project.security.CustomUserDetails;
 import com.example.orgo_project.service.DashboardService;
 import com.example.orgo_project.service.PayoutService;
@@ -28,16 +30,19 @@ public class SellerController {
 
     private final DashboardService dashboardService;
     private final PayoutService payoutService;
+    private final ISellerRepository sellerRepository;
 
     @GetMapping("/dashboard")
     public String showSellerDashboard(Model model) {
         Integer accountId = currentAccountId();
+        Seller seller = currentSeller();
+        Integer sellerId = seller != null ? seller.getId() : null;
         WalletBalance wallet = payoutService.getWalletByAccountId(accountId);
         BigDecimal availableBalance = wallet != null && wallet.getAvailableBalance() != null ? wallet.getAvailableBalance() : BigDecimal.ZERO;
         BigDecimal heldBalance = wallet != null && wallet.getHeldBalance() != null ? wallet.getHeldBalance() : BigDecimal.ZERO;
         BigDecimal totalWithdrawn = wallet != null && wallet.getTotalWithdrawn() != null ? wallet.getTotalWithdrawn() : BigDecimal.ZERO;
         BigDecimal totalIncome = availableBalance.add(heldBalance).add(totalWithdrawn);
-        SellerDashboardStats stats = dashboardService.getSellerDashboardStats(accountId != null ? accountId.longValue() : 0L);
+        SellerDashboardStats stats = dashboardService.getSellerDashboardStats(sellerId != null ? sellerId.longValue() : 0L);
         model.addAttribute("stats", stats);
         model.addAttribute("activePage", ACTIVE_PAGE);
         model.addAttribute("wallet", wallet);
@@ -103,5 +108,13 @@ public class SellerController {
             return details.getAccount().getId();
         }
         return null;
+    }
+
+    private Seller currentSeller() {
+        Integer accountId = currentAccountId();
+        if (accountId == null) {
+            return null;
+        }
+        return sellerRepository.findByAccountId(accountId).orElse(null);
     }
 }
