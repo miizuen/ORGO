@@ -13,10 +13,11 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CheckoutResponseDTO {
-    private Integer orderId;
-    private String orderCode;
-    private BigDecimal totalAmount;
-    private String message;
-    private String payUrl;
+public class TopSellerDTO {
+    private Integer sellerId;
+    private String shopName;
+    private BigDecimal totalRevenue;
+    private Integer totalOrders;
+    private Double avgRating;
+    private String status;
 }
