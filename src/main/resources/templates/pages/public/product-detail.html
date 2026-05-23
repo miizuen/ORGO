@@ -197,10 +197,17 @@
 
                 <!-- ===== PHẦN CỦA USER: Form viết đánh giá ===== -->
                 <div sec:authorize="hasRole('USER')">
-                    <div th:if="${currentUserId != null and !hasReviewed}"
+                    <!-- Chưa mua sản phẩm -->
+                    <div th:if="${currentUserId != null and (hasPurchased == null or !hasPurchased)}"
+                         class="mb-4 p-3 bg-light rounded-3 border">
+                        <p class="mb-0 text-secondary">🛒 Bạn cần <strong>mua và nhận sản phẩm</strong> này trước khi có thể đánh giá.</p>
+                    </div>
+
+                    <!-- Đã mua, chưa đánh giá → hiện form -->
+                    <div th:if="${currentUserId != null and hasPurchased and !hasReviewed}"
                          class="mb-4 p-4 bg-light rounded-3 border border-success border-opacity-25">
                         <h5 class="fw-bold mb-3 text-success">✍️ Viết đánh giá của bạn</h5>
-                        <form th:action="@{/reviews/add}" method="post">
+                        <form th:action="@{/reviews/add}" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="productId" th:value="${product.id}"/>
                             <div class="mb-3">
                                 <label class="fw-semibold mb-2">Chọn số sao:</label>
@@ -221,12 +228,31 @@
                                 <textarea name="content" rows="3" class="form-control rounded-3"
                                           placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..." required></textarea>
                             </div>
+                            <!-- Upload ảnh đánh giá -->
+                            <div class="mb-3">
+                                <label class="fw-semibold mb-1">Ảnh đánh giá (tuỳ chọn):</label>
+                                <div class="border rounded-3 p-3 text-center bg-white" style="border: 2px dashed #dee2e6 !important;">
+                                    <div class="mb-2">📷</div>
+                                    <input type="file" name="reviewImage" accept="image/*"
+                                           class="form-control rounded-3"
+                                           onchange="previewReviewImage(this)"/>
+                                    <p class="text-secondary small mt-2 mb-0">PNG, JPG tối đa 5MB</p>
+                                </div>
+                                <div id="reviewImagePreview" class="mt-2" style="display:none;">
+                                    <img id="reviewPreviewImg" src="" alt="Preview"
+                                         class="rounded-3" style="max-height:150px;"/>
+                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2 rounded-3"
+                                            onclick="clearReviewImage()">✕ Xóa ảnh</button>
+                                </div>
+                            </div>
                             <button type="submit" class="btn btn-success fw-bold px-4 rounded-3">
                                 📤 Gửi đánh giá
                             </button>
                         </form>
                     </div>
-                    <div th:if="${hasReviewed}"
+
+                    <!-- Đã đánh giá rồi -->
+                    <div th:if="${hasPurchased and hasReviewed}"
                          class="mb-4 p-3 bg-success bg-opacity-10 rounded-3 border border-success border-opacity-25">
                         <p class="mb-0 text-success fw-semibold">✅ Bạn đã đánh giá sản phẩm này rồi!</p>
                     </div>
@@ -267,6 +293,13 @@
 
                             <!-- Nội dung đánh giá -->
                             <p class="text-dark mb-2" th:text="${review.content}"></p>
+
+                            <!-- Ảnh đánh giá nếu có -->
+                            <div th:if="${review.imageUrl != null}" class="mb-2">
+                                <img th:src="${review.imageUrl}" alt="Ảnh đánh giá"
+                                     class="rounded-3 border" style="max-height:200px;cursor:pointer;"
+                                     onclick="this.style.maxHeight = this.style.maxHeight === 'none' ? '200px' : 'none'"/>
+                            </div>
 
                             <!-- Reply của Seller đã có -->
                             <div th:if="${review.reply != null}"
@@ -317,6 +350,35 @@
 </div>
 
 <script>
+function previewReviewImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('reviewPreviewImg').src = e.target.result;
+            document.getElementById('reviewImagePreview').style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function clearReviewImage() {
+    document.querySelector('input[name="reviewImage"]').value = '';
+    document.getElementById('reviewPreviewImg').src = '';
+    document.getElementById('reviewImagePreview').style.display = 'none';
+}
+
+// Xử lý màu active cho tab
+document.querySelectorAll('#productTabs .nav-link').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('#productTabs .nav-link').forEach(function(t) {
+            t.classList.remove('text-success');
+            t.classList.add('text-secondary');
+        });
+        this.classList.remove('text-secondary');
+        this.classList.add('text-success');
+    });
+});
+
 document.querySelectorAll('.variant-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.variant-btn').forEach(function(b) {

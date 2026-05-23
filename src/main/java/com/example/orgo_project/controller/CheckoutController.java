@@ -53,6 +53,9 @@ public class CheckoutController {
             Integer articleId = (Integer) session.getAttribute("articleId");
             session.removeAttribute("articleId");
             var response = checkoutService.checkout(userDetails.getAccount().getId(), request, selectedItemIds, articleId);
+            if (response.getPayUrl() != null && !response.getPayUrl().isBlank()) {
+                return "redirect:" + response.getPayUrl();
+            }
             redirectAttributes.addFlashAttribute("checkoutResult", response);
             redirectAttributes.addAttribute("orderId", response.getOrderId());
             redirectAttributes.addAttribute("orderCode", response.getOrderCode());

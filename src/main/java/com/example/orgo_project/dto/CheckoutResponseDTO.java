@@ -18,4 +18,5 @@ public class CheckoutResponseDTO {
     private String orderCode;
     private BigDecimal totalAmount;
     private String message;
+    private String payUrl;
 }

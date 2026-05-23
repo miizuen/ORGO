@@ -41,6 +41,7 @@ public class WebSecurityConfig {
                 // Các đường dẫn cho phép public
                 .requestMatchers("/login", "/register", "/forgot-password", "/verify-otp", "/reset-password", "/guest-login").permitAll()
                 .requestMatchers("/", "/welcome", "/search", "/products", "/products/**", "/blog", "/blog/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "/webjars/**", "/articles").permitAll()
+                .requestMatchers("/momo/demo", "/momo/demo/create", "/momo/demo/result", "/momo/return", "/momo/ipn").permitAll()
                 .requestMatchers("/reviews/add").authenticated()
                 // Bất kỳ request nào khác đều bắt buộc đăng nhập
                 .anyRequest().authenticated()

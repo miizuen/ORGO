@@ -21,4 +21,10 @@ public class OrderSummaryDTO {
     private String paymentStatus;
     private BigDecimal totalAmount;
     private LocalDateTime orderedAt;
+    private String shopName;
+    private String itemSummary;
+    
+    // Thông tin khách hàng
+    private String customerName;
+    private String customerPhone;
 }

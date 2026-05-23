@@ -108,19 +108,23 @@
                             <div class="checkout-note"><strong>Lưu ý giao hàng</strong><p>ORGO ưu tiên giao hàng nhanh trong ngày đối với nội thành. Vui lòng đảm bảo thông tin liên hệ chính xác để đơn hàng được xác nhận nhanh chóng.</p></div>
                         </div>
                         <div class="panel-card">
-                            <div class="section-title"><span class="icon">💳</span><span>Phương thức thanh toán</span></div>
+                            <div class="section-title"><span class="icon">💳</span><span>Thanh toán MoMo</span></div>
                             <input type="hidden" name="paymentMethodId" value="2">
-                            <div class="payment-method-grid" style="grid-template-columns:1fr;">
+                            <div class="checkout-note mt-0" style="background:#fff7ed;border-color:#fed7aa;">
+                                <strong>Thanh toán tự động qua MoMo</strong>
+                                <p>Đơn hàng sẽ được tạo ở trạng thái <b>PENDING_PAYMENT</b>, sau đó hệ thống tự mở MoMo để bạn thanh toán ngay.</p>
+                            </div>
+                            <div class="payment-method-grid mt-3" style="grid-template-columns:1fr;">
                                 <div class="payment-option">
-                                    <input type="radio" id="payment-bank" name="paymentMethodDisplay" value="bank" checked disabled>
-                                    <label for="payment-bank" style="cursor:default;">
-                                        <span class="pay-icon">🏦</span>
-                                        <span>Chuyển khoản ngân hàng</span>
-                                        <small>Thanh toán qua tài khoản trung gian của hệ thống</small>
+                                    <input type="radio" id="payment-momo" name="paymentMethodDisplay" value="momo" checked disabled>
+                                    <label for="payment-momo" style="cursor:default;">
+                                        <span class="pay-icon">🌸</span>
+                                        <span>MoMo</span>
+                                        <small>Thanh toán ngay sau khi đặt hàng</small>
                                     </label>
                                 </div>
                             </div>
-                            <div class="checkout-note mt-3" style="background:#eff6ff;border-color:#bfdbfe;"><strong>Phương thức thanh toán duy nhất</strong><p>Đơn hàng hiện chỉ hỗ trợ <b>chuyển khoản ngân hàng</b>.</p></div>
+                            <div class="checkout-note mt-3" style="background:#eff6ff;border-color:#bfdbfe;"><strong>Luồng thanh toán</strong><p>Nhấn nút thanh toán bên dưới để chuyển thẳng sang cổng MoMo.</p></div>
                         </div>
                     </div>
                     <div class="col-lg-5">
@@ -138,7 +142,7 @@
                                 <div class="coupon-row"><input type="text" class="form-control coupon-input" name="shopNote" placeholder="Ghi chú cho shop" th:value="${param.shopNote}"></div>
                                 <div class="shipping-summary"><div class="line"><span>Tạm tính</span><strong th:text="${#numbers.formatDecimal(totalAmount != null ? totalAmount : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">205.000đ</strong></div><div class="line"><span>Vận chuyển</span><strong>25.000đ</strong></div><div class="line"><span>Giảm giá</span><strong>-0đ</strong></div></div>
                                 <div class="total-block"><div class="total-line"><div class="label">Tổng cộng</div><div class="value" th:text="${#numbers.formatDecimal((totalAmount != null ? totalAmount : 0) + 25000, 0, 'POINT', 0, 'COMMA')} + 'đ'">230.000đ</div></div></div>
-                                <button type="submit" class="btn btn-success place-order-btn">Xác nhận đặt hàng →</button>
+                                <button type="submit" class="btn btn-success place-order-btn">Thanh toán qua MoMo →</button>
                                 <div class="secure-note"><span>🔒</span><span>Secure encrypted transaction</span></div>
                             </div>
                         </div>

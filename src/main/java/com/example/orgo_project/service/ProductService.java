@@ -22,6 +22,7 @@ import com.example.orgo_project.entity.ProductCategory;
 import com.example.orgo_project.entity.ProductReview;
 import com.example.orgo_project.entity.ProductVariant;
 import com.example.orgo_project.enums.ProductStatus;
+import com.example.orgo_project.repository.ICustomerOrderItemRepository;
 import com.example.orgo_project.repository.IOrganicCertificateRepository;
 import com.example.orgo_project.repository.IProductCategoryRepository;
 import com.example.orgo_project.repository.IProductRepository;
@@ -45,6 +46,9 @@ public class ProductService {
 
     @Autowired
     private IOrganicCertificateRepository certRepository;
+
+    @Autowired
+    private ICustomerOrderItemRepository orderItemRepository;
 
     // ==================== PUBLIC ====================
 
@@ -229,6 +233,14 @@ public class ProductService {
 
     public boolean hasReviewed(Integer productId, Integer userId) {
         return reviewRepository.existsByProductIdAndUserId(productId, userId);
+    }
+
+    public boolean hasPurchased(Integer productId, Integer userId) {
+        return orderItemRepository.existsByUserIdAndProductId(userId, productId);
+    }
+
+    public String saveReviewImage(MultipartFile file) {
+        return saveImage(file);
     }
 
     // ==================== CERTIFICATE ====================
