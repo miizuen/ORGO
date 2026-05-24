@@ -19,6 +19,7 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
             select p
             from Product p
             where p.status = :status
+              and (p.hidden = false or p.hidden is null)
             order by p.id desc
             """)
     Page<Product> findByStatus(@Param("status") ProductStatus status, Pageable pageable);
@@ -28,6 +29,7 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
             from Product p
             where p.categoryId = :categoryId
               and p.status = :status
+              and (p.hidden = false or p.hidden is null)
             order by p.id desc
             """)
     Page<Product> findByCategoryIdAndStatus(@Param("categoryId") Integer categoryId,
@@ -41,6 +43,24 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
             order by p.id desc
             """)
     Page<Product> findBySellerId(@Param("sellerId") Integer sellerId, Pageable pageable);
+
+    @Query("""
+            select p
+            from Product p
+            where p.sellerId = :sellerId
+              and (p.hidden = false or p.hidden is null)
+            order by p.id desc
+            """)
+    Page<Product> findBySellerIdAndHiddenFalse(@Param("sellerId") Integer sellerId, Pageable pageable);
+
+    @Query("""
+            select p
+            from Product p
+            where p.status = :status
+              and (p.hidden = false or p.hidden is null)
+            order by coalesce(p.averageRating, 0) desc
+            """)
+    List<Product> findTop8ByStatusOrderByAverageRatingDesc(@Param("status") ProductStatus status);
 
     @Query("""
             select p
@@ -70,8 +90,36 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
     @Query("""
             select p
             from Product p
-            where p.status = :status
-            order by coalesce(p.averageRating, 0) desc
+            where p.sellerId = :sellerId
+              and p.status = :status
+            order by p.id desc
             """)
-    List<Product> findTop8ByStatusOrderByAverageRatingDesc(@Param("status") ProductStatus status);
+    Page<Product> findBySellerIdAndStatus(@Param("sellerId") Integer sellerId, 
+                                          @Param("status") ProductStatus status, 
+                                          Pageable pageable);
+
+    @Query("""
+            select p
+            from Product p
+            where p.sellerId = :sellerId
+              and lower(p.productName) like lower(concat('%', :productName, '%'))
+            order by p.id desc
+            """)
+    Page<Product> findBySellerIdAndProductNameContainingIgnoreCase(@Param("sellerId") Integer sellerId,
+                                                                   @Param("productName") String productName,
+                                                                   Pageable pageable);
+
+    @Query("""
+            select p
+            from Product p
+            where p.sellerId = :sellerId
+              and lower(p.productName) like lower(concat('%', :productName, '%'))
+              and p.status = :status
+            order by p.id desc
+            """)
+    Page<Product> findBySellerIdAndProductNameContainingIgnoreCaseAndStatus(@Param("sellerId") Integer sellerId,
+                                                                            @Param("productName") String productName,
+                                                                            @Param("status") ProductStatus status,
+                                                                            Pageable pageable);
+
 }

@@ -118,7 +118,17 @@ public class ProductService {
     // ==================== SELLER ====================
 
     public Page<Product> getProductsBySeller(Integer sellerId, Pageable pageable) {
-        return productRepository.findBySellerId(sellerId, pageable);
+        Page<Product> products = productRepository.findBySellerId(sellerId, pageable);
+        // Load variants for each product to display stock information
+        products.getContent().forEach(product -> {
+            List<ProductVariant> variants = variantRepository.findByProductId(product.getId());
+            product.setVariants(variants);
+        });
+        return products;
+    }
+
+    public Page<Product> getVisibleProductsBySeller(Integer sellerId, Pageable pageable) {
+        return productRepository.findBySellerIdAndHiddenFalse(sellerId, pageable);
     }
 
     @Transactional
@@ -167,10 +177,64 @@ public class ProductService {
     }
 
     @Transactional
-    public void softDeleteProduct(Integer productId) {
+    public void stopSellingProduct(Integer productId) {
         Product p = productRepository.findById(productId).orElse(null);
         if (p != null) {
             p.setStatus(ProductStatus.INACTIVE);
+            productRepository.save(p);
+        }
+    }
+
+    @Transactional
+    public void resumeSellingProduct(Integer productId) {
+        Product p = productRepository.findById(productId).orElse(null);
+        if (p != null) {
+            p.setStatus(ProductStatus.ACTIVE);
+            productRepository.save(p);
+        }
+    }
+
+    public Page<Product> getProductsBySellerWithFilters(Integer sellerId, String search, String status, Pageable pageable) {
+        Page<Product> products;
+        if (search != null && !search.trim().isEmpty()) {
+            if ("all".equals(status)) {
+                products = productRepository.findBySellerIdAndProductNameContainingIgnoreCase(sellerId, search.trim(), pageable);
+            } else {
+                ProductStatus productStatus = ProductStatus.valueOf(status.toUpperCase());
+                products = productRepository.findBySellerIdAndProductNameContainingIgnoreCaseAndStatus(sellerId, search.trim(), productStatus, pageable);
+            }
+        } else {
+            if ("all".equals(status)) {
+                products = productRepository.findBySellerId(sellerId, pageable);
+            } else {
+                ProductStatus productStatus = ProductStatus.valueOf(status.toUpperCase());
+                products = productRepository.findBySellerIdAndStatus(sellerId, productStatus, pageable);
+            }
+        }
+        
+        // Load variants for each product to display stock information
+        products.getContent().forEach(product -> {
+            List<ProductVariant> variants = variantRepository.findByProductId(product.getId());
+            product.setVariants(variants);
+        });
+        
+        return products;
+    }
+
+    @Transactional
+    public void hideProduct(Integer productId) {
+        Product p = productRepository.findById(productId).orElse(null);
+        if (p != null) {
+            p.setHidden(Boolean.TRUE);
+            productRepository.save(p);
+        }
+    }
+
+    @Transactional
+    public void showProduct(Integer productId) {
+        Product p = productRepository.findById(productId).orElse(null);
+        if (p != null) {
+            p.setHidden(Boolean.FALSE);
             productRepository.save(p);
         }
     }

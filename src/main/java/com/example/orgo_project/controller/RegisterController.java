@@ -46,6 +46,38 @@ public class RegisterController {
         return "pages/public/register";
     }
 
+    @PostMapping("")
+    public String registerAccount(@RequestParam String fullName,
+                                  @RequestParam String username,
+                                  @RequestParam String email,
+                                  @RequestParam String phone,
+                                  @RequestParam String password,
+                                  @RequestParam String confirmPassword) {
+        if (password == null || !password.equals(confirmPassword)) {
+            return "redirect:/register?error=PasswordMismatch";
+        }
+        if (phone == null || !phone.matches("^\\d{10}$")) {
+            return "redirect:/register?error=InvalidPhone";
+        }
+
+        Account account = new Account();
+        account.setUsername(username.trim());
+        account.setPassword(passwordEncoder.encode(password));
+        Role userRole = roleService.findByRollName(RoleName.USER);
+        account.setRole(userRole);
+        accountService.save(account);
+
+        UserProfile userProfile = new UserProfile();
+        userProfile.setAccount(account);
+        userProfile.setFullName(fullName);
+        userProfile.setEmail(email);
+        userProfile.setPhoneNumber(phone);
+        userProfile.setStatus(UserStatus.ACTIVE);
+        userService.save(userProfile);
+
+        return "redirect:/login?registerSuccess";
+    }
+
     @GetMapping("/seller")
     public String showSellerRegisterForm() {
         return "pages/public/register-seller";

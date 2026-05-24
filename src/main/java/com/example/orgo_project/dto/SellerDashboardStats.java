@@ -45,7 +45,10 @@ public class SellerDashboardStats {
     public static class TopProduct {
         private Integer productId;
         private String productName;
+        private String imageUrl;
         private Long soldQuantity;
+        private Double averageRating;
+        private Long reviewCount;
         private BigDecimal revenue;
     }
 }
