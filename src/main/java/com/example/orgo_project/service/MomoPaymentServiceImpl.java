@@ -161,10 +161,11 @@ public class MomoPaymentServiceImpl implements MomoPaymentService {
 
         savePaymentHistory(order, request, mappedStatus, transactionCode);
 
-        if (mappedStatus == PaymentStatus.PAID) {
-            log.info("MoMo revenue distribution started: orderId={}, orderCode={}, transactionCode={}", order.getId(), order.getOrderCode(), transactionCode);
-            revenueDistributionService.distributeForOrder(order.getId());
-        }
+        // ❌ KHÔNG chia tiền ở đây - tiền vẫn giữ ở MoMo
+        // Chỉ chia tiền khi user xác nhận đã nhận hàng (DELIVERED)
+        log.info("MoMo payment successful: orderId={}, orderCode={}, transactionCode={}, money held at MoMo until delivery confirmed", 
+                 order.getId(), order.getOrderCode(), transactionCode);
+        
         return true;
     }
 

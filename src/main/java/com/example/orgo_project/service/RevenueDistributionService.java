@@ -1,5 +1,15 @@
 package com.example.orgo_project.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.orgo_project.entity.Account;
 import com.example.orgo_project.entity.Article;
 import com.example.orgo_project.entity.CustomerOrder;
@@ -25,15 +35,6 @@ import com.example.orgo_project.repository.IProductVariantRepository;
 import com.example.orgo_project.repository.ISellerRepository;
 import com.example.orgo_project.repository.ITransactionHistoryRepository;
 import com.example.orgo_project.repository.IWalletBalanceRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional
@@ -85,7 +86,8 @@ public class RevenueDistributionService implements IRevenueDistributionService {
         CustomerOrder order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Khong tim thay don hang"));
         if (order.getPaymentStatus() != PaymentStatus.PAID) throw new RuntimeException("Don hang chua thanh toan");
-        if (order.getOrderStatus() != OrderStatus.PROCESSING) throw new RuntimeException("Don hang chua duyet de chi tien");
+        // ✅ CHỈ chia tiền khi đơn hàng đã DELIVERED (user đã nhận hàng)
+        if (order.getOrderStatus() != OrderStatus.DELIVERED) throw new RuntimeException("Don hang chua hoan thanh de chi tien");
         if (!orderSettlementRepository.findByOrderId(orderId).isEmpty()) return;
 
         boolean hasArticle = order.getArticleId() != null;

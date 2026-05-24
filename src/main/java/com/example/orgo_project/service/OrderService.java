@@ -31,19 +31,22 @@ public class OrderService implements IOrderService {
     private final IProductRepository productRepository;
     private final ISellerRepository sellerRepository;
     private final IShippingAddressRepository shippingAddressRepository;
+    private final IRevenueDistributionService revenueDistributionService;
 
     public OrderService(ICustomerOrderRepository orderRepository,
                         ICustomerOrderItemRepository orderItemRepository,
                         IProductVariantRepository variantRepository,
                         IProductRepository productRepository,
                         ISellerRepository sellerRepository,
-                        IShippingAddressRepository shippingAddressRepository) {
+                        IShippingAddressRepository shippingAddressRepository,
+                        IRevenueDistributionService revenueDistributionService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.variantRepository = variantRepository;
         this.productRepository = productRepository;
         this.sellerRepository = sellerRepository;
         this.shippingAddressRepository = shippingAddressRepository;
+        this.revenueDistributionService = revenueDistributionService;
     }
 
     @Override
@@ -57,9 +60,22 @@ public class OrderService implements IOrderService {
                 .orElse(null);
         if (order == null || !order.getUserId().equals(accountId)) return false;
         if (order.getOrderStatus() != com.example.orgo_project.enums.OrderStatus.SHIPPED) return false;
+        
+        // Cập nhật trạng thái đơn hàng
         order.setOrderStatus(com.example.orgo_project.enums.OrderStatus.DELIVERED);
         order.setDeliveredAt(java.time.LocalDateTime.now());
         orderRepository.save(order);
+        
+        // ✅ KÍCH HOẠT CHIA TIỀN TỰ ĐỘNG khi user xác nhận đã nhận hàng
+        try {
+            revenueDistributionService.distributeForOrder(orderId);
+            System.out.println("✅ Revenue distributed successfully for order: " + order.getOrderCode());
+        } catch (Exception e) {
+            System.err.println("❌ Failed to distribute revenue for order " + order.getOrderCode() + ": " + e.getMessage());
+            // Không throw exception để không ảnh hưởng đến việc xác nhận nhận hàng
+            // Admin có thể chia tiền thủ công sau
+        }
+        
         return true;
     }
 
