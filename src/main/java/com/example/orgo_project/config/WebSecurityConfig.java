@@ -58,7 +58,7 @@ public class WebSecurityConfig {
                     boolean isExpert = authentication.getAuthorities().stream()
                             .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_EXPERT"));
                     boolean isUser = authentication.getAuthorities().stream()
-                            .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_USER"));
+                            .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_BUYER"));
 
                     if (isAdmin) {
                         response.sendRedirect("/admin/dashboard");
