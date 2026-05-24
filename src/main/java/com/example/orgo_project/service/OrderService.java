@@ -1,25 +1,26 @@
 package com.example.orgo_project.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.orgo_project.dto.OrderDetailDTO;
 import com.example.orgo_project.dto.OrderItemDTO;
 import com.example.orgo_project.dto.OrderSummaryDTO;
 import com.example.orgo_project.entity.CustomerOrder;
 import com.example.orgo_project.entity.CustomerOrderItem;
-import com.example.orgo_project.entity.ProductVariant;
 import com.example.orgo_project.entity.Product;
+import com.example.orgo_project.entity.ProductVariant;
 import com.example.orgo_project.entity.Seller;
 import com.example.orgo_project.enums.OrderStatus;
 import com.example.orgo_project.repository.ICustomerOrderItemRepository;
 import com.example.orgo_project.repository.ICustomerOrderRepository;
-import com.example.orgo_project.repository.IProductVariantRepository;
 import com.example.orgo_project.repository.IProductRepository;
+import com.example.orgo_project.repository.IProductVariantRepository;
 import com.example.orgo_project.repository.ISellerRepository;
 import com.example.orgo_project.repository.IShippingAddressRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -64,7 +65,7 @@ public class OrderService implements IOrderService {
         ids.add(accountId);
         
         // Thêm userProfileId (cho dữ liệu mới lưu đúng)
-        userProfileRepository.findByAccountId(accountId).ifPresent(profile -> {
+        userProfileRepository.findByAccount_Id(accountId).ifPresent(profile -> {
             if (profile.getId() != null && !ids.contains(profile.getId())) {
                 ids.add(profile.getId());
             }

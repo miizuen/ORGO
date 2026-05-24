@@ -1,11 +1,12 @@
 package com.example.orgo_project.service;
 
-import com.example.orgo_project.entity.UserProfile;
-import com.example.orgo_project.repository.IUserProfileRepository;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import com.example.orgo_project.entity.UserProfile;
+import com.example.orgo_project.repository.IUserProfileRepository;
 
 @Service
 @Transactional
@@ -18,7 +19,7 @@ public class UserProfileService {
     }
 
     public Optional<UserProfile> findByAccountId(Integer accountId) {
-        return userProfileRepository.findByAccountId(accountId);
+        return userProfileRepository.findByAccount_Id(accountId);
     }
 
     public UserProfile save(UserProfile profile) {

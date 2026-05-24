@@ -222,7 +222,7 @@ public class CheckoutService implements ICheckoutService {
 
     private CustomerOrder saveOrder(Integer accountId, CheckoutRequestDTO request, BigDecimal totalAmount, Integer sellerId, Integer articleId) {
         // ✅ Map accountId → userProfileId (id_nguoi_dung)
-        Integer userProfileId = userProfileRepository.findByAccountId(accountId)
+        Integer userProfileId = userProfileRepository.findByAccount_Id(accountId)
                 .map(com.example.orgo_project.entity.UserProfile::getId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin người dùng"));
         
