@@ -32,6 +32,7 @@ public class OrderService implements IOrderService {
     private final ISellerRepository sellerRepository;
     private final IShippingAddressRepository shippingAddressRepository;
     private final IRevenueDistributionService revenueDistributionService;
+    private final com.example.orgo_project.repository.IUserProfileRepository userProfileRepository;
 
     public OrderService(ICustomerOrderRepository orderRepository,
                         ICustomerOrderItemRepository orderItemRepository,
@@ -39,7 +40,8 @@ public class OrderService implements IOrderService {
                         IProductRepository productRepository,
                         ISellerRepository sellerRepository,
                         IShippingAddressRepository shippingAddressRepository,
-                        IRevenueDistributionService revenueDistributionService) {
+                        IRevenueDistributionService revenueDistributionService,
+                        com.example.orgo_project.repository.IUserProfileRepository userProfileRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.variantRepository = variantRepository;
@@ -47,18 +49,47 @@ public class OrderService implements IOrderService {
         this.sellerRepository = sellerRepository;
         this.shippingAddressRepository = shippingAddressRepository;
         this.revenueDistributionService = revenueDistributionService;
+        this.userProfileRepository = userProfileRepository;
+    }
+    
+    /**
+     * Lấy danh sách ID tương thích để query đơn hàng (hỗ trợ cả dữ liệu cũ và mới)
+     * - Dữ liệu cũ: id_nguoi_dung = id_tai_khoan (sai)
+     * - Dữ liệu mới: id_nguoi_dung = UserProfile.id (đúng)
+     */
+    private java.util.List<Integer> getCompatibleUserIds(Integer accountId) {
+        java.util.List<Integer> ids = new java.util.ArrayList<>();
+        
+        // Thêm accountId (cho dữ liệu cũ lưu sai)
+        ids.add(accountId);
+        
+        // Thêm userProfileId (cho dữ liệu mới lưu đúng)
+        userProfileRepository.findByAccountId(accountId).ifPresent(profile -> {
+            if (profile.getId() != null && !ids.contains(profile.getId())) {
+                ids.add(profile.getId());
+            }
+        });
+        
+        return ids;
     }
 
     @Override
     public List<OrderSummaryDTO> getMyOrders(Integer accountId) {
-        return orderRepository.findByUserIdOrderByOrderedAtDesc(accountId)
+        // ✅ Query theo cả accountId và userProfileId để hỗ trợ dữ liệu cũ + mới
+        java.util.List<Integer> compatibleIds = getCompatibleUserIds(accountId);
+        return orderRepository.findByUserIdInOrderByOrderedAtDesc(compatibleIds)
                 .stream().map(this::toSummary).toList();
     }
 
+    @Override
     public boolean confirmDelivery(Integer accountId, Integer orderId) {
         com.example.orgo_project.entity.CustomerOrder order = orderRepository.findById(orderId)
                 .orElse(null);
-        if (order == null || !order.getUserId().equals(accountId)) return false;
+        if (order == null) return false;
+        
+        // ✅ Kiểm tra quyền với cả accountId và userProfileId
+        java.util.List<Integer> compatibleIds = getCompatibleUserIds(accountId);
+        if (!compatibleIds.contains(order.getUserId())) return false;
         if (order.getOrderStatus() != com.example.orgo_project.enums.OrderStatus.SHIPPED) return false;
         
         // Cập nhật trạng thái đơn hàng
@@ -79,8 +110,11 @@ public class OrderService implements IOrderService {
         return true;
     }
 
+    @Override
     public List<OrderSummaryDTO> getMyOrdersByStatus(Integer accountId, OrderStatus status) {
-        return orderRepository.findByUserIdAndOrderStatusOrderByOrderedAtDesc(accountId, status)
+        // ✅ Query theo cả accountId và userProfileId để hỗ trợ dữ liệu cũ + mới
+        java.util.List<Integer> compatibleIds = getCompatibleUserIds(accountId);
+        return orderRepository.findByUserIdInAndOrderStatusOrderByOrderedAtDesc(compatibleIds, status)
                 .stream().map(this::toSummary).toList();
     }
 
@@ -88,6 +122,12 @@ public class OrderService implements IOrderService {
     public OrderDetailDTO getOrderDetail(Integer accountId, Integer orderId) {
         CustomerOrder order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+        
+        // ✅ Kiểm tra quyền truy cập với cả accountId và userProfileId
+        java.util.List<Integer> compatibleIds = getCompatibleUserIds(accountId);
+        if (!compatibleIds.contains(order.getUserId())) {
+            throw new RuntimeException("Bạn không có quyền xem đơn hàng này");
+        }
 
         // Lấy tên shop
         String shopName = null;
@@ -159,8 +199,12 @@ public class OrderService implements IOrderService {
     public boolean cancelOrder(Integer accountId, Integer orderId, String reason) {
         CustomerOrder order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
-        if (!order.getUserId().equals(accountId))
+        
+        // ✅ Kiểm tra quyền với cả accountId và userProfileId
+        java.util.List<Integer> compatibleIds = getCompatibleUserIds(accountId);
+        if (!compatibleIds.contains(order.getUserId())) {
             throw new RuntimeException("Không có quyền hủy đơn này");
+        }
         if (order.getOrderStatus() != OrderStatus.PENDING && order.getOrderStatus() != OrderStatus.PROCESSING)
             throw new RuntimeException("Chỉ được hủy đơn ở trạng thái PENDING hoặc PROCESSING");
         order.setOrderStatus(OrderStatus.CANCELLED);

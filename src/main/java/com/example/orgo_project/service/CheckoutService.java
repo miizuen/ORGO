@@ -51,6 +51,7 @@ public class CheckoutService implements ICheckoutService {
     private final PaymentQrService paymentQrService;
     private final IRevenueDistributionService revenueDistributionService;
     private final MomoPaymentService momoPaymentService;
+    private final com.example.orgo_project.repository.IUserProfileRepository userProfileRepository;
 
     public CheckoutService(IShoppingCartRepository cartRepository,
                            IShoppingCartItemRepository cartItemRepository,
@@ -63,7 +64,8 @@ public class CheckoutService implements ICheckoutService {
                            IPaymentHistoryRepository paymentHistoryRepository,
                            PaymentQrService paymentQrService,
                            IRevenueDistributionService revenueDistributionService,
-                           MomoPaymentService momoPaymentService) {
+                           MomoPaymentService momoPaymentService,
+                           com.example.orgo_project.repository.IUserProfileRepository userProfileRepository) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productVariantRepository = productVariantRepository;
@@ -76,6 +78,7 @@ public class CheckoutService implements ICheckoutService {
         this.paymentQrService = paymentQrService;
         this.revenueDistributionService = revenueDistributionService;
         this.momoPaymentService = momoPaymentService;
+        this.userProfileRepository = userProfileRepository;
     }
 
     @Override
@@ -218,8 +221,13 @@ public class CheckoutService implements ICheckoutService {
     }
 
     private CustomerOrder saveOrder(Integer accountId, CheckoutRequestDTO request, BigDecimal totalAmount, Integer sellerId, Integer articleId) {
+        // ✅ Map accountId → userProfileId (id_nguoi_dung)
+        Integer userProfileId = userProfileRepository.findByAccountId(accountId)
+                .map(com.example.orgo_project.entity.UserProfile::getId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin người dùng"));
+        
         CustomerOrder order = new CustomerOrder();
-        order.setUserId(accountId);
+        order.setUserId(userProfileId); // ✅ ĐÚNG - lưu id_nguoi_dung
         order.setSellerId(sellerId);
         order.setShippingAddressId(request != null ? request.getShippingAddressId() : null);
         order.setPaymentMethodId(request != null ? request.getPaymentMethodId() : null);
