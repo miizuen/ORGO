@@ -206,6 +206,11 @@
             letter-spacing: 0.5px;
         }
         
+        .status-pending-payment {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
         .status-pending {
             background: #fef3c7;
             color: #92400e;
@@ -403,11 +408,13 @@
                         </td>
                         <td>
                             <span class="status-badge"
-                                  th:classappend="${order.orderStatus == 'PENDING' ? 'status-pending' : 
+                                  th:classappend="${order.orderStatus == 'PENDING_PAYMENT' ? 'status-pending-payment' :
+                                                   order.orderStatus == 'PENDING' ? 'status-pending' : 
                                                    order.orderStatus == 'PROCESSING' ? 'status-processing' : 
                                                    order.orderStatus == 'SHIPPED' ? 'status-shipped' : 
                                                    order.orderStatus == 'DELIVERED' ? 'status-delivered' : 'status-cancelled'}"
-                                  th:text="${order.orderStatus == 'PENDING' ? 'Chờ xử lý' : 
+                                  th:text="${order.orderStatus == 'PENDING_PAYMENT' ? 'Chờ thanh toán' :
+                                            order.orderStatus == 'PENDING' ? 'Chờ xử lý' : 
                                             order.orderStatus == 'PROCESSING' ? 'Đang xử lý' : 
                                             order.orderStatus == 'SHIPPED' ? 'Đang giao' : 
                                             order.orderStatus == 'DELIVERED' ? 'Hoàn thành' : 'Đã hủy'}">

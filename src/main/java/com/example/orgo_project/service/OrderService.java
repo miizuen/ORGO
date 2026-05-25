@@ -174,7 +174,7 @@ public class OrderService implements IOrderService {
                     }
                 }
                 return null;
-            }).filter(n -> n != null).distinct().collect(Collectors.toList());
+            }).filter(java.util.Objects::nonNull).distinct().toList();
 
             if (!names.isEmpty()) {
                 itemSummary = names.size() + " sản phẩm: " + String.join(", ",

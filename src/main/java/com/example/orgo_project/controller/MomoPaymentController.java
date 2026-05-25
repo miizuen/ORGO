@@ -1,16 +1,11 @@
 package com.example.orgo_project.controller;
 
-import com.example.orgo_project.dto.MomoCreateResponseDTO;
-import com.example.orgo_project.dto.MomoIpnRequestDTO;
-import com.example.orgo_project.entity.CustomerOrder;
-import com.example.orgo_project.repository.ICustomerOrderRepository;
-import com.example.orgo_project.service.MomoPaymentService;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import java.math.BigDecimal;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +14,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.math.BigDecimal;
+import com.example.orgo_project.dto.MomoCreateResponseDTO;
+import com.example.orgo_project.dto.MomoIpnRequestDTO;
+import com.example.orgo_project.entity.CustomerOrder;
+import com.example.orgo_project.enums.OrderStatus;
+import com.example.orgo_project.enums.PaymentStatus;
+import com.example.orgo_project.repository.ICustomerOrderRepository;
+import com.example.orgo_project.service.MomoPaymentService;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 
 @Controller
 @RequestMapping("/momo")
@@ -74,7 +78,39 @@ public class MomoPaymentController {
     public String momoReturn(@RequestParam(required = false) String orderId,
                              @RequestParam(required = false) String resultCode,
                              @RequestParam(required = false) String message,
-                             Model model) {
+                             @RequestParam(required = false) String transId,
+                             @RequestParam(required = false) String amount,
+                             Model model,
+                             RedirectAttributes redirectAttributes) {
+        
+        System.out.println("========== MOMO RETURN ==========");
+        System.out.println("Order ID: " + orderId);
+        System.out.println("Result Code: " + resultCode);
+        System.out.println("Trans ID: " + transId);
+        System.out.println("Message: " + message);
+        System.out.println("=================================");
+        
+        // Nếu thanh toán thành công (resultCode = 0), cập nhật đơn hàng
+        if ("0".equals(resultCode) && orderId != null) {
+            try {
+                CustomerOrder order = orderRepository.findByOrderCode(orderId).orElse(null);
+                if (order != null && order.getPaymentStatus() != PaymentStatus.PAID) {
+                    // Cập nhật trạng thái đơn hàng
+                    order.setPaymentStatus(PaymentStatus.PAID);
+                    order.setOrderStatus(OrderStatus.PENDING);
+                    order.setPaidAt(java.time.LocalDateTime.now());
+                    orderRepository.save(order);
+                    
+                    System.out.println("✅ Order updated successfully: " + orderId);
+                    
+                    redirectAttributes.addFlashAttribute("successMessage", "Thanh toán thành công!");
+                    return "redirect:/orders/" + order.getId();
+                }
+            } catch (Exception e) {
+                System.err.println("❌ Error updating order: " + e.getMessage());
+            }
+        }
+        
         model.addAttribute("orderId", orderId);
         model.addAttribute("resultCode", resultCode);
         model.addAttribute("message", message);
@@ -83,6 +119,12 @@ public class MomoPaymentController {
 
     @PostMapping("/ipn")
     public ResponseEntity<Void> momoIpn(@RequestBody MomoIpnRequestDTO request) {
+        System.out.println("========== RECEIVED MOMO IPN ==========");
+        System.out.println("Order ID: " + request.getOrderId());
+        System.out.println("Result Code: " + request.getResultCode());
+        System.out.println("Message: " + request.getMessage());
+        System.out.println("=======================================");
+        
         momoPaymentService.handleIpn(request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
