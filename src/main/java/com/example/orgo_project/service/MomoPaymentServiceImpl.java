@@ -37,20 +37,17 @@ public class MomoPaymentServiceImpl implements MomoPaymentService {
     private final ObjectMapper objectMapper;
     private final ICustomerOrderRepository orderRepository;
     private final IPaymentHistoryRepository paymentHistoryRepository;
-    private final IRevenueDistributionService revenueDistributionService;
     private final MomoProperties momoProperties;
 
     public MomoPaymentServiceImpl(RestClient.Builder restClientBuilder,
                                   ObjectMapper objectMapper,
                                   ICustomerOrderRepository orderRepository,
                                   IPaymentHistoryRepository paymentHistoryRepository,
-                                  IRevenueDistributionService revenueDistributionService,
                                   MomoProperties momoProperties) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
         this.orderRepository = orderRepository;
         this.paymentHistoryRepository = paymentHistoryRepository;
-        this.revenueDistributionService = revenueDistributionService;
         this.momoProperties = momoProperties;
     }
 
@@ -161,10 +158,6 @@ public class MomoPaymentServiceImpl implements MomoPaymentService {
 
         savePaymentHistory(order, request, mappedStatus, transactionCode);
 
-        if (mappedStatus == PaymentStatus.PAID) {
-            log.info("MoMo revenue distribution started: orderId={}, orderCode={}, transactionCode={}", order.getId(), order.getOrderCode(), transactionCode);
-            revenueDistributionService.distributeForOrder(order.getId());
-        }
         return true;
     }
 
