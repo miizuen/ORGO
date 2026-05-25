@@ -31,19 +31,22 @@ public class OrderService implements IOrderService {
     private final IProductRepository productRepository;
     private final ISellerRepository sellerRepository;
     private final IShippingAddressRepository shippingAddressRepository;
+    private final IRevenueDistributionService revenueDistributionService;
 
     public OrderService(ICustomerOrderRepository orderRepository,
                         ICustomerOrderItemRepository orderItemRepository,
                         IProductVariantRepository variantRepository,
                         IProductRepository productRepository,
                         ISellerRepository sellerRepository,
-                        IShippingAddressRepository shippingAddressRepository) {
+                        IShippingAddressRepository shippingAddressRepository,
+                        IRevenueDistributionService revenueDistributionService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.variantRepository = variantRepository;
         this.productRepository = productRepository;
         this.sellerRepository = sellerRepository;
         this.shippingAddressRepository = shippingAddressRepository;
+        this.revenueDistributionService = revenueDistributionService;
     }
 
     @Override
@@ -60,6 +63,11 @@ public class OrderService implements IOrderService {
         order.setOrderStatus(com.example.orgo_project.enums.OrderStatus.DELIVERED);
         order.setDeliveredAt(java.time.LocalDateTime.now());
         orderRepository.save(order);
+        try {
+            revenueDistributionService.distributeForOrder(orderId);
+        } catch (Exception ex) {
+            System.err.println("Revenue distribution failed for delivered order " + orderId + ": " + ex.getMessage());
+        }
         return true;
     }
 

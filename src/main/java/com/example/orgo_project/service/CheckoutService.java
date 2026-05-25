@@ -49,7 +49,6 @@ public class CheckoutService implements ICheckoutService {
     private final IPaymentQrSessionRepository paymentQrSessionRepository;
     private final IPaymentHistoryRepository paymentHistoryRepository;
     private final PaymentQrService paymentQrService;
-    private final IRevenueDistributionService revenueDistributionService;
     private final MomoPaymentService momoPaymentService;
 
     public CheckoutService(IShoppingCartRepository cartRepository,
@@ -62,7 +61,6 @@ public class CheckoutService implements ICheckoutService {
                            IPaymentQrSessionRepository paymentQrSessionRepository,
                            IPaymentHistoryRepository paymentHistoryRepository,
                            PaymentQrService paymentQrService,
-                           IRevenueDistributionService revenueDistributionService,
                            MomoPaymentService momoPaymentService) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
@@ -74,7 +72,6 @@ public class CheckoutService implements ICheckoutService {
         this.paymentQrSessionRepository = paymentQrSessionRepository;
         this.paymentHistoryRepository = paymentHistoryRepository;
         this.paymentQrService = paymentQrService;
-        this.revenueDistributionService = revenueDistributionService;
         this.momoPaymentService = momoPaymentService;
     }
 
@@ -155,9 +152,6 @@ public class CheckoutService implements ICheckoutService {
             paymentQrSessionRepository.save(session);
         });
         savePaymentHistory(order, transactionCode);
-
-        // chia tiền ngay sau khi thanh toán thành công
-        revenueDistributionService.distributeForOrder(orderId);
 
         return buildPaymentResponse(
                 order,

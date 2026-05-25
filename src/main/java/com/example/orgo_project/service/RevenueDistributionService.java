@@ -85,7 +85,7 @@ public class RevenueDistributionService implements IRevenueDistributionService {
         CustomerOrder order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Khong tim thay don hang"));
         if (order.getPaymentStatus() != PaymentStatus.PAID) throw new RuntimeException("Don hang chua thanh toan");
-        if (order.getOrderStatus() != OrderStatus.PROCESSING) throw new RuntimeException("Don hang chua duyet de chi tien");
+        if (order.getOrderStatus() != OrderStatus.DELIVERED) throw new RuntimeException("Chi chia tien khi don da giao thanh cong");
         if (!orderSettlementRepository.findByOrderId(orderId).isEmpty()) return;
 
         boolean hasArticle = order.getArticleId() != null;
