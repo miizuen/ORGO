@@ -20,9 +20,6 @@ public class OrderController {
 
     private Integer getUserId(CustomUserDetails userDetails) {
         if (userDetails == null || userDetails.getAccount() == null) return null;
-        if (userDetails.getAccount().getUser() != null) {
-            return userDetails.getAccount().getUser().getId();
-        }
         return userDetails.getAccount().getId();
     }
 

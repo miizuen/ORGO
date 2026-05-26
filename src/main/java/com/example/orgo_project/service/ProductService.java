@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -118,7 +121,17 @@ public class ProductService {
     // ==================== SELLER ====================
 
     public Page<Product> getProductsBySeller(Integer sellerId, Pageable pageable) {
-        return productRepository.findBySellerId(sellerId, pageable);
+        Page<Product> products = productRepository.findBySellerId(sellerId, pageable);
+        // Load variants for each product to display stock information
+        products.getContent().forEach(product -> {
+            List<ProductVariant> variants = variantRepository.findByProductId(product.getId());
+            product.setVariants(variants);
+        });
+        return products;
+    }
+
+    public Page<Product> getVisibleProductsBySeller(Integer sellerId, Pageable pageable) {
+        return productRepository.findBySellerIdAndHiddenFalse(sellerId, pageable);
     }
 
     @Transactional
@@ -167,10 +180,161 @@ public class ProductService {
     }
 
     @Transactional
-    public void softDeleteProduct(Integer productId) {
+    public void stopSellingProduct(Integer productId) {
         Product p = productRepository.findById(productId).orElse(null);
         if (p != null) {
             p.setStatus(ProductStatus.INACTIVE);
+            productRepository.save(p);
+        }
+    }
+
+    @Transactional
+    public void resumeSellingProduct(Integer productId) {
+        Product p = productRepository.findById(productId).orElse(null);
+        if (p != null) {
+            p.setStatus(ProductStatus.ACTIVE);
+            productRepository.save(p);
+        }
+    }
+
+    public Page<Product> getProductsBySellerWithFilters(Integer sellerId, String search, String status, Pageable pageable) {
+        return getProductsBySellerWithFilters(sellerId, search, status, null, "newest", pageable);
+    }
+
+    public Page<Product> getProductsBySellerWithFilters(Integer sellerId, String search, String status, Integer categoryId, String sort, Pageable pageable) {
+        List<Product> allProducts = new ArrayList<>(productRepository.findBySellerId(sellerId));
+        allProducts.forEach(product -> product.setVariants(variantRepository.findByProductId(product.getId())));
+
+        String normalizedSearch = search != null ? search.trim().toLowerCase() : "";
+        boolean hasSearch = !normalizedSearch.isBlank();
+        boolean hasCategoryFilter = categoryId != null && categoryId > 0;
+        boolean filterAllStatus = status == null || status.isBlank() || "all".equalsIgnoreCase(status);
+        ProductStatus requestedStatus = null;
+        if (!filterAllStatus) {
+            try {
+                requestedStatus = ProductStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException ex) {
+                filterAllStatus = true;
+            }
+        }
+
+        List<Product> filtered = new ArrayList<>();
+        for (Product product : allProducts) {
+            if (hasSearch) {
+                String productName = product.getProductName() != null ? product.getProductName().toLowerCase() : "";
+                String origin = product.getOrigin() != null ? product.getOrigin().toLowerCase() : "";
+                String sku = ("OR-" + product.getId()).toLowerCase();
+                boolean matched = productName.contains(normalizedSearch)
+                        || origin.contains(normalizedSearch)
+                        || sku.contains(normalizedSearch);
+                if (!matched) {
+                    continue;
+                }
+            }
+
+            if (!filterAllStatus) {
+                if (product.getStatus() == null || product.getStatus() != requestedStatus) {
+                    continue;
+                }
+            }
+
+            if (hasCategoryFilter) {
+                if (product.getCategoryId() == null || !product.getCategoryId().equals(categoryId)) {
+                    continue;
+                }
+            }
+
+            filtered.add(product);
+        }
+
+        Comparator<Product> comparator = Comparator.comparing(Product::getId, Comparator.nullsLast(Integer::compareTo)).reversed();
+        String normalizedSort = sort != null ? sort.toLowerCase() : "newest";
+        switch (normalizedSort) {
+            case "oldest":
+                comparator = Comparator.comparing(Product::getId, Comparator.nullsLast(Integer::compareTo));
+                break;
+            case "name_asc":
+                comparator = Comparator.comparing(p -> p.getProductName() != null ? p.getProductName().toLowerCase() : "");
+                break;
+            case "name_desc":
+                comparator = Comparator.comparing((Product p) -> p.getProductName() != null ? p.getProductName().toLowerCase() : "").reversed();
+                break;
+            case "price_asc":
+                comparator = Comparator.comparing(this::getMinPrice);
+                break;
+            case "price_desc":
+                comparator = Comparator.comparing(this::getMinPrice).reversed();
+                break;
+            case "stock_asc":
+                comparator = Comparator.comparingInt(this::getTotalStock);
+                break;
+            case "stock_desc":
+                comparator = Comparator.comparingInt(this::getTotalStock).reversed();
+                break;
+            default:
+                break;
+        }
+
+        filtered.sort(comparator);
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), filtered.size());
+        List<Product> paged = start >= filtered.size() ? List.of() : filtered.subList(start, end);
+        return new PageImpl<>(paged, pageable, filtered.size());
+    }
+
+    public List<Product> getAllProductsBySeller(Integer sellerId) {
+        List<Product> products = new ArrayList<>(productRepository.findBySellerId(sellerId));
+        products.forEach(product -> product.setVariants(variantRepository.findByProductId(product.getId())));
+        return products;
+    }
+
+    public int getTotalStock(Product product) {
+        if (product == null || product.getVariants() == null || product.getVariants().isEmpty()) {
+            return 0;
+        }
+        int totalStock = 0;
+        for (ProductVariant variant : product.getVariants()) {
+            if (variant.getStockQuantity() != null) {
+                totalStock += variant.getStockQuantity();
+            }
+        }
+        return totalStock;
+    }
+
+    public java.math.BigDecimal getEstimatedInventoryValue(Product product) {
+        if (product == null || product.getVariants() == null || product.getVariants().isEmpty()) {
+            return java.math.BigDecimal.ZERO;
+        }
+        java.math.BigDecimal total = java.math.BigDecimal.ZERO;
+        for (ProductVariant variant : product.getVariants()) {
+            java.math.BigDecimal unitPrice = variant.getDiscountedPrice() != null ? variant.getDiscountedPrice() : variant.getOriginalPrice();
+            Integer stock = variant.getStockQuantity() != null ? variant.getStockQuantity() : 0;
+            if (unitPrice != null && stock > 0) {
+                total = total.add(unitPrice.multiply(java.math.BigDecimal.valueOf(stock)));
+            }
+        }
+        return total;
+    }
+
+    public java.math.BigDecimal getDisplayPrice(Product product) {
+        return getMinPrice(product);
+    }
+
+    @Transactional
+    public void hideProduct(Integer productId) {
+        Product p = productRepository.findById(productId).orElse(null);
+        if (p != null) {
+            p.setHidden(Boolean.TRUE);
+            productRepository.save(p);
+        }
+    }
+
+    @Transactional
+    public void showProduct(Integer productId) {
+        Product p = productRepository.findById(productId).orElse(null);
+        if (p != null) {
+            p.setHidden(Boolean.FALSE);
             productRepository.save(p);
         }
     }
@@ -303,5 +467,94 @@ public class ProductService {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    public long getActiveProductCountByCategory(Integer categoryId) {
+        return productRepository.countActiveByCategoryId(categoryId);
+    }
+
+    public long countAllActive() {
+        return productRepository.countAllActive();
+    }
+
+    public List<String> getAllOrigins() {
+        return productRepository.findDistinctOrigins();
+    }
+
+    public Page<Product> getFilteredProducts(String keyword, Integer categoryId, Double minPrice, Double maxPrice, String origin, String sort, Pageable pageable) {
+        Pageable unpaged = PageRequest.of(0, 100000);
+        Page<Product> rawProducts = productRepository.searchProducts(
+                (keyword != null && !keyword.isBlank()) ? keyword : null,
+                categoryId,
+                unpaged
+        );
+        
+        List<Product> list = new java.util.ArrayList<>(rawProducts.getContent());
+        List<Product> filteredList = new java.util.ArrayList<>();
+        
+        for (Product p : list) {
+            List<ProductVariant> variants = variantRepository.findByProductId(p.getId());
+            p.setVariants(variants);
+            
+            // Calculate minimum price of variants
+            java.math.BigDecimal price = java.math.BigDecimal.ZERO;
+            if (variants != null && !variants.isEmpty()) {
+                price = variants.get(0).getDiscountedPrice() != null ? variants.get(0).getDiscountedPrice() : variants.get(0).getOriginalPrice();
+                for (ProductVariant v : variants) {
+                    java.math.BigDecimal vp = v.getDiscountedPrice() != null ? v.getDiscountedPrice() : v.getOriginalPrice();
+                    if (vp != null && vp.compareTo(price) < 0) {
+                        price = vp;
+                    }
+                }
+            }
+            
+            if (minPrice != null && price.doubleValue() < minPrice) continue;
+            if (maxPrice != null && price.doubleValue() > maxPrice) continue;
+            
+            if (origin != null && !origin.isBlank() && !origin.equalsIgnoreCase(p.getOrigin())) continue;
+            
+            filteredList.add(p);
+        }
+        
+        if (sort != null) {
+            if (sort.equals("price_asc")) {
+                filteredList.sort((p1, p2) -> getMinPrice(p1).compareTo(getMinPrice(p2)));
+            } else if (sort.equals("price_desc")) {
+                filteredList.sort((p1, p2) -> getMinPrice(p2).compareTo(getMinPrice(p1)));
+            } else if (sort.equals("rating")) {
+                filteredList.sort((p1, p2) -> {
+                    float r1 = p1.getAverageRating() != null ? p1.getAverageRating() : 0f;
+                    float r2 = p2.getAverageRating() != null ? p2.getAverageRating() : 0f;
+                    return Float.compare(r2, r1);
+                });
+            } else {
+                filteredList.sort((p1, p2) -> p2.getId().compareTo(p1.getId()));
+            }
+        } else {
+            filteredList.sort((p1, p2) -> p2.getId().compareTo(p1.getId()));
+        }
+        
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), filteredList.size());
+        
+        List<Product> pagedList = new java.util.ArrayList<>();
+        if (start <= filteredList.size()) {
+            pagedList = filteredList.subList(start, end);
+        }
+        
+        return new org.springframework.data.domain.PageImpl<>(pagedList, pageable, filteredList.size());
+    }
+    
+    private java.math.BigDecimal getMinPrice(Product p) {
+        List<ProductVariant> variants = p.getVariants();
+        if (variants == null || variants.isEmpty()) return java.math.BigDecimal.ZERO;
+        java.math.BigDecimal min = variants.get(0).getDiscountedPrice() != null ? variants.get(0).getDiscountedPrice() : variants.get(0).getOriginalPrice();
+        for (ProductVariant v : variants) {
+            java.math.BigDecimal vp = v.getDiscountedPrice() != null ? v.getDiscountedPrice() : v.getOriginalPrice();
+            if (vp != null && vp.compareTo(min) < 0) {
+                min = vp;
+            }
+        }
+        return min;
     }
 }

@@ -37,20 +37,17 @@ public class MomoPaymentServiceImpl implements MomoPaymentService {
     private final ObjectMapper objectMapper;
     private final ICustomerOrderRepository orderRepository;
     private final IPaymentHistoryRepository paymentHistoryRepository;
-    private final IRevenueDistributionService revenueDistributionService;
     private final MomoProperties momoProperties;
 
     public MomoPaymentServiceImpl(RestClient.Builder restClientBuilder,
                                   ObjectMapper objectMapper,
                                   ICustomerOrderRepository orderRepository,
                                   IPaymentHistoryRepository paymentHistoryRepository,
-                                  IRevenueDistributionService revenueDistributionService,
                                   MomoProperties momoProperties) {
         this.restClient = restClientBuilder.build();
         this.objectMapper = objectMapper;
         this.orderRepository = orderRepository;
         this.paymentHistoryRepository = paymentHistoryRepository;
-        this.revenueDistributionService = revenueDistributionService;
         this.momoProperties = momoProperties;
     }
 
@@ -161,11 +158,6 @@ public class MomoPaymentServiceImpl implements MomoPaymentService {
 
         savePaymentHistory(order, request, mappedStatus, transactionCode);
 
-        // ❌ KHÔNG chia tiền ở đây - tiền vẫn giữ ở MoMo
-        // Chỉ chia tiền khi user xác nhận đã nhận hàng (DELIVERED)
-        log.info("MoMo payment successful: orderId={}, orderCode={}, transactionCode={}, money held at MoMo until delivery confirmed", 
-                 order.getId(), order.getOrderCode(), transactionCode);
-        
         return true;
     }
 

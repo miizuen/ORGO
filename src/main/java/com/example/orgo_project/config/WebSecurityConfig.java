@@ -1,5 +1,6 @@
 package com.example.orgo_project.config;
 
+import com.example.orgo_project.security.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -9,8 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
-
-import com.example.orgo_project.security.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
@@ -36,8 +35,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/seller/**").hasRole("SELLER")
                 .requestMatchers("/expert/**").hasRole("EXPERT")
-                .requestMatchers("/buyer/**").hasRole("BUYER")
-                // FIX: Cho phép USER, SELLER, EXPERT vào /user/** (để xem lại form đăng ký)
+                // Cho phép USER, SELLER, EXPERT vào /user/** (để xem lại form đăng ký)
                 .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER", "SELLER", "EXPERT")
                 // Các đường dẫn cho phép public
                 .requestMatchers("/login", "/register", "/forgot-password", "/verify-otp", "/reset-password", "/guest-login").permitAll()
@@ -59,7 +57,7 @@ public class WebSecurityConfig {
                             .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_SELLER"));
                     boolean isExpert = authentication.getAuthorities().stream()
                             .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_EXPERT"));
-                    boolean isBuyer = authentication.getAuthorities().stream()
+                    boolean isUser = authentication.getAuthorities().stream()
                             .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_BUYER"));
 
                     if (isAdmin) {
@@ -68,8 +66,8 @@ public class WebSecurityConfig {
                         response.sendRedirect("/seller/dashboard");
                     } else if (isExpert) {
                         response.sendRedirect("/expert/dashboard");
-                    } else if (isBuyer) {
-                        response.sendRedirect("/buyer/dashboard");
+                    } else if (isUser) {
+                        response.sendRedirect("/");
                     } else {
                         response.sendRedirect("/");
                     }

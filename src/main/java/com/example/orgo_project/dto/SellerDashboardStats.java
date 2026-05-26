@@ -37,6 +37,8 @@ public class SellerDashboardStats {
         private String orderStatus;
         private BigDecimal totalAmount;
         private String orderedAt;
+        private String customerName;
+        private String productsSummary;
     }
 
     @Data
@@ -45,7 +47,10 @@ public class SellerDashboardStats {
     public static class TopProduct {
         private Integer productId;
         private String productName;
+        private String imageUrl;
         private Long soldQuantity;
+        private Double averageRating;
+        private Long reviewCount;
         private BigDecimal revenue;
     }
 }

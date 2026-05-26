@@ -3,122 +3,391 @@
 <head>
     <title>Tổng quan</title>
     <style>
-        .dashboard-shell{display:flex;flex-direction:column;gap:20px}
-        .hero-card{background:linear-gradient(135deg,#0f172a 0%,#14532d 52%,#2e7d32 100%);color:#fff;border-radius:28px;padding:28px 28px 26px;box-shadow:0 18px 45px rgba(15,23,42,.15)}
-        .hero-top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;flex-wrap:wrap}
-        .hero-kicker{font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.82;font-weight:800}
-        .hero-title{font-size:30px;font-weight:900;line-height:1.1;margin-top:8px}
-        .hero-desc{margin-top:10px;font-size:13px;line-height:1.7;max-width:760px;opacity:.9}
-        .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-        .hero-btn{display:inline-flex;align-items:center;gap:8px;border-radius:12px;padding:10px 14px;font-weight:800;text-decoration:none;font-size:13px}
-        .hero-btn.primary{background:#fff;color:#14532d}
-        .hero-btn.secondary{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.18)}
-        .hero-side{min-width:260px;display:grid;gap:10px}
-        .hero-pill{background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:14px 16px}
-        .hero-pill .label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;opacity:.78;font-weight:800}
-        .hero-pill .value{margin-top:6px;font-size:22px;font-weight:900}
-        .hero-pill .sub{margin-top:4px;font-size:12px;opacity:.82}
-        .stats-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px}
-        .stat-card{background:var(--color-surface);border-radius:22px;padding:18px;border:1px solid rgba(15,23,42,.06);box-shadow:0 8px 24px rgba(15,23,42,.04)}
-        .stat-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-        .stat-label{font-size:11px;font-weight:800;color:var(--color-text-faint);text-transform:uppercase;letter-spacing:.08em}
-        .stat-icon{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:18px;background:#f3f4f6}
-        .stat-value{font-size:30px;font-weight:900;margin-top:14px;color:var(--color-text);line-height:1}
-        .stat-note{margin-top:8px;font-size:12px;color:var(--color-text-muted);line-height:1.5}
-        .stat-link{display:inline-flex;margin-top:14px;color:var(--color-primary);text-decoration:none;font-size:13px;font-weight:800}
-        .content-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}
-        .panel-card{background:var(--color-surface);border:1px solid rgba(15,23,42,.06);border-radius:24px;padding:22px;box-shadow:0 10px 28px rgba(15,23,42,.04)}
-        .panel-header{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-        .panel-title{font-size:18px;font-weight:900;line-height:1.2}
-        .panel-sub{font-size:13px;color:var(--color-text-muted);margin-top:4px}
-        .panel-link{font-size:13px;font-weight:800;color:var(--color-primary);text-decoration:none}
-        .pending-table{width:100%;border-collapse:separate;border-spacing:0 10px}
-        .pending-table thead th{font-size:11px;text-transform:uppercase;color:var(--color-text-faint);font-weight:800;padding:0 14px 4px}
-        .pending-table tbody tr{background:#fff;box-shadow:0 8px 20px rgba(15,23,42,.04)}
-        .pending-table td{padding:14px;border-top:1px solid #eef2f7;border-bottom:1px solid #eef2f7;font-size:13px;vertical-align:middle}
-        .pending-table td:first-child{border-left:1px solid #eef2f7;border-radius:16px 0 0 16px;padding-left:16px}
-        .pending-table td:last-child{border-right:1px solid #eef2f7;border-radius:0 16px 16px 0;padding-right:16px}
-        .status-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:800;line-height:1}
-        .status-badge::before{content:'';width:7px;height:7px;border-radius:999px;background:currentColor;opacity:.8}
-        .badge-paid{background:#e8f5e9;color:#166534}
-        .badge-pending{background:#fff7db;color:#92400e}
-        .badge-processing{background:#dbeafe;color:#1d4ed8}
-        .mini-actions{display:flex;gap:8px;flex-wrap:wrap}
-        .mini-btn{display:inline-flex;align-items:center;justify-content:center;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:800;text-decoration:none;border:1px solid transparent}
-        .mini-btn.outline{border-color:#dbe3ee;color:#334155;background:#fff}
-        .mini-btn.success{background:#16a34a;color:#fff}
-        .mini-btn.success:hover{background:#15803d}
-        .bank-card{background:linear-gradient(180deg,#fff, #f8fafc);border:1px solid rgba(15,23,42,.06);border-radius:24px;padding:22px}
-        .bank-row{display:flex;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid #eef2f7}
-        .bank-row:last-child{border-bottom:none}
-        .bank-label{font-size:12px;font-weight:800;color:var(--color-text-faint);text-transform:uppercase;letter-spacing:.06em}
-        .bank-value{font-size:14px;font-weight:800;color:var(--color-text);text-align:right}
-        @media (max-width: 1280px){.stats-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.content-grid{grid-template-columns:1fr}}
-        @media (max-width: 768px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-title{font-size:24px}}
-        @media (max-width: 640px){.stats-grid{grid-template-columns:1fr}.pending-table thead{display:none}.pending-table, .pending-table tbody, .pending-table tr, .pending-table td{display:block;width:100%}.pending-table tr{border:1px solid #e5e7eb;border-radius:18px;margin-bottom:12px;overflow:hidden}.pending-table td{border:none;padding:10px 14px}.pending-table td:first-child,.pending-table td:last-child{border:none;border-radius:0;padding-left:14px;padding-right:14px}}
+.dashboard-shell{display:flex;flex-direction:column;gap:24px;padding-bottom:24px}
+.header-title{margin-bottom:24px}
+.header-title h1{font-size:28px;font-weight:700;color:#1e293b;margin-bottom:6px}
+.header-title p{font-size:14px;color:#64748b;margin:0}
+.top-cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.stat-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.1);border:1px solid #e2e8f0;display:flex;flex-direction:column}
+.stat-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.stat-title{font-size:14px;font-weight:500;color:#64748b}
+.stat-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.stat-card.revenue .stat-icon{background:#dcfce7;color:#16a34a}
+.stat-card.users .stat-icon{background:#dbeafe;color:#3b82f6}
+.stat-card.orders .stat-icon{background:#e0e7ff;color:#6366f1}
+.stat-card.views .stat-icon{background:#fef3c7;color:#f59e0b}
+.stat-value{font-size:32px;font-weight:700;color:#0f172a;margin-bottom:8px}
+.stat-trend{display:flex;align-items:center;gap:6px;font-size:13px}
+.trend-up{color:#16a34a;font-weight:600}
+.trend-down{color:#dc2626;font-weight:600}
+.trend-text{color:#94a3b8}
+.mini-chart{display:flex;gap:3px;align-items:flex-end;height:40px;margin-top:12px}
+.mini-chart .bar{flex:1;background:#e2e8f0;border-radius:2px 2px 0 0}
+.stat-card.revenue .mini-chart .bar{background:#bbf7d0}
+.stat-card.revenue .mini-chart .bar:last-child{background:#16a34a}
+.stat-card.users .mini-chart .bar{background:#bfdbfe}
+.stat-card.users .mini-chart .bar:last-child{background:#3b82f6}
+.stat-card.orders .mini-chart .bar{background:#c7d2fe}
+.stat-card.orders .mini-chart .bar:last-child{background:#6366f1}
+.stat-card.views .mini-chart .bar{background:#fde68a}
+.stat-card.views .mini-chart .bar:last-child{background:#f59e0b}
+.overview-section{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.1);border:1px solid #e2e8f0}
+.overview-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.overview-title{font-size:18px;font-weight:600;color:#0f172a}
+.overview-subtitle{font-size:13px;color:#94a3b8;margin-top:4px}
+.overview-tabs{display:flex;gap:16px}
+.overview-tab{font-size:14px;font-weight:500;color:#64748b;cursor:pointer;padding:8px 16px;border-bottom:2px solid transparent}
+.overview-tab.active{color:#16a34a;border-bottom-color:#16a34a}
+.chart-container{height:300px;margin-top:20px;position:relative}
+.chart-svg{width:100%;height:100%}
+.main-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:24px}
+.panel{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.1);border:1px solid #e2e8f0}
+.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.panel-title{font-size:16px;font-weight:600;color:#0f172a}
+.panel-subtitle{font-size:13px;color:#94a3b8;margin-top:2px}
+.view-all-link{color:#16a34a;font-size:14px;font-weight:500;text-decoration:none}
+.view-all-link:hover{color:#15803d}
+.orders-table{width:100%;border-collapse:collapse}
+.orders-table thead th{text-align:left;font-size:12px;font-weight:600;color:#64748b;padding:12px 8px;border-bottom:1px solid #e2e8f0}
+.orders-table tbody td{padding:16px 8px;border-bottom:1px solid #f1f5f9;font-size:14px}
+.orders-table tbody tr:last-child td{border-bottom:none}
+.customer-cell{display:flex;align-items:center;gap:12px}
+.customer-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;flex-shrink:0}
+.customer-info{display:flex;flex-direction:column}
+.customer-name{font-weight:500;color:#0f172a}
+.customer-email{font-size:12px;color:#94a3b8}
+.order-status{display:inline-flex;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600}
+.status-completed{background:#dcfce7;color:#16a34a}
+.status-processing{background:#dbeafe;color:#3b82f6}
+.status-pending{background:#fef3c7;color:#d97706}
+.sidebar-panels{display:flex;flex-direction:column;gap:24px}
+.activity-list{display:flex;flex-direction:column;gap:0}
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid #f1f5f9}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{width:40px;height:40px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px}
+.activity-content{flex:1}
+.activity-title{font-size:14px;color:#0f172a;font-weight:500;margin-bottom:4px}
+.activity-meta{font-size:12px;color:#94a3b8}
+.traffic-sources{text-align:center}
+.donut-chart{width:180px;height:180px;margin:20px auto;position:relative}
+.donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.donut-value{font-size:32px;font-weight:700;color:#0f172a}
+.donut-label{font-size:12px;color:#94a3b8}
+.traffic-legend{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+.legend-item{display:flex;justify-content:space-between;align-items:center}
+.legend-left{display:flex;align-items:center;gap:8px}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+.legend-label{font-size:14px;color:#64748b}
+.legend-value{font-size:14px;font-weight:600;color:#0f172a}
+.goal-item{margin-bottom:24px}
+.goal-item:last-child{margin-bottom:0}
+.goal-header{display:flex;justify-content:space-between;margin-bottom:8px}
+.goal-label{font-size:14px;font-weight:500;color:#0f172a}
+.goal-percent{font-size:14px;font-weight:600;color:#64748b}
+.goal-progress{height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin-bottom:8px}
+.goal-progress-fill{height:100%;border-radius:4px}
+.goal-meta{display:flex;justify-content:space-between;font-size:12px;color:#94a3b8}
+@media (max-width:1280px){.top-cards-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:1024px){.main-grid{grid-template-columns:1fr}}
+@media (max-width:640px){.top-cards-grid{grid-template-columns:1fr}}
     </style>
 </head>
 <body>
 <div th:replace="~{fragments/admin-layout :: adminLayout('Tổng quan', 'dashboard', ~{::main})}">
-    <main class="dashboard-shell">
-        <section class="hero-card">
-            <div class="hero-top">
-                <div>
-                    <div class="hero-kicker">ORGO ADMIN PANEL</div>
-                    <div class="hero-title">Tổng quan hệ thống</div>
-                    <div class="hero-desc">Theo dõi tăng trưởng, đơn chờ duyệt và tài khoản trung gian nhận thanh toán. Duyệt đơn ngay tại đây để kích hoạt chia tiền cho seller và ghi nhận hoa hồng admin.</div>
-                    <div class="hero-actions">
-                        <a class="hero-btn primary" th:href="@{/admin/orders}">Mở trang duyệt đơn</a>
-                        <a class="hero-btn secondary" th:href="@{/admin/revenue-reconciliation}">Xem đối soát doanh thu</a>
-                    </div>
-                </div>
-                <div class="hero-side">
-                    <div class="hero-pill">
-                        <div class="label">Hoa hồng admin</div>
-                        <div class="value" th:text="${totalAdminCommission != null ? totalAdminCommission : 0}">0</div>
-                        <div class="sub">Tổng phần 5% từ các đơn đã được xử lý</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section class="stats-grid">
-            <div class="stat-card"><div class="stat-top"><div class="stat-label">Tổng số người dùng</div><div class="stat-icon">👥</div></div><div class="stat-value" th:text="${userCount != null ? userCount : 0}">0</div><div class="stat-note">Buyer, seller và expert đang hoạt động</div></div>
-            <div class="stat-card"><div class="stat-top"><div class="stat-label">Tổng số seller</div><div class="stat-icon">🛍️</div></div><div class="stat-value" th:text="${sellerCount != null ? sellerCount : 0}">0</div><div class="stat-note">Seller đã được ghi nhận trong hệ thống</div></div>
-            <div class="stat-card"><div class="stat-top"><div class="stat-label">Tổng số expert</div><div class="stat-icon">🎓</div></div><div class="stat-value" th:text="${expertCount != null ? expertCount : 0}">0</div><div class="stat-note">Chuyên gia đang hoạt động</div></div>
-            <div class="stat-card"><div class="stat-top"><div class="stat-label">Chờ duyệt seller / expert / bài viết</div><div class="stat-icon">⏳</div></div><div class="stat-value" th:text="${pendingSellerCount != null ? pendingSellerCount + pendingExpertCount + pendingArticleCount : 0}">0</div><div class="stat-note">Nội dung và hồ sơ đang chờ xác minh</div></div>
-            <div class="stat-card"><div class="stat-top"><div class="stat-label">Hoa hồng admin</div><div class="stat-icon">💰</div></div><div class="stat-value" th:text="${totalAdminCommission != null ? totalAdminCommission : 0}">0</div><div class="stat-note">Tổng hoa hồng đã thu về từ giao dịch</div><a th:href="@{/admin/revenue-reconciliation}" class="stat-link">Xem đối soát →</a></div>
-        </section>
-        <section class="content-grid">
-            <div class="panel-card">
-                <div class="panel-header"><div><div class="panel-title">Đơn chờ duyệt nhanh</div><div class="panel-sub">Bảng mini giúp duyệt nhanh ngay trên dashboard.</div></div><a class="panel-link" th:href="@{/admin/orders}">Xem tất cả đơn →</a></div>
-                <table class="pending-table">
-                    <thead><tr><th>Mã đơn</th><th>Thanh toán</th><th>Trạng thái</th><th>Tổng tiền</th><th>Hành động</th></tr></thead>
-                    <tbody>
-                    <tr th:if="${orders == null || orders.isEmpty()}"><td colspan="5">Chưa có đơn chờ duyệt.</td></tr>
-                    <tr th:each="order : ${orders}">
-                        <td><div style="font-weight:900;color:var(--color-text);" th:text="${order.orderCode}">ORD-000</div><div style="font-size:12px;color:var(--color-text-muted);margin-top:4px;" th:text="${order.orderedAt}">-</div></td>
-                        <td><span class="status-badge" th:classappend="${order.paymentStatus == 'PAID' ? ' badge-paid' : ' badge-pending'}" th:text="${order.paymentStatus}">PAID</span></td>
-                        <td><span class="status-badge" th:classappend="${order.orderStatus == 'PROCESSING' ? ' badge-processing' : ' badge-pending'}" th:text="${order.orderStatus}">PENDING</span></td>
-                        <td style="font-weight:800;" th:text="${order.totalAmount}">0</td>
-                        <td>
-                            <div class="mini-actions">
-                                <a class="mini-btn outline" th:href="@{/admin/orders/{id}(id=${order.id})}">Chi tiết</a>
-                                <form th:if="${order.paymentStatus == 'PAID' && order.orderStatus == 'PENDING'}" th:action="@{/admin/orders/{id}/approve(id=${order.id})}" method="post"><button type="submit" class="mini-btn success">Duyệt nhanh</button></form>
-                            </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="bank-card">
-                <div class="panel-header"><div><div class="panel-title">Tài khoản trung gian nhận thanh toán</div><div class="panel-sub">Khách chuyển khoản vào tài khoản trung gian, hệ thống tự chia tiền cho seller và hoa hồng admin.</div></div></div>
-                <div th:if="${adminWallet != null}" class="bank-row"><div class="bank-label">Số dư ví admin</div><div class="bank-value" th:text="${#numbers.formatDecimal(adminWallet.availableBalance != null ? adminWallet.availableBalance : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</div></div>
-                <div class="bank-row"><div class="bank-label">Ngân hàng</div><div class="bank-value" th:text="${adminBankName != null ? adminBankName : 'Chưa cấu hình'}">Chưa cấu hình</div></div>
-                <div class="bank-row"><div class="bank-label">Số tài khoản</div><div class="bank-value" th:text="${adminBankAccount != null ? adminBankAccount : 'Chưa cấu hình'}">Chưa cấu hình</div></div>
-                <div class="bank-row"><div class="bank-label">Chủ tài khoản</div><div class="bank-value" th:text="${adminAccountHolderName != null ? adminAccountHolderName : 'Chưa cấu hình'}">Chưa cấu hình</div></div>
-            </div>
-        </section>
-    </main>
+<main class="dashboard-shell">
+<div class="header-title">
+<h1>Dashboard</h1>
+<p>Chào mừng trở lại, <span th:text="${session.currentUser != null ? session.currentUser : 'Admin'}">Admin</span>. Đây là những gì đang diễn ra với doanh nghiệp của bạn hôm nay.</p>
+</div>
+<div class="top-cards-grid">
+<div class="stat-card revenue">
+<div class="stat-header">
+<div class="stat-title">Tổng Doanh Thu</div>
+<div class="stat-icon">💰</div>
+</div>
+<div class="stat-value" th:text="${#numbers.formatDecimal(totalPlatformRevenue != null ? totalPlatformRevenue : 0, 0, 'COMMA', 0, 'POINT') + ' đ'}">48,295 đ</div>
+<div class="stat-trend">
+<span class="trend-up">↑ +12.5%</span>
+<span class="trend-text">so với tháng trước</span>
+</div>
+<div class="mini-chart">
+<div class="bar" th:each="h : ${revenueMiniBars}" th:style="|height:${h}%|"></div>
+</div>
+</div>
+<div class="stat-card users">
+<div class="stat-header">
+<div class="stat-title">Người Dùng Hoạt Động</div>
+<div class="stat-icon">👥</div>
+</div>
+<div class="stat-value" th:text="${#numbers.formatInteger(userCount != null ? userCount : 0, 0, 'COMMA')}">2,847</div>
+<div class="stat-trend">
+<span class="trend-up">↑ +8.2%</span>
+<span class="trend-text">so với tháng trước</span>
+</div>
+<div class="mini-chart">
+<div class="bar" style="height:50%"></div>
+<div class="bar" style="height:70%"></div>
+<div class="bar" style="height:60%"></div>
+<div class="bar" style="height:90%"></div>
+<div class="bar" style="height:80%"></div>
+<div class="bar" style="height:100%"></div>
+</div>
+</div>
+<div class="stat-card orders">
+<div class="stat-header">
+<div class="stat-title">Tổng Đơn Hàng</div>
+<div class="stat-icon">🛒</div>
+</div>
+<div class="stat-value" th:text="${#numbers.formatInteger(orderCount != null ? orderCount : 0, 0, 'COMMA')}">1,432</div>
+<div class="stat-trend">
+<span class="trend-down">↓ -3.1%</span>
+<span class="trend-text">so với tháng trước</span>
+</div>
+<div class="mini-chart">
+<div class="bar" th:each="h : ${orderMiniBars}" th:style="|height:${h}%|"></div>
+</div>
+</div>
+<div class="stat-card views">
+<div class="stat-header">
+<div class="stat-title">Lượt Xem Trang</div>
+<div class="stat-icon">👁️</div>
+</div>
+<div class="stat-value" th:text="${totalViewsLabel != null ? totalViewsLabel : '0'}">284K</div>
+<div class="stat-trend">
+<span class="trend-up">↑ +24.7%</span>
+<span class="trend-text">so với tháng trước</span>
+</div>
+<div class="mini-chart">
+<div class="bar" style="height:60%"></div>
+<div class="bar" style="height:50%"></div>
+<div class="bar" style="height:70%"></div>
+<div class="bar" style="height:80%"></div>
+<div class="bar" style="height:90%"></div>
+<div class="bar" style="height:100%"></div>
+</div>
+</div>
+</div>
+<div class="overview-section">
+<div class="overview-header">
+<div>
+<div class="overview-title">Tổng Quan</div>
+<div class="overview-subtitle">Hiệu suất hàng tháng cho năm hiện tại</div>
+</div>
+<div class="overview-tabs">
+<div class="overview-tab active">Doanh Thu</div>
+<div class="overview-tab">Đơn Hàng</div>
+<div class="overview-tab">Lợi Nhuận</div>
+</div>
+</div>
+<div class="chart-container">
+<svg class="chart-svg" viewBox="0 0 800 300" preserveAspectRatio="none">
+<line x1="0" y1="60" x2="800" y2="60" stroke="#f1f5f9" stroke-width="1"/>
+<line x1="0" y1="120" x2="800" y2="120" stroke="#f1f5f9" stroke-width="1"/>
+<line x1="0" y1="180" x2="800" y2="180" stroke="#f1f5f9" stroke-width="1"/>
+<line x1="0" y1="240" x2="800" y2="240" stroke="#f1f5f9" stroke-width="1"/>
+<path th:attr="d=${chartAreaPath}" fill="url(#gradient)" opacity="0.3"/>
+<path th:attr="d=${chartLinePath}" fill="none" stroke="#16a34a" stroke-width="3"/>
+<defs>
+<linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" style="stop-color:#16a34a;stop-opacity:0.5"/>
+<stop offset="100%" style="stop-color:#16a34a;stop-opacity:0"/>
+</linearGradient>
+</defs>
+</svg>
+<div style="display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:#94a3b8">
+<span th:each="m : ${chartMonthLabels}" th:text="${m}">Th1</span>
+</div>
+</div>
+</div>
+<div class="main-grid">
+<div class="panel">
+<div class="panel-header">
+<div>
+<div class="panel-title">Đơn Hàng Gần Đây</div>
+<div class="panel-subtitle">Giao dịch mới nhất từ cửa hàng của bạn</div>
+</div>
+<a th:href="@{/admin/orders}" class="view-all-link">Xem tất cả →</a>
+</div>
+<table class="orders-table">
+<thead>
+<tr>
+<th>Khách Hàng</th>
+<th>Mã Đơn</th>
+<th>Sản Phẩm</th>
+<th>Trạng Thái</th>
+<th>Số Tiền</th>
+</tr>
+</thead>
+<tbody>
+<tr th:each="order, iterStat : ${recentOrders}" th:if="${iterStat.index < 5}">
+<td>
+<div class="customer-cell">
+<div class="customer-avatar" th:style="${'background: ' + (iterStat.index == 0 ? '#16a34a' : (iterStat.index == 1 ? '#3b82f6' : (iterStat.index == 2 ? '#f59e0b' : (iterStat.index == 3 ? '#8b5cf6' : '#ec4899'))))}" th:text="${order.customerName != null ? #strings.substring(order.customerName, 0, 2).toUpperCase() : 'KH'}">EW</div>
+<div class="customer-info">
+<div class="customer-name" th:text="${order.customerName != null ? order.customerName : 'Khách hàng'}">Emma Wilson</div>
+<div class="customer-email" th:text="${order.customerPhone != null ? order.customerPhone : 'N/A'}">emma@example.pro</div>
+</div>
+</div>
+</td>
+<td th:text="${order.orderCode}">ORD-7891</td>
+<td th:text="${order.itemSummary != null ? order.itemSummary : 'N/A'}">Pro Dashboard License</td>
+<td>
+<span class="order-status" th:classappend="${order.orderStatus == 'COMPLETED' ? 'status-completed' : (order.orderStatus == 'PROCESSING' ? 'status-processing' : 'status-pending')}" th:text="${order.orderStatus == 'COMPLETED' ? 'Hoàn thành' : (order.orderStatus == 'PROCESSING' ? 'Đang xử lý' : 'Chờ xử lý')}">Hoàn thành</span>
+</td>
+<td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' đ'}">299.00 đ</td>
+</tr>
+<tr th:if="${recentOrders == null || recentOrders.isEmpty()}">
+<td colspan="5" style="text-align:center;padding:40px;color:#94a3b8">
+<div style="font-size:48px;margin-bottom:16px">📦</div>
+<div style="font-size:16px;font-weight:500;color:#64748b">Chưa có đơn hàng nào</div>
+<div style="font-size:14px;margin-top:8px">Đơn hàng mới sẽ xuất hiện ở đây</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sidebar-panels">
+<div class="panel">
+<div class="panel-header">
+<div>
+<div class="panel-title">Hoạt Động Gần Đây</div>
+<div class="panel-subtitle">Sự kiện mới nhất từ cửa hàng của bạn</div>
+</div>
+<a href="#" class="view-all-link">Xem tất cả →</a>
+</div>
+<div class="activity-list">
+<div class="activity-item">
+<div class="activity-icon" style="background:#dcfce7;color:#16a34a">🛒</div>
+<div class="activity-content">
+<div class="activity-title">Đơn hàng mới đã đặt</div>
+<div class="activity-meta" th:if="${recentOrders != null && !recentOrders.isEmpty()}" th:text="${recentOrders[0].customerName + ' đã đặt đơn hàng #' + recentOrders[0].orderCode}">Emma Wilson đã đặt đơn hàng Pro Dashboard License</div>
+<div class="activity-meta" th:unless="${recentOrders != null && !recentOrders.isEmpty()}">Không có đơn hàng gần đây</div>
+</div>
+</div>
+<div class="activity-item">
+<div class="activity-icon" style="background:#dbeafe;color:#3b82f6">👤</div>
+<div class="activity-content">
+<div class="activity-title">Khách hàng mới đăng ký</div>
+<div class="activity-meta">James Chen đã tạo tài khoản</div>
+</div>
+</div>
+<div class="activity-item">
+<div class="activity-icon" style="background:#fef3c7;color:#f59e0b">⭐</div>
+<div class="activity-content">
+<div class="activity-title">Đánh giá 5 sao nhận được</div>
+<div class="activity-meta">"Tuyệt vời! Chính xác những gì tôi cần!"</div>
+</div>
+</div>
+<div class="activity-item">
+<div class="activity-icon" style="background:#e0e7ff;color:#6366f1">💳</div>
+<div class="activity-content">
+<div class="activity-title">Thanh toán đã nhận</div>
+<div class="activity-meta" th:if="${recentOrders != null && recentOrders.size() > 1}" th:text="${#numbers.formatDecimal(recentOrders[1].totalAmount, 0, 'COMMA', 0, 'POINT') + ' đ'}">1,499 đ</div>
+<div class="activity-meta" th:unless="${recentOrders != null && recentOrders.size() > 1}">Chưa có thanh toán</div>
+</div>
+</div>
+</div>
+</div>
+<div class="panel traffic-sources">
+<div class="panel-header">
+<div>
+<div class="panel-title">Nguồn Truy Cập</div>
+<div class="panel-subtitle">Khách truy cập của bạn đến từ đâu</div>
+</div>
+</div>
+<div class="donut-chart">
+<svg viewBox="0 0 200 200">
+<circle cx="100" cy="100" r="80" fill="none" stroke="#16a34a" stroke-width="40" stroke-dasharray="176 352" transform="rotate(-90 100 100)"/>
+<circle cx="100" cy="100" r="80" fill="none" stroke="#3b82f6" stroke-width="40" stroke-dasharray="140 352" stroke-dashoffset="-176" transform="rotate(-90 100 100)"/>
+<circle cx="100" cy="100" r="80" fill="none" stroke="#f59e0b" stroke-width="40" stroke-dasharray="110 352" stroke-dashoffset="-316" transform="rotate(-90 100 100)"/>
+<circle cx="100" cy="100" r="80" fill="none" stroke="#8b5cf6" stroke-width="40" stroke-dasharray="79 352" stroke-dashoffset="-426" transform="rotate(-90 100 100)"/>
+</svg>
+<div class="donut-center">
+<div class="donut-value" th:text="${totalViewsLabel != null ? totalViewsLabel : '0'}">284K</div>
+<div class="donut-label">lượt xem</div>
+</div>
+</div>
+<div class="traffic-legend">
+<div class="legend-item">
+<div class="legend-left">
+<div class="legend-dot" style="background:#16a34a"></div>
+<div class="legend-label">Trực tiếp</div>
+</div>
+<div class="legend-value">35%</div>
+</div>
+<div class="legend-item">
+<div class="legend-left">
+<div class="legend-dot" style="background:#3b82f6"></div>
+<div class="legend-label">Tự nhiên</div>
+</div>
+<div class="legend-value">28%</div>
+</div>
+<div class="legend-item">
+<div class="legend-left">
+<div class="legend-dot" style="background:#f59e0b"></div>
+<div class="legend-label">Giới thiệu</div>
+</div>
+<div class="legend-value">22%</div>
+</div>
+<div class="legend-item">
+<div class="legend-left">
+<div class="legend-dot" style="background:#8b5cf6"></div>
+<div class="legend-label">Mạng xã hội</div>
+</div>
+<div class="legend-value">15%</div>
+</div>
+</div>
+</div>
+<div class="panel">
+<div class="panel-header">
+<div>
+<div class="panel-title">Mục Tiêu Hàng Tháng</div>
+<div class="panel-subtitle">Theo dõi tiến độ hướng tới mục tiêu</div>
+</div>
+</div>
+<div class="goal-item">
+<div class="goal-header">
+<div class="goal-label">Doanh Thu Hàng Tháng</div>
+<div class="goal-percent">88%</div>
+</div>
+<div class="goal-progress">
+<div class="goal-progress-fill" style="width:88%;background:#16a34a"></div>
+</div>
+<div class="goal-meta">
+<span th:text="${#numbers.formatDecimal(totalPlatformRevenue != null ? totalPlatformRevenue : 0, 0, 'COMMA', 0, 'POINT')}">48,295</span>
+<span>Mục tiêu: 55,000</span>
+</div>
+</div>
+<div class="goal-item">
+<div class="goal-header">
+<div class="goal-label">Khách Hàng Mới</div>
+<div class="goal-percent">85%</div>
+</div>
+<div class="goal-progress">
+<div class="goal-progress-fill" style="width:85%;background:#3b82f6"></div>
+</div>
+<div class="goal-meta">
+<span th:text="${#numbers.formatInteger(userCount != null ? userCount : 0, 0, 'COMMA')}">847</span>
+<span>Mục tiêu: 1,000</span>
+</div>
+</div>
+<div class="goal-item">
+<div class="goal-header">
+<div class="goal-label">Tỷ Lệ Chuyển Đổi</div>
+<div class="goal-percent">76%</div>
+</div>
+<div class="goal-progress">
+<div class="goal-progress-fill" style="width:76%;background:#f59e0b"></div>
+</div>
+<div class="goal-meta">
+<span>3.8</span>
+<span>Mục tiêu: 5</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
 </div>
 </body>
 </html>

@@ -8,12 +8,14 @@ import com.example.orgo_project.entity.CustomerOrder;
 import com.example.orgo_project.entity.CustomerOrderItem;
 import com.example.orgo_project.entity.Product;
 import com.example.orgo_project.entity.ProductVariant;
+import com.example.orgo_project.entity.UserProfile;
 import com.example.orgo_project.enums.OrderStatus;
 import com.example.orgo_project.enums.PaymentStatus;
 import com.example.orgo_project.repository.ICustomerOrderItemRepository;
 import com.example.orgo_project.repository.ICustomerOrderRepository;
 import com.example.orgo_project.repository.IProductRepository;
 import com.example.orgo_project.repository.IProductVariantRepository;
+import com.example.orgo_project.repository.IUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -32,16 +34,19 @@ public class AdminOrderService implements IAdminOrderService {
     private final ICustomerOrderItemRepository orderItemRepository;
     private final IProductVariantRepository productVariantRepository;
     private final IProductRepository productRepository;
+    private final IUserRepository userRepository;
 
     public AdminOrderService(ICustomerOrderRepository orderRepository,
                              ICustomerOrderItemRepository orderItemRepository,
                              IProductVariantRepository productVariantRepository,
                              IProductRepository productRepository,
+                             IUserRepository userRepository,
                              IRevenueDistributionService revenueDistributionService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.productVariantRepository = productVariantRepository;
         this.productRepository = productRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -83,6 +88,40 @@ public class AdminOrderService implements IAdminOrderService {
     }
 
     private OrderSummaryDTO toSummary(CustomerOrder order) {
+        UserProfile profile = null;
+        if (order.getUserId() != null) {
+            profile = userRepository.findById(order.getUserId()).orElse(null);
+        }
+
+        List<CustomerOrderItem> items = order.getId() != null
+                ? orderItemRepository.findByOrderId(order.getId())
+                : List.of();
+
+        String itemSummary = null;
+        if (!items.isEmpty()) {
+            CustomerOrderItem first = items.get(0);
+            ProductVariant variant = first.getProductVariantId() != null
+                    ? productVariantRepository.findById(first.getProductVariantId()).orElse(null)
+                    : null;
+
+            Product product = variant != null && variant.getProductId() != null
+                    ? productRepository.findById(variant.getProductId()).orElse(null)
+                    : null;
+
+            String baseName = product != null ? product.getProductName() : "Sản phẩm";
+            String variantName = variant != null ? variant.getVariantName() : null;
+            if (variantName != null && !variantName.isBlank()) {
+                baseName = baseName + " (" + variantName + ")";
+            }
+
+            int distinctLines = items.size();
+            if (distinctLines > 1) {
+                int extra = distinctLines - 1;
+                baseName = baseName + " +" + extra + " sản phẩm";
+            }
+            itemSummary = baseName;
+        }
+
         return OrderSummaryDTO.builder()
                 .id(order.getId())
                 .orderCode(order.getOrderCode())
@@ -90,6 +129,9 @@ public class AdminOrderService implements IAdminOrderService {
                 .paymentStatus(order.getPaymentStatus() != null ? order.getPaymentStatus().name() : null)
                 .totalAmount(order.getTotalAmount())
                 .orderedAt(order.getOrderedAt())
+                .itemSummary(itemSummary)
+                .customerName(profile != null ? profile.getFullName() : null)
+                .customerPhone(profile != null ? profile.getPhoneNumber() : null)
                 .build();
     }
 

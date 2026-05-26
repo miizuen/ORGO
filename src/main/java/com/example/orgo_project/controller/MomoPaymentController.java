@@ -17,9 +17,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.orgo_project.dto.MomoCreateResponseDTO;
 import com.example.orgo_project.dto.MomoIpnRequestDTO;
 import com.example.orgo_project.entity.CustomerOrder;
-import com.example.orgo_project.enums.OrderStatus;
 import com.example.orgo_project.enums.PaymentStatus;
 import com.example.orgo_project.repository.ICustomerOrderRepository;
+import com.example.orgo_project.service.ICheckoutService;
 import com.example.orgo_project.service.MomoPaymentService;
 
 import jakarta.validation.constraints.Min;
@@ -31,11 +31,14 @@ public class MomoPaymentController {
 
     private final MomoPaymentService momoPaymentService;
     private final ICustomerOrderRepository orderRepository;
+    private final ICheckoutService checkoutService;
 
     public MomoPaymentController(MomoPaymentService momoPaymentService,
-                                 ICustomerOrderRepository orderRepository) {
+                                 ICustomerOrderRepository orderRepository,
+                                 ICheckoutService checkoutService) {
         this.momoPaymentService = momoPaymentService;
         this.orderRepository = orderRepository;
+        this.checkoutService = checkoutService;
     }
 
     @GetMapping("/demo")
@@ -82,35 +85,31 @@ public class MomoPaymentController {
                              @RequestParam(required = false) String amount,
                              Model model,
                              RedirectAttributes redirectAttributes) {
-        
+
         System.out.println("========== MOMO RETURN ==========");
         System.out.println("Order ID: " + orderId);
         System.out.println("Result Code: " + resultCode);
         System.out.println("Trans ID: " + transId);
         System.out.println("Message: " + message);
         System.out.println("=================================");
-        
-        // Nếu thanh toán thành công (resultCode = 0), cập nhật đơn hàng
+
+        // Fallback for local/dev where IPN may not reach the server.
         if ("0".equals(resultCode) && orderId != null) {
             try {
                 CustomerOrder order = orderRepository.findByOrderCode(orderId).orElse(null);
-                if (order != null && order.getPaymentStatus() != PaymentStatus.PAID) {
-                    // Cập nhật trạng thái đơn hàng
-                    order.setPaymentStatus(PaymentStatus.PAID);
-                    order.setOrderStatus(OrderStatus.PENDING);
-                    order.setPaidAt(java.time.LocalDateTime.now());
-                    orderRepository.save(order);
-                    
-                    System.out.println("✅ Order updated successfully: " + orderId);
-                    
-                    redirectAttributes.addFlashAttribute("successMessage", "Thanh toán thành công!");
+                if (order != null) {
+                    if (order.getPaymentStatus() != PaymentStatus.PAID) {
+                        checkoutService.confirmPayment(order.getId(), transId);
+                        System.out.println("Order payment confirmed and revenue distributed: " + orderId);
+                    }
+                    redirectAttributes.addFlashAttribute("successMessage", "Thanh toan thanh cong!");
                     return "redirect:/orders/" + order.getId();
                 }
             } catch (Exception e) {
-                System.err.println("❌ Error updating order: " + e.getMessage());
+                System.err.println("Error confirming order payment: " + e.getMessage());
             }
         }
-        
+
         model.addAttribute("orderId", orderId);
         model.addAttribute("resultCode", resultCode);
         model.addAttribute("message", message);
@@ -124,7 +123,7 @@ public class MomoPaymentController {
         System.out.println("Result Code: " + request.getResultCode());
         System.out.println("Message: " + request.getMessage());
         System.out.println("=======================================");
-        
+
         momoPaymentService.handleIpn(request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
