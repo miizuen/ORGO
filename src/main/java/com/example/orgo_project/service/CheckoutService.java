@@ -1,5 +1,16 @@
 package com.example.orgo_project.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.orgo_project.dto.CartItemDTO;
 import com.example.orgo_project.dto.CheckoutPageDataDTO;
 import com.example.orgo_project.dto.CheckoutRequestDTO;
@@ -23,16 +34,6 @@ import com.example.orgo_project.repository.IProductVariantRepository;
 import com.example.orgo_project.repository.IShippingAddressRepository;
 import com.example.orgo_project.repository.IShoppingCartItemRepository;
 import com.example.orgo_project.repository.IShoppingCartRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -48,7 +49,7 @@ public class CheckoutService implements ICheckoutService {
     private final IPaymentQrSessionRepository paymentQrSessionRepository;
     private final IPaymentHistoryRepository paymentHistoryRepository;
     private final PaymentQrService paymentQrService;
-    private final IRevenueDistributionService revenueDistributionService;
+    private final MomoPaymentService momoPaymentService;
 
     public CheckoutService(IShoppingCartRepository cartRepository,
                            IShoppingCartItemRepository cartItemRepository,
@@ -60,7 +61,7 @@ public class CheckoutService implements ICheckoutService {
                            IPaymentQrSessionRepository paymentQrSessionRepository,
                            IPaymentHistoryRepository paymentHistoryRepository,
                            PaymentQrService paymentQrService,
-                           IRevenueDistributionService revenueDistributionService) {
+                           MomoPaymentService momoPaymentService) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productVariantRepository = productVariantRepository;
@@ -71,7 +72,7 @@ public class CheckoutService implements ICheckoutService {
         this.paymentQrSessionRepository = paymentQrSessionRepository;
         this.paymentHistoryRepository = paymentHistoryRepository;
         this.paymentQrService = paymentQrService;
-        this.revenueDistributionService = revenueDistributionService;
+        this.momoPaymentService = momoPaymentService;
     }
 
     @Override
@@ -116,9 +117,19 @@ public class CheckoutService implements ICheckoutService {
         CustomerOrder savedOrder = saveOrder(accountId, request, totalAmount, sellerId, articleId);
         saveOrderItems(savedOrder, cartItems);
         cartItemRepository.deleteAll(cartItems);
-        upsertPaymentQrSession(savedOrder, totalAmount);
 
-        return CheckoutResponseDTO.builder().orderId(savedOrder.getId()).orderCode(savedOrder.getOrderCode()).totalAmount(totalAmount).message("Đặt hàng thành công, chờ thanh toán QR trung gian").build();
+        var momoResponse = momoPaymentService.createPayment(savedOrder.getId(), savedOrder.getOrderCode(), "Thanh toan don hang " + savedOrder.getOrderCode(), totalAmount.longValue());
+        if (momoResponse == null || momoResponse.getPayUrl() == null || momoResponse.getPayUrl().isBlank()) {
+            throw new RuntimeException("MoMo chưa trả về payUrl hợp lệ");
+        }
+
+        return CheckoutResponseDTO.builder()
+                .orderId(savedOrder.getId())
+                .orderCode(savedOrder.getOrderCode())
+                .totalAmount(totalAmount)
+                .message("Đơn hàng đã được tạo và chuyển sang MoMo để thanh toán")
+                .payUrl(momoResponse.getPayUrl())
+                .build();
     }
 
     @Override
@@ -130,8 +141,10 @@ public class CheckoutService implements ICheckoutService {
             return buildPaymentResponse(order, "Đơn hàng đã được xác nhận thanh toán");
         }
 
+        LocalDateTime now = LocalDateTime.now();
         order.setPaymentStatus(PaymentStatus.PAID);
-        order.setOrderStatus(OrderStatus.PROCESSING); // auto chuyển trạng thái xử lý
+        order.setPaidAt(now);
+        order.setOrderStatus(OrderStatus.PENDING); // đã thanh toán xong, chờ seller duyệt
         orderRepository.save(order);
 
         paymentQrSessionRepository.findByOrderId(orderId).ifPresent(session -> {
@@ -139,9 +152,6 @@ public class CheckoutService implements ICheckoutService {
             paymentQrSessionRepository.save(session);
         });
         savePaymentHistory(order, transactionCode);
-
-        // chia tiền ngay sau khi thanh toán thành công
-        revenueDistributionService.distributeForOrder(orderId);
 
         return buildPaymentResponse(
                 order,
@@ -211,8 +221,10 @@ public class CheckoutService implements ICheckoutService {
         order.setOrderedAt(LocalDateTime.now());
         order.setTotalAmount(totalAmount);
         order.setShippingFee(BigDecimal.ZERO);
+        // Trạng thái thanh toán: PENDING (chờ thanh toán qua MoMo)
         order.setPaymentStatus(PaymentStatus.PENDING);
-        order.setOrderStatus(OrderStatus.PENDING);
+        // Trạng thái đơn hàng: PENDING_PAYMENT (chờ thanh toán)
+        order.setOrderStatus(OrderStatus.PENDING_PAYMENT);
         order.setNote(buildOrderNote(request != null ? request.getShipperNote() : null, request != null ? request.getShopNote() : null));
         order.setArticleId(articleId);
         return orderRepository.save(order);

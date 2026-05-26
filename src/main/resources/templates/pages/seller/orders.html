@@ -179,6 +179,23 @@
             color: #2e7d32;
         }
         
+        .customer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .customer-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+        
+        .customer-phone {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        
         .status-badge {
             display: inline-block;
             padding: 0.35rem 0.75rem;
@@ -187,6 +204,11 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+        }
+        
+        .status-pending-payment {
+            background: #fff3cd;
+            color: #856404;
         }
         
         .status-pending {
@@ -365,6 +387,7 @@
                 <thead>
                     <tr>
                         <th>Mã đơn hàng</th>
+                        <th>Khách hàng</th>
                         <th>Trạng thái</th>
                         <th>Thanh toán</th>
                         <th>Tổng tiền</th>
@@ -378,12 +401,20 @@
                             <span class="order-code" th:text="${order.orderCode}">ORD-001</span>
                         </td>
                         <td>
+                            <div class="customer-info">
+                                <div class="customer-name" th:text="${order.customerName != null ? order.customerName : 'N/A'}">Nguyễn Văn A</div>
+                                <div class="customer-phone" th:text="${order.customerPhone != null ? order.customerPhone : '-'}">0912 345 678</div>
+                            </div>
+                        </td>
+                        <td>
                             <span class="status-badge"
-                                  th:classappend="${order.orderStatus == 'PENDING' ? 'status-pending' : 
+                                  th:classappend="${order.orderStatus == 'PENDING_PAYMENT' ? 'status-pending-payment' :
+                                                   order.orderStatus == 'PENDING' ? 'status-pending' : 
                                                    order.orderStatus == 'PROCESSING' ? 'status-processing' : 
                                                    order.orderStatus == 'SHIPPED' ? 'status-shipped' : 
                                                    order.orderStatus == 'DELIVERED' ? 'status-delivered' : 'status-cancelled'}"
-                                  th:text="${order.orderStatus == 'PENDING' ? 'Chờ xử lý' : 
+                                  th:text="${order.orderStatus == 'PENDING_PAYMENT' ? 'Chờ thanh toán' :
+                                            order.orderStatus == 'PENDING' ? 'Chờ xử lý' : 
                                             order.orderStatus == 'PROCESSING' ? 'Đang xử lý' : 
                                             order.orderStatus == 'SHIPPED' ? 'Đang giao' : 
                                             order.orderStatus == 'DELIVERED' ? 'Hoàn thành' : 'Đã hủy'}">

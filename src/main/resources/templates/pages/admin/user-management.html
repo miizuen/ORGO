@@ -266,7 +266,7 @@
             color: #4338ca;
         }
         
-        .role-buyer {
+        .role-user {
             background: #f3f4f6;
             color: #6b7280;
         }
@@ -715,10 +715,10 @@
         }
         
         function getRoleClass(role) {
-            if (!role) return 'role-buyer';
+            if (!role) return 'role-user';
             if (role.includes('EXPERT')) return 'role-expert';
             if (role.includes('SELLER')) return 'role-seller';
-            return 'role-buyer';
+            return 'role-user';
         }
         
         function getStatusClass(status) {

@@ -502,7 +502,7 @@
                     <tbody>
                         <tr th:each="p : ${pendingSellerPayouts}">
                             <td><strong th:text="'#' + ${p.id}">#1</strong></td>
-                            <td th:text="${p.requesterId}">User123</td>
+                            <td th:text="${sellerRequesterNames[p.requesterId] ?: p.requesterId}">User123</td>
                             <td>
                                 <span class="amount-highlight" 
                                       th:text="${#numbers.formatDecimal(p.requestedAmount,0,'POINT',0,'COMMA') + 'đ'}">
@@ -563,7 +563,7 @@
                     <tbody>
                         <tr th:each="p : ${pendingExpertPayouts}">
                             <td><strong th:text="'#' + ${p.id}">#1</strong></td>
-                            <td th:text="${p.requesterId}">Expert123</td>
+                            <td th:text="${expertRequesterNames[p.requesterId] ?: ('Tài khoản #' + p.requesterId)}">Expert123</td>
                             <td>
                                 <span class="amount-highlight" 
                                       th:text="${#numbers.formatDecimal(p.requestedAmount,0,'POINT',0,'COMMA') + 'đ'}">
@@ -607,7 +607,7 @@
                     <tbody>
                         <tr th:each="p : ${sellerPayouts}">
                             <td><strong th:text="'#' + ${p.id}">#1</strong></td>
-                            <td th:text="${p.requesterId}">User123</td>
+                            <td th:text="${pendingSellerRequesterNames[p.requesterId] ?: ('Tài khoản #' + p.requesterId)}">User123</td>
                             <td>
                                 <span class="amount-highlight" 
                                       th:text="${#numbers.formatDecimal(p.requestedAmount,0,'POINT',0,'COMMA') + 'đ'}">
@@ -654,7 +654,7 @@
                     <tbody>
                         <tr th:each="p : ${expertPayouts}">
                             <td><strong th:text="'#' + ${p.id}">#1</strong></td>
-                            <td th:text="${p.requesterId}">Expert123</td>
+                            <td th:text="${pendingExpertRequesterNames[p.requesterId] ?: ('Tài khoản #' + p.requesterId)}">Expert123</td>
                             <td>
                                 <span class="amount-highlight" 
                                       th:text="${#numbers.formatDecimal(p.requestedAmount,0,'POINT',0,'COMMA') + 'đ'}">

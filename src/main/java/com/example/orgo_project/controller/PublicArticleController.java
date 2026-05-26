@@ -27,20 +27,35 @@ public class PublicArticleController {
     @GetMapping
     public String getArticles(
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
             Model model) {
 
-        Page<ArticleResponse> articles = articleService.getPublicArticles(category, PageRequest.of(page, size));
+        Page<ArticleResponse> articles = articleService.getPublicArticlesWithFilters(category, search, PageRequest.of(page, size));
         System.out.println("Total articles: " + articles.getTotalElements());
         System.out.println("Content size: " + articles.getContent().size());
 
-        ArticleResponse featuredArticle = articles.hasContent() ? articles.getContent().get(0) : null;
+        ArticleResponse featuredArticle = null;
+        if ((category == null || category.isBlank()) && (search == null || search.isBlank()) && page == 0) {
+            Page<ArticleResponse> latest = articleService.getPublicArticlesWithFilters(null, null, PageRequest.of(0, 1));
+            featuredArticle = latest.hasContent() ? latest.getContent().get(0) : null;
+        }
+
+        java.util.Map<String, Long> categoryCounts = new java.util.HashMap<>();
+        java.util.List<String> categories = List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức");
+        for (String cat : categories) {
+            categoryCounts.put(cat, articleService.countByCategory(cat));
+        }
 
         model.addAttribute("articles", articles);
+        model.addAttribute("featuredArticles", articleService.getFeaturedArticles());
         model.addAttribute("featuredArticle", featuredArticle);
         model.addAttribute("category", category);
-        model.addAttribute("categories", List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức"));
+        model.addAttribute("search", search);
+        model.addAttribute("categories", categories);
+        model.addAttribute("categoryCounts", categoryCounts);
+        model.addAttribute("totalCount", articleService.countAllPublished());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", articles.getTotalPages());
 

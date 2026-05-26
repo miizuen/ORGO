@@ -18,27 +18,44 @@
         .dropdown-submenu:hover .dropdown-menu {
             display: block;
         }
+        .header-link {
+            transition: color 0.2s ease;
+        }
+        .header-link:hover {
+            color: #198754 !important;
+        }
+        .hover-success {
+            transition: color 0.2s ease;
+        }
+        .hover-success:hover {
+            color: #198754 !important;
+        }
     </style>
     <div class="container-xl d-flex align-items-center justify-content-between py-3">
-        <a th:href="@{/}" class="fs-4 fw-bold text-success text-decoration-none">ORGO</a>
+        <a th:href="@{/}" class="fs-4 fw-bold text-success text-decoration-none" style="letter-spacing: 0.5px;">ORGO</a>
 
         <nav class="d-none d-md-flex gap-4"
              sec:authorize="!isAuthenticated() or hasRole('USER')">
-            <a th:href="@{/products}" class="text-secondary text-decoration-none fw-medium">Sản phẩm</a>
-            <a th:href="@{/articles}"     class="text-secondary text-decoration-none fw-medium">Blog</a>
-            <a th:href="@{/experts}"  class="text-secondary text-decoration-none fw-medium">Chuyên gia</a>
+            <a th:href="@{/products}" class="text-secondary text-decoration-none fw-semibold header-link px-1">Sản phẩm</a>
+            <a th:href="@{/articles}" class="text-secondary text-decoration-none fw-semibold header-link px-1">Blog</a>
+            <a th:href="@{/experts}"  class="text-secondary text-decoration-none fw-semibold header-link px-1">Chuyên gia</a>
         </nav>
 
-        <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center gap-4">
+            <!-- Search Icon -->
+            <a href="#" class="text-secondary text-decoration-none d-flex align-items-center justify-content-center hover-success">
+                <i data-lucide="search" style="width: 20px; height: 20px;"></i>
+            </a>
+
             <a th:href="@{/cart}"
-               class="text-secondary text-decoration-none d-flex align-items-center gap-1"
+               class="text-secondary text-decoration-none d-flex align-items-center justify-content-center hover-success"
                sec:authorize="hasRole('USER')">
-                🛒
+                <i data-lucide="shopping-cart" style="width: 20px; height: 20px;"></i>
             </a>
 
             <!-- Chưa đăng nhập -->
             <div sec:authorize="!isAuthenticated()">
-                <a th:href="@{/login}" class="btn btn-outline-success btn-sm fw-semibold px-4">Đăng nhập</a>
+                <a th:href="@{/login}" class="btn btn-outline-success btn-sm fw-bold px-4 py-2 rounded-pill">Đăng nhập</a>
             </div>
 
             <!-- Đã đăng nhập: Dropdown -->
@@ -52,6 +69,9 @@
                     <li>
                         <a class="dropdown-item" th:href="@{/user/profile}"
                            sec:authorize="hasRole('USER')">Hồ sơ</a>
+                    </li>
+                    <li sec:authorize="hasRole('USER')">
+                        <a class="dropdown-item" th:href="@{/orders}">Lịch sử đơn hàng</a>
                     </li>
 
                     <!-- NÂNG CẤP TÀI KHOẢN -->

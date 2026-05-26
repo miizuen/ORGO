@@ -133,6 +133,19 @@ public class ArticleService {
         }
         return articles.map(this::mapToResponse);
     }
+
+    public long countByCategory(String category) {
+        return articleRepository.countByCategory(category);
+    }
+
+    public long countAllPublished() {
+        return articleRepository.countAllPublished();
+    }
+
+    public Page<ArticleResponse> getPublicArticlesWithFilters(String category, String search, Pageable pageable) {
+        Page<Article> articles = articleRepository.findPublishedArticlesWithFilters(category, search, pageable);
+        return articles.map(this::mapToResponse);
+    }
     
     @Transactional
     public ArticleResponse getArticleById(Integer articleId) {

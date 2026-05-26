@@ -1,5 +1,11 @@
 package com.example.orgo_project.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.orgo_project.dto.OrderDetailDTO;
 import com.example.orgo_project.dto.OrderItemDTO;
 import com.example.orgo_project.dto.OrderSummaryDTO;
@@ -12,11 +18,8 @@ import com.example.orgo_project.repository.ICustomerOrderItemRepository;
 import com.example.orgo_project.repository.ICustomerOrderRepository;
 import com.example.orgo_project.repository.IProductRepository;
 import com.example.orgo_project.repository.IProductVariantRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.example.orgo_project.repository.IShippingAddressRepository;
+import com.example.orgo_project.repository.IUserProfileRepository;
 
 @Service
 @Transactional
@@ -26,15 +29,21 @@ public class SellerOrderService implements ISellerOrderService {
     private final ICustomerOrderItemRepository orderItemRepository;
     private final IProductVariantRepository productVariantRepository;
     private final IProductRepository productRepository;
+    private final IUserProfileRepository userProfileRepository;
+    private final IShippingAddressRepository shippingAddressRepository;
 
     public SellerOrderService(ICustomerOrderRepository orderRepository,
                               ICustomerOrderItemRepository orderItemRepository,
                               IProductVariantRepository productVariantRepository,
-                              IProductRepository productRepository) {
+                              IProductRepository productRepository,
+                              IUserProfileRepository userProfileRepository,
+                              IShippingAddressRepository shippingAddressRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.productVariantRepository = productVariantRepository;
         this.productRepository = productRepository;
+        this.userProfileRepository = userProfileRepository;
+        this.shippingAddressRepository = shippingAddressRepository;
     }
 
     @Override
@@ -77,6 +86,22 @@ public class SellerOrderService implements ISellerOrderService {
                 .map(this::toItemDTO)
                 .toList();
 
+        // Lấy thông tin địa chỉ giao hàng
+        String recipientName = null;
+        String recipientPhone = null;
+        String recipientAddress = null;
+        
+        if (order.getShippingAddressId() != null) {
+            var addressOpt = shippingAddressRepository.findById(order.getShippingAddressId());
+            if (addressOpt.isPresent()) {
+                var address = addressOpt.get();
+                recipientName = address.getRecipientName();
+                recipientPhone = address.getRecipientPhone();
+                recipientAddress = (address.getDetailedAddress() != null ? address.getDetailedAddress() + ", " : "") +
+                                 (address.getProvinceOrCity() != null ? address.getProvinceOrCity() : "");
+            }
+        }
+
         return OrderDetailDTO.builder()
                 .id(order.getId())
                 .orderCode(order.getOrderCode())
@@ -89,7 +114,14 @@ public class SellerOrderService implements ISellerOrderService {
                 .note(order.getNote())
                 .cancellationReason(order.getCancellationReason())
                 .orderedAt(order.getOrderedAt())
+                .paidAt(order.getPaidAt())
+                .confirmedAt(order.getConfirmedAt())
+                .shippedAt(order.getShippedAt())
+                .deliveredAt(order.getDeliveredAt())
                 .items(items)
+                .recipientName(recipientName)
+                .recipientPhone(recipientPhone)
+                .recipientAddress(recipientAddress)
                 .build();
     }
 
@@ -103,10 +135,11 @@ public class SellerOrderService implements ISellerOrderService {
         }
 
         if (order.getOrderStatus() != OrderStatus.PENDING) {
-            throw new RuntimeException("Chỉ được xác nhận đơn ở trạng thái PENDING");
+            throw new RuntimeException("Chỉ được duyệt đơn ở trạng thái PENDING");
         }
 
         order.setOrderStatus(OrderStatus.PROCESSING);
+        order.setConfirmedAt(java.time.LocalDateTime.now());
         orderRepository.save(order);
         return true;
     }
@@ -121,31 +154,15 @@ public class SellerOrderService implements ISellerOrderService {
         }
 
         if (order.getOrderStatus() != OrderStatus.PROCESSING) {
-            throw new RuntimeException("Chỉ được chuyển sang giao hàng khi đơn ở trạng thái PROCESSING");
+            throw new RuntimeException("Chỉ được chuyển sang SHIPPED khi đơn ở trạng thái PROCESSING");
         }
 
         order.setOrderStatus(OrderStatus.SHIPPED);
+        order.setShippedAt(java.time.LocalDateTime.now());
         orderRepository.save(order);
         return true;
     }
 
-    @Override
-    public boolean deliverOrder(Integer sellerAccountId, Integer orderId) {
-        CustomerOrder order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
-
-        if (!isOrderRelatedToSeller(orderId, sellerAccountId)) {
-            throw new RuntimeException("Bạn không có quyền thao tác đơn hàng này");
-        }
-
-        if (order.getOrderStatus() != OrderStatus.SHIPPED) {
-            throw new RuntimeException("Chỉ được hoàn tất đơn khi đơn ở trạng thái SHIPPED");
-        }
-
-        order.setOrderStatus(OrderStatus.DELIVERED);
-        orderRepository.save(order);
-        return true;
-    }
 
     private boolean isOrderRelatedToSeller(Integer orderId, Integer sellerAccountId) {
         List<CustomerOrderItem> items = orderItemRepository.findByOrderId(orderId);
@@ -207,6 +224,24 @@ public class SellerOrderService implements ISellerOrderService {
     }
 
     private OrderSummaryDTO toSummary(CustomerOrder order) {
+        // Lấy thông tin khách hàng
+        String customerName = null;
+        String customerPhone = null;
+        
+        if (order.getUserId() != null) {
+            userProfileRepository.findById(order.getUserId()).ifPresent(user -> {
+                // Sử dụng biến tạm để gán giá trị
+            });
+            
+            // Lấy thông tin từ repository
+            var userOpt = userProfileRepository.findById(order.getUserId());
+            if (userOpt.isPresent()) {
+                var user = userOpt.get();
+                customerName = user.getFullName();
+                customerPhone = user.getPhoneNumber();
+            }
+        }
+        
         return OrderSummaryDTO.builder()
                 .id(order.getId())
                 .orderCode(order.getOrderCode())
@@ -214,16 +249,38 @@ public class SellerOrderService implements ISellerOrderService {
                 .paymentStatus(order.getPaymentStatus() != null ? order.getPaymentStatus().name() : null)
                 .totalAmount(order.getTotalAmount())
                 .orderedAt(order.getOrderedAt())
+                .customerName(customerName)
+                .customerPhone(customerPhone)
                 .build();
     }
 
     private OrderItemDTO toItemDTO(CustomerOrderItem item) {
+        String productName = null;
+        String variantName = null;
+        
+        if (item.getProductVariantId() != null) {
+            var variantOpt = productVariantRepository.findById(item.getProductVariantId());
+            if (variantOpt.isPresent()) {
+                var variant = variantOpt.get();
+                variantName = variant.getVariantName();
+                
+                if (variant.getProductId() != null) {
+                    var productOpt = productRepository.findById(variant.getProductId());
+                    if (productOpt.isPresent()) {
+                        productName = productOpt.get().getProductName();
+                    }
+                }
+            }
+        }
+        
         return OrderItemDTO.builder()
                 .id(item.getId())
                 .productVariantId(item.getProductVariantId())
                 .quantity(item.getQuantity())
                 .unitPrice(item.getUnitPrice())
                 .lineTotal(item.getLineTotal())
+                .productName(productName)
+                .variantName(variantName)
                 .build();
     }
 }
