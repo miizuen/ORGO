@@ -129,6 +129,18 @@ public class Product {
         return id != null && (id % 3 == 0 || id > 10);
     }
 
+    @Transient
+    public int getTotalStock() {
+        if (variants == null || variants.isEmpty()) return 0;
+        int total = 0;
+        for (ProductVariant variant : variants) {
+            if (variant.getStockQuantity() != null) {
+                total += variant.getStockQuantity();
+            }
+        }
+        return total;
+    }
+
     @PostLoad
     private void loadLegacyImageUrl() {
         if ((imageUrl == null || imageUrl.isBlank()) && slug != null && slug.startsWith("/uploads/")) {

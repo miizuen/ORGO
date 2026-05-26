@@ -2,6 +2,7 @@ package com.example.orgo_project.controller;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ import jakarta.servlet.http.HttpSession;
 
 import com.example.orgo_project.entity.OrganicCertificate;
 import com.example.orgo_project.entity.Product;
+import com.example.orgo_project.entity.ProductCategory;
 import com.example.orgo_project.entity.ProductReview;
 import com.example.orgo_project.entity.ProductVariant;
 import com.example.orgo_project.entity.UserProfile;
@@ -192,18 +194,62 @@ public class ProductController {
     public String sellerProducts(@RequestParam(defaultValue = "0") int page,
                                  @RequestParam(defaultValue = "") String search,
                                  @RequestParam(defaultValue = "all") String status,
+                                 @RequestParam(required = false) Integer category,
+                                 @RequestParam(defaultValue = "newest") String sort,
                                  @AuthenticationPrincipal CustomUserDetails userDetails,
                                  Model model) {
         Integer sellerId = getSellerIdFromUser(userDetails);
         if (sellerId == null) return "redirect:/";
 
-        Page<Product> products = productService.getProductsBySellerWithFilters(sellerId, search, status, PageRequest.of(page, 12));
+        Page<Product> products = productService.getProductsBySellerWithFilters(
+                sellerId,
+                search,
+                status,
+                category,
+                sort,
+                PageRequest.of(page, 12)
+        );
+
+        List<ProductCategory> categories = productService.getAllCategories();
+        List<Product> allSellerProducts = productService.getAllProductsBySeller(sellerId);
+
+        int totalProducts = allSellerProducts.size();
+        int activeProducts = 0;
+        int outOfStockProducts = 0;
+        BigDecimal estimatedValue = BigDecimal.ZERO;
+
+        for (Product product : allSellerProducts) {
+            if (product.getStatus() == com.example.orgo_project.enums.ProductStatus.ACTIVE) {
+                activeProducts++;
+            }
+
+            int totalStock = productService.getTotalStock(product);
+            if (totalStock <= 0) {
+                outOfStockProducts++;
+            }
+
+            estimatedValue = estimatedValue.add(productService.getEstimatedInventoryValue(product));
+        }
+
+        Map<Integer, String> categoryNameMap = new HashMap<>();
+        for (ProductCategory productCategory : categories) {
+            categoryNameMap.put(productCategory.getId(), productCategory.getCategoryName());
+        }
+
         model.addAttribute("activePage", "products");
         model.addAttribute("products", products);
+        model.addAttribute("categories", categories);
+        model.addAttribute("categoryNameMap", categoryNameMap);
+        model.addAttribute("totalProducts", totalProducts);
+        model.addAttribute("activeProducts", activeProducts);
+        model.addAttribute("outOfStockProducts", outOfStockProducts);
+        model.addAttribute("estimatedValue", estimatedValue);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", products.getTotalPages());
         model.addAttribute("searchQuery", search);
         model.addAttribute("statusFilter", status);
+        model.addAttribute("categoryFilter", category);
+        model.addAttribute("sortFilter", sort);
         return "pages/seller/products";
     }
 

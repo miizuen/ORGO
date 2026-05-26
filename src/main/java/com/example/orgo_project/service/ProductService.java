@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -195,30 +198,127 @@ public class ProductService {
     }
 
     public Page<Product> getProductsBySellerWithFilters(Integer sellerId, String search, String status, Pageable pageable) {
-        Page<Product> products;
-        if (search != null && !search.trim().isEmpty()) {
-            if ("all".equals(status)) {
-                products = productRepository.findBySellerIdAndProductNameContainingIgnoreCase(sellerId, search.trim(), pageable);
-            } else {
-                ProductStatus productStatus = ProductStatus.valueOf(status.toUpperCase());
-                products = productRepository.findBySellerIdAndProductNameContainingIgnoreCaseAndStatus(sellerId, search.trim(), productStatus, pageable);
-            }
-        } else {
-            if ("all".equals(status)) {
-                products = productRepository.findBySellerId(sellerId, pageable);
-            } else {
-                ProductStatus productStatus = ProductStatus.valueOf(status.toUpperCase());
-                products = productRepository.findBySellerIdAndStatus(sellerId, productStatus, pageable);
+        return getProductsBySellerWithFilters(sellerId, search, status, null, "newest", pageable);
+    }
+
+    public Page<Product> getProductsBySellerWithFilters(Integer sellerId, String search, String status, Integer categoryId, String sort, Pageable pageable) {
+        List<Product> allProducts = new ArrayList<>(productRepository.findBySellerId(sellerId));
+        allProducts.forEach(product -> product.setVariants(variantRepository.findByProductId(product.getId())));
+
+        String normalizedSearch = search != null ? search.trim().toLowerCase() : "";
+        boolean hasSearch = !normalizedSearch.isBlank();
+        boolean hasCategoryFilter = categoryId != null && categoryId > 0;
+        boolean filterAllStatus = status == null || status.isBlank() || "all".equalsIgnoreCase(status);
+        ProductStatus requestedStatus = null;
+        if (!filterAllStatus) {
+            try {
+                requestedStatus = ProductStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException ex) {
+                filterAllStatus = true;
             }
         }
-        
-        // Load variants for each product to display stock information
-        products.getContent().forEach(product -> {
-            List<ProductVariant> variants = variantRepository.findByProductId(product.getId());
-            product.setVariants(variants);
-        });
-        
+
+        List<Product> filtered = new ArrayList<>();
+        for (Product product : allProducts) {
+            if (hasSearch) {
+                String productName = product.getProductName() != null ? product.getProductName().toLowerCase() : "";
+                String origin = product.getOrigin() != null ? product.getOrigin().toLowerCase() : "";
+                String sku = ("OR-" + product.getId()).toLowerCase();
+                boolean matched = productName.contains(normalizedSearch)
+                        || origin.contains(normalizedSearch)
+                        || sku.contains(normalizedSearch);
+                if (!matched) {
+                    continue;
+                }
+            }
+
+            if (!filterAllStatus) {
+                if (product.getStatus() == null || product.getStatus() != requestedStatus) {
+                    continue;
+                }
+            }
+
+            if (hasCategoryFilter) {
+                if (product.getCategoryId() == null || !product.getCategoryId().equals(categoryId)) {
+                    continue;
+                }
+            }
+
+            filtered.add(product);
+        }
+
+        Comparator<Product> comparator = Comparator.comparing(Product::getId, Comparator.nullsLast(Integer::compareTo)).reversed();
+        String normalizedSort = sort != null ? sort.toLowerCase() : "newest";
+        switch (normalizedSort) {
+            case "oldest":
+                comparator = Comparator.comparing(Product::getId, Comparator.nullsLast(Integer::compareTo));
+                break;
+            case "name_asc":
+                comparator = Comparator.comparing(p -> p.getProductName() != null ? p.getProductName().toLowerCase() : "");
+                break;
+            case "name_desc":
+                comparator = Comparator.comparing((Product p) -> p.getProductName() != null ? p.getProductName().toLowerCase() : "").reversed();
+                break;
+            case "price_asc":
+                comparator = Comparator.comparing(this::getMinPrice);
+                break;
+            case "price_desc":
+                comparator = Comparator.comparing(this::getMinPrice).reversed();
+                break;
+            case "stock_asc":
+                comparator = Comparator.comparingInt(this::getTotalStock);
+                break;
+            case "stock_desc":
+                comparator = Comparator.comparingInt(this::getTotalStock).reversed();
+                break;
+            default:
+                break;
+        }
+
+        filtered.sort(comparator);
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), filtered.size());
+        List<Product> paged = start >= filtered.size() ? List.of() : filtered.subList(start, end);
+        return new PageImpl<>(paged, pageable, filtered.size());
+    }
+
+    public List<Product> getAllProductsBySeller(Integer sellerId) {
+        List<Product> products = new ArrayList<>(productRepository.findBySellerId(sellerId));
+        products.forEach(product -> product.setVariants(variantRepository.findByProductId(product.getId())));
         return products;
+    }
+
+    public int getTotalStock(Product product) {
+        if (product == null || product.getVariants() == null || product.getVariants().isEmpty()) {
+            return 0;
+        }
+        int totalStock = 0;
+        for (ProductVariant variant : product.getVariants()) {
+            if (variant.getStockQuantity() != null) {
+                totalStock += variant.getStockQuantity();
+            }
+        }
+        return totalStock;
+    }
+
+    public java.math.BigDecimal getEstimatedInventoryValue(Product product) {
+        if (product == null || product.getVariants() == null || product.getVariants().isEmpty()) {
+            return java.math.BigDecimal.ZERO;
+        }
+        java.math.BigDecimal total = java.math.BigDecimal.ZERO;
+        for (ProductVariant variant : product.getVariants()) {
+            java.math.BigDecimal unitPrice = variant.getDiscountedPrice() != null ? variant.getDiscountedPrice() : variant.getOriginalPrice();
+            Integer stock = variant.getStockQuantity() != null ? variant.getStockQuantity() : 0;
+            if (unitPrice != null && stock > 0) {
+                total = total.add(unitPrice.multiply(java.math.BigDecimal.valueOf(stock)));
+            }
+        }
+        return total;
+    }
+
+    public java.math.BigDecimal getDisplayPrice(Product product) {
+        return getMinPrice(product);
     }
 
     @Transactional

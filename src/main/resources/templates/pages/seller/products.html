@@ -1,103 +1,380 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:replace="~{fragments/seller-layout :: sellerLayout('Danh sách sản phẩm', 'products', ~{::main})}">
+<div th:replace="~{fragments/seller-layout :: sellerLayout('Quan ly san pham', 'products', ~{::main})}">
     <main>
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fs-3 fw-bold text-dark">Quản lý sản phẩm</h1>
-            <a th:href="@{/seller/products/new}" class="btn btn-success fw-bold px-4 rounded-3">
-                + Thêm sản phẩm mới
-            </a>
-        </div>
+        <style>
+            .seller-products-page { display: grid; gap: 20px; }
+            .seller-products-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+            .seller-products-title h1 { margin: 0; font-size: 34px; font-weight: 800; color: #0f172a; }
+            .seller-products-title p { margin: 8px 0 0; color: #64748b; }
 
-        <!-- Success message -->
-        <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
-            <span th:if="${param.success[0] == 'created'}">✅ Sản phẩm đã được tạo và đang chờ duyệt!</span>
-            <span th:if="${param.success[0] == 'updated'}">✅ Sản phẩm đã được cập nhật!</span>
-            <span th:if="${param.success[0] == 'deleted'}">✅ Sản phẩm đã được xóa!</span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+            .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap: 16px; }
+            .summary-card {
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 18px;
+                min-height: 128px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 8px;
+            }
+            .summary-label { font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: #64748b; font-weight: 700; }
+            .summary-value { font-size: 40px; line-height: 1; font-weight: 800; color: #0f172a; }
+            .summary-meta { color: #64748b; font-size: 13px; }
+            .summary-value.text-danger { color: #dc2626 !important; }
 
-        <!-- Product table -->
-        <div class="bg-white rounded-4 shadow-sm overflow-hidden">
-            <table class="table table-hover mb-0">
-                <thead class="bg-light">
-                <tr>
-                    <th class="fw-semibold text-secondary">Sản phẩm</th>
-                    <th class="fw-semibold text-secondary">Trạng thái</th>
-                    <th class="fw-semibold text-secondary">Đánh giá</th>
-                    <th class="fw-semibold text-secondary text-end">Thao tác</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="product : ${products.content}">
-                    <td>
-                        <div class="d-flex align-items-center gap-3">
-                            <img th:src="${product.slug != null ? product.slug : 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=100&q=80'}"
-                                 th:alt="${product.productName}"
-                                 class="rounded-3" style="width:60px;height:60px;object-fit:cover;">
-                            <div>
-                                <div class="fw-semibold" th:text="${product.productName}">Tên sản phẩm</div>
-                                <div class="text-secondary small" th:text="${product.origin}">Nguồn gốc</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                    <span class="badge rounded-pill px-3 py-2"
-                          th:classappend="${product.status.name() == 'ACTIVE'} ? 'bg-success' : (${product.status.name() == 'PENDING'} ? 'bg-warning text-dark' : 'bg-danger')"
-                          th:text="${product.status.name() == 'ACTIVE' ? 'Đang bán' : (product.status.name() == 'PENDING' ? 'Chờ duyệt' : (product.status.name() == 'REJECTED' ? 'Bị từ chối' : 'Không hoạt động'))}">
-                        Trạng thái
-                    </span>
-                    </td>
-                    <td>
-                        <div th:if="${product.averageRating != null}">
-                            <span class="text-warning">★</span>
-                            <span class="fw-semibold" th:text="${#numbers.formatDecimal(product.averageRating, 1, 1)}">4.5</span>
-                            <span class="text-secondary small" th:text="'(' + ${product.totalReviews} + ')'" ></span>
-                        </div>
-                        <span th:if="${product.averageRating == null}" class="text-secondary small">Chưa có</span>
-                    </td>
-                    <td class="text-end">
-                        <div class="d-flex gap-2 justify-content-end">
-                            <a th:href="@{/products/{id}(id=${product.id})}"
-                               class="btn btn-sm btn-outline-secondary rounded-3" target="_blank">Xem</a>
-                            <a th:href="@{/seller/products/{id}/edit(id=${product.id})}"
-                               class="btn btn-sm btn-outline-primary rounded-3">Sửa</a>
-                            <form th:action="@{/seller/products/{id}/delete(id=${product.id})}" method="post" class="d-inline"
-                                  onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-3">Xóa</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+            .filter-panel {
+                background: #eef2ff;
+                border: 1px solid #e2e8f0;
+                border-radius: 16px;
+                padding: 14px;
+                display: grid;
+                grid-template-columns: minmax(260px, 1.5fr) 1fr 1fr auto auto;
+                gap: 10px;
+                align-items: center;
+            }
+            .filter-control {
+                height: 48px;
+                border-radius: 12px;
+                border: 1px solid #dbe3f1;
+                background: #fff;
+                padding: 0 14px;
+                font-size: 14px;
+                width: 100%;
+            }
+            .filter-search-wrap {
+                height: 48px;
+                border-radius: 12px;
+                border: 1px solid #dbe3f1;
+                background: #fff;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 0 14px;
+            }
+            .filter-search-wrap i { color: #64748b; width: 18px; height: 18px; }
+            .filter-search-wrap input {
+                border: none;
+                outline: none;
+                width: 100%;
+                font-size: 14px;
+            }
 
-            <!-- Empty state -->
-            <div th:if="${products.totalElements == 0}" class="text-center py-5">
-                <div class="display-1 mb-3">📦</div>
-                <h5 class="fw-bold text-secondary">Chưa có sản phẩm nào</h5>
-                <p class="text-secondary">Hãy thêm sản phẩm đầu tiên của bạn!</p>
-                <a th:href="@{/seller/products/new}" class="btn btn-success mt-2">+ Thêm sản phẩm</a>
+            .table-shell {
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 18px;
+                overflow: hidden;
+            }
+            .table-shell table { margin: 0; }
+            .table-shell thead th {
+                background: #f8fafc;
+                color: #334155;
+                border: none;
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: .03em;
+                font-weight: 700;
+                padding: 16px;
+                white-space: nowrap;
+            }
+            .table-shell tbody td {
+                border-color: #eef2f7;
+                vertical-align: middle;
+                padding: 16px;
+            }
+            .product-cell { display: flex; align-items: center; gap: 12px; }
+            .product-thumb {
+                width: 64px;
+                height: 64px;
+                border-radius: 10px;
+                object-fit: cover;
+                border: 1px solid #e2e8f0;
+                background: #f8fafc;
+                flex-shrink: 0;
+            }
+            .product-name {
+                font-size: 22px;
+                line-height: 1.2;
+                font-weight: 800;
+                color: #0f172a;
+                margin-bottom: 4px;
+            }
+            .product-sub {
+                margin: 0;
+                color: #64748b;
+                font-size: 13px;
+            }
+            .status-pill {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 999px;
+                padding: 6px 12px;
+                font-size: 12px;
+                font-weight: 700;
+                min-width: 108px;
+            }
+            .status-ok { background: #dcfce7; color: #166534; }
+            .status-warn { background: #fef3c7; color: #92400e; }
+            .status-bad { background: #fee2e2; color: #b91c1c; }
+            .status-info { background: #dbeafe; color: #1e40af; }
+            .status-muted { background: #e2e8f0; color: #334155; }
+
+            .action-group { display: flex; justify-content: flex-end; gap: 8px; }
+            .action-btn {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                border: 1px solid #cbd5e1;
+                background: #fff;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: #334155;
+                text-decoration: none;
+            }
+            .action-btn:hover { background: #f8fafc; color: #0f172a; }
+            .action-btn.danger { border-color: #fecaca; color: #dc2626; }
+
+            .table-foot {
+                border-top: 1px solid #eef2f7;
+                padding: 14px 16px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+            .page-list { margin: 0; gap: 6px; }
+            .page-list .page-link {
+                border-radius: 10px;
+                min-width: 38px;
+                text-align: center;
+                border-color: #dbe3f1;
+                color: #334155;
+            }
+            .page-list .page-item.active .page-link {
+                background: #0f9d58;
+                border-color: #0f9d58;
+                color: #fff;
+            }
+
+            @media (max-width: 1200px) {
+                .summary-grid { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
+                .filter-panel { grid-template-columns: 1fr 1fr; }
+            }
+            @media (max-width: 768px) {
+                .seller-products-head { flex-direction: column; align-items: flex-start; }
+                .summary-grid { grid-template-columns: 1fr; }
+                .filter-panel { grid-template-columns: 1fr; }
+                .product-name { font-size: 16px; }
+            }
+        </style>
+
+        <div class="seller-products-page">
+            <div class="seller-products-head">
+                <div class="seller-products-title">
+                    <h1>Quản lý sản phẩm</h1>
+                </div>
+                <a th:href="@{/seller/products/new}" class="btn btn-success fw-semibold px-4 py-2 rounded-3 d-inline-flex align-items-center gap-2">
+                    <i data-lucide="plus" style="width:18px;height:18px;"></i>
+                    <span>Thêm sản phẩm</span>
+                </a>
+            </div>
+
+            <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show mb-0" role="alert">
+                <span th:if="${param.success[0] == 'created'}">Sản phẩm được tạo và đang chờ duyệt</span>
+                <span th:if="${param.success[0] == 'updated'}">Sản phẩm đã được cập nhật</span>
+                <span th:if="${param.success[0] == 'deleted'}">Sản phẩm đã được xóa</span>
+                <span th:if="${param.success[0] == 'stopped'}">San phẩm đã được tạm dừng bán.</span>
+                <span th:if="${param.success[0] == 'hidden'}">Sản phẩm đã bị ẩn khỏi trang công khai</span>
+                <span th:if="${param.success[0] == 'shown'}">Sản phẩm đã hiện lại ở trang công khai.</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">Tất cả sản phẩm</div>
+                    <div class="summary-value" th:text="${#numbers.formatInteger(totalProducts, 1, 'COMMA')}">0</div>
+                    <div class="summary-meta">Tổng sản phẩm của shop</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Đang bán</div>
+                    <div class="summary-value" th:text="${#numbers.formatInteger(activeProducts, 1, 'COMMA')}">0</div>
+                    <div class="summary-meta">Đang ở trạng thái active</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Hết hàng</div>
+                    <div class="summary-value text-danger" th:text="${#numbers.formatInteger(outOfStockProducts, 1, 'COMMA')}">0</div>
+                    <div class="summary-meta">Cần bổ sung ngay</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Giá trị tồn kho</div>
+                    <div class="summary-value" style="font-size:32px"
+                         th:text="${#numbers.formatDecimal(estimatedValue, 1, 'POINT', 0, 'COMMA') + ' VNĐ'}">0 VNĐ</div>
+                    <div class="summary-meta">Ước tính theo biến thể</div>
+                </div>
+            </div>
+
+            <form th:action="@{/seller/products}" method="get" class="filter-panel">
+                <div class="filter-search-wrap">
+                    <i data-lucide="search"></i>
+                    <input type="text" name="search" th:value="${searchQuery}" placeholder="Tìm theo tên, SKU, nguồn gốc...">
+                </div>
+
+                <select class="filter-control" name="status">
+                    <option value="all" th:selected="${statusFilter == 'all'}">Tất cả trạng thái</option>
+                    <option value="active" th:selected="${statusFilter == 'active'}">Đang bán</option>
+                    <option value="pending" th:selected="${statusFilter == 'pending'}">Chờ duyet</option>
+                    <option value="inactive" th:selected="${statusFilter == 'inactive'}">Tạm dừng</option>
+                    <option value="rejected" th:selected="${statusFilter == 'rejected'}">Bị từ chối</option>
+                </select>
+
+                <select class="filter-control" name="category">
+                    <option value="">Tất cả danh mục</option>
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat.id}"
+                            th:text="${cat.categoryName}"
+                            th:selected="${categoryFilter != null and categoryFilter == cat.id}"></option>
+                </select>
+
+                <select class="filter-control" name="sort">
+                    <option value="newest" th:selected="${sortFilter == 'newest'}">Mới nhất</option>
+                    <option value="oldest" th:selected="${sortFilter == 'oldest'}">Cũ nhat</option>
+                    <option value="name_asc" th:selected="${sortFilter == 'name_asc'}">Tên A-Z</option>
+                    <option value="name_desc" th:selected="${sortFilter == 'name_desc'}">Tên Z-A</option>
+                    <option value="price_asc" th:selected="${sortFilter == 'price_asc'}">Giá thấp đến cao</option>
+                    <option value="price_desc" th:selected="${sortFilter == 'price_desc'}">Giá cao đến thấp</option>
+                    <option value="stock_desc" th:selected="${sortFilter == 'stock_desc'}">Kho nhiều đến ít</option>
+                    <option value="stock_asc" th:selected="${sortFilter == 'stock_asc'}">Kho ít đến nhiều</option>
+                </select>
+
+                <button class="btn btn-dark px-4 py-2 rounded-3 d-inline-flex align-items-center gap-2" type="submit">
+                    <i data-lucide="filter" style="width:16px;height:16px;"></i>
+                    <span>Lọc</span>
+                </button>
+
+                <a th:href="@{/seller/products}" class="btn btn-outline-secondary px-4 py-2 rounded-3">Đặt lại</a>
+            </form>
+
+            <div class="table-shell">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                        <tr>
+                            <th style="min-width:320px;">Sản phẩm</th>
+                            <th>SKU</th>
+                            <th>Danh mục</th>
+                            <th>Giá</th>
+                            <th>Kho</th>
+                            <th>Trạng thái</th>
+                            <th class="text-end">Hành động</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${products.totalElements == 0}">
+                            <td colspan="7" class="text-center py-5">
+                                <div class="text-secondary">Không có sản phẩm nào phù hợp với bộ lọc hiện tại.</div>
+                            </td>
+                        </tr>
+
+                        <tr th:each="product : ${products.content}">
+                            <td>
+                                <div class="product-cell">
+                                    <img class="product-thumb"
+                                         th:src="${(product.slug != null and !#strings.isEmpty(product.slug)) ? product.slug : 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=128&q=80'}"
+                                         th:alt="${product.productName}">
+                                    <div>
+                                        <div class="product-name" th:text="${product.productName}">Tên sản phẩm</div>
+                                        <p class="product-sub" th:text="${(product.origin != null and !#strings.isEmpty(product.origin)) ? product.origin : 'Không rõ nguồn gốc'}"></p>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="fw-semibold text-secondary" th:text="${'OR-' + product.id}">OR-001</td>
+
+                            <td th:text="${categoryNameMap[product.categoryId] != null ? categoryNameMap[product.categoryId] : 'Chua phan loai'}">Danh mục</td>
+
+                            <td class="fw-semibold" th:text="${#numbers.formatDecimal(product.minPrice, 1, 'POINT', 0, 'COMMA') + ' VNĐ'}">0 VNĐ</td>
+
+                            <td th:text="${#numbers.formatInteger(product.totalStock, 1, 'COMMA')}">0</td>
+
+                            <td th:with="statusName=${product.status != null ? product.status.name() : 'INACTIVE'}, outStock=${product.totalStock <= 0}">
+                                <span th:if="${outStock}" class="status-pill status-bad">HET HANG</span>
+                                <span th:if="${!outStock and statusName == 'ACTIVE'}" class="status-pill status-ok">CÒN HÀNG</span>
+                                <span th:if="${!outStock and statusName == 'PENDING'}" class="status-pill status-warn">CHỜ DUYỆT</span>
+                                <span th:if="${!outStock and statusName == 'REJECTED'}" class="status-pill status-bad">TỪ CHỐI</span>
+                                <span th:if="${!outStock and statusName == 'INACTIVE'}" class="status-pill status-muted">TẠM DỪNG</span>
+                                <span th:if="${!outStock and statusName != 'ACTIVE' and statusName != 'PENDING' and statusName != 'REJECTED' and statusName != 'INACTIVE'}"
+                                      class="status-pill status-info"
+                                      th:text="${statusName}">STATUS</span>
+                            </td>
+
+                            <td>
+                                <div class="action-group">
+                                    <a th:href="@{/products/{id}(id=${product.id})}" target="_blank" class="action-btn" title="Xem chi tiết">
+                                        <i data-lucide="eye" style="width:16px;height:16px;"></i>
+                                    </a>
+                                    <a th:href="@{/seller/products/{id}/edit(id=${product.id})}" class="action-btn" title="Sửa">
+                                        <i data-lucide="pencil" style="width:16px;height:16px;"></i>
+                                    </a>
+                                    <form th:action="@{/seller/products/{id}/delete(id=${product.id})}" method="post" class="d-inline"
+                                          onsubmit="return confirm('Ban có muốn xóa sản phẩm này không?')">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <button type="submit" class="action-btn danger" title="Xóa">
+                                            <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-foot" th:if="${products.totalElements > 0}">
+                    <div class="text-secondary small">
+                        Đang xem
+                        <strong th:text="${currentPage * 12 + 1}">1</strong>
+                        -
+                        <strong th:text="${(currentPage * 12) + products.numberOfElements}">12</strong>
+                        /
+                        <strong th:text="${products.totalElements}">0</strong>
+                        sản phẩm
+                    </div>
+
+                    <nav th:if="${totalPages > 1}">
+                        <ul class="pagination page-list">
+                            <li class="page-item" th:classappend="${currentPage == 0} ? ' disabled'">
+                                <a class="page-link"
+                                   th:href="@{/seller/products(page=${currentPage - 1},search=${searchQuery},status=${statusFilter},category=${categoryFilter},sort=${sortFilter})}">
+                                    <i data-lucide="chevron-left" style="width:14px;height:14px;"></i>
+                                </a>
+                            </li>
+
+                            <li class="page-item"
+                                th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                th:classappend="${i == currentPage} ? ' active'">
+                                <a class="page-link"
+                                   th:href="@{/seller/products(page=${i},search=${searchQuery},status=${statusFilter},category=${categoryFilter},sort=${sortFilter})}"
+                                   th:text="${i + 1}">1</a>
+                            </li>
+
+                            <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? ' disabled'">
+                                <a class="page-link"
+                                   th:href="@{/seller/products(page=${currentPage + 1},search=${searchQuery},status=${statusFilter},category=${categoryFilter},sort=${sortFilter})}">
+                                    <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
-
-        <!-- Pagination -->
-        <nav th:if="${totalPages > 1}" class="mt-4 d-flex justify-content-center">
-            <ul class="pagination">
-                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                    <a class="page-link" th:href="@{/seller/products(page=${currentPage - 1})}">«</a>
-                </li>
-                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                    th:classappend="${i == currentPage} ? 'active'">
-                    <a class="page-link" th:href="@{/seller/products(page=${i})}" th:text="${i + 1}">1</a>
-                </li>
-                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                    <a class="page-link" th:href="@{/seller/products(page=${currentPage + 1})}">»</a>
-                </li>
-            </ul>
-        </nav>
     </main>
 </div>
 </body>
