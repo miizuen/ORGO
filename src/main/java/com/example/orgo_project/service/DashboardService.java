@@ -76,31 +76,92 @@ public class DashboardService {
     
     public ExpertDashboardStats getExpertDashboardStats(Long expertId) {
         ExpertDashboardStats stats = new ExpertDashboardStats();
-        
+
         List<com.example.orgo_project.entity.Article> expertArticles = articleRepository.findByExpertId(expertId.intValue(), PageRequest.of(0, 1000)).getContent();
         long totalArticles = expertArticles.size();
         stats.setTotalArticles(totalArticles);
-        
+
         long pendingArticles = expertArticles.stream().filter(a -> a.getStatus() == ArticleStatus.PENDING).count();
         stats.setPendingArticles(pendingArticles);
-        
+
         long totalViews = expertArticles.stream().mapToLong(a -> a.getViewCount() != null ? (long) a.getViewCount() : 0L).sum();
         stats.setTotalViews(totalViews);
-        
+
         Map<String, Long> articlesByStatus = new HashMap<>();
         articlesByStatus.put("DRAFT", expertArticles.stream().filter(a -> a.getStatus() == ArticleStatus.DRAFT).count());
         articlesByStatus.put("PENDING", pendingArticles);
         articlesByStatus.put("PUBLISHED", expertArticles.stream().filter(a -> a.getStatus() == ArticleStatus.PUBLISHED).count());
         articlesByStatus.put("REJECTED", expertArticles.stream().filter(a -> a.getStatus() == ArticleStatus.REJECTED).count());
         stats.setArticlesByStatus(articlesByStatus);
-        
+
+        // Views theo ngày trong 7 ngày gần nhất (dữ liệu thật từ article_stats)
+        LocalDate toDate = LocalDate.now();
+        LocalDate fromDate = toDate.minusDays(6);
+        Map<LocalDate, Long> dailyViewsMap = new HashMap<>();
+        for (Object[] row : articleStatsRepository.getDailyViewsByExpertIdAndDateRange(expertId.intValue(), fromDate, toDate)) {
+            LocalDate date = (LocalDate) row[0];
+            Number views = (Number) row[1];
+            dailyViewsMap.put(date, views != null ? views.longValue() : 0L);
+        }
         List<ExpertDashboardStats.ViewsByDay> viewsByDay = new ArrayList<>();
         for (int i = 6; i >= 0; i--) {
-            LocalDate date = LocalDate.now().minusDays(i);
-            viewsByDay.add(new ExpertDashboardStats.ViewsByDay(date.toString(), (long) (100 + (i * 20))));
+            LocalDate date = toDate.minusDays(i);
+            long dayViews = dailyViewsMap.getOrDefault(date, 0L);
+            viewsByDay.add(new ExpertDashboardStats.ViewsByDay(date.getDayOfWeek().name().substring(0, 3), dayViews));
         }
         stats.setViewsByDay(viewsByDay);
-        
+
+        // Bài viết theo tuần (4 tuần gần nhất)
+        List<ExpertDashboardStats.ArticlesByWeek> articlesByWeek = new ArrayList<>();
+        for (int i = 3; i >= 0; i--) {
+            LocalDate weekStart = LocalDate.now().minusWeeks(i).with(java.time.DayOfWeek.MONDAY);
+            LocalDate weekEnd = weekStart.plusDays(6);
+            long count = expertArticles.stream()
+                .filter(a -> a.getPublishedAt() != null &&
+                    !a.getPublishedAt().toLocalDate().isBefore(weekStart) &&
+                    !a.getPublishedAt().toLocalDate().isAfter(weekEnd))
+                .count();
+            articlesByWeek.add(new ExpertDashboardStats.ArticlesByWeek("T" + weekStart.getDayOfMonth() + "/" + weekStart.getMonthValue(), count));
+        }
+        stats.setArticlesByWeek(articlesByWeek);
+
+        // Bài viết theo tháng (6 tháng gần nhất)
+        List<ExpertDashboardStats.ArticlesByMonth> articlesByMonth = new ArrayList<>();
+        for (int i = 5; i >= 0; i--) {
+            java.time.YearMonth ym = java.time.YearMonth.now().minusMonths(i);
+            long count = expertArticles.stream()
+                .filter(a -> a.getPublishedAt() != null &&
+                    java.time.YearMonth.from(a.getPublishedAt()).equals(ym))
+                .count();
+            articlesByMonth.add(new ExpertDashboardStats.ArticlesByMonth("T" + ym.getMonthValue() + "/" + ym.getYear(), count));
+        }
+        stats.setArticlesByMonth(articlesByMonth);
+
+        // Top bài viết nhiều lượt xem
+        List<ExpertDashboardStats.TopArticle> topArticles = expertArticles.stream()
+            .filter(a -> a.getStatus() == ArticleStatus.PUBLISHED)
+            .sorted((a, b) -> {
+                long va = a.getViewCount() != null ? a.getViewCount() : 0;
+                long vb = b.getViewCount() != null ? b.getViewCount() : 0;
+                return Long.compare(vb, va);
+            })
+            .limit(5)
+            .map(a -> new ExpertDashboardStats.TopArticle(
+                a.getId(),
+                a.getTitle(),
+                a.getViewCount() != null ? a.getViewCount().longValue() : 0L,
+                a.getCoverImage(),
+                a.getPublishedAt() != null ? a.getPublishedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) : ""
+            ))
+            .collect(java.util.stream.Collectors.toList());
+        stats.setTopArticles(topArticles);
+
+        // Tổng đơn hàng đặt qua bài viết (placeholder - nếu có bảng liên kết thì query ở đây)
+        stats.setTotalOrders(0L);
+
+        // Tổng hoa hồng từ wallet
+        stats.setTotalCommission(java.math.BigDecimal.ZERO);
+
         return stats;
     }
     

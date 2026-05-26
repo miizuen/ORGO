@@ -90,8 +90,30 @@ public class ArticleService {
     }
     
     public Page<ArticleResponse> getExpertArticles(Integer expertId, Pageable pageable) {
-        return articleRepository.findByExpertId(expertId, pageable)
-                .map(this::mapToResponse);
+        return getExpertArticles(expertId, null, null, pageable);
+    }
+
+    public Page<ArticleResponse> getExpertArticles(Integer expertId, String status, String search, Pageable pageable) {
+        Page<Article> page;
+
+        ArticleStatus statusEnum = null;
+        if (status != null && !status.isBlank() && !"ALL".equalsIgnoreCase(status)) {
+            try {
+                statusEnum = ArticleStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException ignored) { }
+        }
+
+        if (statusEnum != null && (search != null && !search.isBlank())) {
+            page = articleRepository.searchByExpertIdAndStatus(expertId, statusEnum, search, pageable);
+        } else if (statusEnum != null) {
+            page = articleRepository.findByExpertIdAndStatus(expertId, statusEnum, pageable);
+        } else if (search != null && !search.isBlank()) {
+            page = articleRepository.searchByExpertId(expertId, search, pageable);
+        } else {
+            page = articleRepository.findByExpertId(expertId, pageable);
+        }
+
+        return page.map(this::mapToResponse);
     }
     
     public Page<ArticleResponse> getPendingArticles(Pageable pageable) {
@@ -147,22 +169,30 @@ public class ArticleService {
         return articles.map(this::mapToResponse);
     }
     
-    @Transactional
     public ArticleResponse getArticleById(Integer articleId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new RuntimeException("Article not found"));
-        
-        // Increment view count
-        article.setViewCount(article.getViewCount() + 1);
-        articleRepository.save(article);
-        
-        // Update stats
-        LocalDate today = LocalDate.now();
-        ArticleStats stats = articleStatsRepository.findByArticleIdAndDate(articleId.longValue(), today)
-                .orElse(new ArticleStats(null, article, 0, 0, today));
-        stats.setViews(stats.getViews() + 1);
-        articleStatsRepository.save(stats);
-        
+        return mapToResponse(article);
+    }
+
+    @Transactional
+    public ArticleResponse getPublicArticleById(Integer articleId, Integer viewerAccountId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new RuntimeException("Article not found"));
+
+        boolean isAuthorView = viewerAccountId != null && viewerAccountId.equals(article.getExpertId());
+        if (!isAuthorView) {
+            int currentViews = article.getViewCount() != null ? article.getViewCount() : 0;
+            article.setViewCount(currentViews + 1);
+            articleRepository.save(article);
+
+            LocalDate today = LocalDate.now();
+            ArticleStats stats = articleStatsRepository.findByArticleIdAndDate(articleId.longValue(), today)
+                    .orElse(new ArticleStats(null, article, 0, 0, today));
+            stats.setViews(stats.getViews() + 1);
+            articleStatsRepository.save(stats);
+        }
+
         return mapToResponse(article);
     }
     

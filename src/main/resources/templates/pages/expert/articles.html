@@ -70,36 +70,52 @@
         </div>
                 
         <!-- Search & Filter Bar with Create Button -->
-        <div class="search-filter-bar">
+        <form class="search-filter-bar" method="get" th:action="@{/expert/articles}">
             <div class="search-box">
                 <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
-                <input type="text" placeholder="Search by article title or keywords...">
+                <input type="text"
+                       name="q"
+                       placeholder="Search by article title or keywords..."
+                       th:value="${searchQuery}">
             </div>
+            <input type="hidden" name="status" th:value="${filterStatus}">
             <div class="filter-tabs">
-                <button class="filter-tab active">All Status</button>
-                <button class="filter-tab">Đã đăng</button>
-                <button class="filter-tab">Chờ xét duyệt</button>
-                <button class="filter-tab">Đã từ chối</button>
+                <button type="button"
+                        class="filter-tab"
+                        th:classappend="${filterStatus} == 'ALL' ? ' active' : ''"
+                        onclick="setStatusAndSubmit('ALL')">All Status</button>
+                <button type="button"
+                        class="filter-tab"
+                        th:classappend="${filterStatus} == 'PUBLISHED' ? ' active' : ''"
+                        onclick="setStatusAndSubmit('PUBLISHED')">Đã đăng</button>
+                <button type="button"
+                        class="filter-tab"
+                        th:classappend="${filterStatus} == 'PENDING' ? ' active' : ''"
+                        onclick="setStatusAndSubmit('PENDING')">Chờ xét duyệt</button>
+                <button type="button"
+                        class="filter-tab"
+                        th:classappend="${filterStatus} == 'REJECTED' ? ' active' : ''"
+                        onclick="setStatusAndSubmit('REJECTED')">Đã từ chối</button>
             </div>
-        </div>
+        </form>
         
         <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-label">Tổng</div>
-                <div class="stat-value">45.2k</div>
-                <div class="stat-subtext">Tổng số lượt xem bài viết tháng này</div>
+                <div class="stat-value" th:text="${totalViews != null ? #numbers.formatInteger(totalViews, 1, 'COMMA') : 0}">0</div>
+                <div class="stat-subtext">Tổng số lượt xem bài viết</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Nội dung</div>
                 <div class="stat-value">
-                    <span style="font-size:28px" th:text="${articles != null ? articles.totalElements : 0}">0</span>
+                    <span style="font-size:28px" th:text="${recipeCount != null ? recipeCount : 0}">0</span>
                     <span style="font-size:18px;color:#9e9e9e;margin-left:8px">RECIPES</span>
                 </div>
                 <div class="stat-subtext">
-                    <span style="font-weight:700">0</span> BLOGS
+                    <span style="font-weight:700" th:text="${blogCount != null ? blogCount : 0}">0</span> BLOGS
                 </div>
             </div>
             <div class="stat-card">
@@ -162,4 +178,12 @@
     </main>
 </div>
 </body>
+<script th:inline="javascript">
+    function setStatusAndSubmit(status) {
+        const form = document.querySelector('.search-filter-bar');
+        const statusInput = form.querySelector('input[name="status"]');
+        statusInput.value = status;
+        form.submit();
+    }
+</script>
 </html>

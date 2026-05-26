@@ -48,11 +48,24 @@ public class ExpertArticleController {
     public String getMyArticles(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "q", required = false) String search,
             Model model) {
         Integer expertId = getExpertIdFromSession();
-        Page<ArticleResponse> articles = articleService.getExpertArticles(expertId, PageRequest.of(page, size));
+        Page<ArticleResponse> articles = articleService.getExpertArticles(expertId, status, search, PageRequest.of(page, size));
+
+        long totalViews = articles.getContent().stream()
+                .mapToLong(a -> a.getTotalViews() != null ? a.getTotalViews() : 0L)
+                .sum();
+        long recipeCount = articles.getTotalElements();
+        long blogCount = 0L;
 
         model.addAttribute("articles", articles);
+        model.addAttribute("filterStatus", status != null ? status : "ALL");
+        model.addAttribute("searchQuery", search != null ? search : "");
+        model.addAttribute("totalViews", totalViews);
+        model.addAttribute("recipeCount", recipeCount);
+        model.addAttribute("blogCount", blogCount);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", articles.getTotalPages());
         return "pages/expert/articles";
@@ -134,8 +147,9 @@ public class ExpertArticleController {
             }
         }
         model.addAttribute("article", article);
-        model.addAttribute("related", related);
+        model.addAttribute("relatedArticles", related);
         model.addAttribute("relatedProducts", relatedProducts);
+        model.addAttribute("affiliateCount", 0);
         return "pages/expert/blog-detail";
     }
 
