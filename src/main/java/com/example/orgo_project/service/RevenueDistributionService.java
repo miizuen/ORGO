@@ -86,30 +86,32 @@ public class RevenueDistributionService implements IRevenueDistributionService {
                 .orElseThrow(() -> new RuntimeException("Khong tim thay don hang"));
         if (order.getPaymentStatus() != PaymentStatus.PAID) throw new RuntimeException("Don hang chua thanh toan");
         if (order.getOrderStatus() != OrderStatus.DELIVERED) throw new RuntimeException("Chi chia tien khi don da giao thanh cong");
-        if (!orderSettlementRepository.findByOrderId(orderId).isEmpty()) return;
 
         boolean hasArticle = order.getArticleId() != null;
         BigDecimal adminRatio = hasArticle ? ADMIN_RATIO_SHARED : ADMIN_RATIO_FULL;
+        boolean hasSettlement = !orderSettlementRepository.findByOrderId(orderId).isEmpty();
 
-        Map<Integer, BigDecimal> sellerTotals = buildSellerTotals(orderId);
-        BigDecimal totalAdminRevenue = BigDecimal.ZERO;
+        if (!hasSettlement) {
+            Map<Integer, BigDecimal> sellerTotals = buildSellerTotals(orderId);
+            BigDecimal totalAdminRevenue = BigDecimal.ZERO;
 
-        for (Map.Entry<Integer, BigDecimal> entry : sellerTotals.entrySet()) {
-            Integer sellerId = entry.getKey();
-            BigDecimal sellerOrderAmount = entry.getValue();
-            BigDecimal sellerAmount = sellerOrderAmount.multiply(SELLER_RATIO);
-            BigDecimal adminAmount = sellerOrderAmount.multiply(adminRatio);
-            totalAdminRevenue = totalAdminRevenue.add(adminAmount);
-            saveSettlement(orderId, sellerId, sellerOrderAmount, adminAmount, sellerAmount);
-            Integer sellerAccountId = resolveSellerAccountId(sellerId);
-            if (sellerAccountId != null) {
-                creditWallet(sellerAccountId, sellerAmount, "SELLER_PAYOUT", orderId, "Nhan tien hang don " + order.getOrderCode());
+            for (Map.Entry<Integer, BigDecimal> entry : sellerTotals.entrySet()) {
+                Integer sellerId = entry.getKey();
+                BigDecimal sellerOrderAmount = entry.getValue();
+                BigDecimal sellerAmount = sellerOrderAmount.multiply(SELLER_RATIO);
+                BigDecimal adminAmount = sellerOrderAmount.multiply(adminRatio);
+                totalAdminRevenue = totalAdminRevenue.add(adminAmount);
+                saveSettlement(orderId, sellerId, sellerOrderAmount, adminAmount, sellerAmount);
+                Integer sellerAccountId = resolveSellerAccountId(sellerId);
+                if (sellerAccountId != null) {
+                    creditWallet(sellerAccountId, sellerAmount, "SELLER_PAYOUT", orderId, "Nhan tien hang don " + order.getOrderCode());
+                }
             }
-        }
 
-        Integer adminAccountId = resolveAdminAccountId();
-        if (adminAccountId != null && totalAdminRevenue.compareTo(BigDecimal.ZERO) > 0) {
-            creditWallet(adminAccountId, totalAdminRevenue, "ADMIN_COMMISSION", orderId, "Hoa hong don " + order.getOrderCode());
+            Integer adminAccountId = resolveAdminAccountId();
+            if (adminAccountId != null && totalAdminRevenue.compareTo(BigDecimal.ZERO) > 0) {
+                creditWallet(adminAccountId, totalAdminRevenue, "ADMIN_COMMISSION", orderId, "Hoa hong don " + order.getOrderCode());
+            }
         }
 
         if (hasArticle) {
@@ -118,16 +120,15 @@ public class RevenueDistributionService implements IRevenueDistributionService {
     }
 
     private void distributeExpertCommission(CustomerOrder order) {
+        if (transactionHistoryRepository.existsByTypeAndReferenceId("EXPERT_COMMISSION", order.getId())) {
+            return;
+        }
+
         Article article = articleRepository.findById(order.getArticleId()).orElse(null);
         if (article == null || article.getExpertId() == null) return;
 
-        Expert expert = expertRepository.findById(article.getExpertId()).orElse(null);
-        if (expert == null) {
-            expert = expertRepository.findByAccount_Id(article.getExpertId()).orElse(null);
-        }
-
-        if (expert == null || expert.getAccount() == null) {
-            System.out.println("DEBUG: Khong tim thay expert voi id=" + article.getExpertId());
+        Integer expertAccountId = resolveExpertAccountId(article.getExpertId());
+        if (expertAccountId == null) {
             return;
         }
 
@@ -137,12 +138,29 @@ public class RevenueDistributionService implements IRevenueDistributionService {
         if (expertAmount.compareTo(BigDecimal.ZERO) <= 0) return;
 
         creditWallet(
-                expert.getAccount().getId(),
+                expertAccountId,
                 expertAmount,
                 "EXPERT_COMMISSION",
                 order.getId(),
                 "Hoa hong bai viet #" + order.getArticleId() + " - don " + order.getOrderCode()
         );
+    }
+
+    private Integer resolveExpertAccountId(Integer articleExpertId) {
+        if (articleExpertId == null) return null;
+
+        Expert byExpertId = expertRepository.findById(articleExpertId).orElse(null);
+        if (byExpertId != null && byExpertId.getAccount() != null) {
+            return byExpertId.getAccount().getId();
+        }
+
+        Expert byAccountId = expertRepository.findByAccount_Id(articleExpertId).orElse(null);
+        if (byAccountId != null && byAccountId.getAccount() != null) {
+            return byAccountId.getAccount().getId();
+        }
+
+        Account account = accountRepository.findById(articleExpertId).orElse(null);
+        return account != null ? account.getId() : null;
     }
 
     private Integer resolveAdminAccountId() {
