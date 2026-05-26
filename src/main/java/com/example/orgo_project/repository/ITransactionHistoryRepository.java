@@ -10,4 +10,5 @@ import java.util.List;
 public interface ITransactionHistoryRepository extends JpaRepository<TransactionHistory, Integer> {
     List<TransactionHistory> findByWalletIdOrderByCreatedAtDesc(Integer id);
     List<TransactionHistory> findByWalletIdAndTypeOrderByCreatedAtDesc(Integer walletId, String type);
+    boolean existsByTypeAndReferenceId(String type, Integer referenceId);
 }
