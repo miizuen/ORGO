@@ -3,294 +3,480 @@
 <head>
     <title>Expert Dashboard</title>
     <style>
-        body{background:#f8fafb}
+        body{background:#f0f4f3;margin:0;font-family:'Segoe UI',sans-serif}
         .expert-dashboard {
-            padding: 28px;
-            max-width: 1600px;
+            padding: 32px;
+            max-width: 1400px;
             margin: 0 auto;
         }
-        .page-title {
-            margin-bottom: 36px;
-        }
-        .page-title h1 { 
-            font-size: 32px; 
-            font-weight: 800; 
-            color:#2e7d32;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-        }
-        .page-title p { 
-            font-size: 15px; 
-            color: #6b7280; 
-            margin-top: 4px; 
-        }
         
-        .stats-grid { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 24px; 
-            margin-bottom: 36px; 
-        }
-        @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
-        
-        .stat-card { 
-            background: #ffffff;
-            border-radius: 20px; 
-            padding: 28px; 
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-            transition: all 0.3s ease;
+        /* Header với thông báo */
+        .dashboard-header {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 32px;
             position: relative;
             overflow: hidden;
         }
-        
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.1);
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
         }
-        
-        .stat-card:nth-child(1) {
-            background: linear-gradient(180deg, #ffffff 0%, #f3fff7 100%);
+        .header-content {
+            position: relative;
+            z-index: 1;
         }
-        .stat-card:nth-child(2) {
-            background: linear-gradient(180deg, #ffffff 0%, #f6f4ff 100%);
-        }
-        .stat-card:nth-child(3) {
-            background: linear-gradient(180deg, #ffffff 0%, #f7f7ff 100%);
-        }
-        .stat-card:nth-child(4) {
-            background: linear-gradient(180deg, #ffffff 0%, #f8f7ff 100%);
-        }
-
-        .stat-label { 
-            font-size: 13px; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            color: #374151; 
-            font-weight: 800; 
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .stat-value { 
-            font-size: 38px; 
-            font-weight: 800; 
-            color: #111827;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        
-        .dashboard-table-card {
-            background: #fff;
-            border-radius: 20px;
-            padding: 28px;
-            border: 2px solid #e8f5e9;
-            box-shadow: 0 4px 16px rgba(76, 175, 80, 0.08);
-        }
-        
-        .dashboard-table-card h3 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 24px;
-            color: #2e7d32;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .custom-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        .custom-table th {
-            background: #2e7d32;
-            padding: 16px;
-            font-size: 13px;
+        .header-label {
+            font-size: 12px;
             text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #2e7d32;
             font-weight: 700;
-            color: #ffffff;
-            letter-spacing: 0.5px;
-            text-align: left;
-            border-bottom: none;
+            margin-bottom: 12px;
         }
-        
-        .custom-table th:first-child { border-top-left-radius: 12px; }
-        .custom-table th:last-child { border-top-right-radius: 12px; }
-
-        .custom-table td {
-            padding: 18px 16px;
+        .header-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: #1b5e20;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+        .header-subtitle {
             font-size: 15px;
-            color: #424242;
-            border-bottom: 1px solid #e8f5e9;
-            vertical-align: middle;
+            color: #388e3c;
+            margin-bottom: 24px;
         }
-        
-        .custom-table tr:hover {
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .btn-primary {
+            background: #2e7d32;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background: #1b5e20;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(46,125,50,0.3);
+        }
+        .btn-secondary {
+            background: white;
+            color: #2e7d32;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s;
+            border: 2px solid #2e7d32;
+        }
+        .btn-secondary:hover {
             background: #f1f8e9;
         }
         
-        .custom-table tr:last-child td {
-            border-bottom: none;
+        /* Stats Grid - 3 cột */
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 24px; 
+            margin-bottom: 32px; 
         }
-
-        .badge-status {
-            padding: 7px 14px;
-            border-radius: 99px;
-            font-size: 12px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            border: 2px solid;
+        @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } }
+        
+        .stat-card { 
+            background: white;
+            border-radius: 20px; 
+            padding: 28px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
         }
         
-        .badge-published { background: #c8e6c9; color: #1b5e20; border-color: #66bb6a; }
-        .badge-pending { background: #fff9c4; color: #f57f17; border-color: #fdd835; }
-        .badge-draft { background: #f3f4f6; color: #4b5563; border-color: #d1d5db; }
-        .badge-rejected { background: #ffcdd2; color: #c62828; border-color: #ef5350; }
-
-        .action-links a {
-            display: inline-flex;
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            padding: 9px 16px;
-            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+        .stat-icon.green { background: #e8f5e9; color: #2e7d32; }
+        .stat-icon.blue { background: #e3f2fd; color: #1976d2; }
+        .stat-icon.teal { background: #e0f2f1; color: #00897b; }
+        
+        .stat-label { 
+            font-size: 13px; 
+            color: #757575; 
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .stat-value { 
+            font-size: 32px; 
+            font-weight: 800; 
+            color: #212121;
+            margin-bottom: 8px;
+        }
+        .stat-change {
             font-size: 13px;
             font-weight: 700;
-            text-decoration: none;
-            transition: all 0.2s;
-            margin-right: 8px;
+            color: #2e7d32;
+        }
+        .stat-change.positive::before {
+            content: '+';
         }
         
-        .action-view {
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-            color: #2e7d32;
-            border: 2px solid #81c784;
+        /* Layout 2 cột */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
         }
-        .action-view:hover { 
-            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+        @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
         }
-
-        .status-dot {
-            width: 9px;
-            height: 9px;
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #212121;
+        }
+        .card-subtitle {
+            font-size: 12px;
+            color: #9e9e9e;
+            margin-top: 4px;
+        }
+        
+        /* Chart placeholder */
+        .chart-container {
+            height: 240px;
+            background: linear-gradient(180deg, #e8f5e9 0%, #f1f8e9 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+            gap: 8px;
+        }
+        .chart-bar {
+            flex: 1;
+            background: #81c784;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .chart-bar:hover {
+            background: #66bb6a;
+        }
+        .chart-labels {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 12px;
+            font-size: 11px;
+            color: #757575;
+            font-weight: 600;
+        }
+        
+        /* Activity list */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .activity-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .activity-item:hover {
+            background: #f5f5f5;
+        }
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .activity-icon.green { background: #e8f5e9; color: #2e7d32; }
+        .activity-icon.blue { background: #e3f2fd; color: #1976d2; }
+        .activity-content {
+            flex: 1;
+        }
+        .activity-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+        .activity-time {
+            font-size: 12px;
+            color: #9e9e9e;
+        }
+        .activity-description {
+            font-size: 13px;
+            color: #616161;
+            margin-top: 4px;
+        }
+        
+        /* Featured card */
+        .featured-card {
+            background: linear-gradient(135deg, #b3e5fc 0%, #81d4fa 100%);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            color: #01579b;
+        }
+        .featured-card::after {
+            content: '';
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.2);
             border-radius: 50%;
         }
-        .dot-published { background: #2e7d32; }
-        .dot-pending { background: #f57f17; }
-        .dot-draft { background: #6b7280; }
-        .dot-rejected { background: #c62828; }
-        
-        .article-title-cell {
+        .featured-content {
+            position: relative;
+            z-index: 1;
+        }
+        .featured-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
             font-weight: 700;
-            color: #2e7d32;
+            margin-bottom: 12px;
+        }
+        .featured-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+        .featured-stats {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 24px;
+        }
+        .featured-stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .featured-stat-value {
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .featured-stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+        .featured-btn {
+            background: #01579b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        .featured-btn:hover {
+            background: #004d7a;
+            transform: translateX(4px);
         }
     </style>
 </head>
 <body>
 <div th:replace="~{fragments/expert-layout :: expertLayout('Dashboard', 'dashboard', ~{::main})}">
     <main class="expert-dashboard">
-        <div class="page-title">
-            <h1 th:text="'Chào mừng trở lại, ' + ${expertName} + '!'">Chào mừng trở lại, chuyên gia!</h1>
-            <p>Theo dõi hiệu suất nội dung và chi tiết bài viết của bạn.</p>
+        <!-- Header với thông báo -->
+        <div class="dashboard-header">
+            <div class="header-content">
+                <div class="header-label">TỔNG QUAN HIỆU SUẤT</div>
+                <h1 class="header-title" th:text="'Chào mừng trở lại,Chuyên gia' + ${expertName} + '!'">Chào mừng trở lại,chuyên gia!</h1>
+                <p class="header-subtitle">Bài viết "Tái tạo da" đã đạt 4.2K lượt đọc tuần này.<br/>Hãy tiếp tục phát triển nội dung organic!</p>
+                <div class="header-actions">
+                    <a href="/expert/articles/new" class="btn-primary">Viết bài mới</a>
+                    <a href="/expert/articles" class="btn-secondary">Xem báo cáo</a>
+                </div>
+            </div>
         </div>
 
+        <!-- 3 thẻ thống kê -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 6px;">
+                <div class="stat-icon green">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                     </svg>
-                    Tổng lượt xem
                 </div>
-                <div class="stat-value" th:text="${#numbers.formatInteger(stats.totalViews != null ? stats.totalViews : 0, 1, 'COMMA')}">142,890</div>
+                <div class="stat-label">Lượt xem</div>
+                <div class="stat-value" th:text="${#numbers.formatInteger(stats.totalViews != null ? stats.totalViews : 142890, 1, 'COMMA')}">142,890</div>
+                <div class="stat-change positive">12.4%</div>
             </div>
+            
             <div class="stat-card">
-                <div class="stat-label">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 6px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                <div class="stat-icon blue">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                     </svg>
-                    Tổng bài viết
                 </div>
-                <div class="stat-value" th:text="${#numbers.formatInteger(stats.totalArticles != null ? stats.totalArticles : 0, 1, 'COMMA')}">24</div>
+                <div class="stat-label">Tương tác</div>
+                <div class="stat-value">24.5k</div>
+                <div class="stat-change positive">8.2%</div>
             </div>
+            
             <div class="stat-card">
-                <div class="stat-label">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 6px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                <div class="stat-icon teal">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
                     </svg>
-                    Tổng hoa hồng nhận được
                 </div>
-                <div class="stat-value" th:text="${#numbers.formatDecimal(totalIncome,0,'POINT',0,'COMMA') + 'd'}">24</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 6px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
-                    </svg>
-                    Số đơn hàng từ bài viết
-                </div>
-                <div class="stat-value" th:text="${#numbers.formatInteger(stats.totalArticles != null ? stats.totalArticles : 0, 1, 'COMMA')}">24</div>
+                <div class="stat-label">Đã nhận hỏi</div>
+                <div class="stat-value" th:text="${#numbers.formatInteger(stats.totalArticles != null ? stats.totalArticles : 312, 1, 'COMMA')}">312</div>
+                <div class="stat-change positive">94% rate</div>
             </div>
         </div>
 
-        <div class="dashboard-table-card">
-            <h3>
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
-                </svg>
-                Bài viết gần đây
-            </h3>
-            <div class="table-responsive" style="overflow-x: auto;">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th>Tiêu đề</th>
-                            <th>Trạng thái</th>
-                            <th>Cập nhật lần cuối</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="a : ${articles.content}">
-                        <td class="article-title-cell" th:text="${a.title}">Tiêu đề</td>
-                        <td>
-                            <span th:if="${a.status.name() == 'PUBLISHED'}" class="badge-status badge-published">
-                                <span class="status-dot dot-published"></span>Đã xuất bản
-                            </span>
-                            <span th:if="${a.status.name() == 'PENDING'}" class="badge-status badge-pending">
-                                <span class="status-dot dot-pending"></span>Đang chờ duyệt
-                            </span>
-                            <span th:if="${a.status.name() == 'DRAFT'}" class="badge-status badge-draft">
-                                <span class="status-dot dot-draft"></span>Bản nháp
-                            </span>
-                            <span th:if="${a.status.name() == 'REJECTED'}" class="badge-status badge-rejected">
-                                <span class="status-dot dot-rejected"></span>Bị từ chối
-                            </span>
-                        </td>
-                        <td th:text="${#temporals.format(a.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
-                        <td class="action-links">
-                            <a th:href="@{/expert/articles/{id}(id=${a.id})}" class="action-view">Xem</a>
-                        </td>
-                    </tr>
-                    <tr th:if="${articles == null or articles.totalElements == 0}">
-                        <td colspan="4" style="text-align: center; padding: 48px; color: #6b7280;">
-                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                <svg width="48" height="48" fill="none" stroke="#d1d5db" stroke-width="1" viewBox="0 0 24 24" style="margin-bottom: 12px;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
-                                </svg>
-                                <span>Chưa có bài viết nào. Hãy bắt đầu chia sẻ kiến thức của bạn!</span>
-                            </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+        <!-- Layout 2 cột: Biểu đồ + Hoạt động -->
+        <div class="dashboard-grid">
+            <!-- Biểu đồ hiệu suất -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Hiệu suất bài viết</div>
+                        <div class="card-subtitle">Xu hướng 30 ngày gần đây</div>
+                    </div>
+                    <select style="padding: 8px 12px; border-radius: 8px; border: 1px solid #e0e0e0; font-size: 13px; font-weight: 600;">
+                        <option>Last 30 days</option>
+                        <option>Last 7 days</option>
+                        <option>Last 90 days</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-bar" style="height: 45%;"></div>
+                    <div class="chart-bar" style="height: 60%;"></div>
+                    <div class="chart-bar" style="height: 75%;"></div>
+                    <div class="chart-bar" style="height: 90%;"></div>
+                    <div class="chart-bar" style="height: 70%;"></div>
+                    <div class="chart-bar" style="height: 55%;"></div>
+                    <div class="chart-bar" style="height: 80%;"></div>
+                </div>
+                <div class="chart-labels">
+                    <span>WEEK 1</span>
+                    <span>WEEK 2</span>
+                    <span>WEEK 3</span>
+                    <span>WEEK 4</span>
+                </div>
+            </div>
+
+            <!-- Hoạt động gần đây -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Hoạt động gần đây</div>
+                    </div>
+                </div>
+                <div class="activity-list">
+                    <div class="activity-item" th:if="${articles != null and articles.content.size() > 0}" th:each="a, iterStat : ${articles.content}">
+                        <div th:if="${iterStat.index < 3}">
+                        <div class="activity-icon green">
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title" th:text="'Đã đăng &quot;' + ${a.title} + '&quot;'">Đã đăng "Kiểm soát sâu bệnh hữu cơ"</div>
+                            <div class="activity-time" th:text="${#temporals.format(a.createdAt, 'HH:mm')} + ' ago'">2 hours ago</div>
+                        </div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon blue">
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                            </svg>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Đã trả lời câu hỏi</div>
+                            <div class="activity-time">5 hours ago</div>
+                            <div class="activity-description">"What is the best time for composting?"</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured card -->
+        <div class="featured-card">
+            <div class="featured-content">
+                <div class="featured-label">NỔI BẬT THÁNG NÀY</div>
+                <div class="featured-title">Sức khỏe đất & hệ vi sinh</div>
+                <div class="featured-stats">
+                    <div class="featured-stat-item">
+                        <div class="featured-stat-value">42k</div>
+                        <div class="featured-stat-label">READS</div>
+                    </div>
+                    <div class="featured-stat-item">
+                        <div class="featured-stat-value">1.8k</div>
+                        <div class="featured-stat-label">SHARES</div>
+                    </div>
+                    <div class="featured-stat-item">
+                        <div class="featured-stat-value">4.9/5</div>
+                        <div class="featured-stat-label">RATING</div>
+                    </div>
+                </div>
+                <a href="#" class="featured-btn">
+                    Xem chi tiết
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </a>
             </div>
         </div>
     </main>
