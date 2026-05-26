@@ -57,24 +57,35 @@ public class ProductController {
             @RequestParam(defaultValue = "12") int size,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) String origin,
             @RequestParam(required = false) String sort,
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<Product> products;
+        Page<Product> products = productService.getFilteredProducts(q, categoryId, minPrice, maxPrice, origin, sort, pageable);
 
-        if ((q != null && !q.isBlank()) || categoryId != null) {
-            products = productService.searchProducts(q, categoryId, sort, pageable);
-        } else {
-            products = productService.getActiveProducts(pageable);
+        List<com.example.orgo_project.entity.ProductCategory> categories = productService.getAllCategories();
+        java.util.Map<Integer, Long> categoryCounts = new java.util.HashMap<>();
+        for (com.example.orgo_project.entity.ProductCategory cat : categories) {
+            categoryCounts.put(cat.getId(), productService.getActiveProductCountByCategory(cat.getId()));
         }
+        long totalActiveCount = productService.countAllActive();
+        List<String> origins = productService.getAllOrigins();
 
         model.addAttribute("products", products);
-        model.addAttribute("categories", productService.getAllCategories());
+        model.addAttribute("categories", categories);
+        model.addAttribute("categoryCounts", categoryCounts);
+        model.addAttribute("totalActiveCount", totalActiveCount);
+        model.addAttribute("origins", origins);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", products.getTotalPages());
         model.addAttribute("q", q);
         model.addAttribute("categoryId", categoryId);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
+        model.addAttribute("origin", origin);
         model.addAttribute("sort", sort);
         return "pages/public/product-page";
     }
@@ -147,6 +158,15 @@ public class ProductController {
             }
         }
 
+        // Fetch related products (active, excluding current product, limit 4)
+        java.util.Set<Integer> excluded = new java.util.HashSet<>();
+        excluded.add(id);
+        List<Product> relatedProducts = productService.getRandomActiveProductsExcluding(excluded, 4);
+        for (Product rp : relatedProducts) {
+            rp.setVariants(productService.getVariantsByProduct(rp.getId()));
+        }
+        model.addAttribute("relatedProducts", relatedProducts);
+
         return "pages/public/product-detail";
     }
 
@@ -170,10 +190,10 @@ public class ProductController {
     // Danh sách sản phẩm của seller (T027)
     @GetMapping("/seller/products")
     public String sellerProducts(@RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "") String search,
-                                  @RequestParam(defaultValue = "all") String status,
-                                  @AuthenticationPrincipal CustomUserDetails userDetails,
-                                  Model model) {
+                                 @RequestParam(defaultValue = "") String search,
+                                 @RequestParam(defaultValue = "all") String status,
+                                 @AuthenticationPrincipal CustomUserDetails userDetails,
+                                 Model model) {
         Integer sellerId = getSellerIdFromUser(userDetails);
         if (sellerId == null) return "redirect:/";
 
@@ -211,7 +231,7 @@ public class ProductController {
 
     @PostMapping("/seller/products/{id}/hide")
     public String hideProduct(@PathVariable Integer id,
-                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+                              @AuthenticationPrincipal CustomUserDetails userDetails) {
         Integer sellerId = getSellerIdFromUser(userDetails);
         Product product = productService.getProductById(id);
         if (product != null && product.getSellerId().equals(sellerId)) {
@@ -222,7 +242,7 @@ public class ProductController {
 
     @PostMapping("/seller/products/{id}/show")
     public String showProduct(@PathVariable Integer id,
-                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+                              @AuthenticationPrincipal CustomUserDetails userDetails) {
         Integer sellerId = getSellerIdFromUser(userDetails);
         Product product = productService.getProductById(id);
         if (product != null && product.getSellerId().equals(sellerId)) {
@@ -244,18 +264,18 @@ public class ProductController {
     // Lưu sản phẩm mới
     @PostMapping("/seller/products/new")
     public String createProduct(@ModelAttribute Product product,
-                                 @RequestParam(required = false) MultipartFile imageFile,
-                                 @RequestParam(required = false) List<String> variantNames,
-                                 @RequestParam(required = false) List<String> variantPrices,
-                                 @RequestParam(required = false) List<String> variantStocks,
-                                 @RequestParam(required = false) List<String> variantDiscountedPrices,
-                                 @RequestParam(required = false) List<String> variantWeights,
-                                 @RequestParam(required = false) List<String> variantImageUrls,
-                                 @RequestParam(required = false) List<String> certNames,
-                                 @RequestParam(required = false) List<String> certOrgs,
-                                 @RequestParam(required = false) List<String> certDates,
-                                 @RequestParam(required = false) List<MultipartFile> certFiles,
-                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                @RequestParam(required = false) MultipartFile imageFile,
+                                @RequestParam(required = false) List<String> variantNames,
+                                @RequestParam(required = false) List<String> variantPrices,
+                                @RequestParam(required = false) List<String> variantStocks,
+                                @RequestParam(required = false) List<String> variantDiscountedPrices,
+                                @RequestParam(required = false) List<String> variantWeights,
+                                @RequestParam(required = false) List<String> variantImageUrls,
+                                @RequestParam(required = false) List<String> certNames,
+                                @RequestParam(required = false) List<String> certOrgs,
+                                @RequestParam(required = false) List<String> certDates,
+                                @RequestParam(required = false) List<MultipartFile> certFiles,
+                                @AuthenticationPrincipal CustomUserDetails userDetails) {
         Integer sellerId = getSellerIdFromUser(userDetails);
         if (sellerId == null) return "redirect:/";
 
@@ -272,8 +292,8 @@ public class ProductController {
     // Form sửa sản phẩm
     @GetMapping("/seller/products/{id}/edit")
     public String editProductForm(@PathVariable Integer id,
-                                   @AuthenticationPrincipal CustomUserDetails userDetails,
-                                   Model model) {
+                                  @AuthenticationPrincipal CustomUserDetails userDetails,
+                                  Model model) {
         Product product = productService.getProductById(id);
         if (product == null) return "redirect:/seller/products";
 
@@ -291,20 +311,20 @@ public class ProductController {
     // Cập nhật sản phẩm
     @PostMapping("/seller/products/{id}/edit")
     public String updateProduct(@PathVariable Integer id,
-                                 @ModelAttribute Product product,
-                                 @RequestParam(required = false) MultipartFile imageFile,
-                                 @RequestParam(required = false) List<String> variantNames,
-                                 @RequestParam(required = false) List<String> variantPrices,
-                                 @RequestParam(required = false) List<String> variantStocks,
-                                 @RequestParam(required = false) List<String> variantDiscountedPrices,
-                                 @RequestParam(required = false) List<String> variantWeights,
-                                 @RequestParam(required = false) List<String> variantImageUrls,
-                                 @RequestParam(required = false) List<Integer> keepCertIds,
-                                 @RequestParam(required = false) List<String> certNames,
-                                 @RequestParam(required = false) List<String> certOrgs,
-                                 @RequestParam(required = false) List<String> certDates,
-                                 @RequestParam(required = false) List<MultipartFile> certFiles,
-                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                @ModelAttribute Product product,
+                                @RequestParam(required = false) MultipartFile imageFile,
+                                @RequestParam(required = false) List<String> variantNames,
+                                @RequestParam(required = false) List<String> variantPrices,
+                                @RequestParam(required = false) List<String> variantStocks,
+                                @RequestParam(required = false) List<String> variantDiscountedPrices,
+                                @RequestParam(required = false) List<String> variantWeights,
+                                @RequestParam(required = false) List<String> variantImageUrls,
+                                @RequestParam(required = false) List<Integer> keepCertIds,
+                                @RequestParam(required = false) List<String> certNames,
+                                @RequestParam(required = false) List<String> certOrgs,
+                                @RequestParam(required = false) List<String> certDates,
+                                @RequestParam(required = false) List<MultipartFile> certFiles,
+                                @AuthenticationPrincipal CustomUserDetails userDetails) {
         Integer sellerId = getSellerIdFromUser(userDetails);
         if (sellerId == null) return "redirect:/";
 
@@ -320,7 +340,7 @@ public class ProductController {
     // Xóa mềm sản phẩm
     @PostMapping("/seller/products/{id}/delete")
     public String deleteProduct(@PathVariable Integer id,
-                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                @AuthenticationPrincipal CustomUserDetails userDetails) {
         Integer sellerId = getSellerIdFromUser(userDetails);
         Product product = productService.getProductById(id);
         if (product != null && product.getSellerId().equals(sellerId)) {
@@ -332,9 +352,9 @@ public class ProductController {
     // Reply review (T044)
     @PostMapping("/seller/reviews/{reviewId}/reply")
     public String replyReview(@PathVariable Integer reviewId,
-                               @RequestParam String replyText,
-                               @RequestParam Integer productId,
-                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+                              @RequestParam String replyText,
+                              @RequestParam Integer productId,
+                              @AuthenticationPrincipal CustomUserDetails userDetails) {
         Integer sellerId = getSellerIdFromUser(userDetails);
         productService.replyReview(reviewId, replyText, sellerId);
         return "redirect:/products/" + productId + "#reviews";
@@ -345,8 +365,8 @@ public class ProductController {
     // Danh sách sản phẩm chờ duyệt (T028)
     @GetMapping("/admin/products")
     public String adminProducts(@RequestParam(defaultValue = "0") int page,
-                                 @RequestParam(defaultValue = "pending") String status,
-                                 Model model) {
+                                @RequestParam(defaultValue = "pending") String status,
+                                Model model) {
         Pageable pageable = PageRequest.of(page, 10);
         Page<Product> products;
         if ("all".equals(status)) {
@@ -401,10 +421,10 @@ public class ProductController {
     // Thêm đánh giá (T044, T045)
     @PostMapping("/reviews/add")
     public String addReview(@RequestParam Integer productId,
-                             @RequestParam Integer stars,
-                             @RequestParam String content,
-                             @RequestParam(required = false) MultipartFile reviewImage,
-                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+                            @RequestParam Integer stars,
+                            @RequestParam String content,
+                            @RequestParam(required = false) MultipartFile reviewImage,
+                            @AuthenticationPrincipal CustomUserDetails userDetails) {
         if (userDetails == null) return "redirect:/login";
 
         // Lấy userId từ account
@@ -470,7 +490,7 @@ public class ProductController {
         // Lấy seller bằng cách tạo Account object với ID
         com.example.orgo_project.entity.Account account = new com.example.orgo_project.entity.Account();
         account.setId(userDetails.getAccount().getId());
-        
+
         return sellerRepository.findByAccount(account)
                 .map(com.example.orgo_project.entity.Seller::getId)
                 .orElse(null);

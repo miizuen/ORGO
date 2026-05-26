@@ -368,4 +368,93 @@ public class ProductService {
             return null;
         }
     }
+
+    public long getActiveProductCountByCategory(Integer categoryId) {
+        return productRepository.countActiveByCategoryId(categoryId);
+    }
+
+    public long countAllActive() {
+        return productRepository.countAllActive();
+    }
+
+    public List<String> getAllOrigins() {
+        return productRepository.findDistinctOrigins();
+    }
+
+    public Page<Product> getFilteredProducts(String keyword, Integer categoryId, Double minPrice, Double maxPrice, String origin, String sort, Pageable pageable) {
+        Pageable unpaged = PageRequest.of(0, 100000);
+        Page<Product> rawProducts = productRepository.searchProducts(
+                (keyword != null && !keyword.isBlank()) ? keyword : null,
+                categoryId,
+                unpaged
+        );
+        
+        List<Product> list = new java.util.ArrayList<>(rawProducts.getContent());
+        List<Product> filteredList = new java.util.ArrayList<>();
+        
+        for (Product p : list) {
+            List<ProductVariant> variants = variantRepository.findByProductId(p.getId());
+            p.setVariants(variants);
+            
+            // Calculate minimum price of variants
+            java.math.BigDecimal price = java.math.BigDecimal.ZERO;
+            if (variants != null && !variants.isEmpty()) {
+                price = variants.get(0).getDiscountedPrice() != null ? variants.get(0).getDiscountedPrice() : variants.get(0).getOriginalPrice();
+                for (ProductVariant v : variants) {
+                    java.math.BigDecimal vp = v.getDiscountedPrice() != null ? v.getDiscountedPrice() : v.getOriginalPrice();
+                    if (vp != null && vp.compareTo(price) < 0) {
+                        price = vp;
+                    }
+                }
+            }
+            
+            if (minPrice != null && price.doubleValue() < minPrice) continue;
+            if (maxPrice != null && price.doubleValue() > maxPrice) continue;
+            
+            if (origin != null && !origin.isBlank() && !origin.equalsIgnoreCase(p.getOrigin())) continue;
+            
+            filteredList.add(p);
+        }
+        
+        if (sort != null) {
+            if (sort.equals("price_asc")) {
+                filteredList.sort((p1, p2) -> getMinPrice(p1).compareTo(getMinPrice(p2)));
+            } else if (sort.equals("price_desc")) {
+                filteredList.sort((p1, p2) -> getMinPrice(p2).compareTo(getMinPrice(p1)));
+            } else if (sort.equals("rating")) {
+                filteredList.sort((p1, p2) -> {
+                    float r1 = p1.getAverageRating() != null ? p1.getAverageRating() : 0f;
+                    float r2 = p2.getAverageRating() != null ? p2.getAverageRating() : 0f;
+                    return Float.compare(r2, r1);
+                });
+            } else {
+                filteredList.sort((p1, p2) -> p2.getId().compareTo(p1.getId()));
+            }
+        } else {
+            filteredList.sort((p1, p2) -> p2.getId().compareTo(p1.getId()));
+        }
+        
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), filteredList.size());
+        
+        List<Product> pagedList = new java.util.ArrayList<>();
+        if (start <= filteredList.size()) {
+            pagedList = filteredList.subList(start, end);
+        }
+        
+        return new org.springframework.data.domain.PageImpl<>(pagedList, pageable, filteredList.size());
+    }
+    
+    private java.math.BigDecimal getMinPrice(Product p) {
+        List<ProductVariant> variants = p.getVariants();
+        if (variants == null || variants.isEmpty()) return java.math.BigDecimal.ZERO;
+        java.math.BigDecimal min = variants.get(0).getDiscountedPrice() != null ? variants.get(0).getDiscountedPrice() : variants.get(0).getOriginalPrice();
+        for (ProductVariant v : variants) {
+            java.math.BigDecimal vp = v.getDiscountedPrice() != null ? v.getDiscountedPrice() : v.getOriginalPrice();
+            if (vp != null && vp.compareTo(min) < 0) {
+                min = vp;
+            }
+        }
+        return min;
+    }
 }

@@ -37,6 +37,8 @@ public class SellerDashboardStats {
         private String orderStatus;
         private BigDecimal totalAmount;
         private String orderedAt;
+        private String customerName;
+        private String productsSummary;
     }
 
     @Data

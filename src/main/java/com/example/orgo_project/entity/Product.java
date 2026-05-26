@@ -78,6 +78,57 @@ public class Product {
     @Transient
     private List<ProductVariant> variants;
 
+    @Transient
+    public java.math.BigDecimal getMinPrice() {
+        if (variants == null || variants.isEmpty()) return java.math.BigDecimal.ZERO;
+        java.math.BigDecimal min = null;
+        for (ProductVariant v : variants) {
+            java.math.BigDecimal price = v.getDiscountedPrice() != null ? v.getDiscountedPrice() : v.getOriginalPrice();
+            if (price != null) {
+                if (min == null || price.compareTo(min) < 0) {
+                    min = price;
+                }
+            }
+        }
+        return min != null ? min : java.math.BigDecimal.ZERO;
+    }
+
+    @Transient
+    public java.math.BigDecimal getMaxPrice() {
+        if (variants == null || variants.isEmpty()) return java.math.BigDecimal.ZERO;
+        java.math.BigDecimal max = null;
+        for (ProductVariant v : variants) {
+            java.math.BigDecimal price = v.getDiscountedPrice() != null ? v.getDiscountedPrice() : v.getOriginalPrice();
+            if (price != null) {
+                if (max == null || price.compareTo(max) > 0) {
+                    max = price;
+                }
+            }
+        }
+        return max != null ? max : java.math.BigDecimal.ZERO;
+    }
+
+    @Transient
+    public boolean isOnSale() {
+        if (variants == null || variants.isEmpty()) return false;
+        for (ProductVariant v : variants) {
+            if (v.getDiscountedPrice() != null && v.getOriginalPrice() != null && v.getDiscountedPrice().compareTo(v.getOriginalPrice()) < 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Transient
+    public boolean isBestSeller() {
+        return averageRating != null && averageRating >= 4.5f && totalReviews != null && totalReviews >= 5;
+    }
+
+    @Transient
+    public boolean isNewProduct() {
+        return id != null && (id % 3 == 0 || id > 10);
+    }
+
     @PostLoad
     private void loadLegacyImageUrl() {
         if ((imageUrl == null || imageUrl.isBlank()) && slug != null && slug.startsWith("/uploads/")) {
