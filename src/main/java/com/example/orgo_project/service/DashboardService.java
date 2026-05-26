@@ -38,6 +38,7 @@ public class DashboardService {
     private final IProductReviewRepository productReviewRepository;
     private final IProductVariantRepository productVariantRepository;
     private final IWalletBalanceRepository walletBalanceRepository;
+    private final com.example.orgo_project.repository.IUserRepository userRepository;
     
     public AdminDashboardStats getAdminDashboardStats() {
         AdminDashboardStats stats = new AdminDashboardStats();
@@ -123,13 +124,46 @@ public class DashboardService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM HH:mm");
         List<SellerDashboardStats.RecentOrder> recentOrders = orders.stream()
                 .limit(5)
-                .map(order -> new SellerDashboardStats.RecentOrder(
-                        order.getId(),
-                        order.getOrderCode(),
-                        order.getOrderStatus() != null ? order.getOrderStatus().name() : null,
-                        order.getTotalAmount(),
-                        order.getOrderedAt() != null ? order.getOrderedAt().format(formatter) : ""
-                ))
+                .map(order -> {
+                    String customerName = "Khách hàng " + order.getUserId();
+                    com.example.orgo_project.entity.UserProfile profile = userRepository.findById(order.getUserId()).orElse(null);
+                    if (profile != null) {
+                        customerName = profile.getFullName();
+                    }
+
+                    List<CustomerOrderItem> orderItems = customerOrderItemRepository.findByOrderIdIn(List.of(order.getId()));
+                    String productsSummary = "";
+                    if (!orderItems.isEmpty()) {
+                        CustomerOrderItem firstItem = orderItems.get(0);
+                        ProductVariant variant = productVariantRepository.findById(firstItem.getProductVariantId()).orElse(null);
+                        Product product = variant != null ? productRepository.findById(variant.getProductId()).orElse(null) : null;
+                        
+                        String firstProdName = product != null ? product.getProductName() : "Sản phẩm";
+                        String firstVarName = variant != null ? variant.getVariantName() : "";
+                        if (firstVarName != null && !firstVarName.isBlank()) {
+                            productsSummary = firstProdName + " (" + firstVarName + ")";
+                        } else {
+                            productsSummary = firstProdName;
+                        }
+
+                        if (orderItems.size() > 1) {
+                            int extraItems = orderItems.size() - 1;
+                            productsSummary += " +" + extraItems + " item" + (extraItems > 1 ? "s" : "");
+                        }
+                    } else {
+                        productsSummary = "Không có sản phẩm";
+                    }
+
+                    return new SellerDashboardStats.RecentOrder(
+                            order.getId(),
+                            order.getOrderCode(),
+                            order.getOrderStatus() != null ? order.getOrderStatus().name() : null,
+                            order.getTotalAmount(),
+                            order.getOrderedAt() != null ? order.getOrderedAt().format(formatter) : "",
+                            customerName,
+                            productsSummary
+                    );
+                })
                 .toList();
         stats.setRecentOrders(recentOrders);
 
@@ -167,9 +201,18 @@ public class DashboardService {
                 .toList());
         
         List<SellerDashboardStats.RevenueByDay> revenueByDay = new ArrayList<>();
+        Map<LocalDate, BigDecimal> dailyRevenueMap = new HashMap<>();
+        for (CustomerOrder order : orders) {
+            if (order.getOrderedAt() != null && order.getOrderStatus() != OrderStatus.CANCELLED) {
+                LocalDate date = order.getOrderedAt().toLocalDate();
+                BigDecimal orderAmt = order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO;
+                dailyRevenueMap.put(date, dailyRevenueMap.getOrDefault(date, BigDecimal.ZERO).add(orderAmt));
+            }
+        }
         for (int i = 6; i >= 0; i--) {
             LocalDate date = LocalDate.now().minusDays(i);
-            revenueByDay.add(new SellerDashboardStats.RevenueByDay(date.toString(), new BigDecimal(String.valueOf(500000 + (i * 100000)))));
+            BigDecimal dayRevenue = dailyRevenueMap.getOrDefault(date, BigDecimal.ZERO);
+            revenueByDay.add(new SellerDashboardStats.RevenueByDay(date.toString(), dayRevenue));
         }
         stats.setRevenueByDay(revenueByDay);
         

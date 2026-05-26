@@ -65,13 +65,42 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
     @Query("""
             select p
             from Product p
-            where (:keyword is null or lower(p.productName) like lower(concat('%', :keyword, '%')))
+            where p.status = com.example.orgo_project.enums.ProductStatus.ACTIVE
+              and (p.hidden = false or p.hidden is null)
+              and (:keyword is null or lower(p.productName) like lower(concat('%', :keyword, '%')))
               and (:categoryId is null or p.categoryId = :categoryId)
             order by p.id desc
             """)
     Page<Product> searchProducts(@Param("keyword") String keyword,
                                  @Param("categoryId") Integer categoryId,
                                  Pageable pageable);
+
+    @Query("""
+            select count(p)
+            from Product p
+            where p.categoryId = :categoryId
+              and p.status = com.example.orgo_project.enums.ProductStatus.ACTIVE
+              and (p.hidden = false or p.hidden is null)
+            """)
+    long countActiveByCategoryId(@Param("categoryId") Integer categoryId);
+
+    @Query("""
+            select count(p)
+            from Product p
+            where p.status = com.example.orgo_project.enums.ProductStatus.ACTIVE
+              and (p.hidden = false or p.hidden is null)
+            """)
+    long countAllActive();
+
+    @Query("""
+            select distinct p.origin
+            from Product p
+            where p.status = com.example.orgo_project.enums.ProductStatus.ACTIVE
+              and (p.hidden = false or p.hidden is null)
+              and p.origin is not null
+              and p.origin <> ''
+            """)
+    List<String> findDistinctOrigins();
 
     @Query(value = "SELECT TOP 4 p.* FROM SanPham p " +
             "WHERE p.trang_thai = 'ACTIVE' " +
@@ -94,8 +123,8 @@ public interface IProductRepository extends JpaRepository<Product, Integer> {
               and p.status = :status
             order by p.id desc
             """)
-    Page<Product> findBySellerIdAndStatus(@Param("sellerId") Integer sellerId, 
-                                          @Param("status") ProductStatus status, 
+    Page<Product> findBySellerIdAndStatus(@Param("sellerId") Integer sellerId,
+                                          @Param("status") ProductStatus status,
                                           Pageable pageable);
 
     @Query("""

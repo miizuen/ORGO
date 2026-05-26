@@ -1,97 +1,425 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Seller Dashboard</title>
-    <style>
-        .page-title h1 { font-size: 22px; font-weight: 700; }
-        .page-title p { font-size: 13px; color: #6b7280; margin-top: 4px; }
-        .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:24px; }
-        .stat-card { background:#fff; border-radius:16px; padding:22px; border:1px solid #e5e7eb; }
-        .stat-label { font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:#6b7280; font-weight:700; }
-        .stat-value { font-size:28px; font-weight:800; margin-top:8px; }
-        .section-grid { display:grid; grid-template-columns:2fr 1fr; gap:20px; margin-top:24px; }
-        .card-box { background:#fff; border-radius:16px; padding:22px; border:1px solid #e5e7eb; }
-        .card-title { font-size:16px; font-weight:700; margin-bottom:16px; }
-        .order-row { display:flex; justify-content:space-between; padding:14px 0; border-bottom:1px solid #f3f4f6; font-size:14px; }
-        .order-row:last-child { border-bottom:none; }
-        .subtle { color:#6b7280; font-size:12px; }
-        .top-product { display:flex; gap:14px; align-items:center; width:100%; }
-        .top-product img { width:62px; height:62px; border-radius:16px; object-fit:cover; background:#f3f4f6; flex-shrink:0; border:1px solid #e5e7eb; }
-        .top-product-meta { min-width:0; flex:1; }
-        .top-product-name { font-weight:800; line-height:1.35; color:#111827; display:flex; align-items:center; gap:8px; }
-        .top-product-badge { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:999px; background:#ecfdf5; color:#16a34a; font-size:12px; flex-shrink:0; }
-        .top-product-stats { display:flex; flex-direction:column; align-items:flex-end; gap:6px; text-align:right; }
-        .top-product-rating { display:inline-flex; align-items:center; gap:4px; padding:6px 10px; border-radius:999px; background:#fff7ed; color:#c2410c; font-size:12px; font-weight:800; }
-        @media (max-width: 1024px){.section-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}}
-        @media (max-width: 640px){.stats-grid{grid-template-columns:1fr}}
-    </style>
+    <title>Seller Dashboard - ORGO</title>
 </head>
 <body>
 <div th:replace="~{fragments/seller-layout :: sellerLayout('Dashboard', 'dashboard', ~{::main})}">
     <main>
-        <div class="page-title">
-            <h1>ORGO Seller Center</h1>
-            <p>Tổng quan hoạt động gian hàng của bạn.</p>
+        <style>
+            .page-title h1 { font-size: 24px; font-weight: 800; color: #111827; }
+            .page-title p { font-size: 14px; color: #6b7280; margin-top: 4px; }
+            
+            /* Stats Row */
+            .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 24px; }
+            .stat-card {
+                background: #fff;
+                border-radius: 16px;
+                padding: 24px;
+                border: 1px solid #e5e7eb;
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                min-height: 140px;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .stat-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.02);
+            }
+            .stat-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+            .stat-icon-box {
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+            }
+            .stat-icon-box.green { background: #ecfdf5; color: #10b981; }
+            .stat-icon-box.blue { background: #eff6ff; color: #3b82f6; }
+            
+            .stat-badge {
+                font-size: 11px;
+                font-weight: 700;
+                padding: 3px 8px;
+                border-radius: 9999px;
+            }
+            .stat-badge.green { background: #ecfdf5; color: #059669; }
+            .stat-badge.blue { background: #eff6ff; color: #2563eb; }
+            
+            .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: #6b7280; font-weight: 700; }
+            .stat-value { font-size: 26px; font-weight: 800; color: #111827; margin-top: 4px; }
+            
+            /* Overlapping Avatars */
+            .avatar-group { display: flex; align-items: center; margin-top: 4px; }
+            .avatar-item {
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                border: 2px solid white;
+                background: #e5e7eb;
+                margin-left: -8px;
+                object-fit: cover;
+            }
+            .avatar-item:first-child { margin-left: 0; }
+            .avatar-more {
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                border: 2px solid white;
+                background: #eef2ff;
+                color: #4f46e5;
+                font-size: 9px;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: -8px;
+            }
+            
+            /* Star Rating */
+            .rating-stars { display: flex; gap: 2px; align-items: center; color: #fbbf24; font-size: 13px; margin-top: 4px; }
+
+            /* Mid Grid Layout */
+            .section-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; margin-top: 24px; }
+            .card-box { background: #fff; border-radius: 16px; padding: 24px; border: 1px solid #e5e7eb; display: flex; flex-direction: column; height: 100%; }
+            .card-box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+            .card-title { font-size: 16px; font-weight: 800; color: #111827; margin: 0; }
+            
+            .chart-container { position: relative; flex-grow: 1; min-height: 250px; }
+            
+            /* Top Products Sidebar */
+            .top-products-list { display: flex; flex-direction: column; gap: 18px; flex-grow: 1; }
+            .product-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+            .product-info-box { display: flex; align-items: center; gap: 12px; }
+            .product-thumb { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; background: #f3f4f6; border: 1px solid #e5e7eb; flex-shrink: 0; }
+            .product-name-box { font-size: 14px; font-weight: 700; color: #111827; margin: 0; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+            .product-sales { font-size: 12.5px; color: #6b7280; margin-top: 2px; }
+            .product-finance { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+            .product-revenue { font-size: 14px; font-weight: 700; color: #111827; }
+            .product-trend { font-size: 11px; font-weight: 700; margin-top: 2px; }
+            .product-trend.up { color: #10b981; }
+            .product-trend.down { color: #ef4444; }
+
+            /* Recent Orders Table */
+            .orders-section { margin-top: 24px; background: #fff; border-radius: 16px; padding: 24px; border: 1px solid #e5e7eb; }
+            .orders-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+            
+            .orders-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+            .orders-table th { background: #f8fafc; color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; font-weight: 800; padding: 14px 18px; border-bottom: 1px solid #e5e7eb; }
+            .orders-table td { padding: 16px 18px; border-bottom: 1px solid #f3f4f6; font-size: 13.5px; vertical-align: middle; color: #374151; }
+            .orders-table tr:last-child td { border-bottom: none; }
+            .orders-table tr:hover td { background: #fcfcfd; }
+            
+            .order-code { font-weight: 700; color: #111827; }
+            .customer-cell { display: flex; align-items: center; gap: 10px; }
+            .customer-avatar-bubble { width: 28px; height: 28px; border-radius: 50%; background: #eef2ff; color: #4f46e5; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+            .customer-name { font-weight: 600; color: #111827; }
+            
+            .product-pill { display: inline-block; background: #f3f4f6; color: #4b5563; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+            
+            .order-amount { font-weight: 700; color: #111827; }
+            
+            .status-pill { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+            .status-pill.processing { background: #ecfdf5; color: #047857; }
+            .status-pill.pending { background: #eff6ff; color: #1d4ed8; }
+            .status-pill.delivered { background: #ecfdf5; color: #047857; }
+            .status-pill.cancelled { background: #fef2f2; color: #b91c1c; }
+            
+            .action-btn { background: none; border: none; color: #9ca3af; cursor: pointer; padding: 4px; transition: color 0.15s ease; }
+            .action-btn:hover { color: #374151; }
+
+            @media (max-width: 1024px) {
+                .section-grid { grid-template-columns: 1fr; gap: 24px; }
+                .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+            }
+            @media (max-width: 640px) {
+                .stats-grid { grid-template-columns: 1fr; }
+                .orders-table th { display: none; }
+                .orders-table, .orders-table tbody, .orders-table tr, .orders-table td { display: block; width: 100%; }
+                .orders-table td { border-bottom: none; padding: 10px 0; }
+                .orders-table tr { padding: 16px 0; border-bottom: 1px solid #f3f4f6; }
+                .orders-table td::before { content: attr(data-label); display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: #9ca3af; font-weight: 800; margin-bottom: 4px; }
+            }
+        </style>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h1 class="fw-extrabold mb-1" style="font-size: 24px; color: #111827; font-family: 'Inter', sans-serif; letter-spacing: -0.5px;">Tổng quan thu hoạch</h1>
+                <p class="text-secondary" style="font-size: 14px; margin: 0;">Năng suất trang trại của bạn đã tăng 12% trong tuần này.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn border fw-semibold px-4" style="background-color: #E0E7FF; color: #4F46E5; border-color: #C7D2FE !important; border-radius: 10px; font-size: 14px; padding: 10px 24px;">Xuất CSV</button>
+                <a th:href="@{/seller/products/new}" class="btn text-white fw-semibold px-4 d-flex align-items-center gap-2" style="background-color: #10B981; border-color: #10B981; border-radius: 10px; font-size: 14px; padding: 10px 24px;">
+                    <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                    Thêm danh sách
+                </a>
+            </div>
         </div>
 
         <div class="stats-grid">
+            <!-- Doanh thu card -->
             <div class="stat-card">
-                <div class="stat-label">Tổng thu nhập</div>
-                <div class="stat-value" th:text="${totalIncome != null ? #numbers.formatDecimal(totalIncome, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ'}">0đ</div>
+                <div class="stat-header">
+                    <div class="stat-icon-box green">
+                        <i data-lucide="wallet" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <span class="stat-badge green">+18.2%</span>
+                </div>
+                <div>
+                    <div class="stat-label">Doanh thu tháng này</div>
+                    <div class="stat-value" th:text="${totalIncome != null ? #numbers.formatDecimal(totalIncome, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ'}">0đ</div>
+                </div>
             </div>
+            <!-- Đơn hàng card -->
             <div class="stat-card">
-                <div class="stat-label">Số dư ví hiện tại</div>
-                <div class="stat-value" th:text="${currentBalance != null ? #numbers.formatDecimal(currentBalance, 0, 'POINT', 0, 'COMMA') + 'đ' : (wallet != null && wallet.availableBalance != null ? #numbers.formatDecimal(wallet.availableBalance, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ')}">0đ</div>
+                <div class="stat-header">
+                    <div class="stat-icon-box blue">
+                        <i data-lucide="shopping-bag" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <span class="stat-badge blue">+5.4%</span>
+                </div>
+                <div>
+                    <div class="stat-label">Đơn đặt hàng</div>
+                    <div class="stat-value" th:text="${stats != null ? stats.totalOrders : '0'}">0</div>
+                </div>
             </div>
+            <!-- Đánh giá card -->
             <div class="stat-card">
-                <div class="stat-label">Tổng đã rút</div>
-                <div class="stat-value" th:text="${totalWithdrawn != null ? #numbers.formatDecimal(totalWithdrawn, 0, 'POINT', 0, 'COMMA') + 'đ' : (wallet != null && wallet.totalWithdrawn != null ? #numbers.formatDecimal(wallet.totalWithdrawn, 0, 'POINT', 0, 'COMMA') + 'đ' : '0đ')}">0đ</div>
+                <div class="stat-header">
+                    <div class="stat-icon-box blue" style="background: #eef2ff; color: #4f46e5;">
+                        <i data-lucide="star" style="width: 20px; height: 20px; fill: currentColor;"></i>
+                    </div>
+                    <span class="stat-badge blue" style="background: #eef2ff; color: #4f46e5;">Top 1%</span>
+                </div>
+                <div>
+                    <div class="stat-label">Đánh giá</div>
+                    <div class="stat-value">4.92</div>
+                    <div class="rating-stars">
+                        <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                        <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                        <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                        <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                        <i data-lucide="star" style="width: 14px; height: 14px; fill: currentColor; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Khách hàng card -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon-box green">
+                        <i data-lucide="users" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <span class="stat-badge green">+24</span>
+                </div>
+                <div>
+                    <div class="stat-label">Tổng khách hàng</div>
+                    <div class="stat-value">2,104</div>
+                    <div class="avatar-group">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=64&h=64&q=80" class="avatar-item" alt="avatar">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=64&h=64&q=80" class="avatar-item" alt="avatar">
+                        <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=64&h=64&q=80" class="avatar-item" alt="avatar">
+                        <div class="avatar-more">+2k</div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="section-grid">
+            <!-- Chart Card -->
             <div class="card-box">
-                <div class="card-title">Đơn hàng gần đây</div>
-                <div th:if="${stats != null && stats.recentOrders != null && !stats.recentOrders.isEmpty()}">
-                    <div th:each="order : ${stats.recentOrders}" class="order-row">
-                        <div>
-                            <div style="font-weight:700;" th:text="${order.orderCode}">#ORG-0000</div>
-                            <div class="subtle" th:text="${order.orderedAt}">00/00 00:00</div>
-                        </div>
-                        <strong th:text="${order.orderStatus}">PENDING</strong>
+                <div class="card-box-header">
+                    <div>
+                        <h3 class="card-title">Xu hướng bán hàng</h3>
+                        <p class="text-secondary" style="font-size: 13px; margin: 4px 0 0 0;">Phân tích doanh thu hàng tuần</p>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light border btn-sm dropdown-toggle fw-semibold d-flex align-items-center gap-1" style="font-size: 13px; border-radius: 8px; padding: 6px 12px;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Last 7 Days
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                            <li><a class="dropdown-item active" href="#">Last 7 Days</a></li>
+                            <li><a class="dropdown-item" href="#">Last 30 Days</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                        </ul>
                     </div>
                 </div>
-                <div th:if="${stats == null || stats.recentOrders == null || stats.recentOrders.isEmpty()}" class="subtle">Chưa có đơn hàng gần đây.</div>
-            </div>
-            <div class="card-box">
-                <div class="card-title" style="display:flex;align-items:center;gap:10px;">
-                    <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:12px;background:#ecfdf5;color:#16a34a;">★</span>
-                    Top sản phẩm bán chạy
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
                 </div>
-                <div th:if="${stats != null && stats.topProducts != null && !stats.topProducts.isEmpty()}">
-                    <div th:each="product : ${stats.topProducts}" class="order-row" style="align-items:center;gap:16px;">
-                        <div class="top-product">
-                            <img th:src="${product.imageUrl != null && !product.imageUrl.isBlank() ? product.imageUrl : '/images/placeholder-product.png'}" alt="Product image">
-                            <div class="top-product-meta">
-                                <div class="top-product-name">
-                                    <span class="top-product-badge">🌿</span>
-                                    <span th:text="${product.productName}">Product</span>
-                                </div>
-                                <div class="subtle" style="margin-top:6px; display:flex; gap:14px; flex-wrap:wrap;">
-                                    <span>🛒 <span th:text="${product.soldQuantity} + ' lượt mua'">0 lượt mua</span></span>
-                                    <span>💬 <span th:text="${product.reviewCount != null ? product.reviewCount : 0} + ' đánh giá'">0 đánh giá</span></span>
-                                </div>
+            </div>
+
+            <!-- Top Products Card -->
+            <div class="card-box">
+                <div class="card-box-header">
+                    <h3 class="card-title">Những sản phẩm hàng đầu</h3>
+                </div>
+                <div class="top-products-list" th:if="${stats != null && stats.topProducts != null && !stats.topProducts.isEmpty()}">
+                    <div th:each="product, iterStat : ${stats.topProducts}" class="product-row">
+                        <div class="product-info-box">
+                            <img th:src="${product.imageUrl != null && !product.imageUrl.isBlank() ? product.imageUrl : '/images/placeholder-product.png'}" alt="Product" class="product-thumb">
+                            <div>
+                                <h4 class="product-name-box" th:text="${product.productName}">Product</h4>
+                                <span class="product-sales" th:text="${product.soldQuantity} + ' Sales'">0 Sales</span>
                             </div>
                         </div>
-                        <div class="top-product-stats">
-                            <span class="top-product-rating">⭐ <span th:text="${product.averageRating != null ? #numbers.formatDecimal(product.averageRating, 1, 1) : '0.0'}">0.0</span>/5</span>
-                            <span class="subtle" th:text="${#numbers.formatDecimal(product.revenue != null ? product.revenue : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span>
+                        <div class="product-finance">
+                            <span class="product-revenue" th:text="${#numbers.formatDecimal(product.revenue != null ? product.revenue : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</span>
+                            <!-- Mock trend changes matching mockup visually -->
+                            <span class="product-trend" th:classappend="${iterStat.index == 0 ? 'up' : (iterStat.index == 1 ? 'up' : 'down')}"
+                                  th:text="${iterStat.index == 0 ? '+12%' : (iterStat.index == 1 ? '+8%' : '-2%')}">+5%</span>
                         </div>
                     </div>
                 </div>
-                <div th:if="${stats == null || stats.topProducts == null || stats.topProducts.isEmpty()}" class="subtle">Chưa có dữ liệu top sản phẩm.</div>
+                <div th:if="${stats == null || stats.topProducts == null || stats.topProducts.isEmpty()}" class="text-muted text-center py-4 flex-grow-1 d-grid align-content-center">
+                    Chưa có dữ liệu top sản phẩm.
+                </div>
+                <div class="mt-4 pt-3 border-top text-center" th:if="${stats != null && stats.topProducts != null && !stats.topProducts.isEmpty()}">
+                    <a th:href="@{/seller/products}" class="text-success fw-bold text-decoration-none" style="font-size: 13.5px; display: inline-flex; align-items: center; gap: 4px;">
+                        Xem báo cáo tồn kho
+                        <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+                    </a>
+                </div>
             </div>
         </div>
+
+        <!-- Recent Orders table -->
+        <div class="orders-section">
+            <div class="orders-header">
+                <h3 class="card-title" style="font-size: 16px;">Đơn đặt hàng gần đây</h3>
+                <a th:href="@{/seller/orders}" class="text-success fw-bold text-decoration-none" style="font-size: 13.5px; display: inline-flex; align-items: center; gap: 4px;">
+                    Xem tất cả đơn hàng
+                    <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+                </a>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Products</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody th:if="${stats != null && stats.recentOrders != null && !stats.recentOrders.isEmpty()}">
+                        <tr th:each="order : ${stats.recentOrders}">
+                            <td data-label="Order ID" class="order-code" th:text="${order.orderCode}">#ORG-0000</td>
+                            <td data-label="Customer">
+                                <div class="customer-cell">
+                                    <div class="customer-avatar-bubble" th:text="${#strings.substring(order.customerName, 0, 2).toUpperCase()}">SA</div>
+                                    <span class="customer-name" th:text="${order.customerName}">Sarah Adams</span>
+                                </div>
+                            </td>
+                            <td data-label="Products">
+                                <span class="product-pill" th:text="${order.productsSummary}">Tomatoes (2kg) +2 items</span>
+                            </td>
+                            <td data-label="Amount" class="order-amount" th:text="${#numbers.formatDecimal(order.totalAmount != null ? order.totalAmount : 0, 0, 'POINT', 0, 'COMMA')} + 'đ'">0đ</td>
+                            <td data-label="Status">
+                                <span class="status-pill" th:classappend="${#strings.toLowerCase(order.orderStatus)}" th:text="${order.orderStatus}">Processing</span>
+                            </td>
+                            <td data-label="Action">
+                                <button class="action-btn">
+                                    <i data-lucide="more-vertical" style="width: 18px; height: 18px;"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody th:if="${stats == null || stats.recentOrders == null || stats.recentOrders.isEmpty()}">
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">Chưa có đơn đặt hàng gần đây.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Chart.js line area script -->
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            document.addEventListener("DOMContentLoaded", function() {
+                const rawData = /*[[${stats != null ? stats.revenueByDay : null}]]*/ [];
+                if (!rawData || rawData.length === 0) return;
+
+                const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+                const labels = rawData.map(item => {
+                    const date = new Date(item.date);
+                    return daysOfWeek[date.getDay()];
+                });
+                const values = rawData.map(item => item.revenue);
+
+                const canvas = document.getElementById('revenueChart');
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Doanh thu',
+                            data: values,
+                            borderColor: '#10b981',
+                            borderWidth: 3,
+                            backgroundColor: (context) => {
+                                const chart = context.chart;
+                                const {ctx, chartArea} = chart;
+                                if (!chartArea) return null;
+                                const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                                gradient.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
+                                gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+                                return gradient;
+                            },
+                            fill: true,
+                            tension: 0.35,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.y.toLocaleString('vi-VN') + 'đ';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { family: 'Inter', size: 11, weight: 600 }, color: '#9ca3af' }
+                            },
+                            y: {
+                                grid: { color: '#f3f4f6' },
+                                ticks: { display: false }
+                            }
+                        }
+                    }
+                });
+            });
+            /*]]>*/
+        </script>
     </main>
 </div>
 </body>

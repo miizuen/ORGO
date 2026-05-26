@@ -23,4 +23,18 @@ public interface ArticleRepository extends JpaRepository<Article, Integer> {
     
     @Query("SELECT a FROM Article a WHERE a.status = 'PUBLISHED' ORDER BY a.viewCount DESC")
     List<Article> findFeaturedArticles(Pageable pageable);
+
+    @Query("SELECT COUNT(a) FROM Article a WHERE a.status = 'PUBLISHED' AND LOWER(a.category) = LOWER(:category)")
+    long countByCategory(@org.springframework.data.repository.query.Param("category") String category);
+
+    @Query("SELECT COUNT(a) FROM Article a WHERE a.status = 'PUBLISHED'")
+    long countAllPublished();
+
+    @Query("SELECT a FROM Article a WHERE a.status = 'PUBLISHED' " +
+           "AND (:category IS NULL OR :category = '' OR LOWER(a.category) = LOWER(:category)) " +
+           "AND (:search IS NULL OR :search = '' OR LOWER(a.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(a.content) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(a.summary) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<Article> findPublishedArticlesWithFilters(
+            @org.springframework.data.repository.query.Param("category") String category,
+            @org.springframework.data.repository.query.Param("search") String search,
+            Pageable pageable);
 }
