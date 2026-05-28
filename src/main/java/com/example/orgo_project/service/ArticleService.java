@@ -41,9 +41,9 @@ public class ArticleService {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new RuntimeException("Article not found"));
         
-        // Only allow update if DRAFT or REJECTED
-        if (article.getStatus() != ArticleStatus.DRAFT && article.getStatus() != ArticleStatus.REJECTED) {
-            throw new RuntimeException("Can only update DRAFT or REJECTED articles");
+        // Only allow update if PUBLISHED
+        if (article.getStatus() != ArticleStatus.PUBLISHED) {
+            throw new RuntimeException("Can only update PUBLISHED articles");
         }
         
         article.setTitle(request.getTitle());

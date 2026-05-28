@@ -107,6 +107,11 @@
         <a href="/expert/articles" class="back-btn">
             <i data-lucide="arrow-left" style="width:16px; height:16px;"></i> Quay lại danh sách bài viết
         </a>
+        <div th:if="${param.success != null and #lists.contains(param.success, 'updated')}"
+             style="margin-bottom:16px;padding:12px 14px;border-radius:10px;background:#ecfdf5;border:1px solid #a7f3d0;color:#047857;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;">
+            <i data-lucide="check-circle-2" style="width:16px; height:16px;"></i>
+            Đã cập nhật bài viết thành công.
+        </div>
 
         <!-- Header -->
         <div class="detail-header">
