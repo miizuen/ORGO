@@ -30,10 +30,12 @@
         .expert-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:6px}
         .expert-nav a{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;text-decoration:none;color:var(--color-text-muted);font-size:13px;font-weight:600;transition:.15s}
         .expert-nav a:hover,.expert-nav a.active{background:#f0fdf4;color:var(--color-primary-dark)}
-        .expert-nav .dot{width:8px;height:8px;border-radius:999px;background:#cbd5e1}
-        .expert-nav a.active .dot,.expert-nav a:hover .dot{background:var(--color-primary)}
+        .expert-nav a i{width:18px;height:18px;color:var(--color-text-muted);transition:.15s}
+        .expert-nav a:hover i,.expert-nav a.active i{color:var(--color-primary)}
         .expert-bottom{padding:16px 24px;border-top:1px solid var(--color-border)}
         .expert-logout{display:flex;align-items:center;gap:10px;text-decoration:none;color:#dc2626;font-size:13px;font-weight:600}
+        .expert-logout i{width:16px;height:16px;transition:.15s}
+        .expert-logout:hover i{transform:translateX(2px)}
         .expert-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
         .expert-topbar{height:var(--topbar-height);background:#fff;border-bottom:1px solid var(--color-border);display:flex;align-items:center;padding:0 24px;gap:14px;flex-shrink:0}
         .expert-search{flex:1;max-width:360px;background:#f3f4f6;border-radius:10px;padding:9px 12px;display:flex;align-items:center;gap:8px}
@@ -56,24 +58,24 @@
         <div class="expert-status">Đang hoạt động</div>
     </div>
     <nav class="expert-nav">
-        <a th:href="@{/expert/dashboard}" th:classappend="${activePage == 'dashboard'} ? ' active' : ''"><span class="dot"></span>Dashboard</a>
-        <a th:href="@{/expert/articles}" th:classappend="${activePage == 'articles'} ? ' active' : ''"><span class="dot"></span>Bài viết của tôi</a>
-        <a th:href="@{/expert/articles/new}" th:classappend="${activePage == 'article-new'} ? ' active' : ''"><span class="dot"></span>Viết bài mới</a>
-        <a th:href="@{/expert/payout}" th:classappend="${activePage == 'payout'} ? ' active' : ''"><span class="dot"></span>Payout</a>
+        <a th:href="@{/expert/dashboard}" th:classappend="${activePage == 'dashboard'} ? ' active' : ''"><i data-lucide="layout-dashboard"></i>Dashboard</a>
+        <a th:href="@{/expert/articles}" th:classappend="${activePage == 'articles'} ? ' active' : ''"><i data-lucide="book-open"></i>Bài viết của tôi</a>
+        <a th:href="@{/expert/articles/new}" th:classappend="${activePage == 'article-new'} ? ' active' : ''"><i data-lucide="pen-tool"></i>Viết bài mới</a>
+        <a th:href="@{/expert/payout}" th:classappend="${activePage == 'payout'} ? ' active' : ''"><i data-lucide="wallet"></i>Payout</a>
     </nav>
     <div class="expert-bottom">
-        <a th:href="@{/logout}" class="expert-logout">Đăng xuất</a>
+        <a th:href="@{/logout}" class="expert-logout"><i data-lucide="log-out"></i>Đăng xuất</a>
     </div>
 </aside>
 <div class="expert-main">
     <header class="expert-topbar">
-        <div class="expert-search"><span>🔍</span><input type="text" placeholder="Tìm kiếm..."></div>
+        <div class="expert-search"><i data-lucide="search" style="width:16px;height:16px;color:var(--color-text-muted)"></i><input type="text" placeholder="Tìm kiếm..."></div>
         <div class="expert-user">
             <div>
                 <div style="font-size:13px;font-weight:700" th:text="${session.currentUser != null ? session.currentUser : 'Expert'}">Expert</div>
                 <div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px">Expert Center</div>
             </div>
-            <div class="expert-avatar">E</div>
+            <div class="expert-avatar" th:text="${session.currentUser != null ? #strings.substring(session.currentUser, 0, 1).toUpperCase() : 'E'}">E</div>
         </div>
     </header>
     <div class="expert-content">
@@ -81,6 +83,11 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>
 </th:block>

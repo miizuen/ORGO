@@ -43,6 +43,7 @@ public class ExpertArticleController {
     private final ArticleService articleService;
     private final ProductRepository productRepository;
     private final com.example.orgo_project.repository.IProductVariantRepository productVariantRepository;
+    private final com.example.orgo_project.repository.ISellerRepository sellerRepository;
 
     @GetMapping
     public String getMyArticles(
@@ -74,6 +75,7 @@ public class ExpertArticleController {
     @GetMapping("/new")
     public String createArticleForm(Model model) {
         List<Product> products = productRepository.findAll();
+        populateProductShopAndImage(products);
         model.addAttribute("article", new ArticleRequest());
         model.addAttribute("products", products);
         model.addAttribute("categories", List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức"));
@@ -91,7 +93,9 @@ public class ExpertArticleController {
         }
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(e -> System.out.println("VALIDATION ERROR: " + e.getDefaultMessage()));
-            model.addAttribute("products", productRepository.findAll());
+            List<Product> products = productRepository.findAll();
+            populateProductShopAndImage(products);
+            model.addAttribute("products", products);
             model.addAttribute("categories", List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức"));
             return "pages/expert/article-form";
         }
@@ -107,7 +111,9 @@ public class ExpertArticleController {
                 Files.copy(coverImageFile.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
                 request.setThumbnail("/uploads/" + fileName);
             } catch (IOException e) {
-                model.addAttribute("products", productRepository.findAll());
+                List<Product> products = productRepository.findAll();
+                populateProductShopAndImage(products);
+                model.addAttribute("products", products);
                 model.addAttribute("categories", List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức"));
                 model.addAttribute("uploadError", "Không thể tải ảnh bìa lên. Vui lòng thử lại.");
                 return "pages/expert/article-form";
@@ -170,6 +176,31 @@ public class ExpertArticleController {
     public String deleteArticle(@PathVariable Integer id) {
         articleService.deleteArticle(id);
         return "redirect:/expert/articles?success=deleted";
+    }
+
+    private void populateProductShopAndImage(List<Product> products) {
+        List<com.example.orgo_project.entity.Seller> sellers = sellerRepository.findAll();
+        java.util.Map<Integer, String> sellerShopMap = sellers.stream()
+                .filter(s -> s.getId() != null && s.getShopName() != null)
+                .collect(java.util.stream.Collectors.toMap(com.example.orgo_project.entity.Seller::getId, com.example.orgo_project.entity.Seller::getShopName, (a, b) -> a));
+
+        for (Product product : products) {
+            if (product.getSellerId() != null) {
+                product.setShopName(sellerShopMap.getOrDefault(product.getSellerId(), "Cửa hàng"));
+            } else {
+                product.setShopName("ORGO Shop");
+            }
+            if (product.getImageUrl() == null || product.getImageUrl().isBlank()) {
+                java.util.List<com.example.orgo_project.entity.ProductVariant> variants = productVariantRepository.findByProductId(product.getId());
+                if (!variants.isEmpty() && variants.get(0).getImageUrl() != null) {
+                    product.setImageUrl(variants.get(0).getImageUrl());
+                } else if (product.getSlug() != null && product.getSlug().startsWith("/uploads/")) {
+                    product.setImageUrl(product.getSlug());
+                } else {
+                    product.setImageUrl("/api/placeholder/200/200");
+                }
+            }
+        }
     }
 
     private Integer getExpertIdFromSession() {

@@ -40,7 +40,7 @@
         .cover-placeholder{width:100%;height:260px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);display:flex;align-items:center;justify-content:center;font-size:64px}
 
         /* Article body card */
-        .article-body-card{background:white;border-radius:20px;padding:36px;box-shadow:0 2px 16px rgba(0,0,0,0.06)}
+        .article-body-card{background:white;border-radius:20px;padding:36px;box-shadow:0 2px 16px rgba(0,0,0,0.06);white-space:pre-wrap}
         .article-body-card h2{font-size:22px;font-weight:700;color:#1b5e20;margin:32px 0 14px;padding-bottom:8px;border-bottom:2px solid #e8f5e9}
         .article-body-card h3{font-size:18px;font-weight:700;color:#212121;margin:24px 0 10px}
         .article-body-card p{font-size:15px;line-height:1.85;color:#424242;margin-bottom:16px}
@@ -105,7 +105,7 @@
 
         <!-- Back -->
         <a href="/expert/articles" class="back-btn">
-            ← Quay lại danh sách bài viết
+            <i data-lucide="arrow-left" style="width:16px; height:16px;"></i> Quay lại danh sách bài viết
         </a>
 
         <!-- Header -->
@@ -115,20 +115,22 @@
                     <span th:classappend="${article.status != null ? article.status.name().toLowerCase() : 'draft'}"
                           class="status-badge"
                           th:text="${article.status != null ? article.status.name() : 'DRAFT'}">PUBLISHED</span>
-                    <span class="header-date"
-                          th:text="${article.publishedAt != null ? '📅 ' + #temporals.format(article.publishedAt, 'dd/MM/yyyy') : '📅 Chưa đăng'}">📅 20/10/2023</span>
+                    <span class="header-date" style="display:inline-flex; align-items:center; gap:6px;">
+                        <i data-lucide="calendar" style="width:14px; height:14px;"></i>
+                        <span th:text="${article.publishedAt != null ? #temporals.format(article.publishedAt, 'dd/MM/yyyy') : 'Chưa đăng'}">20/10/2023</span>
+                    </span>
                 </div>
                 <div class="detail-title" th:text="${article.title}">Tiêu đề bài viết</div>
                 <div class="header-stats">
                     <div class="header-stat">
-                        <span class="header-stat-icon">👁️</span>
+                        <i data-lucide="eye" style="width:20px; height:20px; color:#c8e6c9;"></i>
                         <div>
                             <div class="header-stat-label">Lượt xem</div>
                             <div class="header-stat-value" th:text="${#numbers.formatInteger(article.totalViews != null ? article.totalViews : 0, 1, 'COMMA')}">0</div>
                         </div>
                     </div>
                     <div class="header-stat">
-                        <span class="header-stat-icon">🛒</span>
+                        <i data-lucide="shopping-cart" style="width:20px; height:20px; color:#c8e6c9;"></i>
                         <div>
                             <div class="header-stat-label">Chuyển đổi Affiliate</div>
                             <div class="header-stat-value" th:text="${affiliateCount != null ? affiliateCount : 0}">0</div>
@@ -149,7 +151,7 @@
                     <img th:if="${article.thumbnail != null and !article.thumbnail.isEmpty()}"
                          th:src="${article.thumbnail}" alt="Ảnh bìa" class="cover-img"/>
                     <div th:if="${article.thumbnail == null or article.thumbnail.isEmpty()}"
-                         class="cover-placeholder">🖼️</div>
+                         class="cover-placeholder"><i data-lucide="image" style="width:48px; height:48px; color:#a5d6a7;"></i></div>
                 </div>
 
                 <!-- Nội dung bài viết -->
@@ -161,7 +163,7 @@
 
                 <!-- Bài viết liên quan -->
                 <div class="related-card" th:if="${relatedArticles != null and !relatedArticles.empty}">
-                    <div class="section-title">📄 Bài viết liên quan</div>
+                    <div class="section-title" style="display:flex; align-items:center; gap:8px;"><i data-lucide="file-text" style="width:20px; height:20px; color:#2e7d32;"></i> Bài viết liên quan</div>
                     <div class="related-grid">
                         <a th:each="related : ${relatedArticles}"
                            th:href="@{/expert/articles/{id}(id=${related.id})}"
@@ -169,7 +171,7 @@
                             <img th:if="${related.thumbnail != null and !related.thumbnail.isEmpty()}"
                                  th:src="${related.thumbnail}" alt="Related" class="related-img"/>
                             <div th:if="${related.thumbnail == null or related.thumbnail.isEmpty()}"
-                                 class="related-img-placeholder">📄</div>
+                                 class="related-img-placeholder"><i data-lucide="file-text" style="width:24px; height:24px; color:#a5d6a7;"></i></div>
                             <div class="related-info">
                                 <div class="related-title" th:text="${related.title}">Tiêu đề bài viết</div>
                             </div>
@@ -185,12 +187,14 @@
                 <!-- Quick actions -->
                 <div class="action-card">
                     <div class="action-card-title">Thao tác nhanh</div>
-                    <a th:href="@{/expert/articles/{id}/edit(id=${article.id})}" class="btn-edit">
-                        ✏️ Chỉnh sửa bài viết
+                    <a th:href="@{/expert/articles/{id}/edit(id=${article.id})}" class="btn-edit" style="display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+                        <i data-lucide="edit-3" style="width:16px; height:16px;"></i> Chỉnh sửa bài viết
                     </a>
                     <form th:action="@{/expert/articles/{id}/delete(id=${article.id})}" method="post"
                           onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này không?')">
-                        <button type="submit" class="btn-delete">🗑️ Xóa bài viết</button>
+                        <button type="submit" class="btn-delete" style="display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+                            <i data-lucide="trash-2" style="width:16px; height:16px;"></i> Xóa bài viết
+                        </button>
                     </form>
                 </div>
 
@@ -200,8 +204,9 @@
                     <div class="info-row">
                         <div class="info-item-row">
                             <span class="info-label">Chuyên mục</span>
-                            <span class="category-chip">
-                                🌿 <span th:text="${article.category != null ? article.category : 'Chưa phân loại'}">Health &amp; Nutrition</span>
+                            <span class="category-chip" style="display:inline-flex; align-items:center; gap:6px;">
+                                <i data-lucide="tag" style="width:12px; height:12px;"></i>
+                                <span th:text="${article.category != null ? article.category : 'Chưa phân loại'}">Health &amp; Nutrition</span>
                             </span>
                         </div>
                         <div class="info-item-row" th:if="${article.createdAt != null}">
@@ -210,7 +215,7 @@
                         </div>
                         <div class="info-item-row" th:if="${article.rejectNote != null and !article.rejectNote.isEmpty()}">
                             <div class="rejection-box">
-                                <div class="rejection-label">❌ Lý do từ chối</div>
+                                <div class="rejection-label" style="display:flex; align-items:center; gap:6px;"><i data-lucide="alert-triangle" style="width:14px; height:14px; color:#d32f2f;"></i> Lý do từ chối</div>
                                 <div class="rejection-text" th:text="${article.rejectNote}">Nội dung chưa phù hợp</div>
                             </div>
                         </div>
@@ -227,12 +232,12 @@
                             <img th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
                                  th:src="${product.imageUrl}" alt="Product" class="product-link-img"/>
                             <div th:if="${product.imageUrl == null or product.imageUrl.isEmpty()}"
-                                 class="product-link-img" style="display:flex;align-items:center;justify-content:center;font-size:22px">🛍️</div>
+                                 class="product-link-img" style="display:flex;align-items:center;justify-content:center;"><i data-lucide="package" style="width:20px; height:20px; color:#a5d6a7;"></i></div>
                             <div class="product-link-info">
                                 <div class="product-link-name" th:text="${product.productName}">Tên sản phẩm</div>
                                 <div class="product-link-sub">12 đơn hàng thành công</div>
                             </div>
-                            <span class="product-link-arrow">›</span>
+                            <i data-lucide="chevron-right" style="width:16px; height:16px; color:#cbd5e1;"></i>
                         </a>
                     </div>
                 </div>

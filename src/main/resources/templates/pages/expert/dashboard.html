@@ -96,8 +96,12 @@
                 <h1 class="header-title" th:text="'Chào mừng trở lại, ' + ${expertName} + '!'">Chào mừng trở lại, Chuyên gia!</h1>
                 <p class="header-subtitle">Theo dõi hiệu suất bài viết, lượt xem và hoa hồng của bạn tại đây.</p>
                 <div class="header-actions">
-                    <a href="/expert/articles/new" class="btn-primary">✏️ Viết bài mới</a>
-                    <a href="/expert/articles" class="btn-secondary">📊 Quản lý bài viết</a>
+                    <a href="/expert/articles/new" class="btn-primary" style="display:inline-flex; align-items:center; gap:8px;">
+                        <i data-lucide="edit-3" style="width:16px; height:16px;"></i> Viết bài mới
+                    </a>
+                    <a href="/expert/articles" class="btn-secondary" style="display:inline-flex; align-items:center; gap:8px;">
+                        <i data-lucide="bar-chart" style="width:16px; height:16px;"></i> Quản lý bài viết
+                    </a>
                 </div>
             </div>
         </div>
@@ -106,21 +110,21 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-card-accent"></div>
-                <div class="stat-icon green">👁️</div>
+                <div class="stat-icon green"><i data-lucide="eye" style="width:22px; height:22px; display:block;"></i></div>
                 <div class="stat-label">Tổng lượt xem</div>
                 <div class="stat-value" th:text="${#numbers.formatInteger(stats.totalViews != null ? stats.totalViews : 0, 1, 'COMMA')}">0</div>
                 <div class="stat-note">Tất cả bài viết đã đăng</div>
             </div>
             <div class="stat-card">
                 <div class="stat-card-accent"></div>
-                <div class="stat-icon orange">💰</div>
+                <div class="stat-icon orange"><i data-lucide="dollar-sign" style="width:22px; height:22px; display:block;"></i></div>
                 <div class="stat-label">Hoa hồng nhận được</div>
                 <div class="stat-value" th:text="${#numbers.formatInteger(stats.totalCommission != null ? stats.totalCommission.longValue() : 0, 1, 'COMMA') + ' ₫'}">0 ₫</div>
                 <div class="stat-note">Tổng thu nhập tích lũy</div>
             </div>
             <div class="stat-card">
                 <div class="stat-card-accent"></div>
-                <div class="stat-icon blue">🛒</div>
+                <div class="stat-icon blue"><i data-lucide="shopping-cart" style="width:22px; height:22px; display:block;"></i></div>
                 <div class="stat-label">Đơn hàng qua bài viết</div>
                 <div class="stat-value" th:text="${stats.totalOrders != null ? stats.totalOrders : 0}">0</div>
                 <div class="stat-note">Đơn đặt qua nội dung của bạn</div>
@@ -164,7 +168,7 @@
         <div class="top-articles-card">
             <div class="card-header">
                 <div>
-                    <div class="card-title">🏆 Top bài viết được xem nhiều nhất</div>
+                    <div class="card-title" style="display:flex; align-items:center; gap:8px;"><i data-lucide="crown" style="width:20px; height:20px; color:#fbbf24;"></i> Top bài viết được xem nhiều nhất</div>
                     <div class="card-subtitle">Các bài viết nổi bật của bạn</div>
                 </div>
             </div>
@@ -182,17 +186,17 @@
                         <div th:if="${art.coverImage != null and !art.coverImage.isEmpty()}">
                             <img class="article-thumb" th:src="${art.coverImage}" alt="cover" />
                         </div>
-                        <div th:if="${art.coverImage == null or art.coverImage.isEmpty()}" class="article-thumb-placeholder">📄</div>
+                        <div th:if="${art.coverImage == null or art.coverImage.isEmpty()}" class="article-thumb-placeholder"><i data-lucide="file-text" style="width:24px; height:24px; color:#10b981;"></i></div>
 
                         <div class="article-info">
                             <div class="article-title-text" th:text="${art.title}">Tiêu đề bài viết</div>
                             <div class="article-meta">
-                                <span th:text="'📅 ' + ${art.publishedAt}">Ngày đăng</span>
+                                <span style="display:inline-flex; align-items:center; gap:4px; font-size:11.5px; color:#9ca3af;"><i data-lucide="calendar" style="width:12px; height:12px;"></i> <span th:text="${art.publishedAt}">Ngày đăng</span></span>
                             </div>
                         </div>
 
-                        <div class="article-views">
-                            <span>👁️</span>
+                        <div class="article-views" style="display:inline-flex; align-items:center; gap:4px;">
+                            <i data-lucide="eye" style="width:16px; height:16px;"></i>
                             <span th:text="${#numbers.formatInteger(art.views != null ? art.views : 0, 1, 'COMMA')}">0</span>
                         </div>
                     </a>
@@ -200,7 +204,7 @@
             </div>
 
             <div class="empty-state" th:if="${stats.topArticles == null or stats.topArticles.empty}">
-                <div class="empty-state-icon">📝</div>
+                <div class="empty-state-icon" style="display:flex; justify-content:center; margin-bottom:12px;"><i data-lucide="file-text" style="width:48px; height:48px; color:#cbd5e1;"></i></div>
                 <div class="empty-state-text">Chưa có bài viết nào được đăng. Hãy bắt đầu viết!</div>
             </div>
         </div>
