@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
 
 @Configuration
@@ -30,6 +32,14 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        XorCsrfTokenRequestAttributeHandler csrfRequestHandler = new XorCsrfTokenRequestAttributeHandler();
+        csrfRequestHandler.setCsrfRequestAttributeName(null);
+
+        http.csrf(csrf -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrfTokenRequestHandler(csrfRequestHandler)
+        );
+
         http.authorizeHttpRequests(authorize -> authorize
                 // Phân quyền cho dashboard của riêng từng Role
                 .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -38,6 +48,7 @@ public class WebSecurityConfig {
                 // Cho phép USER, SELLER, EXPERT vào /user/** (để xem lại form đăng ký)
                 .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER", "SELLER", "EXPERT")
                 // Các đường dẫn cho phép public
+                .requestMatchers("/error", "/403").permitAll()
                 .requestMatchers("/login", "/register", "/forgot-password", "/verify-otp", "/reset-password", "/guest-login").permitAll()
                 .requestMatchers("/", "/welcome", "/search", "/products", "/products/**", "/blog", "/blog/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "/webjars/**", "/articles").permitAll()
                 .requestMatchers("/momo/demo", "/momo/demo/create", "/momo/demo/result", "/momo/return", "/momo/ipn").permitAll()

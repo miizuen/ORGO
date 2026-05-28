@@ -6,37 +6,6 @@
 </head>
 <body>
 <main>
-    <section class="hero-section" th:if="${featuredArticle != null}">
-        <div class="hero-container">
-            <div class="hero-content">
-                <span class="category-badge"
-                      th:text="${featuredArticle.category != null ? featuredArticle.category : 'ORGO'}">ORGO</span>
-                <h1 class="hero-title" th:text="${featuredArticle.title}">Bài viết nổi bật</h1>
-                <p class="hero-excerpt"
-                   th:text="${featuredArticle.summary != null ? featuredArticle.summary : (featuredArticle.content != null && #strings.length(featuredArticle.content) > 150 ? #strings.substring(featuredArticle.content, 0, 150) + '...' : featuredArticle.content)}">
-                    Mô tả bài viết featured...
-                </p>
-                <div class="hero-meta">
-                    <img th:src="${featuredArticle.expertAvatar != null && !featuredArticle.expertAvatar.isEmpty() ? featuredArticle.expertAvatar : '/api/placeholder/48/48'}"
-                         alt="Expert"
-                         class="expert-avatar">
-                    <div>
-                        <p class="expert-name" th:text="${featuredArticle.expertName != null ? featuredArticle.expertName : 'ORGO'}">Elena Vance</p>
-                        <p class="meta-info">
-                            <span th:text="${featuredArticle.category != null ? featuredArticle.category : 'Blog'}">Blog</span> •
-                            <span th:text="${featuredArticle.createdAt}">2026-04-30</span>
-                        </p>
-                    </div>
-                </div>
-                <a th:href="@{/articles/{id}(id=${featuredArticle.id})}" class="btn-primary">Đọc bài viết</a>
-            </div>
-            <div class="hero-image">
-                <img th:src="${featuredArticle.thumbnail != null && !featuredArticle.thumbnail.isEmpty() ? featuredArticle.thumbnail : '/api/placeholder/800/600'}"
-                     alt="Featured">
-            </div>
-        </div>
-    </section>
-
     <!-- Popular Articles Section -->
     <section class="popular-section" th:if="${featuredArticles != null && !featuredArticles.isEmpty()}">
         <div class="container">
