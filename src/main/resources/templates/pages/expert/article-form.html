@@ -48,9 +48,9 @@
     </style>
 </head>
 <body>
-<div th:replace="~{fragments/expert-layout :: expertLayout('Viết bài mới', 'article-new', ~{::main})}">
+<div th:replace="~{fragments/expert-layout :: expertLayout(${isEditMode} ? 'Chỉnh sửa bài viết' : 'Viết bài mới', 'article-new', ~{::main})}">
     <main>
-        <form th:action="@{/expert/articles/new}" method="post" enctype="multipart/form-data" th:object="${article}">
+        <form th:action="@{${formAction}}" method="post" enctype="multipart/form-data" th:object="${article}">
             <div class="compose-wrap">
                 <section class="editor-card">
                     <div class="cover">
@@ -75,12 +75,13 @@
                         <input id="coverImageFile" name="coverImageFile" type="file" accept="image/*" style="display:none;" />
                     </div>
                     <div th:if="${uploadError}" style="margin-top:12px;padding:12px;background:#fef2f2;color:#b91c1c;font-size:13px;border-radius:10px;border-left:4px solid #ef4444" th:text="${uploadError}"></div>
+                    <div th:if="${errorMessage}" style="margin-top:12px;padding:12px;background:#fef2f2;color:#b91c1c;font-size:13px;border-radius:10px;border-left:4px solid #ef4444" th:text="${errorMessage}"></div>
                     <div th:if="${param.error}" style="margin-top:12px;padding:12px;background:#fef2f2;color:#b91c1c;font-size:13px;border-radius:10px;border-left:4px solid #ef4444">Không thể lưu bài viết. Vui lòng thử lại.</div>
                     
                     <input class="title-input" type="text" th:field="*{title}" placeholder="Nhập tiêu đề bài viết..." required>
                     
                     <div class="meta-row">
-                        <span class="chip"><i data-lucide="file-text" style="width:14px; height:14px; display:inline-block; vertical-align:-2px; margin-right:4px;"></i>Bài viết mới</span>
+                        <span class="chip"><i data-lucide="file-text" style="width:14px; height:14px; display:inline-block; vertical-align:-2px; margin-right:4px;"></i><span th:text="${isEditMode} ? 'Chỉnh sửa bài viết' : 'Bài viết mới'">Bài viết mới</span></span>
                         <span class="chip gray"><i data-lucide="clock" style="width:14px; height:14px; display:inline-block; vertical-align:-2px; margin-right:4px;"></i>8 phút đọc</span>
                     </div>
                     
@@ -122,7 +123,7 @@
 
                     <div class="side-card">
                         <button class="btn btn-main" type="submit" style="display:flex; align-items:center; justify-content:center; gap:8px;">
-                            <i data-lucide="check" style="width:18px; height:18px;"></i> Lưu bài viết
+                            <i data-lucide="check" style="width:18px; height:18px;"></i> <span th:text="${isEditMode} ? 'Cập nhật bài viết' : 'Lưu bài viết'">Lưu bài viết</span>
                         </button>
                         <button class="btn btn-sub" type="button" style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="window.location.href='/expert/articles'">
                             <i data-lucide="arrow-left" style="width:18px; height:18px;"></i> Quay lại
@@ -139,7 +140,7 @@
                     </div>
                     <div class="product-grid">
                         <label class="p-item" th:each="p : ${products}" style="display:flex; align-items:center; gap:12px; padding:12px;">
-                            <input type="checkbox" name="productIds" th:value="${p.id}" class="product-check" th:data-name="${p.productName}" style="margin:0;">
+                            <input type="checkbox" name="productIds" th:value="${p.id}" class="product-check" th:data-name="${p.productName}" th:checked="${article.productIds != null and #lists.contains(article.productIds, p.id)}" style="margin:0;">
                             <img th:src="${p.imageUrl != null && !p.imageUrl.isEmpty() ? p.imageUrl : '/api/placeholder/80/80'}" alt="Product" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; background: #f8fafc; flex-shrink:0;" />
                             <div style="flex:1; min-width:0;">
                                 <div style="font-weight:700;color:#1e293b;margin-bottom:4px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" th:text="${p.productName}">Tên SP</div>
