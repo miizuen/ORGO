@@ -79,6 +79,9 @@ public class Product {
     private List<ProductVariant> variants;
 
     @Transient
+    private String shopName;
+
+    @Transient
     public java.math.BigDecimal getMinPrice() {
         if (variants == null || variants.isEmpty()) return java.math.BigDecimal.ZERO;
         java.math.BigDecimal min = null;
