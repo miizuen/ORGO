@@ -10,8 +10,12 @@ description = 'orgo_project'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(22)
     }
+}
+
+springBoot {
+    mainClass = 'com.example.orgo_project.OrgoProjectApplication'
 }
 
 repositories {

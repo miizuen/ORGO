@@ -2,10 +2,13 @@ package com.example.orgo_project.controller;
 
 import com.example.orgo_project.dto.ArticleResponse;
 import com.example.orgo_project.enums.ArticleType;
+import com.example.orgo_project.security.CustomUserDetails;
 import com.example.orgo_project.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -64,7 +67,7 @@ public class PublicArticleController {
 
     @GetMapping("/{id}")
     public String getArticle(@PathVariable Integer id, Model model) {
-        ArticleResponse article = articleService.getArticleById(id);
+        ArticleResponse article = articleService.getPublicArticleById(id, currentAccountId());
         List<ArticleResponse> related = articleService.getPublicArticles(null, PageRequest.of(0, 3)).getContent();
         List<com.example.orgo_project.entity.Product> relatedProducts = productRepository.findAllById(article.getProductIds());
         for (com.example.orgo_project.entity.Product product : relatedProducts) {
@@ -84,5 +87,17 @@ public class PublicArticleController {
     public String getFeaturedArticles(Model model) {
         model.addAttribute("featuredArticles", articleService.getFeaturedArticles());
         return "pages/public/blog-list";
+    }
+
+    private Integer currentAccountId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return null;
+        }
+        Object principal = auth.getPrincipal();
+        if (principal instanceof CustomUserDetails details) {
+            return details.getAccount().getId();
+        }
+        return null;
     }
 }

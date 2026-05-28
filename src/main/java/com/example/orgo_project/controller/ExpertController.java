@@ -54,6 +54,15 @@ public class ExpertController {
         BigDecimal totalWithdrawn = wallet != null && wallet.getTotalWithdrawn() != null ? wallet.getTotalWithdrawn() : BigDecimal.ZERO;
         BigDecimal totalIncome = availableBalance.add(heldBalance).add(totalWithdrawn);
 
+        // Tổng hoa hồng = tổng tiền đã nhận vào wallet (available + held + withdrawn)
+        stats.setTotalCommission(totalIncome);
+
+        // Đếm đơn hàng từ lịch sử giao dịch commission
+        long commissionOrderCount = payoutService.findTransactionHistoryByAccountId(accountId).stream()
+                .filter(item -> "EXPERT_COMMISSION".equals(item.getType()))
+                .count();
+        stats.setTotalOrders(commissionOrderCount);
+
         model.addAttribute("stats", stats);
         model.addAttribute("articles", articles);
         model.addAttribute("totalIncome", totalIncome);
