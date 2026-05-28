@@ -70,37 +70,7 @@
                 <i data-lucide="plus-circle" style="width:18px; height:18px;"></i> Tạo bài viết
             </a>
         </div>
-                
-        <!-- Search & Filter Bar with Create Button -->
-        <form class="search-filter-bar" method="get" th:action="@{/expert/articles}">
-            <div class="search-box">
-                <i data-lucide="search" class="search-icon" style="width:20px; height:20px; color:#9e9e9e;"></i>
-                <input type="text"
-                       name="q"
-                       placeholder="Search by article title or keywords..."
-                       th:value="${searchQuery}">
-            </div>
-            <input type="hidden" name="status" th:value="${filterStatus}">
-            <div class="filter-tabs">
-                <button type="button"
-                        class="filter-tab"
-                        th:classappend="${filterStatus} == 'ALL' ? ' active' : ''"
-                        onclick="setStatusAndSubmit('ALL')">All Status</button>
-                <button type="button"
-                        class="filter-tab"
-                        th:classappend="${filterStatus} == 'PUBLISHED' ? ' active' : ''"
-                        onclick="setStatusAndSubmit('PUBLISHED')">Đã đăng</button>
-                <button type="button"
-                        class="filter-tab"
-                        th:classappend="${filterStatus} == 'PENDING' ? ' active' : ''"
-                        onclick="setStatusAndSubmit('PENDING')">Chờ xét duyệt</button>
-                <button type="button"
-                        class="filter-tab"
-                        th:classappend="${filterStatus} == 'REJECTED' ? ' active' : ''"
-                        onclick="setStatusAndSubmit('REJECTED')">Đã từ chối</button>
-            </div>
-        </form>
-        
+
         <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card">
@@ -145,6 +115,36 @@
                 <div class="stat-subtext" style="margin-top:8px;">You are in the top tier of creators</div>
             </div>
         </div>
+
+        <!-- Search & Filter Bar with Create Button -->
+        <form class="search-filter-bar" method="get" th:action="@{/expert/articles}">
+            <div class="search-box">
+                <i data-lucide="search" class="search-icon" style="width:20px; height:20px; color:#9e9e9e;"></i>
+                <input type="text"
+                       name="q"
+                       placeholder="Search by article title or keywords..."
+                       th:value="${searchQuery}">
+            </div>
+            <input type="hidden" name="status" th:value="${filterStatus}">
+            <div class="filter-tabs">
+                <button type="button"
+                        class="filter-tab"
+                        th:classappend="${filterStatus} == 'ALL' ? ' active' : ''"
+                        onclick="setStatusAndSubmit('ALL')">All Status</button>
+                <button type="button"
+                        class="filter-tab"
+                        th:classappend="${filterStatus} == 'PUBLISHED' ? ' active' : ''"
+                        onclick="setStatusAndSubmit('PUBLISHED')">Đã đăng</button>
+                <button type="button"
+                        class="filter-tab"
+                        th:classappend="${filterStatus} == 'PENDING' ? ' active' : ''"
+                        onclick="setStatusAndSubmit('PENDING')">Chờ xét duyệt</button>
+                <button type="button"
+                        class="filter-tab"
+                        th:classappend="${filterStatus} == 'REJECTED' ? ' active' : ''"
+                        onclick="setStatusAndSubmit('REJECTED')">Đã từ chối</button>
+            </div>
+        </form>
                 
         <!-- Articles Table -->
         <div class="table-container">

@@ -6,7 +6,7 @@
     <style>
         /* Home Page Custom Style overrides & design system */
         :root {
-            --primary-green: #2ed129;
+            --primary-green: #008744;
             --dark-green: #005321;
             --light-cream: #F4F6F3;
             --white: #ffffff;
@@ -30,6 +30,14 @@
         body:has(#home-content) header .header-link {
             color: #1a3020 !important;
         }
+
+        body:has(#home-content) header .header-link.active {
+            color: var(--primary-green) !important;
+        }
+
+        body:has(#home-content) header .header-link.active::after {
+            background-color: var(--primary-green) !important;
+        }
         
         body:has(#home-content) header .btn-outline-success {
             background-color: var(--primary-green) !important;
@@ -49,16 +57,36 @@
 
         /* Hero Section */
         .hero-section {
-            background-image: url('/uploads/greenhouse_hero.png');
-            background-size: cover;
-            background-position: center;
-            height: 100vh;
-            min-height: 700px;
+            background-color: #000;
+            height: calc(100vh - 100px);
+            min-height: 650px;
             display: flex;
             align-items: center;
             position: relative;
             color: white;
             padding-top: 80px;
+            overflow: hidden;
+        }
+
+        .hero-bg-carousel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .hero-bg-carousel .carousel-inner,
+        .hero-bg-carousel .carousel-item {
+            height: 100%;
+            width: 100%;
+        }
+
+        .hero-bg-carousel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .hero-overlay {
@@ -67,38 +95,64 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.05) 50%, #ffffff 100%);
-            z-index: 1;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.25) 60%, #ffffff 100%);
+            z-index: 2;
         }
 
         .hero-container {
             position: relative;
-            z-index: 2;
+            z-index: 3;
+            width: 100%;
+        }
+
+        /* Hero Transparent Content Card */
+        .hero-glass-card {
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+            max-width: 650px;
+        }
+
+        @media (max-width: 576px) {
+            .hero-glass-card {
+                padding: 0;
+                border-radius: 0;
+            }
         }
 
         .hero-badge {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            color: #e2f9e9;
+            background: rgba(0, 135, 68, 0.2);
+            color: #48BB78;
             font-size: 0.8rem;
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 1.5px;
             padding: 8px 20px;
             border-radius: 50px;
             display: inline-block;
+            border: 1px solid rgba(0, 135, 68, 0.3);
         }
 
         .hero-title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            line-height: 1.25;
-            margin-top: 15px;
-            color: #0b2e13;
-            text-shadow: 0 1px 3px rgba(255, 255, 255, 0.6);
+            font-size: 3.2rem;
+            font-weight: 850;
+            line-height: 1.2;
+            margin-top: 10px;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.2rem;
+            }
         }
 
         .hero-title .highlight {
-            color: var(--primary-green);
+            color: #48BB78;
         }
 
         /* Hero Buttons */
@@ -106,44 +160,82 @@
             background-color: var(--primary-green);
             color: white !important;
             border-radius: 50px;
-            padding: 12px 32px;
-            font-weight: 600;
+            padding: 13px 36px;
+            font-weight: 700;
+            font-size: 1rem;
             border: none;
             transition: all 0.3s ease;
         }
 
         .btn-pill-green:hover {
             background-color: var(--dark-green);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 135, 68, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 135, 68, 0.35);
         }
 
-        .btn-pill-white {
-            background-color: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(10px);
-            color: #2D3748 !important;
+        .btn-pill-outline {
+            background-color: transparent;
+            color: #ffffff !important;
             border-radius: 50px;
-            padding: 12px 32px;
-            font-weight: 600;
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            padding: 12px 34px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: 2px solid #ffffff;
             transition: all 0.3s ease;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
-        .btn-pill-white:hover {
-            background-color: rgba(255, 255, 255, 0.95);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+        .btn-pill-outline:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff !important;
+            border-color: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+        }
+
+        /* Animated Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--primary-green);
+            z-index: 10;
+            cursor: pointer;
+            animation: bounce 2s infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .scroll-indicator:hover {
+            opacity: 1;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translate(-50%, 0);
+            }
+            40% {
+                transform: translate(-50%, -10px);
+            }
+            60% {
+                transform: translate(-50%, -5px);
+            }
         }
 
         /* Stats Section */
         .stats-section {
             margin-top: -80px;
             position: relative;
-            z-index: 10;
+            z-index: 20;
         }
 
         .stats-card {
-            background: white;
+            background: #ffffff !important;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
             padding: 30px;
@@ -274,6 +366,67 @@
             color: #718096;
         }
 
+        /* Quick Add Button */
+        .btn-quick-add {
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-quick-add:hover {
+            background-color: var(--dark-green);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 135, 68, 0.25);
+        }
+
+        /* Toast notifications styling */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .custom-toast {
+            background: #ffffff;
+            color: #2D3748;
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--primary-green);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+            opacity: 0;
+            pointer-events: auto;
+        }
+
+        .custom-toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .custom-toast.toast-error {
+            border-left-color: #E53E3E;
+        }
+
         /* Blog Custom Layout */
         .blog-large-card {
             background: white;
@@ -340,6 +493,17 @@
             overflow: hidden;
         }
 
+        @media (max-width: 576px) {
+            .blog-horizontal-card {
+                flex-direction: column !important;
+                height: auto !important;
+            }
+            .blog-horizontal-img-wrap {
+                width: 100% !important;
+                height: 160px !important;
+            }
+        }
+
         /* Experts Section */
         .expert-section {
             background-color: #FAF8FF;
@@ -402,6 +566,25 @@
             font-style: italic;
         }
 
+        .expert-track {
+            display: flex;
+            gap: 24px;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+        }
+
+        .expert-slide {
+            flex: 0 0 calc(50% - 12px);
+            max-width: calc(50% - 12px);
+        }
+
+        @media (max-width: 768px) {
+            .expert-slide {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+        }
+
         .circle-nav-btn {
             width: 44px;
             height: 44px;
@@ -420,43 +603,64 @@
             background: var(--primary-green);
             color: white;
             border-color: var(--primary-green);
-        }
-    </style>
-
+            </style>
+ 
     <!-- ── HERO ────────────────────────────────────────────────────────────── -->
     <section class="hero-section">
+        <!-- Background Slider -->
+        <div id="heroBgCarousel" class="carousel slide carousel-fade hero-bg-carousel" data-bs-ride="carousel" data-bs-interval="4000">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img th:src="@{/uploads/farm.png}" src="/uploads/farm.png" alt="Nông trại xanh">
+                </div>
+                <div class="carousel-item">
+                    <img th:src="@{/uploads/overall.png}" src="/uploads/overall.png" alt="Toàn cảnh hệ thống">
+                </div>
+                <div class="carousel-item">
+                    <img th:src="@{/uploads/shop.png}" src="/uploads/shop.png" alt="Cửa hàng ORGO">
+                </div>
+            </div>
+        </div>
+        
         <div class="hero-overlay"></div>
         <div class="container container-xl hero-container px-4">
             <div class="row align-items-center">
-                <div class="col-12 col-lg-8 d-flex flex-column align-items-start gap-2">
-                    <div class="hero-badge">
-                        KHÁM PHÁ LỐI SỐNG MỚI
-                    </div>
-                    
-                    <h1 class="hero-title">
-                        Sống xanh bắt đầu từ<br>
-                        <span class="highlight">lựa chọn mỗi ngày</span>
-                    </h1>
-                    
-                    <p class="fs-5 mt-2 mb-4" style="max-width: 600px; color: #4A5568; font-weight: 400; line-height: 1.6;">
-                        Thực phẩm hữu cơ, minh bạch nguồn gốc, kết nối trực tiếp với nhà cung cấp uy tín từ các nông trại đạt chuẩn.
-                    </p>
-                    
-                    <div class="d-flex flex-wrap gap-3">
-                        <a th:href="@{/products}" class="btn btn-pill-green d-flex align-items-center gap-2">
-                            Mua ngay
-                            <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
-                        </a>
-                        <a th:href="@{/articles}" class="btn btn-pill-white d-flex align-items-center gap-2">
-                            Khám phá kiến thức
-                            <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
-                        </a>
+                <div class="col-12 col-lg-8">
+                    <div class="hero-glass-card d-flex flex-column align-items-start gap-2">
+                        <div class="hero-badge">
+                            KHÁM PHÁ LỐI SỐNG MỚI
+                        </div>
+                        
+                        <h1 class="hero-title">
+                            Sống xanh bắt đầu từ<br>
+                            <span class="highlight">lựa chọn mỗi ngày</span>
+                        </h1>
+                        
+                        <p class="fs-5 mt-2 mb-4" style="max-width: 600px; color: #E2E8F0; font-weight: 400; line-height: 1.6; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);">
+                            Thực phẩm hữu cơ, minh bạch nguồn gốc, kết nối trực tiếp với nhà cung cấp uy tín từ các nông trại đạt chuẩn.
+                        </p>
+                        
+                        <div class="d-flex flex-wrap gap-3">
+                            <a th:href="@{/products}" class="btn btn-pill-green d-flex align-items-center gap-2">
+                                Mua ngay
+                                <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+                            </a>
+                            <a th:href="@{/articles}" class="btn btn-pill-outline d-flex align-items-center gap-2">
+                                Khám phá kiến thức
+                                <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator" onclick="document.querySelector('.stats-section').scrollIntoView({ behavior: 'smooth' })">
+            <span class="small text-uppercase fw-bold text-success" style="font-size: 0.75rem; letter-spacing: 1px;">Cuộn để xem</span>
+            <i data-lucide="chevron-down" style="width: 24px; height: 24px;"></i>
+        </div>
     </section>
-
+ 
     <!-- ── STATS BAR ───────────────────────────────────────────────────────── -->
     <section class="stats-section bg-transparent pb-5">
         <div class="container container-xl px-4">
@@ -467,7 +671,7 @@
                         <div class="stats-icon-wrap icon-bg-green">
                             <i data-lucide="sprout" style="width: 24px; height: 24px;"></i>
                         </div>
-                        <h3 class="fs-4 fw-bold text-dark mb-1">100+</h3>
+                        <h3 class="fs-4 fw-bold text-dark mb-1"><span class="counter" data-target="100">0</span>+</h3>
                         <p class="text-secondary small mb-0 fw-medium">Nông trại đối tác</p>
                     </div>
                 </div>
@@ -477,7 +681,7 @@
                         <div class="stats-icon-wrap icon-bg-blue">
                             <i data-lucide="users" style="width: 24px; height: 24px;"></i>
                         </div>
-                        <h3 class="fs-4 fw-bold text-dark mb-1">10.000+</h3>
+                        <h3 class="fs-4 fw-bold text-dark mb-1"><span class="counter" data-target="10000" data-format="comma">0</span>+</h3>
                         <p class="text-secondary small mb-0 fw-medium">Khách hàng tin tưởng</p>
                     </div>
                 </div>
@@ -487,7 +691,7 @@
                         <div class="stats-icon-wrap icon-bg-purple">
                             <i data-lucide="truck" style="width: 24px; height: 24px;"></i>
                         </div>
-                        <h3 class="fs-4 fw-bold text-dark mb-1">Giao hàng 24h</h3>
+                        <h3 class="fs-4 fw-bold text-dark mb-1">Giao hàng <span class="counter" data-target="24">0</span>h</h3>
                         <p class="text-secondary small mb-0 fw-medium">Giao trong ngày</p>
                     </div>
                 </div>
@@ -525,7 +729,13 @@
                                 <a th:href="@{/products/1}" class="product-title text-truncate">Rau cải hữu cơ</a>
                                 <span class="product-price flex-shrink-0">45.000đ</span>
                             </div>
-                            <span class="product-vendor">Cửa hàng: Green Farm</span>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="product-vendor">Cửa hàng: Green Farm</span>
+                                <button onclick="quickAddToCart(1)" class="btn-quick-add" title="Thêm vào giỏ hàng">
+                                    <i data-lucide="shopping-cart" style="width: 16px; height: 16px;"></i>
+                                    <span>Thêm</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -544,7 +754,13 @@
                                 <a th:href="@{/products/3}" class="product-title text-truncate">Bơ Hass Premium</a>
                                 <span class="product-price flex-shrink-0">120.000đ</span>
                             </div>
-                            <span class="product-vendor">Nhập khẩu trực tiếp</span>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="product-vendor">Nhập khẩu trực tiếp</span>
+                                <button onclick="quickAddToCart(3)" class="btn-quick-add" title="Thêm vào giỏ hàng">
+                                    <i data-lucide="shopping-cart" style="width: 16px; height: 16px;"></i>
+                                    <span>Thêm</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -563,7 +779,13 @@
                                 <a th:href="@{/products/2}" class="product-title text-truncate">Cà chua bi Ruby</a>
                                 <span class="product-price flex-shrink-0">65.000đ</span>
                             </div>
-                            <span class="product-vendor">Nông trại Thủy canh ORGO</span>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="product-vendor">Nông trại Thủy canh ORGO</span>
+                                <button onclick="quickAddToCart(2)" class="btn-quick-add" title="Thêm vào giỏ hàng">
+                                    <i data-lucide="shopping-cart" style="width: 16px; height: 16px;"></i>
+                                    <span>Thêm</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -653,23 +875,23 @@
                         Chúng tôi không chỉ bán thực phẩm, chúng tôi mang đến kiến thức từ những chuyên gia hàng đầu về dinh dưỡng và nông nghiệp bền vững tại Việt Nam.
                     </p>
                     <div class="d-flex gap-2">
-                        <button class="circle-nav-btn">
+                        <button class="circle-nav-btn" id="expert-prev">
                             <i data-lucide="chevron-left" style="width: 20px; height: 20px;"></i>
                         </button>
-                        <button class="circle-nav-btn">
+                        <button class="circle-nav-btn" id="expert-next">
                             <i data-lucide="chevron-right" style="width: 20px; height: 20px;"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Right Expert Cards -->
-                <div class="col-12 col-lg-8">
-                    <div class="row g-4">
+                <div class="col-12 col-lg-8 overflow-hidden">
+                    <div class="expert-track">
                         <!-- Expert 1 -->
-                        <div class="col-12 col-md-6">
+                        <div class="expert-slide">
                             <div class="expert-card">
                                 <div class="expert-avatar-wrap">
-                                    <img src="https://i.pinimg.com/736x/9d/88/46/9d88463ef3bccb213daf1e5d0d278bfb.jpg" alt="Dr. Hà Linh" class="expert-avatar">
+                                    <img src="https://i.pinimg.com/736x/9d/88/46/9d88463ef3bccb213daf1e5d0d278bfb.jpg" alt="Dr. Tùng" class="expert-avatar">
                                 </div>
                                 <h4 class="expert-name">Dr. Tùng</h4>
                                 <p class="expert-title">Chuyên gia Dinh dưỡng</p>
@@ -680,7 +902,7 @@
                         </div>
 
                         <!-- Expert 2 -->
-                        <div class="col-12 col-md-6">
+                        <div class="expert-slide">
                             <div class="expert-card">
                                 <div class="expert-avatar-wrap">
                                     <img src="https://i.pinimg.com/736x/c9/cf/33/c9cf33366ad3bf6b2bef2bd9e0a99b9e.jpg" alt="Dr. Tuấn Anh" class="expert-avatar" style="border-color: #CBD5E0;">
@@ -692,17 +914,276 @@
                                 </p>
                             </div>
                         </div>
+
+                        <!-- Expert 3 -->
+                        <div class="expert-slide">
+                            <div class="expert-card">
+                                <div class="expert-avatar-wrap">
+                                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300&q=80" alt="Dr. Hà Linh" class="expert-avatar" style="border-color: #319795;">
+                                </div>
+                                <h4 class="expert-name">Dr. Hà Linh</h4>
+                                <p class="expert-title">Bác sĩ Dinh dưỡng Lâm sàng</p>
+                                <p class="expert-quote">
+                                    "Dinh dưỡng lành mạnh là nền tảng của một sức khỏe bền bỉ và hạnh phúc trọn vẹn."
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Lucide Icons initialization -->
-    <script>
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
+    <!-- Script for interactive enhancements -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        // CSRF details for AJAX
+        const csrfToken = /*[[${_csrf.token}]]*/ '';
+        const csrfHeader = /*[[${_csrf.headerName}]]*/ '';
+
+        // Custom toast helper
+        function showToast(message, type = 'success') {
+            let container = document.querySelector('.toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = `custom-toast ${type === 'error' ? 'toast-error' : ''}`;
+            toast.innerHTML = `
+                <i data-lucide="${type === 'error' ? 'alert-triangle' : 'check-circle'}" style="width: 20px; height: 20px;"></i>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            // Trigger reflow for transition
+            toast.offsetHeight;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
         }
+
+        // Quick add to cart function
+        function quickAddToCart(productId) {
+            fetch(`/products/${productId}/first-variant-id`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Không tìm thấy biến thể sản phẩm");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const variantId = data.variantId;
+                    const formData = new FormData();
+                    formData.append("productVariantId", variantId);
+                    formData.append("quantity", 1);
+                    
+                    const headers = {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    };
+                    if (csrfHeader && csrfToken) {
+                        headers[csrfHeader] = csrfToken;
+                    }
+                    
+                    return fetch('/cart/add-ajax', {
+                        method: 'POST',
+                        body: formData,
+                        headers: headers
+                    });
+                })
+                .then(response => response.json())
+                .then(res => {
+                    if (res.success) {
+                        showToast(res.message, "success");
+                    } else {
+                        showToast(res.message, "error");
+                    }
+                })
+                .catch(err => {
+                    showToast(err.message || "Vui lòng đăng nhập trước khi mua hàng", "error");
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            // --- Stats Counter Animation ---
+            const counters = document.querySelectorAll('.counter');
+            const observerOptions = {
+                threshold: 0.3,
+                rootMargin: '0px'
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const card = entry.target;
+                        const counterSpan = card.querySelector('.counter');
+                        if (counterSpan && !counterSpan.classList.contains('counted')) {
+                            counterSpan.classList.add('counted');
+                            animateCounter(counterSpan);
+                        }
+                        observer.unobserve(card);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.stats-card').forEach(card => {
+                observer.observe(card);
+            });
+
+            function animateCounter(el) {
+                const target = parseInt(el.getAttribute('data-target'), 10);
+                const duration = 1500;
+                const startTime = performance.now();
+                const format = el.getAttribute('data-format');
+
+                function update(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    // Ease out quad
+                    const easeProgress = progress * (2 - progress);
+                    const currentVal = Math.floor(easeProgress * target);
+
+                    if (format === 'comma') {
+                        el.textContent = currentVal.toLocaleString('vi-VN');
+                    } else {
+                        el.textContent = currentVal;
+                    }
+
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    } else {
+                        if (format === 'comma') {
+                            el.textContent = target.toLocaleString('vi-VN');
+                        } else {
+                            el.textContent = target;
+                        }
+                    }
+                }
+                requestAnimationFrame(update);
+            }
+
+            // --- Expert Section Slider Carousel ---
+            const track = document.querySelector('.expert-track');
+            const slides = document.querySelectorAll('.expert-slide');
+            const nextBtn = document.getElementById('expert-next');
+            const prevBtn = document.getElementById('expert-prev');
+            
+            if (track && slides.length > 0 && nextBtn && prevBtn) {
+                let currentIndex = 0;
+
+                function getItemsPerView() {
+                    return window.innerWidth >= 768 ? 2 : 1;
+                }
+
+                function getMaxIndex() {
+                    return slides.length - getItemsPerView();
+                }
+
+                function updateSlider() {
+                    const itemsPerView = getItemsPerView();
+                    const maxIndex = getMaxIndex();
+                    
+                    if (currentIndex > maxIndex) currentIndex = maxIndex;
+                    if (currentIndex < 0) currentIndex = 0;
+
+                    const slideWidth = slides[0].getBoundingClientRect().width;
+                    const gap = 24; // gap-4
+                    
+                    track.style.transform = `translateX(-${currentIndex * (slideWidth + gap)}px)`;
+
+                    // Styles for nav buttons
+                    if (currentIndex === 0) {
+                        prevBtn.style.opacity = '0.5';
+                        prevBtn.style.pointerEvents = 'none';
+                    } else {
+                        prevBtn.style.opacity = '1';
+                        prevBtn.style.pointerEvents = 'auto';
+                    }
+
+                    if (currentIndex >= maxIndex) {
+                        nextBtn.style.opacity = '0.5';
+                        nextBtn.style.pointerEvents = 'none';
+                    } else {
+                        nextBtn.style.opacity = '1';
+                        nextBtn.style.pointerEvents = 'auto';
+                    }
+                }
+
+                nextBtn.addEventListener('click', () => {
+                    if (currentIndex < getMaxIndex()) {
+                        currentIndex++;
+                        updateSlider();
+                    }
+                });
+
+                prevBtn.addEventListener('click', () => {
+                    if (currentIndex > 0) {
+                        currentIndex--;
+                        updateSlider();
+                    }
+                });
+
+                window.addEventListener('resize', updateSlider);
+                // Call initial layout alignment
+                setTimeout(updateSlider, 200);
+            }
+
+            // --- Hero Section Background Carousel Auto-play ---
+            var heroCarousel = document.getElementById('heroBgCarousel');
+            if (heroCarousel) {
+                var initialized = false;
+                if (typeof bootstrap !== 'undefined' && bootstrap.Carousel) {
+                    try {
+                        var carouselInstance = new bootstrap.Carousel(heroCarousel, {
+                            interval: 4000,
+                            ride: 'carousel',
+                            wrap: true
+                        });
+                        carouselInstance.cycle();
+                        initialized = true;
+                    } catch (e) {
+                        console.error("Bootstrap carousel init failed, falling back to manual:", e);
+                    }
+                }
+                
+                if (!initialized) {
+                    var carouselItems = heroCarousel.querySelectorAll('.carousel-item');
+                    if (carouselItems.length > 0) {
+                        var carouselIndex = 0;
+                        for (var i = 0; i < carouselItems.length; i++) {
+                            if (carouselItems[i].classList.contains('active')) {
+                                carouselIndex = i;
+                                break;
+                            }
+                        }
+                        setInterval(function() {
+                            carouselItems[carouselIndex].classList.remove('active');
+                            carouselIndex = (carouselIndex + 1) % carouselItems.length;
+                            carouselItems[carouselIndex].classList.add('active');
+                        }, 4000);
+                    }
+                }
+            }
+        });
+        /*]]>*/
     </script>
 </div>
 </body>
