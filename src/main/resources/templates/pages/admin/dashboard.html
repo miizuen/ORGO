@@ -3,390 +3,434 @@
 <head>
     <title>Tổng quan</title>
     <style>
-.dashboard-shell{display:flex;flex-direction:column;gap:24px;padding-bottom:24px}
-.header-title{margin-bottom:24px}
-.header-title h1{font-size:28px;font-weight:700;color:#1e293b;margin-bottom:6px}
-.header-title p{font-size:14px;color:#64748b;margin:0}
-.top-cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-.stat-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.1);border:1px solid #e2e8f0;display:flex;flex-direction:column}
-.stat-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
-.stat-title{font-size:14px;font-weight:500;color:#64748b}
-.stat-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px}
-.stat-card.revenue .stat-icon{background:#dcfce7;color:#16a34a}
-.stat-card.users .stat-icon{background:#dbeafe;color:#3b82f6}
-.stat-card.orders .stat-icon{background:#e0e7ff;color:#6366f1}
-.stat-card.views .stat-icon{background:#fef3c7;color:#f59e0b}
-.stat-value{font-size:32px;font-weight:700;color:#0f172a;margin-bottom:8px}
-.stat-trend{display:flex;align-items:center;gap:6px;font-size:13px}
-.trend-up{color:#16a34a;font-weight:600}
-.trend-down{color:#dc2626;font-weight:600}
-.trend-text{color:#94a3b8}
-.mini-chart{display:flex;gap:3px;align-items:flex-end;height:40px;margin-top:12px}
-.mini-chart .bar{flex:1;background:#e2e8f0;border-radius:2px 2px 0 0}
-.stat-card.revenue .mini-chart .bar{background:#bbf7d0}
-.stat-card.revenue .mini-chart .bar:last-child{background:#16a34a}
-.stat-card.users .mini-chart .bar{background:#bfdbfe}
-.stat-card.users .mini-chart .bar:last-child{background:#3b82f6}
-.stat-card.orders .mini-chart .bar{background:#c7d2fe}
-.stat-card.orders .mini-chart .bar:last-child{background:#6366f1}
-.stat-card.views .mini-chart .bar{background:#fde68a}
-.stat-card.views .mini-chart .bar:last-child{background:#f59e0b}
-.overview-section{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.1);border:1px solid #e2e8f0}
-.overview-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.overview-title{font-size:18px;font-weight:600;color:#0f172a}
-.overview-subtitle{font-size:13px;color:#94a3b8;margin-top:4px}
-.overview-tabs{display:flex;gap:16px}
-.overview-tab{font-size:14px;font-weight:500;color:#64748b;cursor:pointer;padding:8px 16px;border-bottom:2px solid transparent}
-.overview-tab.active{color:#16a34a;border-bottom-color:#16a34a}
-.chart-container{height:300px;margin-top:20px;position:relative}
-.chart-svg{width:100%;height:100%}
-.main-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:24px}
-.panel{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.1);border:1px solid #e2e8f0}
-.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.panel-title{font-size:16px;font-weight:600;color:#0f172a}
-.panel-subtitle{font-size:13px;color:#94a3b8;margin-top:2px}
-.view-all-link{color:#16a34a;font-size:14px;font-weight:500;text-decoration:none}
-.view-all-link:hover{color:#15803d}
-.orders-table{width:100%;border-collapse:collapse}
-.orders-table thead th{text-align:left;font-size:12px;font-weight:600;color:#64748b;padding:12px 8px;border-bottom:1px solid #e2e8f0}
-.orders-table tbody td{padding:16px 8px;border-bottom:1px solid #f1f5f9;font-size:14px}
-.orders-table tbody tr:last-child td{border-bottom:none}
-.customer-cell{display:flex;align-items:center;gap:12px}
-.customer-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;flex-shrink:0}
-.customer-info{display:flex;flex-direction:column}
-.customer-name{font-weight:500;color:#0f172a}
-.customer-email{font-size:12px;color:#94a3b8}
-.order-status{display:inline-flex;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600}
-.status-completed{background:#dcfce7;color:#16a34a}
-.status-processing{background:#dbeafe;color:#3b82f6}
-.status-pending{background:#fef3c7;color:#d97706}
-.sidebar-panels{display:flex;flex-direction:column;gap:24px}
-.activity-list{display:flex;flex-direction:column;gap:0}
-.activity-item{display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid #f1f5f9}
-.activity-item:last-child{border-bottom:none}
-.activity-icon{width:40px;height:40px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px}
-.activity-content{flex:1}
-.activity-title{font-size:14px;color:#0f172a;font-weight:500;margin-bottom:4px}
-.activity-meta{font-size:12px;color:#94a3b8}
-.traffic-sources{text-align:center}
-.donut-chart{width:180px;height:180px;margin:20px auto;position:relative}
-.donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
-.donut-value{font-size:32px;font-weight:700;color:#0f172a}
-.donut-label{font-size:12px;color:#94a3b8}
-.traffic-legend{display:flex;flex-direction:column;gap:12px;margin-top:20px}
-.legend-item{display:flex;justify-content:space-between;align-items:center}
-.legend-left{display:flex;align-items:center;gap:8px}
-.legend-dot{width:8px;height:8px;border-radius:50%}
-.legend-label{font-size:14px;color:#64748b}
-.legend-value{font-size:14px;font-weight:600;color:#0f172a}
-.goal-item{margin-bottom:24px}
-.goal-item:last-child{margin-bottom:0}
-.goal-header{display:flex;justify-content:space-between;margin-bottom:8px}
-.goal-label{font-size:14px;font-weight:500;color:#0f172a}
-.goal-percent{font-size:14px;font-weight:600;color:#64748b}
-.goal-progress{height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin-bottom:8px}
-.goal-progress-fill{height:100%;border-radius:4px}
-.goal-meta{display:flex;justify-content:space-between;font-size:12px;color:#94a3b8}
-@media (max-width:1280px){.top-cards-grid{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:1024px){.main-grid{grid-template-columns:1fr}}
-@media (max-width:640px){.top-cards-grid{grid-template-columns:1fr}}
+        :root{
+            --bg:#faf8ff;
+            --surface:#ffffff;
+            --surface-soft:#f8fafc;
+            --border:#f1f1f1;
+            --border-strong:#e5e7eb;
+            --text:#131b2e;
+            --muted:#64748b;
+            --muted-2:#94a3b8;
+            --accent:#006e2f;
+            --accent-blue:#1565c0;
+            --accent-amber:#f59e0b;
+            --accent-violet:#8b5cf6;
+            --shadow:0 12px 28px rgba(19,27,46,.08);
+        }
+        .dashboard-shell{display:flex;flex-direction:column;gap:24px;padding-bottom:24px}
+        .dashboard-shell, .dashboard-shell *{box-sizing:border-box}
+        .header-title{display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
+        .header-title h1{font-size:28px;font-weight:800;letter-spacing:-0.04em;color:var(--text);margin:0 0 8px}
+        .header-title p{font-size:14px;color:var(--muted);margin:0;max-width:64ch;line-height:1.6}
+        .hero-band{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:20px;align-items:stretch}
+        .hero-panel,.signal-panel,.chart-panel,.panel{background:var(--surface);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow)}
+        .hero-panel{padding:28px;display:flex;flex-direction:column;gap:18px;position:relative;overflow:hidden}
+        .hero-panel::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at top left, rgba(0,110,47,.06), transparent 32%),radial-gradient(circle at top right, rgba(21,101,192,.06), transparent 28%)}
+        .hero-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;position:relative;z-index:1}
+        .hero-kpi{padding:18px;border-radius:16px;background:linear-gradient(180deg,var(--surface-soft),#fff);border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;min-height:132px}
+        .hero-kpi-label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+        .hero-kpi-value{font-size:24px;line-height:1.08;font-weight:800;letter-spacing:-.04em;color:var(--text)}
+        .hero-kpi-meta{font-size:13px;color:var(--accent);font-weight:700}
+        .hero-kpi-meta.is-blue{color:var(--accent-blue)}
+        .hero-kpi-meta.is-amber{color:var(--accent-amber)}
+        .hero-kpi-meta.is-violet{color:var(--accent-violet)}
+        .hero-note{display:flex;justify-content:space-between;gap:16px;align-items:center;padding-top:6px;border-top:1px solid var(--border);position:relative;z-index:1}
+        .hero-note p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+        .signal-panel{padding:24px;display:flex;flex-direction:column;gap:18px}
+        .signal-list{display:flex;flex-direction:column;gap:14px}
+        .signal-row{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center}
+        .signal-name{font-size:14px;font-weight:700;color:var(--text)}
+        .signal-value{font-size:14px;font-weight:800;color:#334155;min-width:82px;text-align:right}
+        .signal-track{height:10px;border-radius:999px;background:#e8eff6;overflow:hidden;min-width:140px}
+        .signal-fill{height:100%;border-radius:999px;transition:width .8s cubic-bezier(.16,1,.3,1)}
+        .signal-caption{font-size:12px;color:var(--muted-2);margin-top:-4px}
+        .chart-panel{padding:28px;display:flex;flex-direction:column;gap:18px}
+        .chart-tabs{display:flex;gap:10px;flex-wrap:wrap}
+        .chart-tab{appearance:none;border:1px solid #dbe4ee;background:#f8fbff;color:#475569;border-radius:999px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;transition:transform .2s ease,background .2s ease,border-color .2s ease,color .2s ease,opacity .2s ease}
+        .chart-tab:hover{transform:translateY(-1px);border-color:#cbd5e1;color:#0f172a}
+        .chart-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+        .chart-stage{display:none;flex-direction:column;gap:14px;animation:chartFade .45s ease}
+        .chart-stage.active{display:flex}
+        @keyframes chartFade{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+        .chart-meta{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+        .chart-title{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.03em}
+        .chart-caption{font-size:13px;color:var(--muted-2);line-height:1.5}
+        .chart-shell{display:grid;grid-template-columns:82px minmax(0,1fr);gap:14px}
+        .chart-yaxis{display:flex;flex-direction:column;justify-content:space-between;padding:6px 0 42px;min-height:340px;font-size:12px;color:var(--muted-2);font-weight:700}
+        .chart-yaxis span{display:block;text-align:right;padding-right:8px}
+        .chart-figure{position:relative;height:340px;border-radius:16px;background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid var(--border);overflow:hidden}
+        .chart-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(to bottom, rgba(148,163,184,.16) 1px, transparent 1px),linear-gradient(to right, rgba(148,163,184,.1) 1px, transparent 1px);background-size:100% 20%, calc(100% / 11) 100%}
+        .chart-band{position:absolute;left:0;right:0;height:1px;background:rgba(148,163,184,.12)}
+        .chart-band.band-1{top:20%}.chart-band.band-2{top:40%}.chart-band.band-3{top:60%}.chart-band.band-4{top:80%}
+        .chart-line-axis{position:absolute;left:20px;right:20px;bottom:42px;height:1px;background:#cbd5e1}
+        .chart-svg{display:block;overflow:visible}
+        .chart-plot{filter:drop-shadow(0 12px 24px rgba(15,23,42,.08))}
+        .chart-line{stroke-dasharray:1200;stroke-dashoffset:1200;animation:drawLine 1.8s cubic-bezier(.16,1,.3,1) .15s forwards}
+        .chart-area{animation:fadeArea .8s ease .15s both}
+        .chart-points{opacity:0;animation:fadePoints .3s ease 1.15s forwards}
+        @keyframes drawLine{to{stroke-dashoffset:0}}
+        @keyframes fadeArea{from{opacity:0}to{opacity:1}}
+        @keyframes fadePoints{to{opacity:1}}
+        .chart-tooltip{position:absolute;top:14px;right:14px;min-width:190px;max-width:240px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.94);border:1px solid var(--border);box-shadow:0 16px 32px rgba(15,23,42,.08);backdrop-filter:blur(6px);pointer-events:none;opacity:0;transform:translateY(6px);transition:opacity .18s ease,transform .18s ease}
+        .chart-figure:hover .chart-tooltip{opacity:1;transform:translateY(0)}
+        .chart-tooltip-title{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.02em;margin-bottom:6px}
+        .chart-tooltip-value{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.03em}
+        .chart-tooltip-sub{font-size:12px;color:var(--muted);line-height:1.45;margin-top:4px}
+        .chart-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);align-items:center}
+        .legend-item{display:inline-flex;align-items:center;gap:8px}
+        .legend-swatch{width:10px;height:10px;border-radius:999px;flex:none}
+        .legend-chip{padding:5px 10px;border-radius:999px;background:#f8fbff;border:1px solid var(--border);color:#334155;font-weight:700}
+        .main-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(340px,.9fr);gap:24px;align-items:start}
+        .panel{padding:24px}
+        .panel-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}
+        .panel-title{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.03em}
+        .panel-subtitle{font-size:13px;color:var(--muted-2);margin-top:4px;line-height:1.5}
+        .view-all-link{color:var(--accent);font-size:14px;font-weight:700;text-decoration:none}
+        .view-all-link:hover{color:#004d22}
+        .orders-table{width:100%;border-collapse:collapse;font-family:var(--orgo-font-data);font-size:13px}
+        .orders-table thead th{text-align:left;font-size:11px;font-weight:800;color:var(--muted);padding:12px 8px;border-bottom:1px solid var(--border);white-space:nowrap;text-transform:uppercase;letter-spacing:.02em;background:#f8fafc}
+        .orders-table tbody td{padding:16px 8px;border-bottom:1px solid #eef2f7;font-size:13px;vertical-align:middle;color:#334155}
+        .orders-table tbody tr:last-child td{border-bottom:none}
+        .customer-cell{display:flex;align-items:center;gap:12px}
+        .customer-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
+        .customer-info{display:flex;flex-direction:column;gap:2px}
+        .customer-name{font-weight:700;color:var(--text)}
+        .customer-email{font-size:12px;color:var(--muted-2)}
+        .order-status{display:inline-flex;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800}
+        .status-completed{background:#dcfce7;color:#166534}
+        .status-processing{background:#dbeafe;color:#1d4ed8}
+        .status-pending{background:#fef3c7;color:#b45309}
+        .sidebar-panels{display:flex;flex-direction:column;gap:24px}
+        .activity-list{display:flex;flex-direction:column;gap:0}
+        .activity-item{display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid #eef2f7}
+        .activity-item:last-child{border-bottom:none}
+        .activity-icon{width:40px;height:40px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px}
+        .activity-content{flex:1}
+        .activity-title{font-size:14px;color:var(--text);font-weight:700;margin-bottom:4px}
+        .activity-meta{font-size:12px;color:var(--muted);line-height:1.6}
+        .goal-item{margin-bottom:22px}
+        .goal-item:last-child{margin-bottom:0}
+        .goal-header{display:flex;justify-content:space-between;gap:16px;margin-bottom:8px}
+        .goal-label{font-size:14px;font-weight:700;color:var(--text)}
+        .goal-percent{font-size:13px;font-weight:800;color:var(--muted)}
+        .goal-progress{height:10px;background:#e8eff6;border-radius:999px;overflow:hidden;margin-bottom:8px}
+        .goal-progress-fill{height:100%;border-radius:999px;transition:width .8s cubic-bezier(.16,1,.3,1)}
+        .goal-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted-2);gap:12px}
+        .metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+        .metric-card{padding:18px;border-radius:16px;background:linear-gradient(180deg,#f8fafc,#fff);border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;min-height:136px}
+        .metric-label{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.02em;text-transform:uppercase}
+        .metric-value{font-size:22px;font-weight:800;letter-spacing:-.04em;color:var(--text)}
+        .metric-foot{font-size:13px;color:var(--muted);line-height:1.5}
+        .section-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+        @media (max-width:1280px){.hero-band,.main-grid,.section-grid{grid-template-columns:1fr}.hero-kpis,.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+        @media (max-width:768px){.hero-kpis,.metric-grid{grid-template-columns:1fr}.header-title{align-items:flex-start;flex-direction:column}.chart-meta,.hero-note,.panel-header,.goal-header,.goal-meta{flex-direction:column;align-items:flex-start}.signal-row{grid-template-columns:1fr;gap:8px}.signal-value{min-width:0;text-align:left}.signal-track{width:100%;min-width:0}.chart-shell{grid-template-columns:1fr}.chart-yaxis{display:none}.chart-tooltip{position:static;opacity:1;transform:none;max-width:none;margin-bottom:12px}.section-grid{grid-template-columns:1fr}}
+        @media (prefers-reduced-motion: reduce){.signal-fill,.goal-progress-fill,.chart-line,.chart-area,.chart-points,.chart-stage{animation:none;transition:none}}
     </style>
 </head>
 <body>
 <div th:replace="~{fragments/admin-layout :: adminLayout('Tổng quan', 'dashboard', ~{::main})}">
 <main class="dashboard-shell">
 <div class="header-title">
-<h1>Dashboard</h1>
-<p>Chào mừng trở lại, <span th:text="${session.currentUser != null ? session.currentUser : 'Admin'}">Admin</span>. Đây là những gì đang diễn ra với doanh nghiệp của bạn hôm nay.</p>
-</div>
-<div class="top-cards-grid">
-<div class="stat-card revenue">
-<div class="stat-header">
-<div class="stat-title">Tổng Doanh Thu</div>
-<div class="stat-icon">💰</div>
-</div>
-<div class="stat-value" th:text="${#numbers.formatDecimal(totalPlatformRevenue != null ? totalPlatformRevenue : 0, 0, 'COMMA', 0, 'POINT') + ' đ'}">48,295 đ</div>
-<div class="stat-trend">
-<span class="trend-up">↑ +12.5%</span>
-<span class="trend-text">so với tháng trước</span>
-</div>
-<div class="mini-chart">
-<div class="bar" th:each="h : ${revenueMiniBars}" th:style="|height:${h}%|"></div>
-</div>
-</div>
-<div class="stat-card users">
-<div class="stat-header">
-<div class="stat-title">Người Dùng Hoạt Động</div>
-<div class="stat-icon">👥</div>
-</div>
-<div class="stat-value" th:text="${#numbers.formatInteger(userCount != null ? userCount : 0, 0, 'COMMA')}">2,847</div>
-<div class="stat-trend">
-<span class="trend-up">↑ +8.2%</span>
-<span class="trend-text">so với tháng trước</span>
-</div>
-<div class="mini-chart">
-<div class="bar" style="height:50%"></div>
-<div class="bar" style="height:70%"></div>
-<div class="bar" style="height:60%"></div>
-<div class="bar" style="height:90%"></div>
-<div class="bar" style="height:80%"></div>
-<div class="bar" style="height:100%"></div>
-</div>
-</div>
-<div class="stat-card orders">
-<div class="stat-header">
-<div class="stat-title">Tổng Đơn Hàng</div>
-<div class="stat-icon">🛒</div>
-</div>
-<div class="stat-value" th:text="${#numbers.formatInteger(orderCount != null ? orderCount : 0, 0, 'COMMA')}">1,432</div>
-<div class="stat-trend">
-<span class="trend-down">↓ -3.1%</span>
-<span class="trend-text">so với tháng trước</span>
-</div>
-<div class="mini-chart">
-<div class="bar" th:each="h : ${orderMiniBars}" th:style="|height:${h}%|"></div>
-</div>
-</div>
-<div class="stat-card views">
-<div class="stat-header">
-<div class="stat-title">Lượt Xem Trang</div>
-<div class="stat-icon">👁️</div>
-</div>
-<div class="stat-value" th:text="${totalViewsLabel != null ? totalViewsLabel : '0'}">284K</div>
-<div class="stat-trend">
-<span class="trend-up">↑ +24.7%</span>
-<span class="trend-text">so với tháng trước</span>
-</div>
-<div class="mini-chart">
-<div class="bar" style="height:60%"></div>
-<div class="bar" style="height:50%"></div>
-<div class="bar" style="height:70%"></div>
-<div class="bar" style="height:80%"></div>
-<div class="bar" style="height:90%"></div>
-<div class="bar" style="height:100%"></div>
-</div>
-</div>
-</div>
-<div class="overview-section">
-<div class="overview-header">
-<div>
-<div class="overview-title">Tổng Quan</div>
-<div class="overview-subtitle">Hiệu suất hàng tháng cho năm hiện tại</div>
-</div>
-<div class="overview-tabs">
-<div class="overview-tab active">Doanh Thu</div>
-<div class="overview-tab">Đơn Hàng</div>
-<div class="overview-tab">Lợi Nhuận</div>
-</div>
-</div>
-<div class="chart-container">
-<svg class="chart-svg" viewBox="0 0 800 300" preserveAspectRatio="none">
-<line x1="0" y1="60" x2="800" y2="60" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="0" y1="120" x2="800" y2="120" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="0" y1="180" x2="800" y2="180" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="0" y1="240" x2="800" y2="240" stroke="#f1f5f9" stroke-width="1"/>
-<path th:attr="d=${chartAreaPath}" fill="url(#gradient)" opacity="0.3"/>
-<path th:attr="d=${chartLinePath}" fill="none" stroke="#16a34a" stroke-width="3"/>
-<defs>
-<linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-<stop offset="0%" style="stop-color:#16a34a;stop-opacity:0.5"/>
-<stop offset="100%" style="stop-color:#16a34a;stop-opacity:0"/>
-</linearGradient>
-</defs>
-</svg>
-<div style="display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:#94a3b8">
-<span th:each="m : ${chartMonthLabels}" th:text="${m}">Th1</span>
-</div>
-</div>
-</div>
-<div class="main-grid">
-<div class="panel">
-<div class="panel-header">
-<div>
-<div class="panel-title">Đơn Hàng Gần Đây</div>
-<div class="panel-subtitle">Giao dịch mới nhất từ cửa hàng của bạn</div>
-</div>
-<a th:href="@{/admin/orders}" class="view-all-link">Xem tất cả →</a>
-</div>
-<table class="orders-table">
-<thead>
-<tr>
-<th>Khách Hàng</th>
-<th>Mã Đơn</th>
-<th>Sản Phẩm</th>
-<th>Trạng Thái</th>
-<th>Số Tiền</th>
-</tr>
-</thead>
-<tbody>
-<tr th:each="order, iterStat : ${recentOrders}" th:if="${iterStat.index < 5}">
-<td>
-<div class="customer-cell">
-<div class="customer-avatar" th:style="${'background: ' + (iterStat.index == 0 ? '#16a34a' : (iterStat.index == 1 ? '#3b82f6' : (iterStat.index == 2 ? '#f59e0b' : (iterStat.index == 3 ? '#8b5cf6' : '#ec4899'))))}" th:text="${order.customerName != null ? #strings.substring(order.customerName, 0, 2).toUpperCase() : 'KH'}">EW</div>
-<div class="customer-info">
-<div class="customer-name" th:text="${order.customerName != null ? order.customerName : 'Khách hàng'}">Emma Wilson</div>
-<div class="customer-email" th:text="${order.customerPhone != null ? order.customerPhone : 'N/A'}">emma@example.pro</div>
-</div>
-</div>
-</td>
-<td th:text="${order.orderCode}">ORD-7891</td>
-<td th:text="${order.itemSummary != null ? order.itemSummary : 'N/A'}">Pro Dashboard License</td>
-<td>
-<span class="order-status" th:classappend="${order.orderStatus == 'COMPLETED' ? 'status-completed' : (order.orderStatus == 'PROCESSING' ? 'status-processing' : 'status-pending')}" th:text="${order.orderStatus == 'COMPLETED' ? 'Hoàn thành' : (order.orderStatus == 'PROCESSING' ? 'Đang xử lý' : 'Chờ xử lý')}">Hoàn thành</span>
-</td>
-<td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' đ'}">299.00 đ</td>
-</tr>
-<tr th:if="${recentOrders == null || recentOrders.isEmpty()}">
-<td colspan="5" style="text-align:center;padding:40px;color:#94a3b8">
-<div style="font-size:48px;margin-bottom:16px">📦</div>
-<div style="font-size:16px;font-weight:500;color:#64748b">Chưa có đơn hàng nào</div>
-<div style="font-size:14px;margin-top:8px">Đơn hàng mới sẽ xuất hiện ở đây</div>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sidebar-panels">
-<div class="panel">
-<div class="panel-header">
-<div>
-<div class="panel-title">Hoạt Động Gần Đây</div>
-<div class="panel-subtitle">Sự kiện mới nhất từ cửa hàng của bạn</div>
-</div>
-<a href="#" class="view-all-link">Xem tất cả →</a>
-</div>
-<div class="activity-list">
-<div class="activity-item">
-<div class="activity-icon" style="background:#dcfce7;color:#16a34a">🛒</div>
-<div class="activity-content">
-<div class="activity-title">Đơn hàng mới đã đặt</div>
-<div class="activity-meta" th:if="${recentOrders != null && !recentOrders.isEmpty()}" th:text="${recentOrders[0].customerName + ' đã đặt đơn hàng #' + recentOrders[0].orderCode}">Emma Wilson đã đặt đơn hàng Pro Dashboard License</div>
-<div class="activity-meta" th:unless="${recentOrders != null && !recentOrders.isEmpty()}">Không có đơn hàng gần đây</div>
-</div>
-</div>
-<div class="activity-item">
-<div class="activity-icon" style="background:#dbeafe;color:#3b82f6">👤</div>
-<div class="activity-content">
-<div class="activity-title">Khách hàng mới đăng ký</div>
-<div class="activity-meta">James Chen đã tạo tài khoản</div>
-</div>
-</div>
-<div class="activity-item">
-<div class="activity-icon" style="background:#fef3c7;color:#f59e0b">⭐</div>
-<div class="activity-content">
-<div class="activity-title">Đánh giá 5 sao nhận được</div>
-<div class="activity-meta">"Tuyệt vời! Chính xác những gì tôi cần!"</div>
-</div>
-</div>
-<div class="activity-item">
-<div class="activity-icon" style="background:#e0e7ff;color:#6366f1">💳</div>
-<div class="activity-content">
-<div class="activity-title">Thanh toán đã nhận</div>
-<div class="activity-meta" th:if="${recentOrders != null && recentOrders.size() > 1}" th:text="${#numbers.formatDecimal(recentOrders[1].totalAmount, 0, 'COMMA', 0, 'POINT') + ' đ'}">1,499 đ</div>
-<div class="activity-meta" th:unless="${recentOrders != null && recentOrders.size() > 1}">Chưa có thanh toán</div>
-</div>
-</div>
-</div>
-</div>
-<div class="panel traffic-sources">
-<div class="panel-header">
-<div>
-<div class="panel-title">Nguồn Truy Cập</div>
-<div class="panel-subtitle">Khách truy cập của bạn đến từ đâu</div>
-</div>
-</div>
-<div class="donut-chart">
-<svg viewBox="0 0 200 200">
-<circle cx="100" cy="100" r="80" fill="none" stroke="#16a34a" stroke-width="40" stroke-dasharray="176 352" transform="rotate(-90 100 100)"/>
-<circle cx="100" cy="100" r="80" fill="none" stroke="#3b82f6" stroke-width="40" stroke-dasharray="140 352" stroke-dashoffset="-176" transform="rotate(-90 100 100)"/>
-<circle cx="100" cy="100" r="80" fill="none" stroke="#f59e0b" stroke-width="40" stroke-dasharray="110 352" stroke-dashoffset="-316" transform="rotate(-90 100 100)"/>
-<circle cx="100" cy="100" r="80" fill="none" stroke="#8b5cf6" stroke-width="40" stroke-dasharray="79 352" stroke-dashoffset="-426" transform="rotate(-90 100 100)"/>
-</svg>
-<div class="donut-center">
-<div class="donut-value" th:text="${totalViewsLabel != null ? totalViewsLabel : '0'}">284K</div>
-<div class="donut-label">lượt xem</div>
-</div>
-</div>
-<div class="traffic-legend">
-<div class="legend-item">
-<div class="legend-left">
-<div class="legend-dot" style="background:#16a34a"></div>
-<div class="legend-label">Trực tiếp</div>
-</div>
-<div class="legend-value">35%</div>
-</div>
-<div class="legend-item">
-<div class="legend-left">
-<div class="legend-dot" style="background:#3b82f6"></div>
-<div class="legend-label">Tự nhiên</div>
-</div>
-<div class="legend-value">28%</div>
-</div>
-<div class="legend-item">
-<div class="legend-left">
-<div class="legend-dot" style="background:#f59e0b"></div>
-<div class="legend-label">Giới thiệu</div>
-</div>
-<div class="legend-value">22%</div>
-</div>
-<div class="legend-item">
-<div class="legend-left">
-<div class="legend-dot" style="background:#8b5cf6"></div>
-<div class="legend-label">Mạng xã hội</div>
-</div>
-<div class="legend-value">15%</div>
-</div>
-</div>
-</div>
-<div class="panel">
-<div class="panel-header">
-<div>
-<div class="panel-title">Mục Tiêu Hàng Tháng</div>
-<div class="panel-subtitle">Theo dõi tiến độ hướng tới mục tiêu</div>
-</div>
-</div>
-<div class="goal-item">
-<div class="goal-header">
-<div class="goal-label">Doanh Thu Hàng Tháng</div>
-<div class="goal-percent">88%</div>
-</div>
-<div class="goal-progress">
-<div class="goal-progress-fill" style="width:88%;background:#16a34a"></div>
-</div>
-<div class="goal-meta">
-<span th:text="${#numbers.formatDecimal(totalPlatformRevenue != null ? totalPlatformRevenue : 0, 0, 'COMMA', 0, 'POINT')}">48,295</span>
-<span>Mục tiêu: 55,000</span>
-</div>
-</div>
-<div class="goal-item">
-<div class="goal-header">
-<div class="goal-label">Khách Hàng Mới</div>
-<div class="goal-percent">85%</div>
-</div>
-<div class="goal-progress">
-<div class="goal-progress-fill" style="width:85%;background:#3b82f6"></div>
-</div>
-<div class="goal-meta">
-<span th:text="${#numbers.formatInteger(userCount != null ? userCount : 0, 0, 'COMMA')}">847</span>
-<span>Mục tiêu: 1,000</span>
-</div>
-</div>
-<div class="goal-item">
-<div class="goal-header">
-<div class="goal-label">Tỷ Lệ Chuyển Đổi</div>
-<div class="goal-percent">76%</div>
-</div>
-<div class="goal-progress">
-<div class="goal-progress-fill" style="width:76%;background:#f59e0b"></div>
-</div>
-<div class="goal-meta">
-<span>3.8</span>
-<span>Mục tiêu: 5</span>
-</div>
-</div>
-</div>
-</div>
-</div>
+    <div>
+        <h1>ORGO Admin Overview</h1>
+        <p>Chào mừng trở lại, <span th:text="${session.currentUser != null ? session.currentUser : 'Admin'}">Admin</span>. Đây là bảng điều khiển tổng quan theo đúng hệ thống Figma, tập trung vào KPI, xu hướng doanh thu và các hàng chờ duyệt quan trọng.</p>
+    </div>
+</div>
+
+<div class="hero-band">
+    <section class="hero-panel">
+        <div class="hero-kpis">
+            <div class="hero-kpi">
+                <div class="hero-kpi-label">Tổng doanh thu</div>
+                <div class="hero-kpi-value" th:text="${#numbers.formatDecimal(totalPlatformRevenue != null ? totalPlatformRevenue : 0, 0, 'COMMA', 0, 'POINT') + ' đ'}">48,295 đ</div>
+                <div class="hero-kpi-meta" th:text="${revenueTrendLabel != null ? revenueTrendLabel + ' so với tháng trước' : 'Chưa có so sánh'}">↑ 0% so với tháng trước</div>
+            </div>
+            <div class="hero-kpi">
+                <div class="hero-kpi-label">Tổng đơn hàng</div>
+                <div class="hero-kpi-value" th:text="${#numbers.formatInteger(orderCount != null ? orderCount : 0, 0, 'COMMA')}">1,432</div>
+                <div class="hero-kpi-meta is-blue" th:text="${ordersTrendLabel != null ? ordersTrendLabel + ' so với tháng trước' : 'Chưa có so sánh'}">↑ 0% so với tháng trước</div>
+            </div>
+            <div class="hero-kpi">
+                <div class="hero-kpi-label">Lợi nhuận</div>
+                <div class="hero-kpi-value" th:text="${chartProfitSummaryLabel != null ? chartProfitSummaryLabel + ' đ' : '0 đ'}">3.3K đ</div>
+                <div class="hero-kpi-meta is-amber" th:text="${profitTrendLabel != null ? profitTrendLabel + ' so với tháng trước' : 'Chưa có so sánh'}">↑ 0% so với tháng trước</div>
+            </div>
+            <div class="hero-kpi">
+                <div class="hero-kpi-label">Lượt xem trang</div>
+                <div class="hero-kpi-value" th:text="${totalViewsLabel != null ? totalViewsLabel : '0'}">284K</div>
+                <div class="hero-kpi-meta is-violet">Dữ liệu từ các bài viết đã xuất bản</div>
+            </div>
+        </div>
+        <div class="hero-note">
+            <p>Biểu đồ bên dưới là dữ liệu 12 tháng gần nhất, dùng đường cong mượt để dễ nhìn xu hướng tăng giảm.</p>
+            <p th:text="${'Nguồn hiện có: ' + (recentOrders != null ? recentOrders.size() : 0) + ' đơn gần đây, ' + (recentActivities != null ? recentActivities.size() : 0) + ' hoạt động'}">Nguồn hiện có: 0 đơn gần đây, 0 hoạt động</p>
+        </div>
+    </section>
+
+    <aside class="signal-panel">
+        <div>
+            <div class="panel-title">Pending Queues</div>
+            <div class="panel-subtitle">Ba luồng xử lý chính cần ưu tiên theo đúng checklist admin</div>
+        </div>
+        <div class="signal-list">
+            <div class="signal-row">
+                <div class="signal-name">Seller chờ duyệt</div>
+                <div class="signal-value" th:text="${pendingSellerCount != null ? pendingSellerCount : 0}">0</div>
+                <div class="signal-track"><div class="signal-fill" style="width:72%;background:#006e2f"></div></div>
+            </div>
+            <div class="signal-caption">Hồ sơ seller chờ xác minh và phê duyệt</div>
+            <div class="signal-row">
+                <div class="signal-name">Expert chờ duyệt</div>
+                <div class="signal-value" th:text="${pendingExpertCount != null ? pendingExpertCount : 0}">0</div>
+                <div class="signal-track"><div class="signal-fill" style="width:58%;background:#1565c0"></div></div>
+            </div>
+            <div class="signal-caption">Luồng phê duyệt chuyên gia / nội dung chuyên môn</div>
+            <div class="signal-row">
+                <div class="signal-name">Bài viết chờ duyệt</div>
+                <div class="signal-value" th:text="${pendingArticleCount != null ? pendingArticleCount : 0}">0</div>
+                <div class="signal-track"><div class="signal-fill" style="width:66%;background:#f59e0b"></div></div>
+            </div>
+            <div class="signal-caption">Nội dung cần xử lý trước khi xuất bản</div>
+        </div>
+    </aside>
+</div>
+
+<section class="chart-panel">
+    <div class="chart-meta">
+        <div>
+            <div class="panel-title">Biểu Đồ Xu Hướng</div>
+            <div class="panel-subtitle">Đường cong mượt, area fill nhẹ và tooltip trực tiếp theo từng nhóm dữ liệu</div>
+        </div>
+        <div class="chart-tabs">
+            <button type="button" class="chart-tab active" data-chart-tab="revenue" onclick="window.switchDashboardChart('revenue')">Doanh Thu</button>
+            <button type="button" class="chart-tab" data-chart-tab="orders" onclick="window.switchDashboardChart('orders')">Đơn Hàng</button>
+            <button type="button" class="chart-tab" data-chart-tab="profit" onclick="window.switchDashboardChart('profit')">Lợi Nhuận</button>
+        </div>
+    </div>
+
+    <div class="chart-stage active" data-chart-panel="revenue">
+        <div class="chart-meta">
+            <div>
+                <div class="chart-title">Doanh thu theo tháng</div>
+                <div class="chart-caption">Nguồn: đơn hàng trong DB - phạm vi 12 tháng gần nhất</div>
+            </div>
+            <div class="chart-caption">Dữ liệu hiển thị theo style Figma: line mềm, gradient area và legend gọn</div>
+        </div>
+        <div class="chart-shell">
+            <div class="chart-yaxis">
+                <span th:each="label : ${chartRevenueYAxisLabels}" th:text="${label}">0</span>
+            </div>
+            <div class="chart-figure">
+                <div class="chart-grid"></div>
+                <div class="chart-band band-1"></div>
+                <div class="chart-band band-2"></div>
+                <div class="chart-band band-3"></div>
+                <div class="chart-band band-4"></div>
+                <div class="chart-line-axis"></div>
+                <div class="chart-tooltip">
+                    <div class="chart-tooltip-title">Doanh thu theo tháng</div>
+                    <div class="chart-tooltip-value" th:text="${chartRevenueSummaryLabel}">0</div>
+                    <div class="chart-tooltip-sub">Phạm vi 12 tháng gần nhất</div>
+                </div>
+                <svg class="chart-svg" viewBox="0 0 800 340" preserveAspectRatio="none" width="100%" height="100%" aria-label="Biểu đồ doanh thu theo tháng">
+                    <path class="chart-plot chart-area" th:attr="d=${chartRevenueAreaPath}" fill="#006e2f" opacity="0.12"></path>
+                    <path class="chart-plot chart-line" th:attr="d=${chartRevenueLinePath}" fill="none" stroke="#006e2f" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </div>
+        </div>
+        <div class="chart-legend">
+            <span class="legend-item"><span class="legend-swatch" style="background:#006e2f"></span>Doanh thu</span>
+            <span class="legend-item">Mốc cao nhất: <strong th:text="${chartRevenueSummaryLabel}">0</strong></span>
+    
+        </div>
+    </div>
+
+    <div class="chart-stage" data-chart-panel="orders">
+        <div class="chart-meta">
+            <div>
+                <div class="chart-title">Đơn hàng theo tháng</div>
+                <div class="chart-caption">Nguồn: bảng `DonHang` trong DB - phạm vi 12 tháng gần nhất</div>
+            </div>
+            <div class="chart-caption">Tông xanh lam phụ để phân biệt rõ với doanh thu và lợi nhuận</div>
+        </div>
+        <div class="chart-shell">
+            <div class="chart-yaxis">
+                <span th:each="label : ${chartOrderYAxisLabels}" th:text="${label}">0</span>
+            </div>
+            <div class="chart-figure">
+                <div class="chart-grid"></div>
+                <div class="chart-band band-1"></div>
+                <div class="chart-band band-2"></div>
+                <div class="chart-band band-3"></div>
+                <div class="chart-band band-4"></div>
+                <div class="chart-line-axis"></div>
+                <div class="chart-tooltip">
+                    <div class="chart-tooltip-title">Đơn hàng theo tháng</div>
+                    <div class="chart-tooltip-value" th:text="${chartOrderSummaryLabel}">0</div>
+                    <div class="chart-tooltip-sub">Phạm vi 12 tháng gần nhất</div>
+                </div>
+                <svg class="chart-svg" viewBox="0 0 800 340" preserveAspectRatio="none" width="100%" height="100%" aria-label="Biểu đồ đơn hàng theo tháng">
+                    <path class="chart-plot chart-area" th:attr="d=${chartOrderAreaPath}" fill="#1565c0" opacity="0.12"></path>
+                    <path class="chart-plot chart-line" th:attr="d=${chartOrderLinePath}" fill="none" stroke="#1565c0" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </div>
+        </div>
+        <div class="chart-legend">
+            <span class="legend-item"><span class="legend-swatch" style="background:#1565c0"></span>Đơn hàng</span>
+            <span class="legend-item">Mốc cao nhất: <strong th:text="${chartOrderSummaryLabel}">0</strong></span>
+        </div>
+    </div>
+
+    <div class="chart-stage" data-chart-panel="profit">
+        <div class="chart-meta">
+            <div>
+                <div class="chart-title">Lợi nhuận theo tháng</div>
+                <div class="chart-caption">Nguồn: bảng `DonHangThanhToan` trong DB - phạm vi 12 tháng gần nhất</div>
+            </div>
+            <div class="chart-caption">Dùng màu vàng amber để nhấn mạnh phần profit / commission</div>
+        </div>
+        <div class="chart-shell">
+            <div class="chart-yaxis">
+                <span th:each="label : ${chartProfitYAxisLabels}" th:text="${label}">0</span>
+            </div>
+            <div class="chart-figure">
+                <div class="chart-grid"></div>
+                <div class="chart-band band-1"></div>
+                <div class="chart-band band-2"></div>
+                <div class="chart-band band-3"></div>
+                <div class="chart-band band-4"></div>
+                <div class="chart-line-axis"></div>
+                <div class="chart-tooltip">
+                    <div class="chart-tooltip-title">Lợi nhuận theo tháng</div>
+                    <div class="chart-tooltip-value" th:text="${chartProfitSummaryLabel}">0</div>
+                    <div class="chart-tooltip-sub">Phạm vi 12 tháng gần nhất</div>
+                </div>
+                <svg class="chart-svg" viewBox="0 0 800 340" preserveAspectRatio="none" width="100%" height="100%" aria-label="Biểu đồ lợi nhuận theo tháng">
+                    <path class="chart-plot chart-area" th:attr="d=${chartProfitAreaPath}" fill="#f59e0b" opacity="0.12"></path>
+                    <path class="chart-plot chart-line" th:attr="d=${chartProfitLinePath}" fill="none" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </div>
+        </div>
+        <div class="chart-legend">
+            <span class="legend-item"><span class="legend-swatch" style="background:#f59e0b"></span>Lợi nhuận</span>
+            <span class="legend-item">Mốc cao nhất: <strong th:text="${chartProfitSummaryLabel}">0</strong></span>
+        
+        </div>
+    </div>
+</section>
+
+<div class="section-grid">
+    <div class="panel">
+        <div class="panel-header">
+            <div>
+                <div class="panel-title">Đơn Hàng Gần Đây</div>
+                <div class="panel-subtitle">Giao dịch mới nhất từ cửa hàng của bạn</div>
+            </div>
+            <a th:href="@{/admin/orders}" class="view-all-link">Xem tất cả</a>
+        </div>
+        <table class="orders-table">
+            <thead>
+            <tr>
+                <th>Khách Hàng</th>
+                <th>Mã Đơn</th>
+                <th>Sản Phẩm</th>
+                <th>Trạng Thái</th>
+                <th>Số Tiền</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order, iterStat : ${recentOrders}" th:if="${iterStat.index < 5}">
+                <td>
+                    <div class="customer-cell">
+                        <div class="customer-avatar" th:style="${'background: ' + (iterStat.index == 0 ? '#16a34a' : (iterStat.index == 1 ? '#3b82f6' : (iterStat.index == 2 ? '#f59e0b' : (iterStat.index == 3 ? '#8b5cf6' : '#ec4899'))))}" th:text="${order.customerName != null ? #strings.substring(order.customerName, 0, 2).toUpperCase() : 'KH'}">EW</div>
+                        <div class="customer-info">
+                            <div class="customer-name" th:text="${order.customerName != null ? order.customerName : 'Khách hàng'}">Emma Wilson</div>
+                            <div class="customer-email" th:text="${order.customerPhone != null ? order.customerPhone : 'N/A'}">emma@example.pro</div>
+                        </div>
+                    </div>
+                </td>
+                <td th:text="${order.orderCode}">ORD-7891</td>
+                <td th:text="${order.itemSummary != null ? order.itemSummary : 'N/A'}">Pro Dashboard License</td>
+                <td>
+                    <span class="order-status" th:classappend="${order.orderStatus == 'COMPLETED' ? 'status-completed' : (order.orderStatus == 'PROCESSING' ? 'status-processing' : 'status-pending')}" th:text="${order.orderStatus == 'COMPLETED' ? 'Hoàn thành' : (order.orderStatus == 'PROCESSING' ? 'Đang xử lý' : 'Chờ xử lý')}">Hoàn thành</span>
+                </td>
+                <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' đ'}">299.00 đ</td>
+            </tr>
+            <tr th:if="${recentOrders == null || recentOrders.isEmpty()}">
+                <td colspan="5" style="text-align:center;padding:40px;color:#94a3b8">
+                    <div style="font-size:18px;font-weight:600;color:#64748b">Chưa có đơn hàng nào</div>
+                    <div style="font-size:14px;margin-top:8px">Đơn hàng mới sẽ xuất hiện ở đây</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="sidebar-panels">
+        <div class="panel">
+            <div class="panel-header">
+                <div>
+                    <div class="panel-title">Hoạt Động Gần Đây</div>
+                    <div class="panel-subtitle">Sự kiện mới nhất từ cửa hàng của bạn</div>
+                </div>
+                <a href="#" class="view-all-link">Xem tất cả</a>
+            </div>
+            <div class="activity-list">
+                <div class="activity-item" th:each="activity : ${recentActivities}">
+                    <div class="activity-icon" style="background:#dcfce7;color:#16a34a">•</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Hoạt động hệ thống</div>
+                        <div class="activity-meta" th:text="${activity}">Đang tải...</div>
+                    </div>
+                </div>
+                <div class="activity-item" th:if="${recentActivities == null || recentActivities.isEmpty()}">
+                    <div class="activity-icon" style="background:#dbeafe;color:#3b82f6">i</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Chưa có hoạt động</div>
+                        <div class="activity-meta">Dữ liệu sẽ xuất hiện khi hệ thống phát sinh sự kiện</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <div>
+                    <div class="panel-title">Mục Tiêu Hàng Tháng</div>
+                    <div class="panel-subtitle">Theo dõi tiến độ hướng tới mục tiêu</div>
+                </div>
+            </div>
+            <div class="goal-item" th:each="goal : ${monthlyGoals}">
+                <div class="goal-header">
+                    <div class="goal-label" th:text="${goal.label}">Mục tiêu</div>
+                    <div class="goal-percent" th:text="${goal.percent + '%'}">0%</div>
+                </div>
+                <div class="goal-progress">
+                    <div class="goal-progress-fill" th:style="|width:${goal.percent}%;background:${goal.color}|"></div>
+                </div>
+                <div class="goal-meta">
+                    <span th:text="${goal.current}">0</span>
+                    <span th:text="${'Mục tiêu: ' + goal.target}">Mục tiêu: 0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+(function () {
+  const tabs = document.querySelectorAll('[data-chart-tab]');
+  const panels = document.querySelectorAll('[data-chart-panel]');
+  function activate(tab) {
+    tabs.forEach((btn) => btn.classList.toggle('active', btn.dataset.chartTab === tab));
+    panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.chartPanel === tab));
+  }
+  window.switchDashboardChart = activate;
+  tabs.forEach((btn) => btn.addEventListener('click', () => activate(btn.dataset.chartTab)));
+  activate('revenue');
+})();
+</script>
 </main>
 </div>
 </body>
