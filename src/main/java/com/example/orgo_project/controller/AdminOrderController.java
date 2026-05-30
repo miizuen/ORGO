@@ -22,10 +22,27 @@ public class AdminOrderController {
     }
 
     @GetMapping
-    public String ordersPage(Model model) {
+    public String ordersPage(@RequestParam(required = false) String orderStatus,
+                             @RequestParam(required = false) String paymentStatus,
+                             Model model) {
         List<OrderSummaryDTO> orders = adminOrderService.getAllOrders();
+
+        if (orderStatus != null && !orderStatus.isBlank() && !"ALL".equalsIgnoreCase(orderStatus)) {
+            orders = orders.stream()
+                    .filter(o -> o.getOrderStatus() != null && o.getOrderStatus().equalsIgnoreCase(orderStatus))
+                    .toList();
+        }
+
+        if (paymentStatus != null && !paymentStatus.isBlank() && !"ALL".equalsIgnoreCase(paymentStatus)) {
+            orders = orders.stream()
+                    .filter(o -> o.getPaymentStatus() != null && o.getPaymentStatus().equalsIgnoreCase(paymentStatus))
+                    .toList();
+        }
+
         model.addAttribute("activePage", "orders");
         model.addAttribute("orders", orders);
+        model.addAttribute("orderStatus", orderStatus != null ? orderStatus : "ALL");
+        model.addAttribute("paymentStatus", paymentStatus != null ? paymentStatus : "ALL");
         return "pages/admin/orders";
     }
 

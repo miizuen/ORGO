@@ -420,11 +420,21 @@ public class ProductController {
         } else {
             products = productService.getPendingProducts(pageable);
         }
+        Map<Integer, String> categoryNames = new HashMap<>();
+        Map<Integer, String> mockSkus = new HashMap<>();
+        for (Product product : products.getContent()) {
+            product.setShopName(getShopName(product));
+            String catName = getCategoryName(product);
+            categoryNames.put(product.getId(), catName);
+            mockSkus.put(product.getId(), generateMockSku(product, catName));
+        }
         model.addAttribute("activePage", "products");
         model.addAttribute("products", products);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", products.getTotalPages());
         model.addAttribute("status", status);
+        model.addAttribute("categoryNames", categoryNames);
+        model.addAttribute("mockSkus", mockSkus);
         return "pages/admin/products";
     }
 
@@ -528,6 +538,32 @@ public class ProductController {
                 .map(com.example.orgo_project.entity.ProductCategory::getCategoryName)
                 .filter(name -> name != null && !name.isBlank())
                 .orElse("Chưa phân loại");
+    }
+
+    private String generateMockSku(Product product, String categoryName) {
+        String catPart = "PRD";
+        if (categoryName != null && !categoryName.isBlank()) {
+            String clean = removeAccents(categoryName).replaceAll("[^a-zA-Z]", "");
+            if (clean.length() >= 3) {
+                catPart = clean.substring(0, 3).toUpperCase();
+            } else if (!clean.isEmpty()) {
+                catPart = clean.toUpperCase();
+            }
+        }
+        String namePart = "PROD";
+        if (product.getProductName() != null && !product.getProductName().isBlank()) {
+            String cleanName = removeAccents(product.getProductName()).replaceAll("[^a-zA-Z]", "");
+            if (cleanName.length() >= 2) {
+                namePart = cleanName.substring(0, 2).toUpperCase();
+            }
+        }
+        return catPart + "-" + namePart + "-" + String.format("%03d", product.getId());
+    }
+
+    private String removeAccents(String src) {
+        if (src == null) return "";
+        return java.text.Normalizer.normalize(src, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
     }
 
     private Integer getSellerIdFromUser(CustomUserDetails userDetails) {

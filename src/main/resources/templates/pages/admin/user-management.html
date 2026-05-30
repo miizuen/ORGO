@@ -381,7 +381,7 @@
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-header">
-                <div class="stat-icon" style="background: #d1fae5;">👥</div>
+                <div class="stat-icon" style="background: #d1fae5; display: flex; align-items: center; justify-content: center;"><i data-lucide="users" style="width: 20px; height: 20px; color: #059669;"></i></div>
                 <span class="stat-badge badge-green">Total</span>
             </div>
             <div class="stat-value" id="total-count">0</div>
@@ -390,7 +390,7 @@
         
         <div class="stat-card">
             <div class="stat-header">
-                <div class="stat-icon" style="background: #dbeafe;">✓</div>
+                <div class="stat-icon" style="background: #dbeafe; display: flex; align-items: center; justify-content: center;"><i data-lucide="check-circle" style="width: 20px; height: 20px; color: #1d4ed8;"></i></div>
                 <span class="stat-badge badge-blue">Active</span>
             </div>
             <div class="stat-value" id="active-count">0</div>
@@ -399,7 +399,7 @@
         
         <div class="stat-card">
             <div class="stat-header">
-                <div class="stat-icon" style="background: #fee2e2;">🚫</div>
+                <div class="stat-icon" style="background: #fee2e2; display: flex; align-items: center; justify-content: center;"><i data-lucide="ban" style="width: 20px; height: 20px; color: #dc2626;"></i></div>
                 <span class="stat-badge badge-red">Banned</span>
             </div>
             <div class="stat-value" id="banned-count">0</div>
@@ -408,7 +408,7 @@
         
         <div class="stat-card">
             <div class="stat-header">
-                <div class="stat-icon" style="background: #e0e7ff;">📊</div>
+                <div class="stat-icon" style="background: #e0e7ff; display: flex; align-items: center; justify-content: center;"><i data-lucide="bar-chart-2" style="width: 20px; height: 20px; color: #4338ca;"></i></div>
                 <span class="stat-badge badge-purple">Stats</span>
             </div>
             <div class="stat-value" id="today-count">-</div>
@@ -541,8 +541,8 @@
                     <td><span class="status-badge ${getStatusClass(user.status)}">${getStatusText(user.status)}</span></td>
                     <td>
                         ${user.status === 'ACTIVE' ? 
-                            `<button class="action-btn" onclick="banUser(${user.id})" title="Ban user">🚫</button>` :
-                            `<button class="action-btn" onclick="unbanUser(${user.id})" title="Unban user">✓</button>`
+                            `<button class="action-btn" onclick="banUser(${user.id})" title="Ban user"><i data-lucide="ban" style="width: 16px; height: 16px; color: #dc2626;"></i></button>` :
+                            `<button class="action-btn" onclick="unbanUser(${user.id})" title="Unban user"><i data-lucide="check" style="width: 16px; height: 16px; color: #059669;"></i></button>`
                         }
                     </td>
                 `;
@@ -552,6 +552,9 @@
             const start = currentPage * currentSize + 1;
             const end = Math.min((currentPage + 1) * currentSize, totalElements);
             document.querySelector('.table-info').textContent = `Hiển thị ${start}-${end} trong tổng số ${totalElements} người dùng`;
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
         }
         
         function getAvatarContent(user) {

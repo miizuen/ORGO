@@ -1,71 +1,225 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Bài viết</title>
+    <title>Bài viết – ORGO Admin</title>
     <style>
-        .page-title h1 { font-size: 22px; font-weight: 700; }
-        .page-title p { font-size: 13px; color: var(--color-text-muted); margin-top: 4px; }
-        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; gap: 12px; flex-wrap: wrap; }
-        .filter-chip { padding: 8px 14px; border-radius: 999px; background: #f3f4f6; color: #374151; text-decoration: none; font-size: 13px; font-weight: 600; }
-        .filter-chip.active { background: #111827; color: white; }
-        .table-card { margin-top: 20px; background: var(--color-surface); border-radius: var(--radius-card); padding: 18px; overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #eef0f3; font-size: 14px; }
-        th { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--color-text-faint); }
-        .badge { padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; display: inline-block; }
-        .pending { background: #fff7ed; color: #c2410c; }
-        .published { background: #ecfdf5; color: #047857; }
-        .rejected { background: #fef2f2; color: #b91c1c; }
-        .actions a { margin-right: 10px; color: var(--color-primary); text-decoration: none; font-weight: 600; }
+        .hover-card {
+            transition: all 0.2s ease-in-out;
+        }
+        .hover-card:hover {
+            transform: translateY(-2px);
+        }
+        .article-card:hover {
+            background-color: #F8FAFC !important;
+        }
+        .preview-panel {
+            transition: opacity 0.2s ease-in-out;
+        }
+        .cursor-pointer {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 <div th:replace="~{fragments/admin-layout :: adminLayout('Bài viết', 'articles', ~{::main})}">
     <main>
-        <div class="page-title">
-            <h1>Quản lý bài viết</h1>
-            <p>Duyệt và theo dõi các bài viết do expert gửi lên hệ thống.</p>
-        </div>
-
-        <div class="toolbar">
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <a th:href="@{/admin/articles}" class="filter-chip" th:classappend="${status == null} ? ' active' : ''">Tất cả</a>
-                <a th:href="@{/admin/articles(status='PENDING')}" class="filter-chip" th:classappend="${status != null and status.name() == 'PENDING'} ? ' active' : ''">Chờ duyệt</a>
+        <!-- Title & description -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h1 class="fw-bold text-dark mb-1" style="font-size: 32px; letter-spacing: -0.02em;">Phê duyệt nội dung</h1>
+                <p class="text-secondary mb-0" style="font-size: 15px;">Quản lý các bài viết chuyên ngành và công thức nấu ăn hữu cơ theo mùa.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-light rounded-3 fw-semibold px-3 py-2 border d-inline-flex align-items-center gap-2" style="font-size: 13.5px; color: #475569;">
+                    <i data-lucide="filter" style="width: 16px; height: 16px;"></i> Filter
+                </button>
+                <button class="btn btn-success rounded-3 fw-semibold px-3 py-2 border-0 d-inline-flex align-items-center gap-2" style="background-color: #006e2f; font-size: 13.5px;">
+                    <i data-lucide="zap" style="width: 16px; height: 16px;"></i> Giới thiệu nhanh
+                </button>
             </div>
         </div>
 
-        <div class="table-card">
-            <table>
-                <thead>
-                <tr>
-                    <th>Tiêu đề</th>
-                    <th>Expert</th>
-                    <th>Trạng thái</th>
-                    <th>Cập nhật</th>
-                    <th>Thao tác</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="article : ${articles.content}">
-                    <td th:text="${article.title}">Title</td>
-                    <td th:text="${article.expertName}">Expert</td>
-                    <td>
-                        <span class="badge text-black" th:classappend="${article.status.name() == 'PENDING'} ? ' pending' : (${article.status.name() == 'PUBLISHED'} ? ' published' : ' rejected')"
-                              th:text="${article.status}">PENDING</span>
-                    </td>
-                    <td th:text="${#temporals.format(article.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
-                    <td class="actions">
-                        <a th:href="@{/admin/articles/{id}(id=${article.id})}">Xem</a>
-                        <a th:if="${article.status.name() == 'PENDING'}" th:href="@{/admin/articles/{id}/approve(id=${article.id})}">Duyệt</a>
-                    </td>
-                </tr>
-                <tr th:if="${articles == null or articles.totalElements == 0}">
-                    <td colspan="5">Chưa có bài viết nào.</td>
-                </tr>
-                </tbody>
-            </table>
+        <!-- Success message -->
+        <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show rounded-3 mb-4 shadow-sm border-0" style="background-color: #EAF7EF; color: #166534;">
+            <span th:if="${param.success[0] == 'approved'}" class="d-inline-flex align-items-center"><i data-lucide="check-circle" style="width: 16px; height: 16px; color: #16a34a; margin-right: 8px; vertical-align: middle;"></i> Đã phê duyệt và đăng tải bài viết thành công!</span>
+            <span th:if="${param.success[0] == 'rejected'}" class="d-inline-flex align-items-center"><i data-lucide="x-circle" style="width: 16px; height: 16px; color: #dc2626; margin-right: 8px; vertical-align: middle;"></i> Đã từ chối duyệt bài viết!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="p-4 rounded-4 shadow-xs border bg-white" style="border-color: #e2e8f0 !important; background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);">
+                    <div class="fw-bold uppercase mb-2" style="font-size: 11px; letter-spacing: 0.05em; color: #64748B !important;">BÀI VIẾT ĐÃ DUYỆT HÔM NAY</div>
+                    <div class="fw-bold mb-1" style="font-size: 12px; color: #16A34A;">+12% so với hôm qua</div>
+                    <div class="fw-bold text-dark" style="font-size: 48px; line-height: 1; color: #0F172A !important;">14</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-4 rounded-4 shadow-xs border bg-white" style="border-color: #e2e8f0 !important; background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);">
+                    <div class="fw-bold uppercase mb-2" style="font-size: 11px; letter-spacing: 0.05em; color: #64748B !important;">YÊU CẦU ĐANG CHỜ XỬ LÝ</div>
+                    <div class="fw-bold mb-1" style="font-size: 12px; color: #0284C7;">Ưu tiên cao</div>
+                    <div class="fw-bold text-dark" style="font-size: 48px; line-height: 1; color: #0F172A !important;" th:text="${articles.totalElements}">3</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter tabs toolbar -->
+        <div class="d-flex gap-2 mb-4">
+            <a th:href="@{/admin/articles(status='PENDING')}"
+               class="btn rounded-pill fw-semibold px-4 py-2 border-0"
+               th:style="${status != null and status.name() == 'PENDING'} ? 'background-color: var(--orgo-primary); color: #fff;' : 'background-color: #e2e8f0; color: #475569;'">
+                <i data-lucide="clock" style="width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"></i> Chờ duyệt
+            </a>
+            <a th:href="@{/admin/articles}"
+               class="btn rounded-pill fw-semibold px-4 py-2 border-0"
+               th:style="${status == null} ? 'background-color: var(--orgo-primary); color: #fff;' : 'background-color: #e2e8f0; color: #475569;'">
+                <i data-lucide="clipboard-list" style="width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"></i> Tất cả
+            </a>
+        </div>
+
+        <!-- Main Split Layout -->
+        <div class="row g-4 mb-4">
+            <!-- Left Column: Article List -->
+            <div class="col-lg-4 col-md-5">
+                <div class="bg-white border rounded-4 shadow-xs overflow-hidden" style="border-color: #e2e8f0 !important;">
+                    <div class="px-3 py-3 border-bottom d-flex align-items-center justify-content-between" style="background-color: #F8FAFC; border-color: #e2e8f0 !important;">
+                        <span class="fw-bold text-dark" style="font-size: 13px; color: #1E293B !important;" 
+                              th:text="${status != null and status.name() == 'PENDING'} ? 'ĐANG CHỜ (' + articles.totalElements + ')' : 'TẤT CẢ BÀI VIẾT (' + articles.totalElements + ')'">
+                            ĐANG CHỜ (12)
+                        </span>
+                        <span class="badge px-2 py-1 rounded fw-semibold" style="background-color: #DCFCE7; color: #15803D; font-size: 11px;">Mới nhất</span>
+                    </div>
+                    
+                    <div class="list-group list-group-flush" style="max-height: 600px; overflow-y: auto;">
+                        <div th:each="article, iter : ${articles.content}" 
+                             class="list-group-item list-group-item-action p-3 position-relative border-bottom cursor-pointer article-card"
+                             th:id="'card-' + ${article.id}"
+                             th:onclick="selectArticle([[${article.id}]])"
+                             style="border-left: 4px solid transparent; border-bottom: 1px solid #f1f5f9; transition: all 0.2s;"
+                             th:styleappend="${iter.first} ? 'border-left-color: #22C55E !important; background-color: #F8FAFC;' : ''">
+                            
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <!-- Type badge -->
+                                <span class="fw-bold px-2 py-0.5 rounded" 
+                                      th:style="${article.type != null && article.type.name() == 'RECIPE'} ? 'background-color: #CFFAFE; color: #0891B2; font-size: 10px;' : 'background-color: #DBEAFE; color: #1E40AF; font-size: 10px;'"
+                                      th:text="${article.type != null ? article.type.name() : 'ARTICLE'}">
+                                    RECIPE
+                                </span>
+                                <!-- Time -->
+                                <span class="text-secondary small" style="font-size: 11px;" th:text="${#temporals.format(article.createdAt != null ? article.createdAt : #temporals.createNow(), 'dd MMM, yyyy')}">24 Oct, 2023</span>
+                            </div>
+                            
+                            <h5 class="fw-bold mb-2 text-dark" style="font-size: 13.5px; line-height: 1.4; color: #0F172A !important;" th:text="${article.title}">Hỗn hợp rau củ theo mùa với sốt miso</h5>
+                            
+                            <div class="d-flex align-items-center text-secondary gap-1.5" style="font-size: 12px; color: #64748B !important;">
+                                <i data-lucide="user" style="width: 13px; height: 13px;"></i>
+                                <span th:text="${article.expertName}">Dr. Elena Vance</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Quick Preview -->
+            <div class="col-lg-8 col-md-7">
+                <div th:each="article, iter : ${articles.content}" 
+                     th:id="'preview-' + ${article.id}" 
+                     class="preview-panel bg-white border rounded-4 shadow-xs p-4 h-100"
+                     th:classappend="${iter.first} ? '' : 'd-none'"
+                     style="border-color: #e2e8f0 !important;">
+                    
+                    <!-- Preview Header -->
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4 flex-wrap gap-3" style="border-color: #f1f5f9 !important;">
+                        <div>
+                            <h4 class="fw-bold text-dark mb-1" style="font-size: 16px; color: #0F172A !important;" th:text="${'Xem nhanh: Bài viết #' + article.id}">Xem nhanh: Bài viết #4922</h4>
+                            <div class="text-secondary small" style="font-size: 12px; color: #64748B !important;">
+                                Trạng thái: <span class="fw-semibold text-primary" style="color: var(--orgo-primary) !important;" th:text="${article.status == null ? 'Chờ duyệt' : (article.status.name() == 'PENDING' ? 'Chờ duyệt' : (article.status.name() == 'PUBLISHED' ? 'Đã xuất bản' : 'Bị từ chối'))}">Chờ duyệt</span>
+                            </div>
+                        </div>
+                        <a th:href="@{/admin/articles/{id}(id=${article.id})}" class="btn btn-success fw-bold px-4 py-2 border-0" style="background-color: #006e2f; font-size: 13.5px; border-radius: 8px;">
+                            Xem chi tiết
+                        </a>
+                    </div>
+                    
+                    <!-- Cover Image -->
+                    <img th:src="${article.thumbnail != null && !article.thumbnail.isEmpty() ? article.thumbnail : 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=80'}"
+                         alt="Cover image" 
+                         class="img-fluid rounded-4 mb-4 border" 
+                         style="width: 100%; max-height: 360px; object-fit: cover; border-color: #f1f5f9 !important;">
+                    
+                    <!-- Category Badge -->
+                    <div class="mb-3">
+                        <span class="d-inline-flex align-items-center px-3 py-1.5 rounded-pill fw-bold" 
+                              style="background-color: #CFFAFE; color: #0891B2; font-size: 12px; letter-spacing: 0.02em;"
+                              th:text="${article.category != null ? article.category.toUpperCase() : (article.type != null && article.type.name() == 'RECIPE' ? 'CÔNG THỨC NẤU ĂN' : 'BÀI VIẾT CHUYÊN NGÀNH')}">
+                            CÔNG THỨC NẤU ĂN
+                        </span>
+                    </div>
+                    
+                    <!-- Title -->
+                    <h2 class="fw-bold text-dark mb-4" style="font-size: 24px; color: #0F172A !important; letter-spacing: -0.02em;" th:text="${article.title}">Hỗn hợp rau củ theo mùa với sốt miso</h2>
+                    
+                    <!-- Author Box -->
+                    <div class="d-flex align-items-center justify-content-between p-3 rounded-4 mb-4" style="background-color: #F8FAFC; border: 1px solid #f1f5f9;">
+                        <div class="d-flex align-items-center gap-3">
+                            <img th:src="${article.expertAvatar != null && !article.expertAvatar.isEmpty() ? article.expertAvatar : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80'}"
+                                 alt="Expert avatar"
+                                 class="rounded-circle border" 
+                                 style="width: 44px; height: 44px; object-fit: cover; border-color: #e2e8f0 !important;">
+                            <div>
+                                <h5 class="fw-bold text-dark mb-0.5" style="font-size: 14px; color: #1E293B !important;" th:text="${article.expertName}">Dr. Elena Vance</h5>
+                                <div class="text-secondary small" style="font-size: 11.5px; color: #64748B !important;">Nutritional Science Expert</div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-secondary small mb-0.5" style="font-size: 11px; color: #64748B !important;">Ngày nộp</div>
+                            <div class="fw-bold text-dark" style="font-size: 13px; color: #334155 !important;" th:text="${#temporals.format(article.createdAt != null ? article.createdAt : #temporals.createNow(), 'dd MMM, yyyy')}">Oct 23, 2024</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Summary / Preview Body -->
+                    <div class="text-dark mb-4" style="font-size: 15px; line-height: 1.7; color: #334155 !important;" th:text="${article.summary}">
+                        Món ăn đậm đà, giàu khoáng chất này tôn vinh mùa thu hoạch của mùa thu. Bằng cách nướng chậm các loại rau củ như củ cải vàng, cà rốt và củ dền vàng, chúng ta làm nổi bật vị ngọt tự nhiên của chúng, hòa quyện hoàn hảo với chiều sâu đậm đà umami từ lớp sốt miso trắng.
+                    </div>
+                </div>
+                
+                <!-- Empty State -->
+                <div th:if="${articles == null or articles.totalElements == 0}" class="bg-white border rounded-4 shadow-sm p-5 text-center h-100 d-flex flex-column align-items-center justify-content-center" style="border-color: #e2e8f0 !important; min-height: 400px;">
+                    <i data-lucide="file-text" style="width: 64px; height: 64px; color: #cbd5e1; margin-bottom: 16px;"></i>
+                    <h5 class="fw-bold text-secondary">Chưa có bài viết nào cần duyệt</h5>
+                </div>
+            </div>
         </div>
     </main>
 </div>
+
+<script>
+    function selectArticle(id) {
+        // Hide all preview panels
+        document.querySelectorAll('.preview-panel').forEach(function(panel) {
+            panel.classList.add('d-none');
+        });
+        
+        // Show the selected preview panel
+        var activePanel = document.getElementById('preview-' + id);
+        if (activePanel) {
+            activePanel.classList.remove('d-none');
+        }
+        
+        // Remove active state styling from all list items
+        document.querySelectorAll('.article-card').forEach(function(card) {
+            card.style.borderLeftColor = 'transparent';
+            card.style.backgroundColor = 'transparent';
+        });
+        
+        // Add active state styling to selected item
+        var activeCard = document.getElementById('card-' + id);
+        if (activeCard) {
+            activeCard.style.borderLeftColor = '#22C55E';
+            activeCard.style.backgroundColor = '#F8FAFC';
+        }
+    }
+</script>
 </body>
 </html>

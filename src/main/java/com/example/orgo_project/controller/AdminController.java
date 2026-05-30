@@ -203,9 +203,12 @@ public class AdminController {
         int pendingSellerCount = sellerRepository.findByStatus(com.example.orgo_project.enums.SellerStatus.PENDING).size();
         int pendingExpertCount = expertRepository.findByStatus(com.example.orgo_project.enums.ExpertStatus.PENDING).size();
         int pendingArticleCount = (int) articleRepository.findByStatus(com.example.orgo_project.enums.ArticleStatus.PENDING, org.springframework.data.domain.PageRequest.of(0, 1)).getTotalElements();
-        
+
         List<com.example.orgo_project.dto.OrderSummaryDTO> recentOrders = allOrders.stream()
-                .sorted((o1, o2) -> o2.getOrderedAt().compareTo(o1.getOrderedAt()))
+                .sorted(Comparator.comparing(
+                        com.example.orgo_project.dto.OrderSummaryDTO::getOrderedAt,
+                        Comparator.nullsLast(Comparator.reverseOrder())
+                ))
                 .limit(5)
                 .toList();
 
