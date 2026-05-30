@@ -37,8 +37,8 @@ public class OrderController {
             try {
                 com.example.orgo_project.enums.OrderStatus orderStatus =
                         com.example.orgo_project.enums.OrderStatus.valueOf(status);
-                model.addAttribute("orders", ((com.example.orgo_project.service.OrderService) orderService)
-                        .getMyOrdersByStatus(userId, orderStatus));
+                // ✅ Không cần ép kiểu nữa
+                model.addAttribute("orders", orderService.getMyOrdersByStatus(userId, orderStatus));
             } catch (IllegalArgumentException e) {
                 model.addAttribute("orders", orderService.getMyOrders(userId));
             }
@@ -98,8 +98,8 @@ public class OrderController {
         if (userDetails == null || userDetails.getAccount() == null) {
             return "redirect:/login";
         }
-        boolean success = ((com.example.orgo_project.service.OrderService) orderService)
-                .confirmDelivery(getUserId(userDetails), orderId);
+        // ✅ Không cần ép kiểu nữa
+        boolean success = orderService.confirmDelivery(getUserId(userDetails), orderId);
         if (success) {
             redirectAttributes.addFlashAttribute("successMessage", "Đã xác nhận nhận hàng thành công!");
         } else {

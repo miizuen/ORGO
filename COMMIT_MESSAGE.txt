@@ -1,0 +1,31 @@
+feat: Implement safe revenue distribution on delivery confirmation
+
+BREAKING CHANGE: Revenue distribution now triggers on DELIVERED status instead of PROCESSING
+
+Changes:
+- MomoPaymentServiceImpl: Remove revenue distribution from IPN handler
+  * Money now held at MoMo until delivery confirmed
+  * Only update order status to PAID + PENDING on successful payment
+
+- OrderService: Add automatic revenue distribution on delivery confirmation
+  * Inject IRevenueDistributionService dependency
+  * Call distributeForOrder() when user confirms delivery
+  * Handle exceptions gracefully without blocking delivery confirmation
+
+- RevenueDistributionService: Update distribution condition
+  * Change from OrderStatus.PROCESSING to OrderStatus.DELIVERED
+  * Ensure money only distributed after customer receives goods
+
+- SellerOrderService: Keep confirmOrder() without revenue distribution
+  * Seller approval only changes status to PROCESSING
+  * Money remains at MoMo until delivery
+
+Benefits:
+- Safer for buyers: Can cancel order before delivery without money already distributed
+- Safer for sellers: Only receive money after customer confirms delivery
+- Easier refunds: Money stays at MoMo until transaction complete
+- Reduced disputes: Clear money flow tied to delivery confirmation
+
+Documentation:
+- Added REVENUE_DISTRIBUTION_UPDATED.md with implementation details
+- Updated MONEY_FLOW_ANALYSIS.md with new flow diagram
