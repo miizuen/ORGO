@@ -25,6 +25,7 @@ public class AdminArticleController {
     private final ArticleService articleService;
     private final com.example.orgo_project.repository.ProductRepository productRepository;
     private final com.example.orgo_project.repository.IProductVariantRepository productVariantRepository;
+    private final com.example.orgo_project.repository.ISellerRepository sellerRepository;
 
     @GetMapping
     public String getArticles(
@@ -53,6 +54,19 @@ public class AdminArticleController {
             if (product.getSlug() != null && product.getSlug().startsWith("/uploads/")) {
                 product.setImageUrl(product.getSlug());
             }
+            if (product.getSellerId() != null) {
+                com.example.orgo_project.entity.Seller seller = sellerRepository.findById(product.getSellerId()).orElse(null);
+                if (seller != null && seller.getShopName() != null && !seller.getShopName().isBlank()) {
+                    product.setShopName(seller.getShopName());
+                } else {
+                    product.setShopName("Seller");
+                }
+            } else {
+                product.setShopName("Seller");
+            }
+            // Load variants to resolve min price
+            List<com.example.orgo_project.entity.ProductVariant> variants = productVariantRepository.findByProductId(product.getId());
+            product.setVariants(variants);
         }
 
         model.addAttribute("article", article);

@@ -13,22 +13,22 @@
     <div class="sidebar-panel">
         <div class="sidebar-panel-label">Điều hướng</div>
         <nav class="sidebar-nav">
-            <a th:href="@{/admin/dashboard}" th:classappend="${activePage == 'dashboard'} ? 'active' : ''" class="nav-item"><span class="icon">⊞</span> Tổng quan</a>
-            <a th:href="@{/admin/users}" th:classappend="${activePage == 'users'} ? 'active' : ''" class="nav-item"><span class="icon">👥</span> Quản lý người dùng</a>
-            <a th:href="@{/admin/seller-pending-list}" th:classappend="${activePage == 'seller'} ? 'active' : ''" class="nav-item"><span class="icon">🛒</span> Duyệt Seller</a>
-            <a th:href="@{/admin/expert-pending-list}" th:classappend="${activePage == 'expert'} ? 'active' : ''" class="nav-item"><span class="icon">🔰</span> Duyệt Expert</a>
-            <a th:href="@{/admin/articles(status='PENDING')}" th:classappend="${activePage == 'articles'} ? 'active' : ''" class="nav-item"><span class="icon">📋</span> Duyệt nội dung</a>
-            <a th:href="@{/admin/orders}" th:classappend="${activePage == 'orders'} ? 'active' : ''" class="nav-item"><span class="icon">📦</span> Đơn đặt hàng</a>
-            <a th:href="@{/admin/payouts}" th:classappend="${activePage == 'payouts'} ? 'active' : ''" class="nav-item"><span class="icon">💴</span> Đối soát & thanh toán</a>
-            <a th:href="@{/admin/reports}" th:classappend="${activePage == 'reports'} ? 'active' : ''" class="nav-item"><span class="icon">📊</span> Báo cáo</a>
-            <a th:href="@{/admin/bank-config}" th:classappend="${activePage == 'bank-config'} ? 'active' : ''" class="nav-item"><span class="icon">🏦</span> Cấu hình NH</a>
+            <a th:href="@{/admin/dashboard}" th:classappend="${activePage == 'dashboard'} ? 'active' : ''" class="nav-item"><i data-lucide="layout-dashboard" class="icon"></i> Tổng quan</a>
+            <a th:href="@{/admin/users}" th:classappend="${activePage == 'users'} ? 'active' : ''" class="nav-item"><i data-lucide="users" class="icon"></i> Quản lý người dùng</a>
+            <a th:href="@{/admin/seller-pending-list}" th:classappend="${activePage == 'seller'} ? 'active' : ''" class="nav-item"><i data-lucide="store" class="icon"></i> Duyệt Seller</a>
+            <a th:href="@{/admin/expert-pending-list}" th:classappend="${activePage == 'expert'} ? 'active' : ''" class="nav-item"><i data-lucide="award" class="icon"></i> Duyệt Expert</a>
+            <a th:href="@{/admin/articles(status='PENDING')}" th:classappend="${activePage == 'articles'} ? 'active' : ''" class="nav-item"><i data-lucide="file-text" class="icon"></i> Duyệt nội dung</a>
+            <a th:href="@{/admin/orders}" th:classappend="${activePage == 'orders'} ? 'active' : ''" class="nav-item"><i data-lucide="package" class="icon"></i> Đơn đặt hàng</a>
+            <a th:href="@{/admin/payouts}" th:classappend="${activePage == 'payouts'} ? 'active' : ''" class="nav-item"><i data-lucide="credit-card" class="icon"></i> Đối soát & thanh toán</a>
+            <a th:href="@{/admin/reports}" th:classappend="${activePage == 'reports'} ? 'active' : ''" class="nav-item"><i data-lucide="bar-chart-2" class="icon"></i> Báo cáo</a>
+            <a th:href="@{/admin/bank-config}" th:classappend="${activePage == 'bank-config'} ? 'active' : ''" class="nav-item"><i data-lucide="landmark" class="icon"></i> Cấu hình NH</a>
         </nav>
     </div>
 
     <div class="sidebar-panel sidebar-bottom">
         <div class="sidebar-panel-label">Tài khoản</div>
-        <a th:href="@{/admin/settings}" th:classappend="${activePage == 'settings'} ? 'active' : ''" class="nav-item"><span class="icon">⚙️</span> Cài đặt</a>
-        <a th:href="@{/logout}" class="nav-item nav-danger"><span class="icon">🚪</span> Đăng xuất</a>
+        <a th:href="@{/admin/settings}" th:classappend="${activePage == 'settings'} ? 'active' : ''" class="nav-item"><i data-lucide="settings" class="icon"></i> Cài đặt</a>
+        <a th:href="@{/logout}" class="nav-item nav-danger"><i data-lucide="log-out" class="icon"></i> Đăng xuất</a>
     </div>
 
     <div class="system-status">

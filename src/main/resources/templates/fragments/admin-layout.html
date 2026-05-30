@@ -29,7 +29,7 @@
         .adm-nav-item{display:flex;align-items:center;gap:10px;padding:11px 18px;font-size:13px;font-weight:700;color:var(--orgo-text-secondary);border-left:3px solid transparent;text-decoration:none;transition:background .2s ease,color .2s ease,border-color .2s ease,transform .2s ease}
         .adm-nav-item:hover{background:var(--orgo-primary-soft);color:var(--orgo-primary);transform:translateX(1px)}
         .adm-nav-item.active{color:var(--orgo-primary);border-left-color:var(--orgo-primary);background:var(--orgo-primary-soft)}
-        .adm-nav-item .icon{font-size:15px;width:18px;text-align:center;opacity:.9}
+        .adm-nav-item .icon{width:18px;height:18px;opacity:.9;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
         .adm-sidebar-bottom{padding:14px 18px;border-top:1px solid var(--orgo-border);display:flex;flex-direction:column;gap:2px}
         .adm-system-status{margin:12px 18px 0;background:linear-gradient(135deg,var(--orgo-primary) 0%,#0f766e 55%,var(--orgo-info) 100%);border-radius:18px;padding:12px 14px;box-shadow:var(--orgo-shadow-md)}
         .adm-system-status .ss-title{font-size:10px;font-weight:900;color:#fff;letter-spacing:.18em;text-transform:uppercase}
@@ -40,8 +40,8 @@
         .adm-search-box{flex:1;max-width:360px;display:flex;align-items:center;gap:10px;background:var(--orgo-surface-soft);border:1px solid var(--orgo-border);border-radius:9999px;padding:9px 14px;box-shadow:var(--orgo-shadow-sm)}
         .adm-search-box input{border:none;background:transparent;outline:none;font-size:13px;font-family:var(--font-ui);color:var(--orgo-text-secondary);width:100%}
         .adm-topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px}
-        .adm-topbar-icons{display:flex;gap:10px}
-        .adm-topbar-icons span{font-size:17px;cursor:pointer;color:var(--orgo-text-secondary)}
+        .adm-topbar-icons{display:flex;align-items:center;gap:14px}
+        .adm-topbar-icons .top-icon{cursor:pointer;color:var(--orgo-text-secondary);width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center}
         .adm-topbar-user{display:flex;align-items:center;gap:10px}
         .adm-user-name{font-size:13px;font-weight:800;color:var(--orgo-text-primary)}
         .adm-user-role{font-size:10px;color:var(--orgo-text-faint);text-transform:uppercase;letter-spacing:.16em;font-weight:800}
@@ -68,30 +68,36 @@
 <aside class="adm-sidebar">
     <div class="adm-sidebar-logo"><div class="adm-avatar">O</div><div><h2>ORGO Admin</h2><p>Control center</p></div></div>
     <nav class="adm-sidebar-nav">
-        <a th:href="@{/admin/dashboard}" th:classappend="${activePage == 'dashboard'} ? 'active' : ''" class="adm-nav-item"><span class="icon">⊞</span> Tổng quan</a>
-        <a th:href="@{/admin/users}" th:classappend="${activePage == 'users'} ? 'active' : ''" class="adm-nav-item"><span class="icon">👥</span> Người dùng</a>
-        <a th:href="@{/admin/products}" th:classappend="${activePage == 'products'} ? 'active' : ''" class="adm-nav-item"><span class="icon">🥑</span> Duyệt sản phẩm</a>
-        <a th:href="@{/admin/seller-pending-list}" th:classappend="${activePage == 'seller'} ? 'active' : ''" class="adm-nav-item"><span class="icon">🛒</span> Duyệt Seller</a>
-        <a th:href="@{/admin/expert-pending-list}" th:classappend="${activePage == 'expert'} ? 'active' : ''" class="adm-nav-item"><span class="icon">🔰</span> Duyệt Expert</a>
-        <a th:href="@{/admin/articles(status='PENDING')}" th:classappend="${activePage == 'articles'} ? 'active' : ''" class="adm-nav-item"><span class="icon">📋</span> Duyệt nội dung</a>
-        <a th:href="@{/admin/payouts}" th:classappend="${activePage == 'payouts'} ? 'active' : ''" class="adm-nav-item"><span class="icon">💴</span> Đối soát & thanh toán</a>
-        <a th:href="@{/admin/reports}" th:classappend="${activePage == 'reports'} ? 'active' : ''" class="adm-nav-item"><span class="icon">📊</span> Báo cáo</a>
-        <a th:href="@{/admin/bank-config}" th:classappend="${activePage == 'bank-config'} ? 'active' : ''" class="adm-nav-item"><span class="icon">🏦</span> Cấu hình NH</a>
+        <a th:href="@{/admin/dashboard}" th:classappend="${activePage == 'dashboard'} ? 'active' : ''" class="adm-nav-item"><i data-lucide="layout-dashboard" class="icon"></i> Tổng quan</a>
+        <a th:href="@{/admin/users}" th:classappend="${activePage == 'users'} ? 'active' : ''" class="adm-nav-item"><i data-lucide="users" class="icon"></i> Người dùng</a>
+        <a th:href="@{/admin/products}" th:classappend="${activePage == 'products'} ? 'active' : ''" class="adm-nav-item"><i data-lucide="shopping-bag" class="icon"></i> Duyệt sản phẩm</a>
+        <a th:href="@{/admin/seller-pending-list}" th:classappend="${activePage == 'seller'} ? 'active' : ''" class="adm-nav-item"><i data-lucide="store" class="icon"></i> Duyệt Seller</a>
+        <a th:href="@{/admin/expert-pending-list}" th:classappend="${activePage == 'expert'} ? 'active' : ''" class="adm-nav-item"><i data-lucide="award" class="icon"></i> Duyệt Expert</a>
+        <a th:href="@{/admin/articles(status='PENDING')}" th:classappend="${activePage == 'articles'} ? 'active' : ''" class="adm-nav-item"><i data-lucide="file-text" class="icon"></i> Duyệt nội dung</a>
+        <a th:href="@{/admin/orders}" th:classappend="${activePage == 'orders'} ? 'active' : ''" class="adm-nav-item"><i data-lucide="package" class="icon"></i> Đơn đặt hàng</a>
+        <a th:href="@{/admin/payouts}" th:classappend="${activePage == 'payouts'} ? 'active' : ''" class="adm-nav-item"><i data-lucide="credit-card" class="icon"></i> Đối soát & thanh toán</a>
+        <a th:href="@{/admin/reports}" th:classappend="${activePage == 'reports'} ? 'active' : ''" class="adm-nav-item"><i data-lucide="bar-chart-2" class="icon"></i> Báo cáo</a>
+        <a th:href="@{/admin/bank-config}" th:classappend="${activePage == 'bank-config'} ? 'active' : ''" class="adm-nav-item"><i data-lucide="landmark" class="icon"></i> Cấu hình NH</a>
     </nav>
     <div class="adm-sidebar-bottom">
-        <a th:href="@{/admin/settings}" th:classappend="${activePage == 'settings'} ? 'active' : ''" class="adm-nav-item"><span class="icon">⚙️</span> Cài đặt</a>
-        <a th:href="@{/logout}" class="adm-nav-item" style="color:var(--orgo-danger)"><span class="icon">🚪</span> Đăng xuất</a>
+        <a th:href="@{/admin/settings}" th:classappend="${activePage == 'settings'} ? 'active' : ''" class="adm-nav-item"><i data-lucide="settings" class="icon"></i> Cài đặt</a>
+        <a th:href="@{/logout}" class="adm-nav-item" style="color:var(--orgo-danger)"><i data-lucide="log-out" class="icon"></i> Đăng xuất</a>
     </div>
     <div class="adm-system-status"><div class="ss-title">SYSTEM STATUS</div><div class="ss-sub">ALL SYSTEMS OPTIMAL</div></div>
 </aside>
 <div class="adm-main">
     <header class="adm-topbar">
-        <div class="adm-search-box"><span>🔍</span><input type="text" placeholder="Tìm kiếm..."></div>
-        <div class="adm-topbar-right"><div class="adm-topbar-icons"><span title="Thông báo">🔔</span><span title="Tin nhắn">✉️</span></div><div class="adm-topbar-user"><div><div class="adm-user-name" th:text="${session.currentUser != null ? session.currentUser : 'Admin'}">Admin</div><div class="adm-user-role">SUPER ADMIN</div></div><div class="adm-avatar">A</div></div></div>
+        <div class="adm-search-box"><i data-lucide="search" style="width:16px;height:16px;color:var(--orgo-text-secondary);"></i><input type="text" placeholder="Tìm kiếm..."></div>
+        <div class="adm-topbar-right"><div class="adm-topbar-icons"><i data-lucide="bell" title="Thông báo" class="top-icon"></i><i data-lucide="mail" title="Tin nhắn" class="top-icon"></i></div><div class="adm-topbar-user"><div><div class="adm-user-name" th:text="${session.currentUser != null ? session.currentUser : 'Admin'}">Admin</div><div class="adm-user-role">SUPER ADMIN</div></div><div class="adm-avatar">A</div></div></div>
     </header>
     <div class="adm-content"><div th:replace="${content}"></div></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>
 </th:block>

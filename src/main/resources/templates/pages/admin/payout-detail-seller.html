@@ -74,7 +74,7 @@
                 <div class="payout-body">
                     <div class="summary-grid">
                         <article class="summary-card">
-                            <div class="summary-icon green">👤</div>
+                            <div class="summary-icon green"><i data-lucide="user" style="width: 20px; height: 20px;"></i></div>
                             <div>
                                 <div class="summary-label">TÊN CHỦ TÀI KHOẢN</div>
                                 <p class="summary-name" th:text="${req.accountHolderName}">Nguyễn Văn An</p>
@@ -82,14 +82,14 @@
                             </div>
                         </article>
                         <article class="summary-card">
-                            <div class="summary-icon blue">💵</div>
+                            <div class="summary-icon blue"><i data-lucide="dollar-sign" style="width: 20px; height: 20px;"></i></div>
                             <div>
                                 <div class="summary-label">SỐ TIỀN RÚT</div>
                                 <div class="summary-value" th:text="${req.requestedAmount} + ' VND'">12,250,000 VND</div>
                             </div>
                         </article>
                         <article class="summary-card">
-                            <div class="summary-icon purple">📋</div>
+                            <div class="summary-icon purple"><i data-lucide="clipboard-list" style="width: 20px; height: 20px;"></i></div>
                             <div>
                                 <div class="summary-label">TRẠNG THÁI</div>
                                 <div class="summary-pill" th:text="${req.status}">PENDING</div>
