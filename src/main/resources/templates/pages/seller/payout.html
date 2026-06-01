@@ -202,6 +202,7 @@
                                 <th class="text-secondary fw-bold py-3" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 0;">Request Date</th>
                                 <th class="text-secondary fw-bold py-3" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 0;">Amount</th>
                                 <th class="text-secondary fw-bold py-3" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 0;">Status</th>
+                                <th class="text-secondary fw-bold py-3" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 0;">Mã giao dịch</th>
                                 <th class="text-secondary fw-bold py-3" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 0;">Processed Date</th>
                             </tr>
                         </thead>
@@ -222,12 +223,14 @@
                                         PENDING
                                     </span>
                                 </td>
+                                <td class="text-secondary py-3" style="font-size: 13.5px; font-family: var(--font-data);" 
+                                    th:text="${item.transactionCode != null && !item.transactionCode.isEmpty() ? item.transactionCode : '-'}">-</td>
                                 <td class="text-secondary py-3" style="font-size: 13.5px;" 
                                     th:text="${item.processedAt != null ? #temporals.format(item.processedAt, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
                             </tr>
                             <!-- Empty row -->
                             <tr th:if="${#lists.isEmpty(historyRequests)}">
-                                <td colspan="5" class="text-center text-secondary py-5" style="border-bottom: 0;">
+                                <td colspan="6" class="text-center text-secondary py-5" style="border-bottom: 0;">
                                     <div class="d-flex flex-column align-items-center gap-2">
                                         <i data-lucide="inbox" style="width: 40px; height: 40px; color: #cbd5e1;"></i>
                                         <span style="font-size: 14px;">Chưa có lịch sử yêu cầu rút tiền</span>

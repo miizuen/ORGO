@@ -12,4 +12,5 @@ public interface ISellerService {
     void approve(int id);
     void reject(int id);
     boolean hasApplied(Account account);
+    Seller findByAccountId(Integer accountId);
 }

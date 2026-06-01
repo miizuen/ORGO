@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+      th:replace="~{fragments/layout :: layout(${article != null ? article.title : 'Chi tiết bài viết'} + ' - ORGO', ~{::main})}">
 <head>
-    <title th:text="${article.title}">Chi tiết bài viết - ORGO</title>
 </head>
 <body>
     <main class="article-detail">

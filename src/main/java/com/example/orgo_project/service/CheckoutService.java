@@ -112,9 +112,11 @@ public class CheckoutService implements ICheckoutService {
         List<ShoppingCartItem> cartItems = selectCartItems(allItems, selectedItemIds);
         if (cartItems.isEmpty()) throw new RuntimeException("Bạn chưa chọn sản phẩm nào");
 
-        BigDecimal totalAmount = calculateTotal(cartItems);
+        BigDecimal subtotal = calculateTotal(cartItems);
+        BigDecimal shippingFee = new BigDecimal("25000");
+        BigDecimal totalAmount = subtotal.add(shippingFee);
         Integer sellerId = resolveOrderSellerId(cartItems);
-        CustomerOrder savedOrder = saveOrder(accountId, request, totalAmount, sellerId, articleId);
+        CustomerOrder savedOrder = saveOrder(accountId, request, totalAmount, shippingFee, sellerId, articleId);
         saveOrderItems(savedOrder, cartItems);
         cartItemRepository.deleteAll(cartItems);
 
@@ -211,7 +213,7 @@ public class CheckoutService implements ICheckoutService {
         return product != null ? product.getSellerId() : null;
     }
 
-    private CustomerOrder saveOrder(Integer accountId, CheckoutRequestDTO request, BigDecimal totalAmount, Integer sellerId, Integer articleId) {
+    private CustomerOrder saveOrder(Integer accountId, CheckoutRequestDTO request, BigDecimal totalAmount, BigDecimal shippingFee, Integer sellerId, Integer articleId) {
         CustomerOrder order = new CustomerOrder();
         order.setUserId(accountId);
         order.setSellerId(sellerId);
@@ -220,7 +222,7 @@ public class CheckoutService implements ICheckoutService {
         order.setOrderCode("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         order.setOrderedAt(LocalDateTime.now());
         order.setTotalAmount(totalAmount);
-        order.setShippingFee(BigDecimal.ZERO);
+        order.setShippingFee(shippingFee);
         // Trạng thái thanh toán: PENDING (chờ thanh toán qua MoMo)
         order.setPaymentStatus(PaymentStatus.PENDING);
         // Trạng thái đơn hàng: PENDING_PAYMENT (chờ thanh toán)

@@ -133,4 +133,12 @@ public class SellerService implements ISellerService{
     public boolean hasApplied(Account account) {
         return false;
     }
+
+    @Override
+    public Seller findByAccountId(Integer accountId) {
+        if (accountId == null) {
+            return null;
+        }
+        return sellerRepository.findByAccountId(accountId).orElse(null);
+    }
 }

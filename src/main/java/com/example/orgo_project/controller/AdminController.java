@@ -389,11 +389,26 @@ public class AdminController {
             }
         }
 
+        List<OrderSettlement> sortedSettlements = new ArrayList<>(settlements);
+        sortedSettlements.sort((s1, s2) -> {
+            Object o1Obj = orderDetailsByOrderId.get(s1.getOrderId());
+            Object o2Obj = orderDetailsByOrderId.get(s2.getOrderId());
+            if (o1Obj instanceof com.example.orgo_project.dto.OrderDetailDTO o1 && o2Obj instanceof com.example.orgo_project.dto.OrderDetailDTO o2) {
+                if (o1.getOrderedAt() != null && o2.getOrderedAt() != null) {
+                    return o2.getOrderedAt().compareTo(o1.getOrderedAt());
+                }
+            }
+            if (s1.getOrderId() != null && s2.getOrderId() != null) {
+                return s2.getOrderId().compareTo(s1.getOrderId());
+            }
+            return 0;
+        });
+
         model.addAttribute("activePage", "revenue-reconciliation");
         model.addAttribute("adminWallet", walletBalanceRepository.findByAccountId(resolveAdminAccountId()).orElse(null));
         model.addAttribute("orderIdFilter", orderIdFilter);
         model.addAttribute("sellerIdFilter", sellerIdFilter);
-        model.addAttribute("settlementRows", settlements);
+        model.addAttribute("settlementRows", sortedSettlements);
         model.addAttribute("orderDetailsByOrderId", orderDetailsByOrderId);
         model.addAttribute("sellerNamesById", sellerNamesById);
         model.addAttribute("bankConfig", paymentBankConfigService.getActiveConfig());
