@@ -128,61 +128,61 @@
 
 <body>
 
-    <div th:replace="~{fragments/admin-layout :: adminLayout('Duyệt Seller', 'seller', ~{::main})}">
-        <main>
-            <div class="page-title">Danh sách yêu cầu phê duyệt Seller</div>
+<div th:replace="~{fragments/admin-layout :: adminLayout('Duyệt Seller', 'seller', ~{::main})}">
+    <main>
+        <div class="page-title">Danh sách yêu cầu phê duyệt Seller</div>
 
-            <div th:if="${param.approved}"
-                style="background: #e8f5e9; color: #2e7d32; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; border: 1px solid #c8e6c9;">
-                Đã phê duyệt yêu cầu thành công! Nhà bán hàng hiện đã ở trạng thái ACTIVE.
-            </div>
-            <div th:if="${param.rejected}"
-                style="background: #fce4ec; color: #c62828; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; border: 1px solid #f8bbd0;">
-                Đã từ chối yêu cầu đăng ký của nhà bán hàng.
-            </div>
+        <div th:if="${param.approved}"
+             style="background: #e8f5e9; color: #2e7d32; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; border: 1px solid #c8e6c9;">
+            Đã phê duyệt yêu cầu thành công! Nhà bán hàng hiện đã ở trạng thái ACTIVE.
+        </div>
+        <div th:if="${param.rejected}"
+             style="background: #fce4ec; color: #c62828; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; border: 1px solid #f8bbd0;">
+            Đã từ chối yêu cầu đăng ký của nhà bán hàng.
+        </div>
 
-            <div class="table-wrapper">
-                <table class="seller-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Tên shop</th>
-                            <th>Địa chỉ</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="seller, iterStat : ${sellers}">
-                            <td th:text="${iterStat.count}">1</td>
-                            <td>
-                                <div class="seller-name" th:text="${seller.getShopName()}">Tên shop</div>
-                            </td>
-                            <td>
-                                <div class="seller-location" th:text="${seller.getShopAddress()}">Địa chỉ</div>
-                            </td>
-                            <td>
-                                <span class="badge-new">NEW</span>
-                            </td>
-                            <td>
-                                <a th:href="@{/admin/seller-pending-list/seller-approve-detail(id=${seller.id})}" class="btn-detail">
-                                    Xem chi tiết
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="table-wrapper">
+            <table class="seller-table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tên shop</th>
+                    <th>Địa chỉ</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="seller, iterStat : ${sellers}">
+                    <td th:text="${iterStat.count}">1</td>
+                    <td>
+                        <div class="seller-name" th:text="${seller.getShopName()}">Tên shop</div>
+                    </td>
+                    <td>
+                        <div class="seller-location" th:text="${seller.getShopAddress()}">Địa chỉ</div>
+                    </td>
+                    <td>
+                        <span class="badge-new">NEW</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/admin/seller-pending-list/seller-approve-detail(id=${seller.id})}" class="btn-detail">
+                            Xem chi tiết
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-            <div class="list-footer">
-                <span th:text="'Tổng: ' + ${#lists.size(sellers)} + ' yêu cầu'">Tổng: 0 yêu cầu</span>
-                <div class="footer-right">
-                    <span>← Trước</span>
-                    <span>Tiếp →</span>
-                </div>
+        <div class="list-footer">
+            <span th:text="'Tổng: ' + ${#lists.size(sellers)} + ' yêu cầu'">Tổng: 0 yêu cầu</span>
+            <div class="footer-right">
+                <span class="d-inline-flex align-items-center"><i data-lucide="chevron-left" style="width: 16px; height: 16px; margin-right: 4px;"></i> Trước</span>
+                <span class="d-inline-flex align-items-center">Tiếp <i data-lucide="chevron-right" style="width: 16px; height: 16px; margin-left: 4px;"></i></span>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
+</div>
 </body>
 
 </html>

@@ -1,61 +1,121 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+      th:replace="~{fragments/layout :: layout('Blog - ORGO', ~{::main})}">
 <head>
-    <title>Blog - ORGO</title>
 </head>
 <body>
 <main>
-    <section class="hero-section" th:if="${featuredArticle != null}">
-        <div class="hero-container">
-            <div class="hero-content">
-                <span class="category-badge"
-                      th:text="${featuredArticle.category != null ? featuredArticle.category : 'ORGO'}">ORGO</span>
-                <h1 class="hero-title" th:text="${featuredArticle.title}">Bài viết nổi bật</h1>
-                <p class="hero-excerpt"
-                   th:text="${featuredArticle.summary != null ? featuredArticle.summary : (featuredArticle.content != null && #strings.length(featuredArticle.content) > 150 ? #strings.substring(featuredArticle.content, 0, 150) + '...' : featuredArticle.content)}">
-                    Mô tả bài viết featured...
-                </p>
-                <div class="hero-meta">
-                    <img th:src="${featuredArticle.expertAvatar != null && !featuredArticle.expertAvatar.isEmpty() ? featuredArticle.expertAvatar : '/api/placeholder/48/48'}"
-                         alt="Expert"
-                         class="expert-avatar">
-                    <div>
-                        <p class="expert-name" th:text="${featuredArticle.expertName != null ? featuredArticle.expertName : 'ORGO'}">Elena Vance</p>
-                        <p class="meta-info">
-                            <span th:text="${featuredArticle.category != null ? featuredArticle.category : 'Blog'}">Blog</span> •
-                            <span th:text="${featuredArticle.createdAt}">2026-04-30</span>
-                        </p>
+    <!-- Popular Articles Section -->
+    <section class="popular-section" th:if="${featuredArticles != null && !featuredArticles.isEmpty()}">
+        <div class="container">
+            <h2 class="section-title mb-4 d-flex align-items-center gap-2" style="font-family: 'Alata', sans-serif; font-size: 28px; color: #131B2E; font-weight: 700;">
+                <i data-lucide="trending-up" class="text-success" style="width: 28px; height: 28px; stroke-width: 2.5;"></i>
+                Bài viết nổi bật nhất
+            </h2>
+            <div class="popular-grid">
+                <!-- Left Column: Rank 1 Article (Special styling with glowing effect) -->
+                <div class="popular-main" th:with="top1=${featuredArticles[0]}">
+                    <a th:href="@{/articles/{id}(id=${top1.id})}" class="popular-main-card glow-green">
+                        <div class="main-card-image">
+                            <img th:src="${top1.thumbnail != null && !top1.thumbnail.isEmpty() ? top1.thumbnail : '/api/placeholder/800/500'}" th:alt="${top1.title}">
+                            <span class="rank-badge">
+                                <i data-lucide="crown" style="width: 14px; height: 14px; fill: currentColor;"></i>
+                                TOP 1
+                            </span>
+                            <span class="main-card-category" th:text="${top1.category != null ? top1.category : 'Nổi bật'}">Nổi bật</span>
+                        </div>
+                        <div class="main-card-content">
+                            <div>
+                                <h3 class="main-card-title" th:text="${top1.title}">Tiêu đề bài viết top 1</h3>
+                                <p class="main-card-excerpt" th:text="${top1.summary != null ? top1.summary : (top1.content != null && #strings.length(top1.content) > 150 ? #strings.substring(top1.content, 0, 150) + '...' : 'Mô tả...')}">Mô tả bài viết...</p>
+                            </div>
+                            <div class="main-card-footer">
+                                <div class="author-info">
+                                    <img th:src="${top1.expertAvatar != null && !top1.expertAvatar.isEmpty() ? top1.expertAvatar : '/api/placeholder/32/32'}" alt="Author" class="author-avatar">
+                                    <span class="author-name" th:text="${top1.expertName != null ? top1.expertName : 'ORGO'}">Tên chuyên gia</span>
+                                </div>
+                                <div class="views-info d-flex align-items-center gap-1 text-success fw-bold">
+                                    <i data-lucide="eye" style="width: 18px; height: 18px; stroke-width: 2;"></i>
+                                    <span th:text="${(top1.totalViews != null ? top1.totalViews : 0) + ' lượt xem'}">1.2k lượt xem</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Right Column: Rank 2 to 5 Articles (Compact list) -->
+                <div class="popular-sidebar" th:if="${featuredArticles.size() > 1}">
+                    <div class="popular-list">
+                        <th:block th:each="item, iterStat : ${featuredArticles}" th:if="${iterStat.index > 0}">
+                            <a th:href="@{/articles/{id}(id=${item.id})}" class="popular-item-card">
+                                <div class="popular-item-rank" th:text="${'#' + (iterStat.index + 1)}">#2</div>
+                                <div class="popular-item-thumb">
+                                    <img th:src="${item.thumbnail != null && !item.thumbnail.isEmpty() ? item.thumbnail : '/api/placeholder/150/100'}" th:alt="${item.title}">
+                                </div>
+                                <div class="popular-item-info">
+                                    <span class="popular-item-category" th:text="${item.category != null ? item.category : 'Tin tức'}">Tin tức</span>
+                                    <h4 class="popular-item-title" th:text="${item.title}">Tiêu đề bài viết phụ</h4>
+                                    <p class="popular-item-excerpt text-muted" th:text="${item.summary != null && #strings.length(item.summary) > 75 ? #strings.substring(item.summary, 0, 75) + '...' : item.summary}">Mô tả bài viết phụ...</p>
+                                    <div class="popular-item-meta d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="popular-item-author text-secondary" style="font-size: 12px; font-weight: 500;">
+                                                <i data-lucide="user" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 2px;"></i>
+                                                <span th:text="${item.expertName}">Tác giả</span>
+                                            </span>
+                                            <span class="popular-item-date text-muted" style="font-size: 12px;">
+                                                <i data-lucide="calendar" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 2px; margin-left: 6px;"></i>
+                                                <span th:text="${item.publishedAt != null ? #temporals.format(item.publishedAt, 'dd/MM/yyyy') : (item.createdAt != null ? #temporals.format(item.createdAt, 'dd/MM/yyyy') : 'N/A')}">30-04-2026</span>
+                                            </span>
+                                        </div>
+                                        <span class="popular-item-views text-muted" style="font-size: 12px;">
+                                            <i data-lucide="eye" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 2px;"></i>
+                                            <span th:text="${item.totalViews != null ? item.totalViews : 0}">120</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                        </th:block>
                     </div>
                 </div>
-                <a th:href="@{/articles/{id}(id=${featuredArticle.id})}" class="btn-primary">Đọc bài viết</a>
-            </div>
-            <div class="hero-image">
-                <img th:src="${featuredArticle.thumbnail != null && !featuredArticle.thumbnail.isEmpty() ? featuredArticle.thumbnail : '/api/placeholder/800/600'}"
-                     alt="Featured">
             </div>
         </div>
     </section>
 
     <section class="filter-section">
-        <div class="container">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div class="filter-tabs">
-                <a th:href="@{/articles}"
-                   th:classappend="${category == null ? ' active' : ''}"
-                   class="filter-tab">Tất cả</a>
+                <a th:href="@{/articles(search=${search})}"
+                   th:classappend="${category == null || category == '' ? ' active' : ''}"
+                   class="filter-tab">
+                    Tất cả
+                    <span class="badge-count" th:text="${totalCount}">0</span>
+                </a>
                 <a th:each="cat : ${categories}"
-                   th:href="@{/articles(category=${cat})}"
+                   th:href="@{/articles(category=${cat}, search=${search})}"
                    th:classappend="${category == cat ? ' active' : ''}"
-                   th:text="${cat}"
-                   class="filter-tab">Tên danh mục</a>
+                   class="filter-tab">
+                    <span th:text="${cat}">Tên danh mục</span>
+                    <span class="badge-count" th:text="${categoryCounts.get(cat) != null ? categoryCounts.get(cat) : 0}">0</span>
+                </a>
             </div>
+
+            <form th:action="@{/articles}" method="get" class="search-form">
+                <input type="hidden" name="category" th:value="${category}" th:if="${category != null && category != ''}"/>
+                <div class="search-wrapper">
+                    <input type="text" name="search" th:value="${search}" placeholder="Tìm bài viết..." class="search-input">
+                    <button type="submit" class="search-btn">
+                        <i data-lucide="search" style="width: 18px; height: 18px; stroke-width: 2.5;"></i>
+                    </button>
+                </div>
+            </form>
         </div>
     </section>
 
     <section class="blog-grid-section">
         <div class="container">
-            <div class="blog-grid">
-                <article class="blog-card" th:each="article : ${articles.content}">
+            <div class="blog-grid" th:if="${!articles.content.isEmpty()}">
+                <article class="blog-card" th:each="article, iterStat : ${articles.content}"
+                         th:classappend="${iterStat.index == 0 && currentPage == 0 && (category == null || category == '') && (search == null || search == '') ? ' featured' : ''}">
                     <a th:href="@{/articles/{id}(id=${article.id})}" class="card-link">
                         <div class="card-image">
                             <img th:src="${article.thumbnail != null && !article.thumbnail.isEmpty() ? article.thumbnail : '/api/placeholder/600/400'}"
@@ -64,11 +124,13 @@
                                   th:text="${article.category != null ? article.category : 'Blog'}">Blog</span>
                         </div>
                         <div class="card-content">
-                            <h3 class="card-title" th:text="${article.title}">Tiêu đề</h3>
-                            <p class="card-excerpt"
-                               th:text="${article.summary != null ? article.summary : (article.content != null && #strings.length(article.content) > 100 ? #strings.substring(article.content, 0, 100) + '...' : 'Mô tả bài viết...')}">
-                                Mô tả bài viết...
-                            </p>
+                            <div>
+                                <h3 class="card-title" th:text="${article.title}">Tiêu đề</h3>
+                                <p class="card-excerpt"
+                                   th:text="${article.summary != null ? article.summary : (article.content != null && #strings.length(article.content) > 100 ? #strings.substring(article.content, 0, 100) + '...' : 'Mô tả bài viết...')}">
+                                    Mô tả bài viết...
+                                </p>
+                            </div>
                             <div class="card-footer">
                                 <div class="author-info">
                                     <img th:src="${article.expertAvatar != null && !article.expertAvatar.isEmpty() ? article.expertAvatar : '/api/placeholder/32/32'}"
@@ -76,14 +138,27 @@
                                          class="author-avatar">
                                     <span class="author-name" th:text="${article.expertName != null ? article.expertName : 'ORGO'}">Tác giả</span>
                                 </div>
+                                <div class="views-info d-flex align-items-center gap-1 text-muted" style="font-size: 13px;">
+                                    <i data-lucide="eye" style="width: 16px; height: 16px; stroke-width: 2;"></i>
+                                    <span th:text="${article.totalViews != null ? article.totalViews : 0}">0</span>
+                                </div>
                             </div>
                         </div>
                     </a>
                 </article>
             </div>
 
+            <div class="empty-state text-center py-5 my-5" th:if="${articles.content.isEmpty()}">
+                <div class="empty-icon-wrapper mb-3" style="color: #9CA3AF;">
+                    <i data-lucide="book-open" style="width: 56px; height: 56px; stroke-width: 1.5; margin: 0 auto;"></i>
+                </div>
+                <h3 class="fw-bold" style="font-size: 20px; color: #131B2E; margin-bottom: 8px;">Không tìm thấy bài viết nào</h3>
+                <p class="text-muted" style="max-width: 420px; margin: 0 auto 24px; font-size: 15px;">Rất tiếc, danh mục hoặc từ khóa tìm kiếm của bạn hiện không có bài viết nào phù hợp.</p>
+                <a th:href="@{/articles}" class="btn-primary" style="display: inline-block; padding: 12px 28px; border-radius: 9999px; font-size: 15px;">Xem tất cả bài viết</a>
+            </div>
+
             <div class="pagination" th:if="${articles.totalPages > 1}">
-                <a th:href="@{/articles(page=${articles.number - 1}, category=${category})}"
+                <a th:href="@{/articles(page=${articles.number - 1}, category=${category}, search=${search})}"
                    th:if="${!articles.first}"
                    class="page-btn">
                     <svg width="8" height="12" viewBox="0 0 8 12" fill="none">
@@ -92,12 +167,12 @@
                 </a>
 
                 <a th:each="i : ${#numbers.sequence(0, articles.totalPages - 1)}"
-                   th:href="@{/articles(page=${i}, category=${category})}"
+                   th:href="@{/articles(page=${i}, category=${category}, search=${search})}"
                    th:text="${i + 1}"
                    th:classappend="${i == articles.number ? ' active' : ''}"
                    class="page-number">1</a>
 
-                <a th:href="@{/articles(page=${articles.number + 1}, category=${category})}"
+                <a th:href="@{/articles(page=${articles.number + 1}, category=${category}, search=${search})}"
                    th:if="${!articles.last}"
                    class="page-btn">
                     <svg width="8" height="12" viewBox="0 0 8 12" fill="none">
@@ -186,68 +261,523 @@
     font-size: 18px;
     text-decoration: none;
 }
-.filter-section { padding: 40px 24px; }
-.filter-tabs { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* Popular Section Styling */
+.popular-section {
+    padding: 40px 24px;
+}
+.popular-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 32px;
+}
+.popular-main-card {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+    box-shadow: 0px 8px 32px rgba(19, 27, 46, 0.04);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.popular-main-card:hover {
+    transform: translateY(-4px);
+}
+.main-card-image {
+    position: relative;
+    height: 380px;
+    background: #F2F3FF;
+    overflow: hidden;
+}
+.main-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+.popular-main-card:hover .main-card-image img {
+    transform: scale(1.03);
+}
+.rank-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #131B2E;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+    z-index: 10;
+}
+.main-card-category {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 11.2px;
+    font-weight: 700;
+    color: #006E2F;
+    text-transform: uppercase;
+    letter-spacing: 0.56px;
+    z-index: 10;
+}
+.main-card-content {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between;
+}
+.main-card-title {
+    font-family: 'Alata', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 36px;
+    color: #131B2E;
+    margin-bottom: 16px;
+    transition: color 0.2s ease;
+}
+.popular-main-card:hover .main-card-title {
+    color: #006E2F;
+}
+.main-card-excerpt {
+    font-size: 16px;
+    line-height: 26px;
+    color: #4B5563;
+    margin-bottom: 24px;
+}
+.main-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid #F3F4F6;
+}
+
+/* Sidebar Column */
+.popular-sidebar {
+    display: flex;
+    flex-direction: column;
+}
+.popular-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    justify-content: space-between;
+}
+.popular-item-card {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0px 4px 20px rgba(19, 27, 46, 0.02);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    gap: 16px;
+    border: 1px solid #F3F4F6;
+}
+.popular-item-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0px 8px 24px rgba(19, 27, 46, 0.06);
+    border-color: #E5E7EB;
+}
+.popular-item-rank {
+    font-size: 20px;
+    font-weight: 800;
+    color: #9CA3AF;
+    width: 32px;
+    text-align: center;
+    font-family: 'Alata', sans-serif;
+}
+.popular-item-card:nth-of-type(1) .popular-item-rank { color: #8B5CF6; } /* Rank 2 */
+.popular-item-card:nth-of-type(2) .popular-item-rank { color: #3B82F6; } /* Rank 3 */
+.popular-item-card:nth-of-type(3) .popular-item-rank { color: #10B981; } /* Rank 4 */
+.popular-item-card:nth-of-type(4) .popular-item-rank { color: #6B7280; } /* Rank 5 */
+
+.popular-item-thumb {
+    width: 100px;
+    height: 75px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #F2F3FF;
+    flex-shrink: 0;
+}
+.popular-item-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.popular-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-grow: 1;
+}
+.popular-item-category {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #006E2F;
+    letter-spacing: 0.5px;
+}
+.popular-item-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 20px;
+    color: #131B2E;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s ease;
+}
+.popular-item-card:hover .popular-item-title {
+    color: #006E2F;
+}
+.popular-item-meta {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+/* Pulsating green glow */
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 8px rgba(34, 197, 94, 0.3), 0 0 16px rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.7), 0 0 35px rgba(34, 197, 94, 0.3);
+        border-color: rgba(74, 222, 128, 0.9);
+    }
+    100% {
+        box-shadow: 0 0 8px rgba(34, 197, 94, 0.3), 0 0 16px rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.6);
+    }
+}
+.glow-green {
+    border: 2px solid rgba(34, 197, 94, 0.5) !important;
+    animation: pulse-glow 3.5s infinite ease-in-out;
+}
+
+.filter-section {
+    padding: 40px 24px;
+}
+.filter-tabs {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
 .filter-tab {
-    padding: 8px 24px;
-    background: #A2EEFF;
-    color: #004E5A;
+    padding: 8px 20px;
+    background: #F3F4F6; /* light gray neutral */
+    color: #4B5563; /* medium gray */
     border-radius: 9999px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     text-decoration: none;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #E5E7EB;
 }
-.filter-tab.active { background: #006E2F; color: white; }
+.filter-tab:hover {
+    background: #E8F5E9; /* light green active hover */
+    color: #006E2F;
+    border-color: #A3D9A5;
+}
+.filter-tab.active {
+    background: #006E2F;
+    color: white;
+    border-color: #006E2F;
+}
+.badge-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.06);
+    color: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 999px;
+    min-width: 20px;
+    height: 18px;
+}
+.filter-tab.active .badge-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+/* Search Form Styling */
+.search-form {
+    max-width: 320px;
+    width: 100%;
+}
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.search-input {
+    width: 100%;
+    padding: 10px 40px 10px 16px;
+    border: 1px solid #E5E7EB;
+    border-radius: 9999px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+    background: white;
+}
+.search-input:focus {
+    border-color: #006E2F;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+}
+.search-btn {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #9CA3AF;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+.search-btn:hover {
+    color: #006E2F;
+}
+
 .blog-grid-section { padding: 0 24px 80px; }
-.blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-bottom: 80px; }
+.blog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-bottom: 80px;
+}
 .blog-card {
     background: white;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0px 8px 32px rgba(19, 27, 46, 0.04);
-    transition: transform 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid #F3F4F6;
+    display: flex;
+    flex-direction: column;
 }
-.blog-card:hover { transform: translateY(-4px); }
-.card-link { text-decoration: none; color: inherit; }
-.card-image { position: relative; height: 292px; background: #F2F3FF; }
-.card-image img { width: 100%; height: 100%; object-fit: cover; }
+.blog-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0px 12px 36px rgba(19, 27, 46, 0.08);
+}
+.card-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.card-image {
+    position: relative;
+    aspect-ratio: 16 / 10; /* Responsive aspect ratio instead of fixed height */
+    background: #F2F3FF;
+    overflow: hidden;
+}
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+.blog-card:hover .card-image img {
+    transform: scale(1.05);
+}
 .card-category {
-    position: absolute; top: 12px; left: 16px;
+    position: absolute;
+    top: 12px;
+    left: 16px;
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(2px);
-    padding: 2.5px 12px; border-radius: 9999px;
-    font-size: 11.2px; font-weight: 700; letter-spacing: 0.56px;
-    text-transform: uppercase; color: #006E2F;
+    padding: 2.5px 12px;
+    border-radius: 9999px;
+    font-size: 11.2px;
+    font-weight: 700;
+    letter-spacing: 0.56px;
+    text-transform: uppercase;
+    color: #006E2F;
 }
-.card-content { padding: 24px; }
-.card-title { font-size: 20px; font-weight: 700; line-height: 25px; color: #131B2E; margin-bottom: 12px; }
-.card-excerpt { font-size: 16px; line-height: 26px; color: #3D4A3D; margin-bottom: 12px; }
+.card-content {
+    padding: 24px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 26px;
+    color: #131B2E;
+    margin-bottom: 12px;
+    transition: color 0.2s ease;
+}
+.blog-card:hover .card-title {
+    color: #006E2F;
+}
+.card-excerpt {
+    font-size: 15px;
+    line-height: 24px;
+    color: #4B5563;
+    margin-bottom: 16px;
+}
 .card-footer {
-    display: flex; justify-content: space-between; align-items: center;
-    padding-top: 12px; border-top: 1px solid #E5E7EB;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid #E5E7EB;
+    margin-top: auto;
 }
-.author-info { display: flex; align-items: center; gap: 12px; }
-.author-avatar { width: 32px; height: 32px; border-radius: 50%; background: #EAEDFF; }
-.author-name { font-size: 14px; font-weight: 600; color: #131B2E; }
-.read-time { font-size: 12px; color: #3D4A3D; }
-.pagination { display: flex; justify-content: center; align-items: center; gap: 16px; }
+.author-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.author-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #EAEDFF;
+    object-fit: cover;
+}
+.author-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #131B2E;
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
 .page-btn, .page-number {
-    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-    border-radius: 50%; text-decoration: none; color: #131B2E; font-weight: 400;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    text-decoration: none;
+    color: #131B2E;
+    font-weight: 400;
+    transition: all 0.2s ease;
 }
-.page-btn { border: 1px solid #BCCBB9; }
-.page-number.active { background: #006E2F; color: white; font-weight: 700; }
+.page-btn {
+    border: 1px solid #BCCBB9;
+}
+.page-btn:hover {
+    background: #E8F5E9;
+    border-color: #006E2F;
+    color: #006E2F;
+}
+.page-number:hover {
+    background: #F3F4F6;
+}
+.page-number.active {
+    background: #006E2F;
+    color: white;
+    font-weight: 700;
+}
+
+/* Featured Blog Card styling in grid */
+.blog-card.featured {
+    grid-column: span 2;
+}
+.blog-card.featured .card-link {
+    flex-direction: row;
+}
+.blog-card.featured .card-image {
+    width: 50%;
+    height: auto;
+    aspect-ratio: auto;
+}
+.blog-card.featured .card-content {
+    width: 50%;
+    padding: 32px;
+}
+.blog-card.featured .card-title {
+    font-size: 24px;
+    line-height: 32px;
+}
+
 @media (max-width: 1024px) {
-    .blog-grid { grid-template-columns: repeat(2, 1fr); }
-    .hero-container { grid-template-columns: 1fr; }
+    .blog-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .blog-card.featured {
+        grid-column: span 1;
+    }
+    .blog-card.featured .card-link {
+        flex-direction: column;
+    }
+    .blog-card.featured .card-image {
+        width: 100%;
+        aspect-ratio: 16 / 10;
+    }
+    .blog-card.featured .card-content {
+        width: 100%;
+        padding: 24px;
+    }
+    .hero-container {
+        grid-template-columns: 1fr;
+    }
+    .popular-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+}
+@media (max-width: 768px) {
+    .filter-section .container {
+        align-items: stretch !important;
+    }
+    .search-form {
+        max-width: 100%;
+    }
 }
 @media (max-width: 640px) {
-    .blog-grid { grid-template-columns: 1fr; }
-    .hero-title { font-size: 36px; line-height: 40px; }
+    .blog-grid {
+        grid-template-columns: 1fr;
+    }
+    .hero-title {
+        font-size: 36px;
+        line-height: 40px;
+    }
 }
 </style>
-
+<script>
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+</script>
 </main>
 </body>
 </html>

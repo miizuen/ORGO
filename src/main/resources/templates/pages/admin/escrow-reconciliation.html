@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{fragments/admin-layout :: adminLayout('Đối soát doanh thu', 'revenue-reconciliation', ~{::main})}">
+    <main class="recon-container">
+        <!-- Custom CSS variables and styles local to the page -->
+        <style>
+            :root {
+                --orgo-primary-rgb: 0, 110, 47;
+                --orgo-success-rgb: 22, 163, 74;
+                --orgo-danger-rgb: 220, 38, 38;
+                --orgo-warning-rgb: 245, 158, 11;
+                --glass-bg: rgba(255, 255, 255, 0.75);
+                --glass-border: rgba(0, 0, 0, 0.05);
+                --transition-premium: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            .recon-container {
+                display: flex;
+                flex-direction: column;
+                gap: 28px;
+                padding: 12px 0 32px;
+                animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(16px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            /* Breadcrumb override if needed */
+            .recon-header {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .recon-kicker {
+                font-size: 11px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.15em;
+                color: var(--orgo-text-secondary);
+            }
+            .recon-title {
+                font-size: 32px;
+                font-weight: 900;
+                letter-spacing: -0.04em;
+                color: var(--orgo-text-primary);
+                margin: 0;
+            }
+            .recon-subtitle {
+                font-size: 14px;
+                color: var(--orgo-text-secondary);
+                margin: 4px 0 0 0;
+            }
+
+            /* Double Bezel Card Architecture */
+            .db-card-outer {
+                background: rgba(0, 0, 0, 0.02);
+                border: 1px solid rgba(0, 0, 0, 0.04);
+                border-radius: 24px;
+                padding: 6px;
+                transition: var(--transition-premium);
+            }
+            .db-card-outer:hover {
+                box-shadow: 0 12px 30px rgba(19, 27, 46, 0.04);
+                background: rgba(0, 0, 0, 0.03);
+            }
+            .db-card-inner {
+                background: #ffffff;
+                border-radius: calc(24px - 6px);
+                border: 1px solid rgba(255, 255, 255, 0.8);
+                box-shadow: var(--orgo-shadow-sm);
+                padding: 24px;
+            }
+
+            /* Wallet Section */
+            .wallet-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 16px;
+            }
+            .wallet-item {
+                position: relative;
+                overflow: hidden;
+                background: linear-gradient(135deg, #ffffff 0%, #f9fbfd 100%);
+                border: 1px solid #eef2f6;
+                border-radius: 16px;
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .wallet-item::after {
+                content: '';
+                position: absolute;
+                bottom: -20px;
+                right: -20px;
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                background: rgba(var(--orgo-primary-rgb), 0.03);
+                z-index: 0;
+            }
+            .wallet-label {
+                font-size: 11px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                color: var(--orgo-text-secondary);
+                z-index: 1;
+            }
+            .wallet-value {
+                font-size: 26px;
+                font-weight: 900;
+                color: var(--orgo-primary);
+                font-family: var(--font-ui);
+                z-index: 1;
+            }
+
+            /* Filter Area */
+            .filter-form {
+                display: flex;
+                gap: 16px;
+                flex-wrap: wrap;
+                align-items: flex-end;
+            }
+            .form-group-custom {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                flex: 1;
+                min-width: 200px;
+            }
+            .form-group-custom label {
+                font-size: 12px;
+                font-weight: 800;
+                color: var(--orgo-text-primary);
+            }
+            .input-premium {
+                border: 1px solid #dbe4ee;
+                border-radius: 14px;
+                padding: 12px 16px;
+                font-size: 13px;
+                font-family: var(--font-ui);
+                color: var(--orgo-text-body);
+                background: #ffffff;
+                transition: var(--transition-premium);
+                outline: none;
+            }
+            .input-premium:focus {
+                border-color: var(--orgo-primary);
+                box-shadow: 0 0 0 4px rgba(var(--orgo-primary-rgb), 0.1);
+            }
+
+            /* Premium Buttons */
+            .btn-premium {
+                border: none;
+                border-radius: 14px;
+                padding: 12px 24px;
+                font-size: 13px;
+                font-weight: 800;
+                font-family: var(--font-ui);
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                transition: var(--transition-premium);
+                text-decoration: none;
+            }
+            .btn-premium-primary {
+                background: var(--orgo-primary);
+                color: #ffffff;
+            }
+            .btn-premium-primary:hover {
+                background: var(--orgo-primary-dark);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(var(--orgo-primary-rgb), 0.2);
+            }
+            .btn-premium-secondary {
+                background: #ffffff;
+                border: 1px solid #dbe4ee;
+                color: var(--orgo-text-primary);
+            }
+            .btn-premium-secondary:hover {
+                border-color: var(--orgo-primary);
+                color: var(--orgo-primary);
+                transform: translateY(-1px);
+            }
+
+            /* Table Styling */
+            .table-container-premium {
+                border-radius: 16px;
+                border: 1px solid #eef2f6;
+                overflow: hidden;
+                background: #ffffff;
+            }
+            .table-premium {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 0;
+            }
+            .table-premium th {
+                background: #f8fafc;
+                color: var(--orgo-text-secondary);
+                font-size: 11px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                padding: 16px 20px;
+                border-bottom: 1px solid #edf2f7;
+            }
+            .table-premium td {
+                padding: 16px 20px;
+                font-size: 13px;
+                color: var(--orgo-text-body);
+                border-bottom: 1px solid #f1f5f9;
+                vertical-align: middle;
+            }
+            .table-premium tbody tr {
+                transition: var(--transition-premium);
+            }
+            .table-premium tbody tr:hover td {
+                background: rgba(var(--orgo-primary-rgb), 0.02);
+            }
+
+            /* Badges */
+            .badge-custom {
+                display: inline-flex;
+                align-items: center;
+                padding: 6px 12px;
+                border-radius: 9999px;
+                font-size: 11px;
+                font-weight: 800;
+            }
+            .badge-custom-success {
+                background: #dcfce7;
+                color: #166534;
+            }
+            .badge-custom-warning {
+                background: #fef3c7;
+                color: #92400e;
+            }
+            .badge-custom-danger {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+
+            /* Details Button */
+            .btn-table-action {
+                border: 1px solid #edf2f7;
+                background: #ffffff;
+                color: var(--orgo-primary);
+                border-radius: 10px;
+                padding: 6px 14px;
+                font-size: 12px;
+                font-weight: 800;
+                transition: var(--transition-premium);
+                cursor: pointer;
+            }
+            .btn-table-action:hover {
+                background: var(--orgo-primary);
+                color: #ffffff;
+                border-color: var(--orgo-primary);
+            }
+
+            /* Modal Glassmorphism styling */
+            .modal-glass-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(19, 27, 46, 0.4);
+                backdrop-filter: blur(12px);
+                z-index: 1100;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                padding: 20px;
+            }
+            .modal-glass-overlay.show {
+                opacity: 1;
+                pointer-events: auto;
+            }
+            .modal-glass-box {
+                width: min(780px, 100%);
+                background: #ffffff;
+                border-radius: 24px;
+                border: 1px solid rgba(255, 255, 255, 0.8);
+                box-shadow: 0 30px 90px rgba(0, 0, 0, 0.15);
+                padding: 28px;
+                transform: scale(0.95) translateY(10px);
+                transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .modal-glass-overlay.show .modal-glass-box {
+                transform: scale(1) translateY(0);
+            }
+            .modal-header-custom {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                border-bottom: 1px solid #edf2f7;
+                padding-bottom: 12px;
+            }
+            .modal-header-custom h5 {
+                font-size: 20px;
+                font-weight: 900;
+                letter-spacing: -0.02em;
+                margin: 0;
+                color: var(--orgo-text-primary);
+            }
+            .modal-close-btn {
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                color: var(--orgo-text-secondary);
+                transition: var(--transition-premium);
+            }
+            .modal-close-btn:hover {
+                color: var(--orgo-danger);
+            }
+            .modal-content-grid {
+                display: grid;
+                gap: 16px;
+            }
+            .modal-content-card {
+                background: #f8fafc;
+                border: 1px solid #eef2f6;
+                border-radius: 16px;
+                padding: 16px;
+            }
+            .modal-content-card ul {
+                margin: 8px 0 0 0;
+                padding-left: 20px;
+            }
+            .modal-content-card li {
+                margin: 6px 0;
+                font-size: 13px;
+                color: var(--orgo-text-body);
+            }
+            
+            .empty-state {
+                padding: 48px;
+                text-align: center;
+                color: var(--orgo-text-secondary);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+            }
+            .empty-icon {
+                color: var(--orgo-text-faint);
+                opacity: 0.5;
+            }
+        </style>
+
+        <!-- Header -->
+        <section class="recon-header">
+            <span class="recon-kicker">Escrow & Reconciliation</span>
+            <h1 class="recon-title">Đối soát doanh thu</h1>
+            <p class="recon-subtitle">Quản lý và đối soát doanh thu chi tiết từ các đơn hàng hoàn tất của nhà bán hàng trên hệ thống.</p>
+        </section>
+
+        <!-- Wallet Card -->
+        <div th:if="${adminWallet != null}" class="db-card-outer">
+            <div class="db-card-inner">
+                <h5 class="section-kicker" style="margin-bottom: 16px;">Ví quản trị hệ thống</h5>
+                <div class="wallet-grid">
+                    <div class="wallet-item">
+                        <span class="wallet-label">Số dư khả dụng</span>
+                        <span class="wallet-value" th:text="${#numbers.formatDecimal(adminWallet.availableBalance != null ? adminWallet.availableBalance : 0, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</span>
+                    </div>
+                    <div class="wallet-item">
+                        <span class="wallet-label">Số dư tạm giữ</span>
+                        <span class="wallet-value" style="color: var(--orgo-text-primary);" th:text="${#numbers.formatDecimal(adminWallet.heldBalance != null ? adminWallet.heldBalance : 0, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Area -->
+        <div class="db-card-outer">
+            <div class="db-card-inner">
+                <form method="get" class="filter-form">
+                    <div class="form-group-custom">
+                        <label>ID / Tên nhà bán hàng</label>
+                        <input type="number" name="sellerId" th:value="${sellerIdFilter}" class="input-premium" placeholder="Nhập ID nhà bán hàng..."/>
+                    </div>
+                    <div class="form-group-custom">
+                        <label>Mã đơn hàng (ID)</label>
+                        <input type="number" name="orderId" th:value="${orderIdFilter}" class="input-premium" placeholder="Nhập ID đơn hàng..."/>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-premium btn-premium-primary" type="submit">
+                            <i data-lucide="filter" style="width: 16px; height: 16px;"></i> Lọc dữ liệu
+                        </button>
+                        <a th:href="@{/admin/revenue-reconciliation}" class="btn-premium btn-premium-secondary">
+                            Xóa bộ lọc
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Settlement Table Panel -->
+        <div class="db-card-outer">
+            <div class="db-card-inner" style="padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px 16px;">
+                    <h5 style="margin: 0; font-size: 16px; font-weight: 800; color: var(--orgo-text-primary);">Bảng quyết toán doanh thu</h5>
+                </div>
+                <div class="table-container-premium">
+                    <table class="table-premium">
+                        <thead>
+                        <tr>
+                            <th>Mã Đơn</th>
+                            <th>Ngày Đặt</th>
+                            <th>Người Bán</th>
+                            <th style="text-align: right;">Tổng Đơn</th>
+                            <th style="text-align: right;">Hoa Hồng Nền Tảng</th>
+                            <th style="text-align: right;">Thực Nhận</th>
+                            <th style="text-align: center;">Trạng Thái</th>
+                            <th style="text-align: center;">Hành Động</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${settlementRows == null || settlementRows.isEmpty()}">
+                            <td colspan="8">
+                                <div class="empty-state">
+                                    <i data-lucide="inbox" class="empty-icon" style="width: 48px; height: 48px;"></i>
+                                    <span>Không tìm thấy dữ liệu đối soát phù hợp.</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:each="row : ${settlementRows}">
+                            <td class="fw-bold" style="color: var(--orgo-text-primary);" th:text="'#' + ${row.orderId}">#1</td>
+                            <td th:text="${orderDetailsByOrderId.get(row.orderId) != null ? #temporals.format(orderDetailsByOrderId.get(row.orderId).orderedAt, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2026 12:00</td>
+                            <td th:text="${sellerNamesById[row.sellerId] ?: ('Tài khoản #' + row.sellerId)}">Người bán</td>
+                            <td class="fw-bold text-success" style="text-align: right;"
+                                th:text="${orderDetailsByOrderId.get(row.orderId) != null ? #numbers.formatDecimal(orderDetailsByOrderId.get(row.orderId).totalAmount, 0, 'POINT', 0, 'COMMA') + ' đ' : (row.orderAmount != null ? #numbers.formatDecimal(row.orderAmount, 0, 'POINT', 0, 'COMMA') + ' đ' : '0 đ')}">
+                                30.000 đ
+                            </td>
+                            <td style="text-align: right; color: var(--orgo-warning-rgb);" th:text="${row.commissionAmount != null ? #numbers.formatDecimal(row.commissionAmount, 0, 'POINT', 0, 'COMMA') + ' đ' : '0 đ'}">
+                                900 đ
+                            </td>
+                            <td class="fw-bold text-primary" style="text-align: right;" th:text="${row.sellerAmount != null ? #numbers.formatDecimal(row.sellerAmount, 0, 'POINT', 0, 'COMMA') + ' đ' : '0 đ'}">
+                                29.100 đ
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="badge-custom" 
+                                      th:classappend="${row.status == 'SETTLED' ? ' badge-custom-success' : (row.status == 'PENDING' ? ' badge-custom-warning' : ' badge-custom-danger')}"
+                                      th:text="${row.status == 'SETTLED' ? 'Đã đối soát' : (row.status == 'PENDING' ? 'Chờ đối soát' : 'Thất bại')}">
+                                    Đã đối soát
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <button type="button" class="btn-table-action btn-order-detail" th:attr="data-order-id=${row.orderId}">
+                                    Chi tiết đơn
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Modal Overlay -->
+        <div id="order-detail-modal" class="modal-glass-overlay">
+            <div class="modal-glass-box">
+                <div class="modal-header-custom">
+                    <h5>Chi tiết đơn hàng</h5>
+                    <button type="button" id="btn-close-order-modal" class="modal-close-btn">&times;</button>
+                </div>
+                <div id="order-detail-content" class="modal-content-grid"></div>
+            </div>
+        </div>
+
+        <!-- Off-screen order detail templates -->
+        <div id="order-detail-store" style="display:none;">
+            <div th:each="entry : ${orderDetailsByOrderId}" th:attr="data-order-id=${entry.key}">
+                <div class="modal-content-card">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 13px;">
+                        <div><strong>Mã đơn hàng:</strong> <span th:text="${entry.value.orderCode}">ORD</span></div>
+                        <div><strong>Ngày đặt:</strong> <span th:text="${entry.value.orderedAt != null ? #temporals.format(entry.value.orderedAt, 'dd/MM/yyyy HH:mm') : '-'}">-</span></div>
+                        <div><strong>Trạng thái giao hàng:</strong> <span th:text="${entry.value.orderStatus}">PENDING</span></div>
+                        <div><strong>Trạng thái thanh toán:</strong> <span th:text="${entry.value.paymentStatus}">PAID</span></div>
+                        <div><strong>Phí vận chuyển:</strong> <span th:text="${entry.value.shippingFee != null ? #numbers.formatDecimal(entry.value.shippingFee, 0, 'POINT', 0, 'COMMA') + ' đ' : '0 đ'}">0 đ</span></div>
+                        <div><strong>Tổng tiền thanh toán:</strong> <span class="text-success fw-bold" th:text="${entry.value.totalAmount != null ? #numbers.formatDecimal(entry.value.totalAmount, 0, 'POINT', 0, 'COMMA') + ' đ' : '0 đ'}">0 đ</span></div>
+                    </div>
+                </div>
+                <div class="modal-content-card" style="margin-top: 12px;">
+                    <div style="font-weight: 800; font-size: 14px; margin-bottom: 8px; color: var(--orgo-text-primary);">Sản phẩm trong đơn:</div>
+                    <ul>
+                        <li th:each="item : ${entry.value.items}">
+                            <span th:text="${item.productName != null ? item.productName : 'Sản phẩm'}">Product</span> 
+                            | SL: <span th:text="${item.quantity}">1</span> 
+                            | Đơn giá: <span th:text="${item.unitPrice != null ? #numbers.formatDecimal(item.unitPrice, 0, 'POINT', 0, 'COMMA') + ' đ' : '0 đ'}">0 đ</span>
+                            | Thành tiền: <span class="fw-bold" th:text="${item.lineTotal != null ? #numbers.formatDecimal(item.lineTotal, 0, 'POINT', 0, 'COMMA') + ' đ' : '0 đ'}">0 đ</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+(function(){
+    const modal = document.getElementById('order-detail-modal');
+    const content = document.getElementById('order-detail-content');
+    const store = document.getElementById('order-detail-store');
+    
+    function closeModal(){
+        modal.classList.remove('show');
+        setTimeout(() => {
+            if (!modal.classList.contains('show')) {
+                content.innerHTML = '';
+            }
+        }, 400);
+    }
+    
+    document.querySelectorAll('.btn-order-detail').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const orderId = btn.getAttribute('data-order-id');
+            const source = store.querySelector('[data-order-id="'+orderId+'"]');
+            content.innerHTML = source ? source.innerHTML : '<div class="empty-state">Không tìm thấy chi tiết đơn hàng.</div>';
+            modal.classList.add('show');
+        });
+    });
+    
+    document.getElementById('btn-close-order-modal').addEventListener('click', closeModal);
+    
+    modal.addEventListener('click', e => {
+        if(e.target === modal) closeModal();
+    });
+})();
+</script>
+</body>
+</html>

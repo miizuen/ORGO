@@ -74,7 +74,7 @@
                 <div class="payout-body">
                     <div class="summary-grid">
                         <article class="summary-card">
-                            <div class="summary-icon green">👤</div>
+                            <div class="summary-icon green"><i data-lucide="user" style="width: 20px; height: 20px;"></i></div>
                             <div>
                                 <div class="summary-label">TÊN CHỦ TÀI KHOẢN</div>
                                 <p class="summary-name" th:text="${req.accountHolderName}">Nguyễn Văn An</p>
@@ -82,14 +82,14 @@
                             </div>
                         </article>
                         <article class="summary-card">
-                            <div class="summary-icon blue">💵</div>
+                            <div class="summary-icon blue"><i data-lucide="dollar-sign" style="width: 20px; height: 20px;"></i></div>
                             <div>
                                 <div class="summary-label">SỐ TIỀN RÚT</div>
                                 <div class="summary-value" th:text="${req.requestedAmount} + ' VND'">12,250,000 VND</div>
                             </div>
                         </article>
                         <article class="summary-card">
-                            <div class="summary-icon purple">📋</div>
+                            <div class="summary-icon purple"><i data-lucide="clipboard-list" style="width: 20px; height: 20px;"></i></div>
                             <div>
                                 <div class="summary-label">TRẠNG THÁI</div>
                                 <div class="summary-pill" th:text="${req.status}">PENDING</div>
@@ -106,6 +106,8 @@
                                 <th>Số tài khoản</th>
                                 <th>Chủ tài khoản</th>
                                 <th>Trạng thái</th>
+                                <th th:if="${req.transactionCode != null && !req.transactionCode.isEmpty()}">Mã giao dịch</th>
+                                <th th:if="${req.rejectionReason != null && !req.rejectionReason.isEmpty()}">Lý do từ chối</th>
                                 <th style="text-align:right">Ngày tạo</th>
                             </tr>
                             </thead>
@@ -114,8 +116,16 @@
                                 <td th:text="${req.bankName}">Vietcombank</td>
                                 <td th:text="${req.recipientBankAccount}">0123456789</td>
                                 <td th:text="${req.accountHolderName}">Nguyễn Văn An</td>
-                                <td th:text="${req.status}">PENDING</td>
-                                <td style="text-align:right" th:text="${req.createdAt}">27/04/2026 10:30</td>
+                                <td>
+                                    <span class="badge px-3 py-2 fw-bold" 
+                                          th:classappend="${#strings.toString(req.status) == 'PENDING' ? 'bg-warning text-dark' : (#strings.toString(req.status) == 'REJECTED' ? 'bg-danger text-white' : 'bg-success text-white')}"
+                                          th:style="${#strings.toString(req.status) == 'PENDING' ? 'color: #92400e !important; background-color: #fef3c7 !important;' : (#strings.toString(req.status) == 'REJECTED' ? 'color: #991b1b !important; background-color: #fee2e2 !important;' : 'color: #166534 !important; background-color: #dcfce7 !important;')}"
+                                          th:text="${#strings.toString(req.status) == 'PENDING' ? 'Chờ xử lý' : (#strings.toString(req.status) == 'REJECTED' ? 'Từ chối' : 'Đã duyệt')}">
+                                    </span>
+                                </td>
+                                <td th:if="${req.transactionCode != null && !req.transactionCode.isEmpty()}" th:text="${req.transactionCode}">-</td>
+                                <td th:if="${req.rejectionReason != null && !req.rejectionReason.isEmpty()}" th:text="${req.rejectionReason}">-</td>
+                                <td style="text-align:right" th:text="${req.createdAt != null ? #temporals.format(req.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">27/04/2026 10:30</td>
                             </tr>
                             </tbody>
                         </table>

@@ -38,6 +38,15 @@ public class Administrator {
     @Column(name = "vaiTro", columnDefinition = "NVARCHAR(255)")
     private String role;
 
+    @Column(name = "tenNganHang", columnDefinition = "NVARCHAR(255)")
+    private String bankName;
+
+    @Column(name = "soTaiKhoan", columnDefinition = "NVARCHAR(255)")
+    private String bankAccount;
+
+    @Column(name = "chuTaiKhoan", columnDefinition = "NVARCHAR(255)")
+    private String accountHolderName;
+
     @Column(name = "trangThai")
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     private com.example.orgo_project.enums.UserStatus status;

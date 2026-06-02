@@ -2,10 +2,13 @@ package com.example.orgo_project.controller;
 
 import com.example.orgo_project.dto.ArticleResponse;
 import com.example.orgo_project.enums.ArticleType;
+import com.example.orgo_project.security.CustomUserDetails;
 import com.example.orgo_project.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,20 +30,35 @@ public class PublicArticleController {
     @GetMapping
     public String getArticles(
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
             Model model) {
 
-        Page<ArticleResponse> articles = articleService.getPublicArticles(category, PageRequest.of(page, size));
+        Page<ArticleResponse> articles = articleService.getPublicArticlesWithFilters(category, search, PageRequest.of(page, size));
         System.out.println("Total articles: " + articles.getTotalElements());
         System.out.println("Content size: " + articles.getContent().size());
 
-        ArticleResponse featuredArticle = articles.hasContent() ? articles.getContent().get(0) : null;
+        ArticleResponse featuredArticle = null;
+        if ((category == null || category.isBlank()) && (search == null || search.isBlank()) && page == 0) {
+            Page<ArticleResponse> latest = articleService.getPublicArticlesWithFilters(null, null, PageRequest.of(0, 1));
+            featuredArticle = latest.hasContent() ? latest.getContent().get(0) : null;
+        }
+
+        java.util.Map<String, Long> categoryCounts = new java.util.HashMap<>();
+        java.util.List<String> categories = List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức");
+        for (String cat : categories) {
+            categoryCounts.put(cat, articleService.countByCategory(cat));
+        }
 
         model.addAttribute("articles", articles);
+        model.addAttribute("featuredArticles", articleService.getFeaturedArticles());
         model.addAttribute("featuredArticle", featuredArticle);
         model.addAttribute("category", category);
-        model.addAttribute("categories", List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức"));
+        model.addAttribute("search", search);
+        model.addAttribute("categories", categories);
+        model.addAttribute("categoryCounts", categoryCounts);
+        model.addAttribute("totalCount", articleService.countAllPublished());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", articles.getTotalPages());
 
@@ -49,7 +67,7 @@ public class PublicArticleController {
 
     @GetMapping("/{id}")
     public String getArticle(@PathVariable Integer id, Model model) {
-        ArticleResponse article = articleService.getArticleById(id);
+        ArticleResponse article = articleService.getPublicArticleById(id, currentAccountId());
         List<ArticleResponse> related = articleService.getPublicArticles(null, PageRequest.of(0, 3)).getContent();
         List<com.example.orgo_project.entity.Product> relatedProducts = productRepository.findAllById(article.getProductIds());
         for (com.example.orgo_project.entity.Product product : relatedProducts) {
@@ -69,5 +87,17 @@ public class PublicArticleController {
     public String getFeaturedArticles(Model model) {
         model.addAttribute("featuredArticles", articleService.getFeaturedArticles());
         return "pages/public/blog-list";
+    }
+
+    private Integer currentAccountId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return null;
+        }
+        Object principal = auth.getPrincipal();
+        if (principal instanceof CustomUserDetails details) {
+            return details.getAccount().getId();
+        }
+        return null;
     }
 }

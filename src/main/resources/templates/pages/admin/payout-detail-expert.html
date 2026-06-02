@@ -1,125 +1,464 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-  <title>Chi tiết rút tiền</title>
-  <style>
-    .payout-detail-page { --bg: #f6f7ff; --card: #ffffff; --text: #111827; --muted: #6b7280; --green: #15803d; min-height: 100vh; background: var(--bg); color: var(--text); padding: 24px; font-family: 'Inter', Arial, sans-serif; }
-    .payout-detail-page, .payout-detail-page * { font-family: 'Inter', Arial, sans-serif; }
-    .payout-modal { max-width: 1120px; margin: 0 auto; background: var(--card); border-radius: 20px; overflow: hidden; box-shadow: 0 18px 60px rgba(15, 23, 42, 0.14); }
-    .payout-head { padding: 28px 32px 22px; background: linear-gradient(180deg, #f4f0ff 0%, #f8f7ff 100%); display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
-    .payout-title { margin: 0 0 8px; font-size: 1.8rem; font-weight: 800; }
-    .payout-subtitle { margin: 0; color: var(--muted); font-size: 0.92rem; }
-    .close-btn { font-size: 2rem; line-height: 1; color: #4b5563; text-decoration: none; }
-    .payout-body { padding: 30px 32px 0; }
-    .summary-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 22px; margin-bottom: 28px; }
-    .summary-card { background: #ffffff; border: 1px solid #eef0ff; border-radius: 12px; padding: 22px; display: flex; align-items: center; gap: 16px; min-height: 132px; }
-    .summary-card.highlight { background: #f7f5ff; }
-    .summary-label { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; font-weight: 700; }
-    .summary-name { font-size: 1rem; font-weight: 700; margin: 0; line-height: 1.35; }
-    .summary-sub { color: #0f766e; margin-top: 3px; }
-    .summary-value { font-size: 1.6rem; font-weight: 800; color: var(--green); line-height: 1.15; }
-    .summary-pill { display: inline-flex; align-items: center; gap: 8px; background: #eef2ff; padding: 8px 14px; border-radius: 999px; font-weight: 700; color: #1f2937; }
-    .section-title { margin: 0 0 18px; font-size: 1.15rem; font-weight: 800; }
-    .table-card, .total-card { background: #f7f5ff; border: 1px solid #eef0ff; border-radius: 12px; overflow: hidden; }
-    .table-card table { width: 100%; border-collapse: collapse; }
-    .table-card th, .table-card td { padding: 18px 22px; text-align: left; vertical-align: middle; }
-    .table-card thead th { font-size: 0.78rem; font-weight: 700; color: #6b7280; background: #f6f4ff; }
-    .table-card tbody tr { background: #fff; border-top: 1px solid #eceef7; }
-    .table-card tbody td { font-size: 0.95rem; color: #1f2937; }
-    .table-card tbody td:last-child { font-weight: 800; text-align: right; }
-    .total-card { margin-top: 18px; padding: 22px 26px; display: flex; justify-content: flex-end; align-items: center; gap: 20px; }
-    .total-card span { font-size: 1rem; color: #374151; }
-    .total-card strong { font-size: 1.55rem; color: var(--green); }
-    .payout-actions { padding: 22px 32px 30px; display: flex; justify-content: flex-end; gap: 16px; align-items: center; }
-    .btn-text { border: 0; background: transparent; color: var(--green); font-weight: 800; font-size: 0.95rem; padding: 12px 14px; }
-    .btn-outline, .btn-primary { border: 0; border-radius: 10px; padding: 12px 18px; font-weight: 800; font-size: 0.95rem; }
-    .btn-outline { background: #f7dede; color: #b91c1c; }
-    .btn-primary { background: linear-gradient(90deg, #11823b, #2fbf4f); color: #fff; min-width: 260px; }
-    @media (max-width: 900px) { .summary-grid { grid-template-columns: 1fr; } .payout-head, .payout-body, .payout-actions { padding-inline: 18px; } .table-card { overflow-x: auto; } .btn-primary { min-width: 0; } }
-  </style>
-</head>
 <body>
-<div th:replace="~{fragments/admin-layout :: adminLayout('Payout Expert', 'payouts', ~{::main})}">
-  <main>
-    <div class="payout-detail-page" th:with="req=${request}">
-      <div class="payout-modal">
-        <div class="payout-head">
-          <div>
-            <h1 class="payout-title" th:text="'Chi tiết yêu cầu rút tiền #' + ${req.id}">Chi tiết yêu cầu rút tiền</h1>
-            <p class="payout-subtitle">Xem xét và xử lý thu nhập của chuyên gia.</p>
-          </div>
-          <a class="close-btn" href="/admin/payouts" aria-label="Đóng">×</a>
+<div th:replace="~{fragments/admin-layout :: adminLayout('Chi tiết Payout Expert', 'payouts', ~{::main})}">
+    <main class="expert-payout-container" th:with="req=${request}">
+        <style>
+            :root {
+                --orgo-primary-rgb: 0, 110, 47;
+                --orgo-success-rgb: 22, 163, 74;
+                --orgo-danger-rgb: 220, 38, 38;
+                --orgo-warning-rgb: 245, 158, 11;
+                --orgo-info-rgb: 21, 101, 192;
+                --transition-premium: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            .expert-payout-container {
+                display: flex;
+                flex-direction: column;
+                gap: 28px;
+                padding: 12px 0 32px;
+                animation: fadeInDetail 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+            }
+
+            @keyframes fadeInDetail {
+                from { opacity: 0; transform: translateY(16px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            /* Header Section */
+            .detail-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+            .header-title-area {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .header-kicker {
+                font-size: 11px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.15em;
+                color: var(--orgo-text-secondary);
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .header-kicker a {
+                color: var(--orgo-primary);
+                text-decoration: none;
+                transition: var(--transition-premium);
+            }
+            .header-kicker a:hover {
+                text-decoration: underline;
+            }
+            .header-title {
+                font-size: 28px;
+                font-weight: 900;
+                letter-spacing: -0.03em;
+                color: var(--orgo-text-primary);
+                margin: 0;
+            }
+
+            /* Quick Stats Grid */
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 16px;
+            }
+            .stat-card {
+                background: #ffffff;
+                border: 1px solid #eef2f6;
+                border-radius: 16px;
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                box-shadow: var(--orgo-shadow-sm);
+            }
+            .stat-label {
+                font-size: 11px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: var(--orgo-text-secondary);
+            }
+            .stat-value {
+                font-size: 22px;
+                font-weight: 900;
+                color: var(--orgo-text-primary);
+            }
+            .stat-value-amount {
+                color: var(--orgo-primary);
+            }
+
+            /* Double Bezel Card */
+            .db-card-outer {
+                background: rgba(0, 0, 0, 0.02);
+                border: 1px solid rgba(0, 0, 0, 0.04);
+                border-radius: 24px;
+                padding: 6px;
+                transition: var(--transition-premium);
+            }
+            .db-card-outer:hover {
+                box-shadow: 0 12px 30px rgba(19, 27, 46, 0.03);
+                background: rgba(0, 0, 0, 0.03);
+            }
+            .db-card-inner {
+                background: #ffffff;
+                border-radius: calc(24px - 6px);
+                border: 1px solid rgba(255, 255, 255, 0.8);
+                box-shadow: var(--orgo-shadow-sm);
+                padding: 24px;
+            }
+
+            .section-title-premium {
+                font-size: 16px;
+                font-weight: 900;
+                color: var(--orgo-text-primary);
+                margin: 0 0 18px 0;
+                letter-spacing: -0.02em;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            /* Recipient Info List */
+            .recipient-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 16px;
+            }
+            .recipient-item {
+                background: #f8fafc;
+                border: 1px solid #edf2f7;
+                border-radius: 12px;
+                padding: 14px 16px;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .recipient-lbl {
+                font-size: 10px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: var(--orgo-text-secondary);
+            }
+            .recipient-val {
+                font-size: 14px;
+                font-weight: 700;
+                color: var(--orgo-text-primary);
+            }
+
+            /* Premium Tables */
+            .table-wrap-premium {
+                border-radius: 14px;
+                border: 1px solid #edf2f7;
+                overflow: hidden;
+                background: #ffffff;
+            }
+            .table-premium {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 0;
+            }
+            .table-premium th {
+                background: #f8fafc;
+                color: var(--orgo-text-secondary);
+                font-size: 11px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                padding: 14px 18px;
+                border-bottom: 1px solid #edf2f7;
+            }
+            .table-premium td {
+                padding: 14px 18px;
+                font-size: 13px;
+                color: var(--orgo-text-body);
+                border-bottom: 1px solid #f1f5f9;
+                vertical-align: middle;
+            }
+            .table-premium tbody tr:hover td {
+                background: rgba(var(--orgo-primary-rgb), 0.01);
+            }
+
+            /* Status Pills */
+            .badge-payout {
+                display: inline-flex;
+                align-items: center;
+                padding: 6px 12px;
+                border-radius: 9999px;
+                font-size: 11px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+            .badge-payout-pending {
+                background: #fef3c7;
+                color: #92400e;
+            }
+            .badge-payout-approved {
+                background: #dcfce7;
+                color: #166534;
+            }
+            .badge-payout-rejected {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+
+            /* Forms Area */
+            .actions-panel {
+                background: #f8fafc;
+                border: 1px solid #edf2f7;
+                border-radius: 16px;
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+            .action-form {
+                display: flex;
+                gap: 12px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .input-action {
+                border: 1px solid #cbd5e1;
+                border-radius: 12px;
+                padding: 10px 14px;
+                font-size: 13px;
+                font-family: var(--font-ui);
+                background: #ffffff;
+                outline: none;
+                transition: var(--transition-premium);
+                min-width: 260px;
+                flex: 1;
+            }
+            .input-action:focus {
+                border-color: var(--orgo-primary);
+                box-shadow: 0 0 0 3px rgba(var(--orgo-primary-rgb), 0.1);
+            }
+
+            .btn-action {
+                border: none;
+                border-radius: 12px;
+                padding: 10px 20px;
+                font-size: 13px;
+                font-weight: 800;
+                font-family: var(--font-ui);
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: var(--transition-premium);
+            }
+            .btn-action-approve {
+                background: var(--orgo-primary);
+                color: #ffffff;
+            }
+            .btn-action-approve:hover {
+                background: var(--orgo-primary-dark);
+                transform: translateY(-1px);
+            }
+            .btn-action-reject {
+                background: var(--orgo-danger);
+                color: #ffffff;
+            }
+            .btn-action-reject:hover {
+                background: #b91c1c;
+                transform: translateY(-1px);
+            }
+
+            .empty-box {
+                padding: 32px;
+                text-align: center;
+                color: var(--orgo-text-secondary);
+                font-style: italic;
+            }
+        </style>
+
+        <!-- Header -->
+        <section class="detail-header">
+            <div class="header-title-area">
+                <span class="header-kicker">
+                    <i data-lucide="chevron-left" style="width: 14px; height: 14px; color: var(--orgo-primary);"></i>
+                    <a th:href="@{/admin/payouts}">Đối soát & Thanh toán</a> / Chi tiết Expert Payout
+                </span>
+                <h1 class="header-title" th:text="'Yêu cầu Payout Expert #' + ${req.id}">Yêu cầu Payout Expert #1019</h1>
+            </div>
+            <div>
+                <span class="badge-payout"
+                      th:classappend="${req.status.name() == 'PENDING' ? ' badge-payout-pending' : (req.status.name() == 'APPROVED' ? ' badge-payout-approved' : ' badge-payout-rejected')}"
+                      th:text="${req.status == 'PENDING' ? 'Chờ duyệt' : (req.status == 'APPROVED' ? 'Đã duyệt' : 'Từ chối')}">
+                    Chờ duyệt
+                </span>
+            </div>
+        </section>
+
+        <!-- Info Cards -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Chuyên gia yêu cầu (ID)</span>
+                <span class="stat-value" th:text="'Tài khoản #' + ${req.requesterId}">Tài khoản #1</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Số tiền yêu cầu rút</span>
+                <span class="stat-value stat-value-amount" th:text="${#numbers.formatDecimal(req.requestedAmount,0,'POINT',0,'COMMA') + ' đ'}">1.000 đ</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Ngày tạo yêu cầu</span>
+                <span class="stat-value" style="font-size: 16px; font-weight: 700; margin-top: 6px;" 
+                      th:text="${req.createdAt != null ? #temporals.format(req.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">
+                    01/06/2026 22:16
+                </span>
+            </div>
+        </section>
+
+        <!-- Recipient Information Card -->
+        <div class="db-card-outer">
+            <div class="db-card-inner">
+                <h5 class="section-title-premium">
+                    <i data-lucide="landmark" style="width: 18px; height: 18px; color: var(--orgo-primary);"></i>
+                    Thông tin nhận tiền (Tài khoản ngân hàng)
+                </h5>
+                <ul class="recipient-list">
+                    <li class="recipient-item">
+                        <span class="recipient-lbl">Ngân hàng</span>
+                        <span class="recipient-val" th:text="${req.bankName}">MB Bank</span>
+                    </li>
+                    <li class="recipient-item">
+                        <span class="recipient-lbl">Số tài khoản</span>
+                        <span class="recipient-val" style="font-family: var(--font-data); letter-spacing: 0.05em;" th:text="${req.recipientBankAccount}">0935233627</span>
+                    </li>
+                    <li class="recipient-item">
+                        <span class="recipient-lbl">Chủ tài khoản</span>
+                        <span class="recipient-val" style="text-transform: uppercase;" th:text="${req.accountHolderName}">NGUYEN TRI TRUONG</span>
+                    </li>
+                    <li class="recipient-item" th:if="${req.transactionCode != null && !req.transactionCode.isEmpty()}">
+                        <span class="recipient-lbl" style="color: var(--orgo-primary);">Mã giao dịch đối soát</span>
+                        <span class="recipient-val text-primary" style="font-family: var(--font-data); font-weight: 800;" th:text="${req.transactionCode}">-</span>
+                    </li>
+                    <li class="recipient-item" th:if="${req.rejectionReason != null && !req.rejectionReason.isEmpty()}">
+                        <span class="recipient-lbl" style="color: var(--orgo-danger);">Lý do từ chối</span>
+                        <span class="recipient-val text-danger" th:text="${req.rejectionReason}">-</span>
+                    </li>
+                </ul>
+            </div>
         </div>
 
-        <div class="payout-body">
-          <div class="summary-grid">
-            <article class="summary-card highlight">
-              <div>
-                <div class="summary-label">TÊN CHỦ TÀI KHOẢN</div>
-                <p class="summary-name" th:text="${req.accountHolderName}">Expert Name</p>
-                <div class="summary-sub" th:text="${req.bankName}">Bank</div>
-              </div>
-            </article>
-            <article class="summary-card">
-              <div>
-                <div class="summary-label">TRẠNG THÁI</div>
-                <div class="summary-pill" th:text="${req.status}">PENDING</div>
-              </div>
-            </article>
-            <article class="summary-card">
-              <div>
-                <div class="summary-label">TỔNG TIỀN YÊU CẦU</div>
-                <div class="summary-value" th:text="${req.requestedAmount} + ' VND'">4,500,000 VND</div>
-              </div>
-            </article>
-          </div>
-
-          <h2 class="section-title">Thông tin thanh toán</h2>
-          <div class="table-card">
-            <table>
-              <thead>
-              <tr>
-                <th>Ngân hàng</th>
-                <th>Số tài khoản</th>
-                <th>Chủ tài khoản</th>
-                <th>Trạng thái</th>
-                <th style="text-align:right">Ngày tạo</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr>
-                <td th:text="${req.bankName}">Bank</td>
-                <td th:text="${req.recipientBankAccount}">000</td>
-                <td th:text="${req.accountHolderName}">Name</td>
-                <td th:text="${req.status}">PENDING</td>
-                <td style="text-align:right" th:text="${req.createdAt}">date</td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="total-card">
-            <span>Tổng số tiền thanh toán:</span>
-            <strong th:text="${req.actualAmount} + ' VND'">4,500,000 VND</strong>
-          </div>
+        <!-- Commission Proof Table Card -->
+        <div class="db-card-outer">
+            <div class="db-card-inner">
+                <h5 class="section-title-premium">
+                    <i data-lucide="file-check" style="width: 18px; height: 18px; color: var(--orgo-primary);"></i>
+                    Bằng chứng hoa hồng từ bài viết
+                </h5>
+                <div class="table-wrap-premium">
+                    <table class="table-premium">
+                        <thead>
+                        <tr>
+                            <th>Ngày Tạo</th>
+                            <th>Loại Giao Dịch</th>
+                            <th style="text-align: right;">Số Tiền</th>
+                            <th style="text-align: right;">Số Dư Sau GD</th>
+                            <th style="text-align: center;">Mã Đơn Hàng</th>
+                            <th>Mô Tả Chi Tiết</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(commissionRows)}">
+                            <td colspan="6" class="empty-box">Không có giao dịch hoa hồng nào được ghi nhận.</td>
+                        </tr>
+                        <tr th:each="row : ${commissionRows}">
+                            <td style="font-family: var(--font-data);" th:text="${row.createdAt != null ? #temporals.format(row.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">01/06/2026 22:16</td>
+                            <td>
+                                <span class="badge-payout" style="font-size: 10px; padding: 4px 8px; background: #e0f2fe; color: #0369a1;" th:text="${row.type}">
+                                    EXPERT_COMMISSION
+                                </span>
+                            </td>
+                            <td class="fw-bold text-success" style="text-align: right;" th:text="${#numbers.formatDecimal(row.amount,0,'POINT',0,'COMMA') + ' đ'}">600 đ</td>
+                            <td class="fw-bold" style="text-align: right; color: var(--orgo-text-primary);" th:text="${#numbers.formatDecimal(row.balanceAfter,0,'POINT',0,'COMMA') + ' đ'}">1.020 đ</td>
+                            <td class="fw-bold" style="text-align: center; color: var(--orgo-primary);" th:text="${row.referenceId != null ? '#' + row.referenceId : '-'}">#38</td>
+                            <td style="color: var(--orgo-text-secondary);" th:text="${row.description}">Hoa hồng bài viết #2</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
-        <div class="payout-actions">
-          <a class="btn-text" href="/admin/payouts">Đóng</a>
-          <form th:if="${req.status.name() == 'PENDING'}" th:action="@{/admin/payouts/{id}/reject(id=${req.id})}" method="post" class="d-inline">
-            <button class="btn-outline" type="submit">Từ chối</button>
-          </form>
-          <form th:if="${req.status.name() == 'PENDING'}" th:action="@{/admin/payouts/{id}/approve(id=${req.id})}" method="post" class="d-inline">
-            <button class="btn-primary" type="submit">Xác nhận duyệt</button>
-          </form>
-          <form th:if="${req.status.name() == 'APPROVED'}" th:action="@{/admin/payouts/{id}/paid(id=${req.id})}" method="post" class="d-inline">
-            <button class="btn-primary" type="submit">Xác nhận thanh toán</button>
-          </form>
+        <!-- Orders list proof card -->
+        <div class="db-card-outer">
+            <div class="db-card-inner">
+                <h5 class="section-title-premium">
+                    <i data-lucide="shopping-bag" style="width: 18px; height: 18px; color: var(--orgo-primary);"></i>
+                    Đơn hàng đối soát liên kết (Người dùng đọc bài viết & đặt hàng)
+                </h5>
+                <div class="table-wrap-premium">
+                    <table class="table-premium">
+                        <thead>
+                        <tr>
+                            <th>Mã Đơn</th>
+                            <th>Mã Code Đơn</th>
+                            <th style="text-align: center;">Mã Bài Viết</th>
+                            <th style="text-align: center;">Mã Người Mua</th>
+                            <th style="text-align: right;">Tổng Tiền Đơn</th>
+                            <th style="text-align: center;">Thời Gian Đặt</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(proofOrders)}">
+                            <td colspan="6" class="empty-box">Không tìm thấy đơn hàng nào liên kết với bài viết của chuyên gia này.</td>
+                        </tr>
+                        <tr th:each="o : ${proofOrders}">
+                            <td class="fw-bold" th:text="'#' + ${o.id}">#38</td>
+                            <td class="fw-bold" style="color: var(--orgo-text-primary);" th:text="${o.orderCode}">ORD-35CCEAAF</td>
+                            <td style="text-align: center;" th:text="${o.articleId}">2</td>
+                            <td style="text-align: center;" th:text="${o.userId}">6</td>
+                            <td class="fw-bold text-success" style="text-align: right;" th:text="${#numbers.formatDecimal(o.totalAmount,0,'POINT',0,'COMMA') + ' đ'}">30.000 đ</td>
+                            <td style="text-align: center; font-family: var(--font-data);" th:text="${o.orderedAt != null ? #temporals.format(o.orderedAt, 'dd/MM/yyyy HH:mm') : '-'}">01/06/2026 22:16</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </main>
+
+        <!-- Action Panel (Visible only when PENDING) -->
+        <div class="db-card-outer" th:if="${req.status.name() == 'PENDING'}">
+            <div class="db-card-inner actions-panel">
+                <h5 style="margin: 0; font-size: 15px; font-weight: 800; color: var(--orgo-text-primary);">Duyệt hoặc từ chối yêu cầu thanh toán</h5>
+                
+                <!-- Approve request form -->
+                <form th:action="@{/admin/payouts/{id}/approve(id=${req.id})}" method="post" class="action-form">
+                    <input type="text" name="transactionCode" placeholder="Mã giao dịch ngân hàng trung gian (bắt buộc)..." class="input-action" required>
+                    <button class="btn-action btn-action-approve" type="submit">
+                        <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i> Phê duyệt thanh toán
+                    </button>
+                </form>
+                
+                <hr style="border: 0; border-top: 1px solid #edf2f7; margin: 4px 0;">
+
+                <!-- Reject request form -->
+                <form th:action="@{/admin/payouts/{id}/reject(id=${req.id})}" method="post" class="action-form">
+                    <input type="text" name="reason" placeholder="Nhập lý do từ chối yêu cầu..." class="input-action">
+                    <button class="btn-action btn-action-reject" type="submit">
+                        <i data-lucide="x-circle" style="width: 16px; height: 16px;"></i> Từ chối yêu cầu
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
 </div>
 </body>
 </html>

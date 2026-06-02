@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,16 +44,30 @@ public class ExpertArticleController {
     private final ArticleService articleService;
     private final ProductRepository productRepository;
     private final com.example.orgo_project.repository.IProductVariantRepository productVariantRepository;
+    private final com.example.orgo_project.repository.ISellerRepository sellerRepository;
 
     @GetMapping
     public String getMyArticles(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "q", required = false) String search,
             Model model) {
         Integer expertId = getExpertIdFromSession();
-        Page<ArticleResponse> articles = articleService.getExpertArticles(expertId, PageRequest.of(page, size));
+        Page<ArticleResponse> articles = articleService.getExpertArticles(expertId, status, search, PageRequest.of(page, size));
+
+        long totalViews = articles.getContent().stream()
+                .mapToLong(a -> a.getTotalViews() != null ? a.getTotalViews() : 0L)
+                .sum();
+        long recipeCount = articles.getTotalElements();
+        long blogCount = 0L;
 
         model.addAttribute("articles", articles);
+        model.addAttribute("filterStatus", status != null ? status : "ALL");
+        model.addAttribute("searchQuery", search != null ? search : "");
+        model.addAttribute("totalViews", totalViews);
+        model.addAttribute("recipeCount", recipeCount);
+        model.addAttribute("blogCount", blogCount);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", articles.getTotalPages());
         return "pages/expert/articles";
@@ -61,7 +76,10 @@ public class ExpertArticleController {
     @GetMapping("/new")
     public String createArticleForm(Model model) {
         List<Product> products = productRepository.findAll();
+        populateProductShopAndImage(products);
         model.addAttribute("article", new ArticleRequest());
+        model.addAttribute("formAction", "/expert/articles/new");
+        model.addAttribute("isEditMode", false);
         model.addAttribute("products", products);
         model.addAttribute("categories", List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức"));
         return "pages/expert/article-form";
@@ -78,7 +96,11 @@ public class ExpertArticleController {
         }
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(e -> System.out.println("VALIDATION ERROR: " + e.getDefaultMessage()));
-            model.addAttribute("products", productRepository.findAll());
+            List<Product> products = productRepository.findAll();
+            populateProductShopAndImage(products);
+            model.addAttribute("products", products);
+            model.addAttribute("formAction", "/expert/articles/new");
+            model.addAttribute("isEditMode", false);
             model.addAttribute("categories", List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức"));
             return "pages/expert/article-form";
         }
@@ -94,7 +116,11 @@ public class ExpertArticleController {
                 Files.copy(coverImageFile.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
                 request.setThumbnail("/uploads/" + fileName);
             } catch (IOException e) {
-                model.addAttribute("products", productRepository.findAll());
+                List<Product> products = productRepository.findAll();
+                populateProductShopAndImage(products);
+                model.addAttribute("products", products);
+                model.addAttribute("formAction", "/expert/articles/new");
+                model.addAttribute("isEditMode", false);
                 model.addAttribute("categories", List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức"));
                 model.addAttribute("uploadError", "Không thể tải ảnh bìa lên. Vui lòng thử lại.");
                 return "pages/expert/article-form";
@@ -107,6 +133,7 @@ public class ExpertArticleController {
         article.setContent(request.getContent());
         article.setCoverImage(request.getThumbnail());
         article.setSummary(request.getSummary());
+        article.setCategory(request.getCategory());
         article.setStatus(ArticleStatus.PENDING);
         article.setUpdatedAt(LocalDateTime.now());
         article.setViewCount(0);
@@ -124,18 +151,106 @@ public class ExpertArticleController {
     @GetMapping("/{id}")
     public String getArticle(@PathVariable Integer id, Model model) {
         ArticleResponse article = articleService.getArticleById(id);
+        if (!isCurrentExpertArticle(article)) {
+            return "redirect:/expert/articles";
+        }
         List<ArticleResponse> related = articleService.getPublicArticles(null, PageRequest.of(0, 3)).getContent();
         List<Product> relatedProducts = productRepository.findAllById(article.getProductIds());
-        for (Product product : relatedProducts) {
-            java.util.List<com.example.orgo_project.entity.ProductVariant> variants = productVariantRepository.findByProductId(product.getId());
-            if (!variants.isEmpty()) {
-                product.setImageUrl(variants.get(0).getImageUrl());
-            }
-        }
+        populateProductShopAndImage(relatedProducts);
         model.addAttribute("article", article);
-        model.addAttribute("related", related);
+        model.addAttribute("relatedArticles", related);
         model.addAttribute("relatedProducts", relatedProducts);
+        model.addAttribute("affiliateCount", 0);
         return "pages/expert/blog-detail";
+    }
+
+    @GetMapping("/{id}/edit")
+    public String editArticleForm(@PathVariable Integer id, Model model) {
+        ArticleResponse article = articleService.getArticleById(id);
+        if (!isCurrentExpertArticle(article)) {
+            return "redirect:/expert/articles";
+        }
+
+        ArticleRequest request = new ArticleRequest();
+        request.setTitle(article.getTitle());
+        request.setContent(article.getContent());
+        request.setSummary(article.getSummary());
+        request.setCategory(article.getCategory());
+        request.setThumbnail(article.getThumbnail());
+        request.setType(article.getType() != null ? article.getType() : com.example.orgo_project.enums.ArticleType.BLOG);
+        request.setProductIds(article.getProductIds() != null ? new ArrayList<>(article.getProductIds()) : new ArrayList<>());
+
+        List<Product> products = productRepository.findAll();
+        populateProductShopAndImage(products);
+        model.addAttribute("article", request);
+        model.addAttribute("products", products);
+        model.addAttribute("categories", List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức"));
+        model.addAttribute("formAction", "/expert/articles/" + id + "/edit");
+        model.addAttribute("isEditMode", true);
+        return "pages/expert/article-form";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String updateArticle(@PathVariable Integer id,
+                                @Valid @ModelAttribute("article") ArticleRequest request,
+                                BindingResult bindingResult,
+                                @RequestParam(value = "coverImageFile", required = false) MultipartFile coverImageFile,
+                                Model model) {
+        ArticleResponse existingArticle = articleService.getArticleById(id);
+        if (!isCurrentExpertArticle(existingArticle)) {
+            return "redirect:/expert/articles";
+        }
+
+        if (request.getType() == null) {
+            request.setType(com.example.orgo_project.enums.ArticleType.BLOG);
+        }
+        if (bindingResult.hasErrors()) {
+            List<Product> products = productRepository.findAll();
+            populateProductShopAndImage(products);
+            model.addAttribute("products", products);
+            model.addAttribute("categories", List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức"));
+            model.addAttribute("formAction", "/expert/articles/" + id + "/edit");
+            model.addAttribute("isEditMode", true);
+            return "pages/expert/article-form";
+        }
+
+        if (coverImageFile != null && !coverImageFile.isEmpty()) {
+            try {
+                String originalName = coverImageFile.getOriginalFilename();
+                String safeName = (originalName == null || originalName.isBlank()) ? "cover.jpg" : originalName;
+                String fileName = UUID.randomUUID() + "_" + safeName;
+                Path uploadDir = Paths.get("src/main/resources/static/uploads");
+                Files.createDirectories(uploadDir);
+                Path targetPath = uploadDir.resolve(fileName);
+                Files.copy(coverImageFile.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+                request.setThumbnail("/uploads/" + fileName);
+            } catch (IOException e) {
+                List<Product> products = productRepository.findAll();
+                populateProductShopAndImage(products);
+                model.addAttribute("products", products);
+                model.addAttribute("categories", List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức"));
+                model.addAttribute("uploadError", "Không thể tải ảnh bìa lên. Vui lòng thử lại.");
+                model.addAttribute("formAction", "/expert/articles/" + id + "/edit");
+                model.addAttribute("isEditMode", true);
+                return "pages/expert/article-form";
+            }
+        } else if (request.getThumbnail() == null || request.getThumbnail().isBlank()) {
+            request.setThumbnail(existingArticle.getThumbnail());
+        }
+
+        try {
+            articleService.updateArticle(id, request);
+            return "redirect:/expert/articles/" + id + "?success=updated";
+        } catch (RuntimeException ex) {
+            List<Product> products = productRepository.findAll();
+            populateProductShopAndImage(products);
+            model.addAttribute("products", products);
+            model.addAttribute("categories", List.of("Dinh dưỡng", "Canh tác", "Sức khỏe", "Môi trường", "Tin tức"));
+            model.addAttribute("errorMessage", ex.getMessage());
+            model.addAttribute("formAction", "/expert/articles/" + id + "/edit");
+            model.addAttribute("isEditMode", true);
+            return "pages/expert/article-form";
+        }
     }
 
     @GetMapping("/{id}/stats")
@@ -153,8 +268,66 @@ public class ExpertArticleController {
 
     @PostMapping("/{id}/delete")
     public String deleteArticle(@PathVariable Integer id) {
+        ArticleResponse article = articleService.getArticleById(id);
+        if (!isCurrentExpertArticle(article)) {
+            return "redirect:/expert/articles";
+        }
         articleService.deleteArticle(id);
         return "redirect:/expert/articles?success=deleted";
+    }
+
+    private void populateProductShopAndImage(List<Product> products) {
+        List<com.example.orgo_project.entity.Seller> sellers = sellerRepository.findAll();
+        java.util.Map<Integer, String> sellerShopMap = sellers.stream()
+                .filter(s -> s.getId() != null && s.getShopName() != null)
+                .collect(java.util.stream.Collectors.toMap(com.example.orgo_project.entity.Seller::getId, com.example.orgo_project.entity.Seller::getShopName, (a, b) -> a));
+
+        for (Product product : products) {
+            if (product.getSellerId() != null) {
+                product.setShopName(sellerShopMap.getOrDefault(product.getSellerId(), "Cửa hàng"));
+            } else {
+                product.setShopName("ORGO Shop");
+            }
+            if (product.getImageUrl() == null || product.getImageUrl().isBlank()) {
+                java.util.List<com.example.orgo_project.entity.ProductVariant> variants = productVariantRepository.findByProductId(product.getId());
+                if (!variants.isEmpty() && variants.get(0).getImageUrl() != null) {
+                    product.setImageUrl(variants.get(0).getImageUrl());
+                } else if (product.getSlug() != null && product.getSlug().startsWith("/uploads/")) {
+                    product.setImageUrl(product.getSlug());
+                } else {
+                    product.setImageUrl("/api/placeholder/200/200");
+                }
+            }
+            if (product.getImageUrl() != null && !product.getImageUrl().isBlank()) {
+                product.setImageUrl(normalizeImageUrl(product.getImageUrl()));
+            }
+        }
+    }
+
+    private String normalizeImageUrl(String imageUrl) {
+        String value = imageUrl.trim();
+        value = value.replace("\\", "/");
+        if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("/") || value.startsWith("data:")) {
+            return value;
+        }
+        int uploadsIdx = value.toLowerCase().indexOf("/uploads/");
+        if (uploadsIdx >= 0) {
+            return value.substring(uploadsIdx);
+        }
+        int staticUploadsIdx = value.toLowerCase().indexOf("src/main/resources/static/uploads/");
+        if (staticUploadsIdx >= 0) {
+            String fileName = value.substring(staticUploadsIdx + "src/main/resources/static/uploads/".length());
+            return "/uploads/" + fileName;
+        }
+        if (value.startsWith("uploads/")) {
+            return "/" + value;
+        }
+        return "/uploads/" + value;
+    }
+
+    private boolean isCurrentExpertArticle(ArticleResponse article) {
+        Integer currentExpertId = getExpertIdFromSession();
+        return currentExpertId != null && article != null && article.getExpertId() != null && currentExpertId.equals(article.getExpertId());
     }
 
     private Integer getExpertIdFromSession() {

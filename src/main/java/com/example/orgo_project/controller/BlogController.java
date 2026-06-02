@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class BlogController {
     @GetMapping
     public String showBlogPage(){
-        return "pages/public/blog-page";
+        return "redirect:/articles";
     }
 }

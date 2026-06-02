@@ -1,76 +1,176 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout('Sản phẩm hữu cơ - ORGO', ~{::#product-page})}">
+    th:replace="~{fragments/layout :: layout('Sản phẩm hữu cơ - ORGO', ~{::#product-page})}">
+
 <body>
-<div id="product-page" class="min-vh-100 bg-light text-dark">
-    <main class="container py-5">
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-success">Trang chủ</a></li>
-                <li class="breadcrumb-item active text-success fw-medium" aria-current="page">Sản phẩm</li>
-            </ol>
-        </nav>
+    <div id="product-page" class="min-vh-100 bg-light text-dark">
+        <main class="container py-5">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-success">Trang chủ</a></li>
+                    <li class="breadcrumb-item active text-success fw-medium" aria-current="page">Sản phẩm</li>
+                </ol>
+            </nav>
 
-        <h1 class="display-5 fw-bold mb-2">Tất cả sản phẩm hữu cơ</h1>
-        <p class="text-secondary mb-5">Khám phá sản phẩm từ các nông trại đạt chuẩn</p>
+            <h1 class="display-5 fw-bold mb-2">Tất cả sản phẩm hữu cơ</h1>
+            <p class="text-secondary mb-5">Khám phá sản phẩm từ các nông trại đạt chuẩn</p>
 
-        <div class="row g-4">
-            <!-- SIDEBAR FILTER -->
-            <aside class="col-12 col-lg-3">
-                <form th:action="@{/products}" method="get">
-                    <div class="bg-white rounded-4 p-4 shadow-sm border border-light">
-                        <!-- Tìm kiếm -->
-                        <div class="mb-4">
-                            <label class="fw-bold fs-6 mb-2 d-block">Tìm kiếm</label>
-                            <input type="text" name="q" th:value="${q}"
-                                   placeholder="Tên sản phẩm..."
-                                   class="form-control rounded-3"/>
+            <div class="row g-4">
+                <!-- SIDEBAR FILTER -->
+                <aside class="col-12 col-lg-3">
+                    <form th:action="@{/products}" method="get" id="filterForm">
+                        <div class="bg-white rounded-4 p-4 shadow-sm filter-card">
+                            <!-- Filter Header with Toggle for Mobile -->
+                            <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+                            <h2 class="h5 fw-bold mb-0 text-success d-flex align-items-center gap-2">
+                                <i data-lucide="sliders-horizontal" style="width: 20px; height: 20px;"></i>
+                                <span>Bộ lọc sản phẩm</span>
+                            </h2>
+                            <button class="btn btn-sm btn-outline-success d-lg-none d-flex align-items-center gap-1"
+                                type="button" data-bs-toggle="collapse" data-bs-target="#filterContent"
+                                aria-expanded="false" aria-controls="filterContent">
+                                <i data-lucide="sliders-horizontal" style="width: 14px; height: 14px;"></i>
+                                <span>Lọc</span>
+                            </button>
                         </div>
 
-                        <!-- Danh mục -->
-                        <div class="mb-4">
-                            <h3 class="fw-bold fs-6 mb-3">Danh mục</h3>
-                            <div class="d-flex flex-column gap-2">
-                                <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
-                                    <input type="radio" name="categoryId" value=""
-                                           th:checked="${categoryId == null}" class="form-check-input mt-0"/>
-                                    <span class="text-secondary">Tất cả</span>
-                                </label>
-                                <th:block th:each="cat : ${categories}">
-                                    <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
-                                        <input type="radio" name="categoryId" th:value="${cat.id}"
-                                               th:checked="${categoryId != null and categoryId == cat.id}"
-                                               class="form-check-input mt-0"/>
-                                        <span class="text-secondary" th:text="${cat.categoryName}">Danh mục</span>
+                        <!-- Collapsible Filter Content -->
+                        <div class="collapse d-lg-block" id="filterContent">
+                            <!-- Search -->
+                            <div class="mb-4">
+                                <label class="fw-bold fs-6 mb-2 d-block text-secondary">Tìm kiếm</label>
+                                <input type="text" name="q" th:value="${q}" placeholder="Tên sản phẩm..."
+                                    class="form-control rounded-3 border-success-subtle focus-ring focus-ring-success" />
+                            </div>
+
+                            <!-- Categories -->
+                            <div class="mb-4 pb-3 border-bottom">
+                                <h3 class="fw-bold fs-6 mb-3 text-success d-flex align-items-center gap-2">
+                                    <i data-lucide="tag" style="width: 18px; height: 18px;"></i>
+                                    <span>Danh mục</span>
+                                </h3>
+                                <div class="category-chips d-flex flex-wrap gap-2">
+                                    <!-- Option for "Tất cả" -->
+                                    <label class="category-chip-btn">
+                                        <input type="radio" name="categoryId" value=""
+                                            th:checked="${categoryId == null}" class="d-none"
+                                            onchange="this.form.submit()" />
+                                        <span class="chip-content">
+                                            <span>Tất cả</span>
+                                            <span
+                                                class="badge rounded-pill bg-success-subtle text-success border border-success-subtle count-badge"
+                                                th:text="${totalActiveCount}">0</span>
+                                        </span>
                                     </label>
-                                </th:block>
-                                <!-- Fallback nếu chưa có category trong DB -->
-                                <th:block th:if="${#lists.isEmpty(categories)}">
-                                    <span class="text-secondary small">Chưa có danh mục</span>
-                                </th:block>
+                                    <!-- Category list -->
+                                    <th:block th:each="cat : ${categories}">
+                                        <label class="category-chip-btn">
+                                            <input type="radio" name="categoryId" th:value="${cat.id}"
+                                                th:checked="${categoryId != null and categoryId == cat.id}"
+                                                class="d-none" onchange="this.form.submit()" />
+                                            <span class="chip-content">
+                                                <span th:text="${cat.categoryName}">Danh mục</span>
+                                                <span
+                                                    class="badge rounded-pill bg-success-subtle text-success border border-success-subtle count-badge"
+                                                    th:text="${categoryCounts[cat.id]}">0</span>
+                                            </span>
+                                        </label>
+                                    </th:block>
+                                    <!-- Fallback if empty -->
+                                    <th:block th:if="${#lists.isEmpty(categories)}">
+                                        <span class="text-secondary small">Chưa có danh mục</span>
+                                    </th:block>
+                                </div>
+                            </div>
+
+                            <!-- Price range slider -->
+                            <div class="mb-4 pb-3 border-bottom">
+                                <h3 class="fw-bold fs-6 mb-3 text-success d-flex align-items-center gap-2">
+                                    <i data-lucide="banknote" style="width: 18px; height: 18px;"></i>
+                                    <span>Khoảng giá</span>
+                                </h3>
+                                <div class="price-slider-container px-2">
+                                    <div class="price-slider-wrapper">
+                                        <div class="slider-track"></div>
+                                        <input type="range" id="min-price-slider" min="0" max="500000" step="10000"
+                                            th:value="${minPrice != null ? minPrice.intValue() : 0}"
+                                            class="slider-input">
+                                        <input type="range" id="max-price-slider" min="0" max="500000" step="10000"
+                                            th:value="${maxPrice != null ? maxPrice.intValue() : 500000}"
+                                            class="slider-input">
+                                    </div>
+                                    <div
+                                        class="d-flex align-items-center justify-content-between mt-3 text-secondary small">
+                                        <div>Từ: <span id="min-price-label"
+                                                class="fw-bold text-success-emphasis">0đ</span></div>
+                                        <div>Đến: <span id="max-price-label"
+                                                class="fw-bold text-success-emphasis">500.000đ</span></div>
+                                    </div>
+                                    <!-- Hidden inputs for query parameters -->
+                                    <input type="hidden" name="minPrice" id="minPriceInput" th:value="${minPrice}">
+                                    <input type="hidden" name="maxPrice" id="maxPriceInput" th:value="${maxPrice}">
+                                </div>
+                            </div>
+
+                            <!-- Location/Region filter -->
+                            <div class="mb-4 pb-3 border-bottom"
+                                th:if="${origins != null and not #lists.isEmpty(origins)}">
+                                <h3 class="fw-bold fs-6 mb-3 text-success d-flex align-items-center gap-2">
+                                    <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
+                                    <span>Khu vực</span>
+                                </h3>
+                                <div class="location-chips d-flex flex-wrap gap-2">
+                                    <!-- Option for "Tất cả" -->
+                                    <label class="location-chip-btn">
+                                        <input type="radio" name="origin" value=""
+                                            th:checked="${origin == null || origin == ''}" class="d-none"
+                                            onchange="this.form.submit()" />
+                                        <span class="chip-content">Tất cả nơi</span>
+                                    </label>
+                                    <!-- Locations from DB -->
+                                    <th:block th:each="orig : ${origins}">
+                                        <label class="location-chip-btn" th:if="${orig != null and orig != ''}">
+                                            <input type="radio" name="origin" th:value="${orig}"
+                                                th:checked="${origin != null and origin == orig}" class="d-none"
+                                                onchange="this.form.submit()" />
+                                            <span class="chip-content" th:text="${orig}">Đà Lạt</span>
+                                        </label>
+                                    </th:block>
+                                </div>
+                            </div>
+
+                            <!-- Sorting -->
+                            <div class="mb-4 pb-3 border-bottom">
+                                <h3 class="fw-bold fs-6 mb-3 text-success d-flex align-items-center gap-2">
+                                    <i data-lucide="arrow-up-down" style="width: 18px; height: 18px;"></i>
+                                    <span>Sắp xếp</span>
+                                </h3>
+                                <select name="sort"
+                                    class="form-select rounded-3 border-success-subtle focus-ring focus-ring-success"
+                                    onchange="this.form.submit()">
+                                    <option value="" th:selected="${sort == null}">Mới nhất</option>
+                                    <option value="rating" th:selected="${sort == 'rating'}">Đánh giá cao nhất</option>
+                                    <option value="price_asc" th:selected="${sort == 'price_asc'}">Giá tăng dần</option>
+                                    <option value="price_desc" th:selected="${sort == 'price_desc'}">Giá giảm dần
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Apply & Reset buttons -->
+                            <div class="d-flex flex-column gap-2 mt-4">
+                                <button type="submit"
+                                    class="btn btn-success fw-bold py-2 w-100 rounded-3 hover-grow shadow-sm">
+                                    Áp dụng bộ lọc
+                                </button>
+                                <a th:href="@{/products}"
+                                    class="btn btn-outline-secondary fw-bold py-2 w-100 rounded-3">
+                                    Xóa bộ lọc
+                                </a>
                             </div>
                         </div>
-
-                        <!-- Sắp xếp -->
-                        <div class="mb-4">
-                            <h3 class="fw-bold fs-6 mb-3">Sắp xếp</h3>
-                            <select name="sort" class="form-select rounded-3">
-                                <option value="" th:selected="${sort == null}">Mới nhất</option>
-                                <option value="rating" th:selected="${sort == 'rating'}">Đánh giá cao nhất</option>
-                                <option value="price_asc" th:selected="${sort == 'price_asc'}">Giá tăng dần</option>
-                                <option value="price_desc" th:selected="${sort == 'price_desc'}">Giá giảm dần</option>
-                            </select>
-                        </div>
-
-                        <button type="submit" class="btn btn-success fw-bold py-2 w-100 rounded-3">
-                            Áp dụng bộ lọc
-                        </button>
-                        <a th:href="@{/products}" class="btn btn-outline-secondary fw-bold py-2 w-100 rounded-3 mt-2">
-                            Xóa bộ lọc
-                        </a>
-                    </div>
-                </form>
+            </div>
+            </form>
             </aside>
 
             <!-- PRODUCT GRID -->
@@ -84,32 +184,123 @@
                 </div>
 
                 <!-- Product grid -->
-                <div th:if="${products.totalElements > 0}"
-                     class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4">
+                <div th:if="${products.totalElements > 0}" class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4">
                     <div class="col" th:each="product : ${products.content}">
-                        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden product-card">
-                            <div class="position-relative overflow-hidden">
-                                <img th:src="${product.slug != null ? product.slug : 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80'}"
-                                     th:alt="${product.productName}"
-                                     class="w-100 product-img"
-                                     style="height: 220px; object-fit: cover;">
-                                <span class="position-absolute top-0 start-0 m-3 badge rounded-pill bg-success px-3 py-2 fw-bold">
+                        <div
+                            class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden product-card position-relative bg-white">
+                            <!-- Badges (Z-index 3 to stay above overlay) -->
+                            <div class="position-absolute top-0 start-0 m-3 z-3 d-flex flex-column gap-1">
+                                <span class="badge rounded-pill bg-success px-3 py-2 fw-semibold shadow-sm">
                                     Organic
                                 </span>
+                                <span th:if="${product.isNewProduct()}"
+                                    class="badge rounded-pill bg-info text-dark px-3 py-2 fw-semibold shadow-sm">
+                                    Mới
+                                </span>
+                                <span th:if="${product.isBestSeller()}"
+                                    class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-semibold shadow-sm">
+                                    Bán chạy
+                                </span>
+                                <span th:if="${product.isOnSale()}"
+                                    class="badge rounded-pill bg-danger px-3 py-2 fw-semibold shadow-sm">
+                                    Giảm giá
+                                </span>
                             </div>
+
+                            <!-- Product Image with Overlay -->
+                            <div class="position-relative overflow-hidden product-img-wrapper" style="height: 220px;">
+                                <img th:src="${product.imageUrl != null ? product.imageUrl : (product.slug != null ? product.slug : 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80')}"
+                                    th:alt="${product.productName}" class="w-100 h-100 product-img"
+                                    style="object-fit: cover;">
+                                <!-- Hover Overlay -->
+                                <div class="product-overlay d-flex align-items-center justify-content-center">
+                                    <a th:href="@{/products/{id}(id=${product.id})}"
+                                        class="btn btn-light rounded-circle shadow-sm mx-1 hover-scale overlay-btn d-flex align-items-center justify-content-center"
+                                        style="width: 48px; height: 48px;" title="Xem chi tiết">
+                                        <i data-lucide="eye" style="width: 20px; height: 20px;"></i>
+                                    </a>
+                                    <a th:href="@{/products/{id}(id=${product.id})}"
+                                        class="btn btn-success rounded-circle shadow-sm mx-1 hover-scale overlay-btn d-flex align-items-center justify-content-center"
+                                        style="width: 48px; height: 48px;" title="Mua ngay">
+                                        <i data-lucide="shopping-cart" style="width: 20px; height: 20px;"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Card Body -->
                             <div class="card-body p-4 d-flex flex-column">
-                                <h3 class="fs-6 fw-bold text-dark mb-2 line-clamp-2"
-                                    th:text="${product.productName}">Tên sản phẩm</h3>
-                                <div class="d-flex align-items-center gap-1 mb-2" th:if="${product.averageRating != null}">
-                                    <span class="text-warning small">★</span>
-                                    <span class="small fw-semibold" th:text="${#numbers.formatDecimal(product.averageRating, 1, 1)}">4.5</span>
-                                    <span class="text-secondary small" th:text="'(' + ${product.totalReviews} + ')'"></span>
+                                <!-- Title -->
+                                <h3 class="fs-6 fw-bold text-dark mb-2 line-clamp-2" th:text="${product.productName}">
+                                    Tên sản phẩm</h3>
+
+                                <!-- Rating Stars -->
+                                <div class="d-flex align-items-center gap-1 mb-2">
+                                    <div class="rating-stars text-warning d-flex align-items-center gap-0.5">
+                                        <th:block
+                                            th:with="rating=${product.averageRating != null ? product.averageRating : 0}">
+                                            <span th:each="star : ${#numbers.sequence(1, 5)}">
+                                                <i data-lucide="star" th:classappend="${star <= rating} ? 'filled' : ''"
+                                                    class="star-icon"></i>
+                                            </span>
+                                        </th:block>
+                                    </div>
+                                    <span class="small text-secondary fw-semibold ms-1"
+                                        th:if="${product.averageRating != null and product.averageRating > 0}"
+                                        th:text="${#numbers.formatDecimal(product.averageRating, 1, 1)}">4.5</span>
+                                    <span class="text-secondary small"
+                                        th:if="${product.totalReviews != null and product.totalReviews > 0}"
+                                        th:text="'(' + ${product.totalReviews} + ')'">(12)</span>
                                 </div>
-                                <div class="d-flex align-items-center gap-1 mb-3">
-                                    <span class="text-secondary small" th:text="${product.origin}">Nguồn gốc</span>
+
+                                <!-- Location -->
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <span
+                                        class="text-success-emphasis bg-success-subtle border border-success-subtle rounded-2 px-2 py-1 small d-flex align-items-center gap-1">
+                                        <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i>
+                                        <span
+                                            th:text="${product.origin != null ? product.origin : 'Nông trại Việt'}">Nguồn
+                                            gốc</span>
+                                    </span>
                                 </div>
+
+                                <!-- Price Display -->
+                                <div class="mt-auto mb-3">
+                                    <div class="product-price-display d-flex flex-column">
+                                        <th:block
+                                            th:if="${product.variants != null and not #lists.isEmpty(product.variants)}">
+                                            <div class="d-flex align-items-baseline gap-2 flex-wrap">
+                                                <!-- Dynamic pricing based on min/max of variants -->
+                                                <th:block th:if="${product.minPrice != product.maxPrice}">
+                                                    <span class="price-value fw-bold text-success fs-5"
+                                                        th:text="${#numbers.formatDecimal(product.minPrice, 0, 'POINT', 0, 'COMMA')} + 'đ - ' + ${#numbers.formatDecimal(product.maxPrice, 0, 'POINT', 0, 'COMMA')} + 'đ'">
+                                                        80.000đ - 120.000đ
+                                                    </span>
+                                                </th:block>
+                                                <th:block th:if="${product.minPrice == product.maxPrice}">
+                                                    <th:block th:with="firstVar=${product.variants[0]}">
+                                                        <span class="price-value fw-bold text-success fs-5"
+                                                            th:text="${#numbers.formatDecimal(firstVar.discountedPrice != null ? firstVar.discountedPrice : firstVar.originalPrice, 0, 'POINT', 0, 'COMMA')} + 'đ'">
+                                                            80.000đ
+                                                        </span>
+                                                        <span
+                                                            class="original-price text-decoration-line-through text-secondary small"
+                                                            th:if="${firstVar.discountedPrice != null}"
+                                                            th:text="${#numbers.formatDecimal(firstVar.originalPrice, 0, 'POINT', 0, 'COMMA')} + 'đ'">
+                                                            100.000đ
+                                                        </span>
+                                                    </th:block>
+                                                </th:block>
+                                            </div>
+                                        </th:block>
+                                        <th:block
+                                            th:if="${product.variants == null or #lists.isEmpty(product.variants)}">
+                                            <span class="text-secondary small font-italic">Liên hệ</span>
+                                        </th:block>
+                                    </div>
+                                </div>
+
                                 <a th:href="@{/products/{id}(id=${product.id})}"
-                                   class="btn btn-success fw-bold mt-auto py-2 rounded-3">
+                                    class="btn btn-success fw-bold py-2 rounded-3 hover-grow">
                                     Xem chi tiết
                                 </a>
                             </div>
@@ -119,7 +310,9 @@
 
                 <!-- Empty state -->
                 <div th:if="${products.totalElements == 0}" class="text-center py-5">
-                    <div class="display-1 mb-3">🌿</div>
+                    <div class="mb-4 text-success d-flex justify-content-center">
+                        <i data-lucide="sprout" style="width: 64px; height: 64px;"></i>
+                    </div>
                     <h3 class="fw-bold text-secondary">Không tìm thấy sản phẩm</h3>
                     <p class="text-secondary">Thử tìm kiếm với từ khóa khác</p>
                     <a th:href="@{/products}" class="btn btn-success mt-2">Xem tất cả sản phẩm</a>
@@ -129,27 +322,326 @@
                 <nav th:if="${totalPages > 1}" class="mt-5 d-flex justify-content-center">
                     <ul class="pagination">
                         <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                            <a class="page-link" th:href="@{/products(page=${currentPage - 1}, q=${q}, categoryId=${categoryId}, sort=${sort})}">«</a>
+                            <a class="page-link"
+                                th:href="@{/products(page=${currentPage - 1}, q=${q}, categoryId=${categoryId}, minPrice=${minPrice}, maxPrice=${maxPrice}, origin=${origin}, sort=${sort})}">«</a>
                         </li>
                         <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                             th:classappend="${i == currentPage} ? 'active'">
-                            <a class="page-link" th:href="@{/products(page=${i}, q=${q}, categoryId=${categoryId}, sort=${sort})}"
-                               th:text="${i + 1}">1</a>
+                            <a class="page-link"
+                                th:href="@{/products(page=${i}, q=${q}, categoryId=${categoryId}, minPrice=${minPrice}, maxPrice=${maxPrice}, origin=${origin}, sort=${sort})}"
+                                th:text="${i + 1}">1</a>
                         </li>
                         <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                            <a class="page-link" th:href="@{/products(page=${currentPage + 1}, q=${q}, categoryId=${categoryId}, sort=${sort})}">»</a>
+                            <a class="page-link"
+                                th:href="@{/products(page=${currentPage + 1}, q=${q}, categoryId=${categoryId}, minPrice=${minPrice}, maxPrice=${maxPrice}, origin=${origin}, sort=${sort})}">»</a>
                         </li>
                     </ul>
                 </nav>
             </div>
-        </div>
+    </div>
     </main>
-</div>
 
-<style>
-.product-img { transition: transform 0.5s ease; }
-.product-card:hover .product-img { transform: scale(1.06); }
-.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-</style>
+    <style>
+        /* Filter Card */
+        .filter-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .filter-card:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
+        }
+
+        /* Image overlay & animations */
+        .product-img-wrapper {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(25, 135, 84, 0.15) !important;
+            border-color: rgba(25, 135, 84, 0.2) !important;
+        }
+
+        .product-img {
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+        }
+
+        .product-card:hover .product-img {
+            transform: scale(1.08);
+            filter: brightness(1.05) saturate(1.1);
+        }
+
+        .product-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(25, 135, 84, 0.2);
+            backdrop-filter: brightness(1.1) saturate(1.2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 2;
+        }
+
+        .product-card:hover .product-overlay {
+            opacity: 1;
+        }
+
+        .overlay-btn {
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .product-card:hover .overlay-btn {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .product-card:hover .overlay-btn:nth-child(2) {
+            transition-delay: 0.05s;
+        }
+
+        .hover-grow {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .hover-grow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .hover-scale {
+            transition: transform 0.2s ease;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.1);
+        }
+
+        .rating-stars {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .star-icon {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: transparent;
+        }
+
+        .star-icon.filled {
+            fill: currentColor;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            line-clamp: 2;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Category Pill/Chip styling */
+        .category-chip-btn,
+        .location-chip-btn {
+            cursor: pointer;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .category-chip-btn input:checked+.chip-content {
+            background-color: #198754;
+            color: #fff;
+            border-color: #198754;
+            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .category-chip-btn .chip-content {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            color: #495057;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .category-chip-btn:hover .chip-content {
+            background-color: #e8f5e9;
+            color: #198754;
+            border-color: #a3cfbb;
+            transform: translateY(-1px);
+        }
+
+        .category-chip-btn input:checked+.chip-content .count-badge {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: #fff !important;
+            border-color: rgba(255, 255, 255, 0.4) !important;
+        }
+
+        .count-badge {
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        /* Location Pill/Chip styling */
+        .location-chip-btn input:checked+.chip-content {
+            background-color: #0d6efd;
+            color: #fff;
+            border-color: #0d6efd;
+            box-shadow: 0 4px 10px rgba(13, 110, 253, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .location-chip-btn .chip-content {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            color: #495057;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: all 0.25s ease;
+        }
+
+        .location-chip-btn:hover .chip-content {
+            background-color: #e3f2fd;
+            color: #0d6efd;
+            border-color: #9ec5fe;
+            transform: translateY(-1px);
+        }
+
+        /* Double range slider styling */
+        .price-slider-wrapper {
+            position: relative;
+            height: 6px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin: 20px 0 15px 0;
+        }
+
+        .slider-track {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, #198754, #20c997);
+            border-radius: 5px;
+            left: 0%;
+            width: 100%;
+        }
+
+        .slider-input {
+            position: absolute;
+            width: 100%;
+            height: 6px;
+            background: none;
+            pointer-events: none;
+            -webkit-appearance: none;
+            appearance: none;
+            top: 0;
+            left: 0;
+            margin: 0;
+        }
+
+        .slider-input::-webkit-slider-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid #198754;
+            pointer-events: auto;
+            -webkit-appearance: none;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slider-input::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #198754;
+            box-shadow: 0 0 0 5px rgba(25, 135, 84, 0.15);
+        }
+
+        .slider-input::-moz-slider-thumb {
+            height: 14px;
+            width: 14px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid #198754;
+            pointer-events: auto;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const minSlider = document.getElementById('min-price-slider');
+            const maxSlider = document.getElementById('max-price-slider');
+            const minLabel = document.getElementById('min-price-label');
+            const maxLabel = document.getElementById('max-price-label');
+            const minInput = document.getElementById('minPriceInput');
+            const maxInput = document.getElementById('maxPriceInput');
+            const track = document.querySelector('.slider-track');
+
+            if (minSlider && maxSlider && minLabel && maxLabel && minInput && maxInput && track) {
+                const maxLimit = 500000;
+
+                function formatCurrency(val) {
+                    return new Intl.NumberFormat('vi-VN').format(val) + 'đ';
+                }
+
+                function updateSlider(e) {
+                    let minVal = parseInt(minSlider.value);
+                    let maxVal = parseInt(maxSlider.value);
+
+                    if (minVal > maxVal) {
+                        if (e && e.target === minSlider) {
+                            minSlider.value = maxVal;
+                            minVal = maxVal;
+                        } else {
+                            maxSlider.value = minVal;
+                            maxVal = minVal;
+                        }
+                    }
+
+                    const percent1 = (minVal / maxLimit) * 100;
+                    const percent2 = (maxVal / maxLimit) * 100;
+
+                    track.style.left = percent1 + '%';
+                    track.style.width = (percent2 - percent1) + '%';
+
+                    minLabel.textContent = formatCurrency(minVal);
+                    maxLabel.textContent = formatCurrency(maxVal);
+
+                    minInput.value = minVal;
+                    maxInput.value = maxVal;
+                }
+
+                minSlider.addEventListener('input', updateSlider);
+                maxSlider.addEventListener('input', updateSlider);
+
+                // Initialize
+                updateSlider();
+            }
+        });
+    </script>
+    </div>
 </body>
+
 </html>

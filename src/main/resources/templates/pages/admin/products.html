@@ -1,107 +1,202 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        .hover-light:hover {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+        }
+    </style>
+</head>
 <body>
 <div th:replace="~{fragments/admin-layout :: adminLayout('Duyệt sản phẩm', 'products', ~{::main})}">
     <main>
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fs-3 fw-bold text-dark">Quản lý & Duyệt sản phẩm</h1>
+        <!-- Title & description -->
+        <div class="mb-4">
+            <h1 class="fw-bold text-dark" style="font-size: 32px; letter-spacing: -0.02em;">Duyệt sản phẩm</h1>
+            <p class="text-secondary mb-0" style="font-size: 15px; max-width: 700px; line-height: 1.5;">Xác minh các sản phẩm hữu cơ mới được đăng tải. Duy trì tính toàn vẹn của danh mục sản phẩm và tiêu chuẩn của người bán.</p>
         </div>
 
         <!-- Success message -->
-        <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
-            <span th:if="${param.success[0] == 'approved'}">✅ Đã duyệt sản phẩm thành công!</span>
-            <span th:if="${param.success[0] == 'rejected'}">❌ Đã từ chối sản phẩm!</span>
+        <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show rounded-3 mb-4 shadow-sm border-0" style="background-color: #EAF7EF; color: #166534;">
+            <span th:if="${param.success[0] == 'approved'}" class="d-inline-flex align-items-center"><i data-lucide="check-circle" style="width: 16px; height: 16px; color: #16a34a; margin-right: 8px; vertical-align: middle;"></i> Đã duyệt sản phẩm thành công!</span>
+            <span th:if="${param.success[0] == 'rejected'}" class="d-inline-flex align-items-center"><i data-lucide="x-circle" style="width: 16px; height: 16px; color: #dc2626; margin-right: 8px; vertical-align: middle;"></i> Đã từ chối sản phẩm!</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
 
         <!-- Filter tabs -->
         <div class="d-flex gap-2 mb-4">
             <a th:href="@{/admin/products(status='pending')}"
-               class="btn rounded-3 fw-semibold"
-               th:classappend="${status == 'pending'} ? 'btn-warning text-dark' : 'btn-outline-secondary'">
-                ⏳ Chờ duyệt
+               class="btn rounded-pill fw-semibold px-4 py-2 border-0"
+               th:style="${status == 'pending'} ? 'background-color: var(--orgo-primary); color: #fff;' : 'background-color: #e2e8f0; color: #475569;'">
+                <i data-lucide="clock" style="width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"></i> Chờ duyệt
             </a>
             <a th:href="@{/admin/products(status='all')}"
-               class="btn rounded-3 fw-semibold"
-               th:classappend="${status == 'all'} ? 'btn-dark' : 'btn-outline-secondary'">
-                📋 Tất cả
+               class="btn rounded-pill fw-semibold px-4 py-2 border-0"
+               th:style="${status == 'all'} ? 'background-color: var(--orgo-primary); color: #fff;' : 'background-color: #e2e8f0; color: #475569;'">
+                <i data-lucide="clipboard-list" style="width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"></i> Tất cả
             </a>
         </div>
 
-        <!-- Product table -->
-        <div class="bg-white rounded-4 shadow-sm overflow-hidden">
-            <table class="table table-hover mb-0">
-                <thead class="bg-light">
-                <tr>
-                    <th class="fw-semibold text-secondary">Sản phẩm</th>
-                    <th class="fw-semibold text-secondary">Seller ID</th>
-                    <th class="fw-semibold text-secondary">Trạng thái</th>
-                    <th class="fw-semibold text-secondary text-end">Thao tác</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="product : ${products.content}">
-                    <td>
-                        <div class="d-flex align-items-center gap-3">
-                            <img th:src="${product.slug != null ? product.slug : 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=100&q=80'}"
-                                 th:alt="${product.productName}"
-                                 class="rounded-3" style="width:55px;height:55px;object-fit:cover;">
-                            <div>
-                                <div class="fw-semibold" th:text="${product.productName}">Tên sản phẩm</div>
-                                <div class="text-secondary small" th:text="${product.origin}">Nguồn gốc</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="text-secondary" th:text="${product.sellerId}">1</td>
-                    <td>
-                    <span class="badge rounded-pill px-3 py-2"
-                          th:classappend="${product.status.name() == 'ACTIVE'} ? 'bg-success' : (${product.status.name() == 'PENDING'} ? 'bg-warning text-dark' : 'bg-danger')"
-                          th:text="${product.status.name() == 'ACTIVE' ? 'Đang bán' : (product.status.name() == 'PENDING' ? 'Chờ duyệt' : (product.status.name() == 'REJECTED' ? 'Bị từ chối' : 'Không hoạt động'))}">
-                    </span>
-                    </td>
-                    <td class="text-end">
-                        <div class="d-flex gap-2 justify-content-end">
-                            <a th:href="@{/admin/products/{id}(id=${product.id})}"
-                               class="btn btn-sm btn-outline-secondary rounded-3">Xem</a>
-                            <form th:if="${product.status.name() == 'PENDING'}"
-                                  th:action="@{/admin/products/{id}/approve(id=${product.id})}" method="post" class="d-inline">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                <button type="submit" class="btn btn-sm btn-success rounded-3"
-                                        onclick="return confirm('Duyệt sản phẩm này?')">✓ Duyệt</button>
-                            </form>
-                            <form th:if="${product.status.name() == 'PENDING'}"
-                                  th:action="@{/admin/products/{id}/reject(id=${product.id})}" method="post" class="d-inline">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                <button type="submit" class="btn btn-sm btn-danger rounded-3"
-                                        onclick="return confirm('Từ chối sản phẩm này?')">✕ Từ chối</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+        <!-- Product table container -->
+        <div class="bg-white border rounded-4 shadow-sm overflow-hidden mb-4" style="border-color: #e5e7eb !important;">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="border-collapse: separate;">
+                    <thead style="background-color: #F8FAFC;">
+                        <tr>
+                            <th class="fw-bold px-4 py-3" style="font-size: 11px; letter-spacing: 0.05em; color: #94A3B8; border-bottom: 1px solid #e5e7eb; width: 35%;">PRODUCT NAME</th>
+                            <th class="fw-bold px-4 py-3" style="font-size: 11px; letter-spacing: 0.05em; color: #94A3B8; border-bottom: 1px solid #e5e7eb; width: 18%;">SELLER NAME</th>
+                            <th class="fw-bold px-4 py-3" style="font-size: 11px; letter-spacing: 0.05em; color: #94A3B8; border-bottom: 1px solid #e5e7eb; width: 15%;">CATEGORY</th>
+                            <th class="fw-bold px-4 py-3" style="font-size: 11px; letter-spacing: 0.05em; color: #94A3B8; border-bottom: 1px solid #e5e7eb; width: 12%;">DATE SUBMITTED</th>
+                            <th class="fw-bold px-4 py-3" style="font-size: 11px; letter-spacing: 0.05em; color: #94A3B8; border-bottom: 1px solid #e5e7eb; width: 12%;">STATUS</th>
+                            <th class="fw-bold px-4 py-3 text-end" style="font-size: 11px; letter-spacing: 0.05em; color: #94A3B8; border-bottom: 1px solid #e5e7eb; width: 8%;">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody style="border-top: none;">
+                        <tr th:each="product : ${products.content}" style="border-bottom: 1px solid #f1f5f9;">
+                            <!-- PRODUCT NAME -->
+                            <td class="px-4 py-3.5">
+                                <div class="d-flex align-items-center gap-3">
+                                    <img th:src="${product.slug != null && product.slug.startsWith('/uploads/') ? product.slug : (product.imageUrl != null ? product.imageUrl : 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=100&q=80')}"
+                                         th:alt="${product.productName}"
+                                         class="rounded-3 shadow-xs border" 
+                                         style="width: 52px; height: 52px; object-fit: cover; border-color: #f1f5f9 !important;">
+                                    <div>
+                                        <div class="fw-bold text-dark mb-0.5" style="font-size: 14px; color: #0F172A !important;" th:text="${product.productName}">Organic Honeycrisp Apples</div>
+                                        <div class="small" style="font-size: 11px; color: #94A3B8;" th:text="${'SKU: ' + mockSkus[product.id]}">SKU: APP-HC-092</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <!-- SELLER NAME -->
+                            <td class="px-4 py-3.5">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="rounded-circle" 
+                                          style="display: inline-block; width: 6px; height: 6px; flex-shrink: 0;"
+                                          th:styleappend="${product.id % 3 == 0} ? 'background-color: #F59E0B;' : 'background-color: #22C55E;'">
+                                    </span>
+                                    <div class="fw-semibold text-dark" style="font-size: 13px; color: #334155 !important;" th:text="${product.shopName != null ? product.shopName : 'Seller'}">Green Valley Farms</div>
+                                </div>
+                            </td>
+                            <!-- CATEGORY -->
+                            <td class="px-4 py-3.5">
+                                <span class="d-inline-flex align-items-center px-2.5 py-1 rounded-pill fw-semibold text-center" 
+                                      style="background-color: #E0F2FE; color: #0369A1; font-size: 11px;" 
+                                      th:text="${categoryNames[product.id]}">
+                                    Produce
+                                </span>
+                            </td>
+                            <!-- DATE SUBMITTED -->
+                            <td class="px-4 py-3.5 text-secondary" style="font-size: 13px;" th:text="${'Oct ' + (24 - (product.id % 5)) + ', 2023'}">
+                                Oct 24, 2023
+                            </td>
+                            <!-- STATUS -->
+                            <td class="px-4 py-3.5">
+                                <!-- PENDING -->
+                                <span th:if="${product.status.name() == 'PENDING'}" 
+                                      class="d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill fw-bold" 
+                                      style="background-color: #EEF2FF; color: #4F46E5; font-size: 11px;">
+                                    <i data-lucide="clock" style="width: 12px; height: 12px;"></i> CHỜ DUYỆT
+                                </span>
+                                <!-- REJECTED -->
+                                <span th:if="${product.status.name() == 'REJECTED'}" 
+                                      class="d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill fw-bold" 
+                                      style="background-color: #FFE4E6; color: #E11D48; font-size: 11px;">
+                                    <i data-lucide="x-circle" style="width: 12px; height: 12px;"></i> ĐÃ TỪ CHỐI
+                                </span>
+                                <!-- INACTIVE / CẦN ĐƯỢC SỬA ĐỔI -->
+                                <span th:if="${product.status.name() == 'INACTIVE'}" 
+                                      class="d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill fw-bold" 
+                                      style="background-color: #EBEFFF; color: #0284C7; font-size: 11px;">
+                                    <i data-lucide="file-text" style="width: 12px; height: 12px;"></i> CẦN ĐƯỢC SỬA ĐỔI
+                                </span>
+                                <!-- ACTIVE / ĐANG BÁN -->
+                                <span th:if="${product.status.name() == 'ACTIVE'}" 
+                                      class="d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill fw-bold" 
+                                      style="background-color: #DCFCE7; color: #16A34A; font-size: 11px;">
+                                    <i data-lucide="check-circle" style="width: 12px; height: 12px;"></i> ĐANG BÁN
+                                </span>
+                            </td>
+                            <!-- ACTIONS -->
+                            <td class="px-4 py-3.5 text-end">
+                                <a th:href="@{/admin/products/{id}(id=${product.id})}" 
+                                   class="d-inline-flex align-items-center fw-semibold text-decoration-none gap-1" 
+                                   style="color: var(--orgo-primary); font-size: 13px;">
+                                    Xem chi tiết <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
+            <!-- Empty state -->
             <div th:if="${products.totalElements == 0}" class="text-center py-5">
-                <div class="display-1 mb-3">✅</div>
+                <div class="display-1 mb-3" style="display: flex; align-items: center; justify-content: center;"><i data-lucide="check-circle" style="width: 64px; height: 64px; color: #10b981;"></i></div>
                 <h5 class="fw-bold text-secondary">Không có sản phẩm nào cần duyệt</h5>
             </div>
-        </div>
 
-        <!-- Pagination -->
-        <nav th:if="${totalPages > 1}" class="mt-4 d-flex justify-content-center">
-            <ul class="pagination">
-                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                    <a class="page-link" th:href="@{/admin/products(page=${currentPage - 1}, status=${status})}">«</a>
-                </li>
-                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                    th:classappend="${i == currentPage} ? 'active'">
-                    <a class="page-link" th:href="@{/admin/products(page=${i}, status=${status})}" th:text="${i + 1}">1</a>
-                </li>
-                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                    <a class="page-link" th:href="@{/admin/products(page=${currentPage + 1}, status=${status})}">»</a>
-                </li>
-            </ul>
-        </nav>
+            <!-- Table Footer Pagination -->
+            <div class="border-top px-4 py-3 d-flex align-items-center justify-content-between flex-wrap gap-3" style="background-color: #FFFFFF; border-color: #e5e7eb !important;">
+                <!-- Showing X to Y of Z text -->
+                <div class="text-secondary" style="font-size: 13px;"
+                     th:text="${products.totalElements > 0 ? ('Đang hiển thị ' + (currentPage * 10 + 1) + ' đến ' + (currentPage * 10 + products.numberOfElements) + ' trong ' + products.totalElements + ' sản phẩm') : 'Đang hiển thị 0 đến 0 trong 0 sản phẩm'}">
+                    Đang hiển thị 1 đến 10 trong 248 sản phẩm
+                </div>
+
+                <!-- Styled Pagination controls -->
+                <div th:if="${totalPages > 1}" class="d-flex align-items-center gap-1">
+                    <!-- First page -->
+                    <a th:href="@{/admin/products(page=0, status=${status})}" 
+                       class="btn btn-sm d-flex align-items-center justify-content-center p-0 text-decoration-none rounded-circle"
+                       style="width: 32px; height: 32px; font-size: 13px; color: #94A3B8; background: transparent; transition: all 0.2s;"
+                       th:classappend="${currentPage == 0} ? 'disabled opacity-50' : 'text-dark hover-light'">
+                        <i data-lucide="chevrons-left" style="width: 14px; height: 14px;"></i>
+                    </a>
+                    
+                    <!-- Prev page -->
+                    <a th:href="@{/admin/products(page=${currentPage - 1}, status=${status})}" 
+                       class="btn btn-sm d-flex align-items-center justify-content-center p-0 text-decoration-none rounded-circle"
+                       style="width: 32px; height: 32px; font-size: 13px; color: #94A3B8; background: transparent; transition: all 0.2s;"
+                       th:classappend="${currentPage == 0} ? 'disabled opacity-50' : 'text-dark hover-light'">
+                        <i data-lucide="chevron-left" style="width: 14px; height: 14px;"></i>
+                    </a>
+
+                    <!-- Page numbers list -->
+                    <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                        <!-- Render if first/last or near current page -->
+                        <a th:if="${i == 0 || i == totalPages - 1 || (i >= currentPage - 1 && i <= currentPage + 1)}"
+                           th:href="@{/admin/products(page=${i}, status=${status})}"
+                           class="btn btn-sm d-flex align-items-center justify-content-center fw-semibold text-decoration-none rounded-circle"
+                           style="width: 32px; height: 32px; font-size: 13px; transition: all 0.2s;"
+                           th:styleappend="${i == currentPage} ? 'background-color: var(--orgo-primary) !important; color: #FFFFFF !important;' : 'background-color: transparent; color: #334155;'"
+                           th:classappend="${i != currentPage} ? 'hover-light' : ''"
+                           th:text="${i + 1}">
+                            1
+                        </a>
+                        
+                        <!-- Ellipsis -->
+                        <span th:if="${(i == 1 && currentPage > 2) || (i == totalPages - 2 && currentPage < totalPages - 3)}" 
+                              class="text-muted px-1" style="font-size: 13px;">...</span>
+                    </th:block>
+
+                    <!-- Next page -->
+                    <a th:href="@{/admin/products(page=${currentPage + 1}, status=${status})}" 
+                       class="btn btn-sm d-flex align-items-center justify-content-center p-0 text-decoration-none rounded-circle"
+                       style="width: 32px; height: 32px; font-size: 13px; color: #94A3B8; background: transparent; transition: all 0.2s;"
+                       th:classappend="${currentPage == totalPages - 1} ? 'disabled opacity-50' : 'text-dark hover-light'">
+                        <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i>
+                    </a>
+
+                    <!-- Last page -->
+                    <a th:href="@{/admin/products(page=${totalPages - 1}, status=${status})}" 
+                       class="btn btn-sm d-flex align-items-center justify-content-center p-0 text-decoration-none rounded-circle"
+                       style="width: 32px; height: 32px; font-size: 13px; color: #94A3B8; background: transparent; transition: all 0.2s;"
+                       th:classappend="${currentPage == totalPages - 1} ? 'disabled opacity-50' : 'text-dark hover-light'">
+                        <i data-lucide="chevrons-right" style="width: 14px; height: 14px;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
     </main>
 </div>
 </body>

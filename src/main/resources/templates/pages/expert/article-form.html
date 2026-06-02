@@ -3,69 +3,118 @@
 <head>
     <title>Viết bài</title>
     <style>
-        .compose-wrap{display:grid;grid-template-columns:1fr 330px;gap:24px}
-        .editor-card,.side-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:18px}
-        .cover{height:220px;border:2px dashed #cbd5e1;border-radius:14px;background:#f8fafc;display:flex;align-items:center;justify-content:center;color:#64748b;font-weight:600}
-        .title-input{width:100%;margin-top:14px;border:none;outline:none;font-size:42px;font-weight:800;line-height:1.15}
-        .meta-row{display:flex;gap:8px;margin:10px 0 14px}
-        .chip{padding:6px 12px;border-radius:999px;background:#e0f2fe;color:#0c4a6e;font-size:12px;font-weight:700}
-        .chip.gray{background:#f1f5f9;color:#334155}
-        .toolbar{display:flex;gap:8px;border:1px solid #e2e8f0;border-radius:10px;padding:8px;margin-bottom:10px}
-        .tb-btn{border:none;background:#fff;color:#475569;padding:4px 8px;border-radius:8px}
-        .editor-text{width:100%;min-height:520px;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:15px;resize:vertical}
-        .field{margin-bottom:14px}.field label{display:block;font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-        .field input,.field select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:10px;font-size:14px}
+        body{background:#f8fafb}
+        .compose-wrap{display:grid;grid-template-columns:1fr 360px;gap:28px;max-width:1400px;margin:0 auto}
+        @media (max-width:1024px){.compose-wrap{grid-template-columns:1fr}}
+        .editor-card,.side-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px;box-shadow:0 1px 3px rgba(0,0,0,0.05),0 1px 2px rgba(0,0,0,0.03)}
+        .cover{height:280px;border:2px dashed #cbd5e1;border-radius:14px;background:linear-gradient(135deg,#f8fafc 0%,#f1f5f9 100%);display:flex;align-items:center;justify-content:center;color:#64748b;font-weight:600;transition:all 0.25s;position:relative}
+        .cover:hover{border-color:#10b981;background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%)}
+        .title-input{width:100%;margin-top:24px;border:none;border-bottom:2px solid #f1f5f9;outline:none;font-size:32px;font-weight:800;line-height:1.2;color:#1e293b;padding-bottom:12px;transition:all 0.2s}
+        .title-input:focus{border-bottom-color:#10b981}
+        .title-input::placeholder{color:#cbd5e1}
+        .meta-row{display:flex;gap:10px;margin:16px 0 20px}
+        .chip{padding:6px 14px;border-radius:999px;background:#e2fbf0;color:#047857;font-size:12px;font-weight:700;border:1px solid #a7f3d0}
+        .chip.gray{background:#f1f5f9;color:#475569;border-color:#cbd5e1}
+        .editor-text{width:100%;border:1px solid #cbd5e1;border-radius:12px;padding:16px;font-size:15px;line-height:1.7;resize:none;overflow:hidden;transition:all 0.2s;background:#fff}
+        .editor-text:focus{outline:none;border-color:#10b981;box-shadow:0 0 0 4px rgba(16,185,129,0.1)}
+        .editor-text::placeholder{color:#94a3b8}
+        .summary-text{min-height:80px;margin-bottom:16px}
+        .content-text{min-height:400px}
+        .field{margin-bottom:16px}.field label{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+        .field input,.field select{width:100%;padding:12px 16px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;transition:all 0.2s;background:#fff}
+        .field input:focus,.field select:focus{outline:none;border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.1)}
         .link-list{display:flex;flex-direction:column;gap:10px}
-        .linked-item{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px}
-        .btn{padding:10px 14px;border-radius:10px;border:none;font-weight:700;cursor:pointer}
-        .btn-main{background:#2e7d32;color:#fff;width:100%}.btn-sub{background:#fff;border:1px solid #d1d5db;color:#334155;width:100%}
-        .modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:1000}
+        .linked-item{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%);border:1px solid #a7f3d0;border-radius:10px;padding:12px;font-size:13.5px;color:#047857;font-weight:600}
+        .btn{padding:12px 18px;border-radius:10px;border:none;font-weight:700;cursor:pointer;transition:all 0.25s;font-size:14px}
+        .btn-main{background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:#fff;width:100%;box-shadow:0 4px 12px rgba(16,185,129,0.2)}
+        .btn-main:hover{background:linear-gradient(135deg,#059669 0%,#047857 100%);transform:translateY(-1px);box-shadow:0 6px 16px rgba(16,185,129,0.3)}
+        .btn-sub{background:#fff;border:1.5px solid #cbd5e1;color:#475569;width:100%}
+        .btn-sub:hover{background:#f8fafc;border-color:#94a3b8;color:#1e293b}
+        .tb-btn{border:none;background:#f1f5f9;color:#475569;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.2s}
+        .tb-btn:hover{background:#e2e8f0;color:#1e293b}
+        .modal-mask{position:fixed;inset:0;background:rgba(15,23,42,0.4);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:1000}
         .modal-mask.open{display:flex}
-        .modal-box{width:min(760px,92vw);max-height:82vh;overflow:auto;background:#fff;border-radius:14px;padding:16px}
-        .product-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
-        .p-item{border:1px solid #e2e8f0;border-radius:10px;padding:10px;display:flex;gap:10px;align-items:center}
-        .p-item input{transform:scale(1.1)}
+        .modal-box{width:min(800px,92vw);max-height:85vh;overflow:auto;background:#fff;border-radius:16px;padding:28px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1),0 10px 10px -5px rgba(0,0,0,0.04);border:1px solid #e2e8f0}
+        .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:16px}
+        .p-item{border:1px solid #e2e8f0;border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;cursor:pointer;transition:all 0.2s;background:#fff}
+        .p-item:hover{border-color:#10b981;background:#f0fdf4;transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,185,129,0.05)}
+        .p-item input{transform:scale(1.15);cursor:pointer}
+        .side-card h4{color:#0f172a;font-size:15px;margin-bottom:16px;font-weight:700}
+        .upload-label{padding:10px 18px;background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:#fff;border-radius:10px;cursor:pointer;font-size:13.5px;font-weight:600;transition:all 0.25s;display:inline-block}
+        .upload-label:hover{background:linear-gradient(135deg,#059669 0%,#047857 100%);transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,185,129,0.2)}
+        .cover-preview-img{width:100%;height:100%;object-fit:cover;border-radius:12px;position:absolute;top:0;left:0;z-index:1}
+        .cover-overlay{display:none;position:absolute;inset:0;background:rgba(15,23,42,0.4);border-radius:12px;z-index:2;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s ease-in-out}
+        .cover:hover .cover-overlay{opacity:1}
     </style>
 </head>
 <body>
-<div th:replace="~{fragments/expert-layout :: expertLayout('Viết bài mới', 'article-new', ~{::main})}">
+<div th:replace="~{fragments/expert-layout :: expertLayout(${isEditMode} ? 'Chỉnh sửa bài viết' : 'Viết bài mới', 'article-new', ~{::main})}">
     <main>
-        <form th:action="@{/expert/articles/new}" method="post" enctype="multipart/form-data" th:object="${article}">
+        <form th:action="@{${formAction}}" method="post" enctype="multipart/form-data" th:object="${article}">
             <div class="compose-wrap">
                 <section class="editor-card">
-                    <div class="cover" style="flex-direction:column;gap:10px;">
-                        <span>Ảnh bìa bài viết</span>
-                        <label for="coverImageFile" style="padding:8px 12px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;cursor:pointer;font-size:13px;color:#334155;">Chọn ảnh</label>
+                    <div class="cover">
+                        <!-- Preview Image element -->
+                        <img id="imagePreview" class="cover-preview-img" style="display:none;" />
+                        
+                        <!-- Placeholder UI when no image selected -->
+                        <div id="placeholderUI" style="display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center; z-index:2;">
+                            <i data-lucide="image" style="width:48px; height:48px; color:#10b981;"></i>
+                            <span style="font-size:15px; font-weight:700; color:#475569">Ảnh bìa bài viết</span>
+                            <label for="coverImageFile" class="upload-label">Chọn ảnh bìa</label>
+                            <span id="coverFileName" style="font-size:13px; color:#94a3b8; font-weight:600">Chưa chọn ảnh</span>
+                        </div>
+
+                        <!-- Hover overlay for changing image -->
+                        <div id="coverOverlay" class="cover-overlay">
+                            <label for="coverImageFile" class="btn btn-main" style="width:auto; padding:10px 20px; display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+                                <i data-lucide="refresh-cw" style="width:16px; height:16px;"></i> Thay đổi ảnh
+                            </label>
+                        </div>
+
                         <input id="coverImageFile" name="coverImageFile" type="file" accept="image/*" style="display:none;" />
-                        <span id="coverFileName" style="font-size:12px;color:#64748b;">Chưa chọn ảnh</span>
                     </div>
-                    <div th:if="${uploadError}" style="margin-top:8px;color:#dc2626;font-size:13px;" th:text="${uploadError}"></div>
-                    <div th:if="${param.error}" style="margin-top:8px;color:#dc2626;font-size:13px;">Không thể lưu bài viết. Vui lòng thử lại.</div>
-                    <input class="title-input" type="text" th:field="*{title}" placeholder="Nhập tiêu đề..." required>
+                    <div th:if="${uploadError}" style="margin-top:12px;padding:12px;background:#fef2f2;color:#b91c1c;font-size:13px;border-radius:10px;border-left:4px solid #ef4444" th:text="${uploadError}"></div>
+                    <div th:if="${errorMessage}" style="margin-top:12px;padding:12px;background:#fef2f2;color:#b91c1c;font-size:13px;border-radius:10px;border-left:4px solid #ef4444" th:text="${errorMessage}"></div>
+                    <div th:if="${param.error}" style="margin-top:12px;padding:12px;background:#fef2f2;color:#b91c1c;font-size:13px;border-radius:10px;border-left:4px solid #ef4444">Không thể lưu bài viết. Vui lòng thử lại.</div>
+                    
+                    <input class="title-input" type="text" th:field="*{title}" placeholder="Nhập tiêu đề bài viết..." required>
+                    
                     <div class="meta-row">
-                        <span class="chip">Chọn danh mục</span>
-                        <span class="chip gray">8 min read</span>
+                        <span class="chip"><i data-lucide="file-text" style="width:14px; height:14px; display:inline-block; vertical-align:-2px; margin-right:4px;"></i><span th:text="${isEditMode} ? 'Chỉnh sửa bài viết' : 'Bài viết mới'">Bài viết mới</span></span>
+                        <span class="chip gray"><i data-lucide="clock" style="width:14px; height:14px; display:inline-block; vertical-align:-2px; margin-right:4px;"></i>8 phút đọc</span>
                     </div>
-                    <textarea class="editor-text" th:field="*{summary}" placeholder="Mô tả nhanh" required></textarea>
-                    <textarea class="editor-text" th:field="*{content}" placeholder="Hãy bắt đầu câu chuyện của bạn tại đây..." required></textarea>
+                    
+                    <div style="margin-bottom:20px">
+                        <label style="font-size:14px;font-weight:700;color:#047857;display:flex;align-items:center;gap:6px;margin-bottom:8px">
+                            <i data-lucide="align-left" style="width:16px; height:16px;"></i> Mô tả ngắn (Summary)
+                        </label>
+                        <textarea class="editor-text summary-text" th:field="*{summary}" placeholder="Viết mô tả ngắn gọn về bài viết (tự động mở rộng khi viết)..." required></textarea>
+                    </div>
+                    
+                    <div style="margin-bottom:16px">
+                        <label style="font-size:14px;font-weight:700;color:#047857;display:flex;align-items:center;gap:6px;margin-bottom:8px">
+                            <i data-lucide="edit-3" style="width:16px; height:16px;"></i> Nội dung bài viết (Content)
+                        </label>
+                        <textarea class="editor-text content-text" th:field="*{content}" placeholder="Hãy bắt đầu câu chuyện của bạn tại đây..." required></textarea>
+                    </div>
                     <input type="hidden" th:field="*{thumbnail}">
                     <input type="hidden" th:field="*{type}" th:value="${article.type != null ? article.type : 'BLOG'}">
                 </section>
 
                 <aside>
-                    <div class="side-card" style="margin-bottom:14px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                            <strong>Liên kết sản phẩm</strong>
-                            <button class="tb-btn" type="button" id="openModal">Quản lý</button>
-                        </div>
-                        <div id="linkedProducts" class="link-list"></div>
-                        <button class="btn btn-sub" type="button" id="openModal2" style="margin-top:10px;">+ Thêm sản phẩm</button>
+                    <div class="side-card" style="margin-bottom:18px;">
+                        <h4 style="display:flex; align-items:center; gap:8px; margin:0;"><i data-lucide="link" style="width:18px; height:18px; color:#10b981;"></i> Liên kết sản phẩm</h4>
+                        <div id="linkedProducts" class="link-list" style="margin-top:16px;"></div>
+                        <button class="btn btn-sub" type="button" id="openModal2" style="margin-top:16px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                            <i data-lucide="plus" style="width:16px; height:16px;"></i> Thêm sản phẩm
+                        </button>
                     </div>
 
-                    <div class="side-card" style="margin-bottom:14px;">
-                        <div class="field">
-                            <label>Danh mục chính</label>
-                            <select th:field="*{category}">
+                    <div class="side-card" style="margin-bottom:18px;">
+                        <div class="field" style="margin:0;">
+                            <label style="display:flex; align-items:center; gap:8px; font-weight:700; color:#475569; text-transform:none; font-size:13px; margin-bottom:10px;"><i data-lucide="folder-open" style="width:18px; height:18px; color:#10b981;"></i> Danh mục chính</label>
+                            <select th:field="*{category}" required>
                                 <option value="">-- Chọn danh mục --</option>
                                 <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"></option>
                             </select>
@@ -73,29 +122,39 @@
                     </div>
 
                     <div class="side-card">
-                        <button class="btn btn-main" type="submit">Lưu bài viết</button>
-                        <button class="btn btn-sub" type="button" style="margin-top:8px;" onclick="window.location.href='/expert/articles'">Quay lại</button>
+                        <button class="btn btn-main" type="submit" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+                            <i data-lucide="check" style="width:18px; height:18px;"></i> <span th:text="${isEditMode} ? 'Cập nhật bài viết' : 'Lưu bài viết'">Lưu bài viết</span>
+                        </button>
+                        <button class="btn btn-sub" type="button" style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="window.location.href='/expert/articles'">
+                            <i data-lucide="arrow-left" style="width:18px; height:18px;"></i> Quay lại
+                        </button>
                     </div>
                 </aside>
             </div>
 
             <div id="modalMask" class="modal-mask">
                 <div class="modal-box">
-                    <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <h3>Chọn sản phẩm gắn vào bài viết</h3>
-                        <button type="button" class="tb-btn" id="closeModal">Đóng</button>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
+                        <h3 style="color:#0f172a;font-size:20px;margin:0;display:flex;align-items:center;gap:8px;font-weight:800;"><i data-lucide="shopping-bag" style="width:22px;height:22px;color:#10b981;"></i> Chọn sản phẩm gắn vào bài viết</h3>
+                        <button type="button" class="tb-btn" id="closeModal" style="display:flex;align-items:center;gap:6px;"><i data-lucide="x" style="width:16px;height:16px;"></i> Đóng</button>
                     </div>
                     <div class="product-grid">
-                        <label class="p-item" th:each="p : ${products}">
-                            <input type="checkbox" name="productIds" th:value="${p.id}" class="product-check" th:data-name="${p.productName}">
-                            <div>
-                                <div style="font-weight:700" th:text="${p.productName}">Tên SP</div>
-                                <div style="font-size:12px;color:#64748b" th:text="${p.slug}">slug</div>
+                        <label class="p-item" th:each="p : ${products}" style="display:flex; align-items:center; gap:12px; padding:12px;">
+                            <input type="checkbox" name="productIds" th:value="${p.id}" class="product-check" th:data-name="${p.productName}" th:checked="${article.productIds != null and #lists.contains(article.productIds, p.id)}" style="margin:0;">
+                            <img th:src="${p.imageUrl != null && !p.imageUrl.isEmpty() ? p.imageUrl : '/api/placeholder/80/80'}" alt="Product" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; background: #f8fafc; flex-shrink:0;" />
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-weight:700;color:#1e293b;margin-bottom:4px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" th:text="${p.productName}">Tên SP</div>
+                                <div style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:4px;">
+                                    <i data-lucide="store" style="width:12px;height:12px;color:#10b981;"></i>
+                                    <span th:text="${p.shopName != null ? p.shopName : 'ORGO Shop'}">Cửa hàng</span>
+                                </div>
                             </div>
                         </label>
                     </div>
-                    <div style="margin-top:12px;text-align:right;">
-                        <button type="button" class="btn btn-main" id="applyProducts" style="width:auto;">Xác nhận</button>
+                    <div style="margin-top:24px;text-align:right;padding-top:16px;border-top:1px solid #e2e8f0;">
+                        <button type="button" class="btn btn-main" id="applyProducts" style="width:auto;padding:12px 32px;display:inline-flex;align-items:center;gap:8px;">
+                            <i data-lucide="check-square" style="width:18px;height:18px;"></i> Xác nhận
+                        </button>
                     </div>
                 </div>
             </div>
@@ -106,19 +165,73 @@
 <script>
     const fileInput = document.getElementById('coverImageFile');
     const fileName = document.getElementById('coverFileName');
+    const imagePreview = document.getElementById('imagePreview');
+    const placeholderUI = document.getElementById('placeholderUI');
+    const coverOverlay = document.getElementById('coverOverlay');
     const mask = document.getElementById('modalMask');
     const open1 = document.getElementById('openModal');
     const open2 = document.getElementById('openModal2');
     const closeBtn = document.getElementById('closeModal');
     const applyBtn = document.getElementById('applyProducts');
     const linkedBox = document.getElementById('linkedProducts');
+    const thumbnailInput = document.querySelector('input[name="thumbnail"]');
 
     function openModal(){ mask.classList.add('open'); }
     function closeModal(){ mask.classList.remove('open'); }
 
-    fileInput?.addEventListener('change', () => {
-        fileName.textContent = fileInput.files && fileInput.files.length ? fileInput.files[0].name : 'Chưa chọn ảnh';
+    // Logic to show cover image preview
+    function showPreview(src, name) {
+        if (imagePreview) {
+            imagePreview.src = src;
+            imagePreview.style.display = 'block';
+        }
+        if (placeholderUI) {
+            placeholderUI.style.display = 'none';
+        }
+        if (coverOverlay) {
+            coverOverlay.style.display = 'flex';
+        }
+        if (fileName && name) {
+            fileName.textContent = name;
+        }
+    }
+
+    function resetPreview() {
+        if (imagePreview) {
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+        }
+        if (placeholderUI) {
+            placeholderUI.style.display = 'flex';
+        }
+        if (coverOverlay) {
+            coverOverlay.style.display = 'none';
+        }
+        if (fileName) {
+            fileName.textContent = 'Chưa chọn ảnh';
+        }
+    }
+
+    // Check if there is an existing thumbnail (e.g. on validation error redirect)
+    if (thumbnailInput && thumbnailInput.value) {
+        showPreview(thumbnailInput.value, 'Ảnh bìa hiện tại');
+    }
+
+    fileInput?.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                showPreview(e.target.result, file.name);
+            };
+            reader.readAsDataURL(file);
+        } else if (thumbnailInput && thumbnailInput.value) {
+            showPreview(thumbnailInput.value, 'Ảnh bìa hiện tại');
+        } else {
+            resetPreview();
+        }
     });
+
     open1?.addEventListener('click', openModal);
     open2?.addEventListener('click', openModal);
     closeBtn?.addEventListener('click', closeModal);
@@ -128,10 +241,34 @@
         document.querySelectorAll('.product-check:checked').forEach(chk => {
             const item = document.createElement('div');
             item.className = 'linked-item';
-            item.innerHTML = `<span>${chk.dataset.name}</span><span style="font-size:12px;color:#64748b">đã chọn</span>`;
+            item.innerHTML = `<span style="display:flex; align-items:center; gap:6px;"><i data-lucide="link" style="width:14px; height:14px;"></i> ${chk.dataset.name}</span><span style="font-size:12px; color:#10b981; display:flex; align-items:center; gap:4px;"><i data-lucide="check-circle" style="width:12px; height:12px;"></i> đã chọn</span>`;
             linkedBox.appendChild(item);
         });
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
         closeModal();
+    });
+
+    // Auto-resize textarea
+    function autoResize(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    document.querySelectorAll('.editor-text').forEach(textarea => {
+        // Set initial height
+        autoResize(textarea);
+        
+        // Auto resize on input
+        textarea.addEventListener('input', function() {
+            autoResize(this);
+        });
+        
+        // Auto resize on page load if has content
+        if(textarea.value) {
+            autoResize(textarea);
+        }
     });
 </script>
 </body>

@@ -344,8 +344,7 @@
                                 <div class="verified-stamp">ĐÃ XÁC MINH DANH TÍNH</div>
                             </div>
                             <div>
-                                <div class="profile-name"><span th:text="${expert.fullName}">Dr. Tuấn Anh</span> <span
-                                        style="color:var(--color-primary);font-size:18px">✅</span></div>
+                                <div class="profile-name"><span th:text="${expert.fullName}">Dr. Tuấn Anh</span> <i data-lucide="check-circle" style="width: 18px; height: 18px; color: var(--color-primary); vertical-align: middle;"></i></div>
                                 <div class="profile-specialty" th:text="${expert.expertiseField}">Chuyên gia dinh dưỡng lâm sàng</div>
                                 <div class="profile-stats">
                                     <div class="ps-item"><label>TÀI KHOẢN</label><span th:text="${expert.email}">---</span></div>
@@ -355,7 +354,7 @@
                     </div>
 
                     <div class="bio-card">
-                        <h3>📋 Tổng quan chuyên môn</h3>
+                        <h3><i data-lucide="file-text" class="d-inline-block align-middle me-1" style="width: 18px; height: 18px; color: var(--color-primary);"></i> Tổng quan chuyên môn</h3>
                         <p class="bio-text" th:text="${expert.experienceDescription}">Chuyên về dinh dưỡng nội tiết...</p>
                     </div>
 
@@ -363,7 +362,7 @@
                         <h3>📎 File Chứng chỉ / Bằng cấp</h3>
                         <div style="background: #f7faf8; border: 1px dashed #b5d5c2; border-radius: 10px; padding: 16px; display: flex; align-items: center; gap: 12px; margin-top: 12px;">
                             <div style="width: 40px; height: 40px; background: #e6f4ec; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <span style="font-size: 20px;">📄</span>
+                                <i data-lucide="file-text" style="width: 20px; height: 20px; color: #2d8c4e;"></i>
                             </div>
                             <div style="flex-grow: 1;">
                                 <div style="font-size: 13px; font-weight: 600; color: #2d8c4e;" th:text="${expert.certificateFile}">certificate.pdf</div>
@@ -382,12 +381,12 @@
                         
                         <form th:action="@{/admin/expert-pending-list/approve}" method="post" style="margin-bottom: 10px;">
                             <input type="hidden" name="id" th:value="${expert.id}" />
-                            <button type="submit" class="btn-adm-primary" style="width: 100%;">✅ Xác nhận và phê duyệt</button>
+                            <button type="submit" class="btn-adm-primary" style="width: 100%;"><i data-lucide="check" style="width: 16px; height: 16px;"></i> Xác nhận và phê duyệt</button>
                         </form>
                         
                         <form th:action="@{/admin/expert-pending-list/reject}" method="post">
                             <input type="hidden" name="id" th:value="${expert.id}" />
-                            <button type="submit" class="btn-adm-danger" style="width: 100%;">🚫 Từ chối</button>
+                            <button type="submit" class="btn-adm-danger" style="width: 100%;"><i data-lucide="ban" style="width: 16px; height: 16px;"></i> Từ chối</button>
                         </form>
                     </div>
 

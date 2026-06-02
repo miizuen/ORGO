@@ -56,4 +56,10 @@ public class WithdrawalRequest {
 
     @Column(name = "id_nguoi_xu_ly")
     private Integer processorId;
+
+    @Column(name = "id_nguoi_yeu_cau")
+    private Integer requesterId;
+
+    @Column(name = "ma_giao_dich", columnDefinition = "NVARCHAR(100)")
+    private String transactionCode;
 }

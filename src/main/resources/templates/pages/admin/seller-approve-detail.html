@@ -385,30 +385,30 @@
             <!-- Two-col -->
             <div class="two-col">
                 <div class="section-card">
-                    <h3>📋 Tuân thủ quy định</h3>
+                    <h3><i data-lucide="shield-check" class="d-inline-block align-middle me-1" style="width: 20px; height: 20px;"></i> Tuân thủ quy định</h3>
                     <div class="compliance-grid">
                         <div class="cert-card">
                             <span class="badge-green" style="float:right">VALID</span>
-                            <div style="font-size:22px;margin-top:4px">🌿</div>
+                            <div style="margin-top:4px"><i data-lucide="leaf" style="width: 24px; height: 24px; color: #10b981;"></i></div>
                             <div class="cert-name">USDA Organic</div>
                             <div class="cert-id">Cert #882-192-A</div>
                             <a class="cert-link">XEM TÀI LIỆU →</a>
                         </div>
                         <div class="cert-card">
                             <span class="badge-green" style="float:right">VALID</span>
-                            <div style="font-size:22px;margin-top:4px">✅</div>
+                            <div style="margin-top:4px"><i data-lucide="check-circle" style="width: 24px; height: 24px; color: #10b981;"></i></div>
                             <div class="cert-name">VietGAP Certificate</div>
                             <div class="cert-id">Registration VG-2023-01</div>
                             <a class="cert-link">XEM TÀI LIỆU →</a>
                         </div>
                     </div>
                     <div class="file-row">
-                        <span class="file-icon">📄</span>
+                        <span class="file-icon"><i data-lucide="file-text" style="width: 20px; height: 20px; color: #6b7280; vertical-align: middle;"></i></span>
                         <div>
                             <div class="file-name">Giay_Phep_Kinh_Doanh_GVF.pdf</div>
                             <div class="file-meta">Uploaded Jan 12, 2024 • 4.2 MB</div>
                         </div>
-                        <span class="dl-icon">⬇</span>
+                        <span class="dl-icon"><i data-lucide="download" style="width: 16px; height: 16px; color: #888; vertical-align: middle;"></i></span>
                     </div>
                 </div>
 
@@ -416,7 +416,7 @@
                     <h3>Tiến trình xử lý</h3>
                     <div class="progress-item">
                         <div>
-                            <div class="prog-dot done">✓</div>
+                            <div class="prog-dot done"><i data-lucide="check" style="width: 12px; height: 12px;"></i></div>
                             <div class="prog-line green"></div>
                         </div>
                         <div class="prog-info">
@@ -427,7 +427,7 @@
                     </div>
                     <div class="progress-item">
                         <div>
-                            <div class="prog-dot done">✓</div>
+                            <div class="prog-dot done"><i data-lucide="check" style="width: 12px; height: 12px;"></i></div>
                             <div class="prog-line green"></div>
                         </div>
                         <div class="prog-info">
@@ -438,7 +438,7 @@
                     </div>
                     <div class="progress-item">
                         <div>
-                            <div class="prog-dot done" style="background:var(--color-warning)">●</div>
+                            <div class="prog-dot done" style="background:var(--color-warning); display: flex; align-items: center; justify-content: center;"><i data-lucide="clock" style="width: 12px; height: 12px; color: #fff;"></i></div>
                             <div class="prog-line"></div>
                         </div>
                         <div class="prog-info">
@@ -459,15 +459,27 @@
                 </div>
             </div>
 
-            <!-- Map -->
+            <!-- Bank info -->
             <div class="map-section">
-                <h3>📍 Trung tâm điều hành nông trại</h3>
-                <div class="map-placeholder">
-                    <div class="map-grid"></div>
-                    <div class="map-roads"></div>
-                    <div class="map-roads2"></div>
-                    <div class="map-pin">📍</div>
-                    <div class="map-label">Plot 12, Ward 7, Đà Lạt, Lâm Đồng</div>
+                <h3><i data-lucide="landmark" class="d-inline-block align-middle me-1" style="width: 20px; height: 20px;"></i> Thông tin ngân hàng</h3>
+                <div class="section-card" style="padding:18px;background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);border:1px solid #dbe4ee;">
+                    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;">
+                        <div style="padding:14px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;">
+                            <div style="font-size:12px;color:#6b7280;font-weight:800;text-transform:uppercase;letter-spacing:.06em;">Ngân hàng</div>
+                            <div style="margin-top:8px;font-size:16px;font-weight:800;color:#111827;" th:text="${seller.bankName != null ? seller.bankName : 'Chưa cập nhật'}">Chưa cập nhật</div>
+                        </div>
+                        <div style="padding:14px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;">
+                            <div style="font-size:12px;color:#6b7280;font-weight:800;text-transform:uppercase;letter-spacing:.06em;">Số tài khoản</div>
+                            <div style="margin-top:8px;font-size:16px;font-weight:800;color:#111827;" th:text="${seller.bankAccount != null ? seller.bankAccount : 'Chưa cập nhật'}">Chưa cập nhật</div>
+                        </div>
+                        <div style="padding:14px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;">
+                            <div style="font-size:12px;color:#6b7280;font-weight:800;text-transform:uppercase;letter-spacing:.06em;">Chủ tài khoản</div>
+                            <div style="margin-top:8px;font-size:16px;font-weight:800;color:#111827;" th:text="${seller.accountHolderName != null ? seller.accountHolderName : 'Chưa cập nhật'}">Chưa cập nhật</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:14px;font-size:12px;color:#6b7280;line-height:1.6;">
+                        Dữ liệu này sẽ được dùng cho đối soát và chi trả tự động theo luồng thanh toán trung gian.
+                    </div>
                 </div>
             </div>
 

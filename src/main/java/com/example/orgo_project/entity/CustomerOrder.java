@@ -41,6 +41,18 @@ public class CustomerOrder {
     @Column(name = "ngay_dat")
     private LocalDateTime orderedAt;
 
+    @Column(name = "ngay_thanh_toan")
+    private LocalDateTime paidAt;
+
+    @Column(name = "ngay_xac_nhan")
+    private LocalDateTime confirmedAt;
+
+    @Column(name = "ngay_giao_van_chuyen")
+    private LocalDateTime shippedAt;
+
+    @Column(name = "ngay_da_nhan")
+    private LocalDateTime deliveredAt;
+
     @Column(name = "tong_tien")
     private BigDecimal totalAmount;
 
@@ -63,4 +75,23 @@ public class CustomerOrder {
 
     @Column(name = "ly_do_huy")
     private String cancellationReason;
+
+    @Column(name = "id_bai_viet")
+    private Integer articleId;
+
+    @Column(name = "ten_ngan_hang_hoan", columnDefinition = "NVARCHAR(255)")
+    private String refundBankName;
+
+    @Column(name = "so_tai_khoan_hoan", columnDefinition = "NVARCHAR(255)")
+    private String refundAccountNumber;
+
+    @Column(name = "ten_chu_tai_khoan_hoan", columnDefinition = "NVARCHAR(255)")
+    private String refundAccountName;
+
+    @Column(name = "ma_giao_dich_hoan", columnDefinition = "NVARCHAR(255)")
+    private String refundTransactionCode;
+
+    @Column(name = "ngay_hoan_tien")
+    private LocalDateTime refundApprovedAt;
 }
+

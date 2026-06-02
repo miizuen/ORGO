@@ -5,7 +5,6 @@ import com.example.orgo_project.enums.ProductStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -13,26 +12,143 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface IProductRepository extends JpaRepository<Product, Integer>, JpaSpecificationExecutor<Product> {
+public interface IProductRepository extends JpaRepository<Product, Integer> {
+    List<Product> findBySellerId(Integer sellerId);
 
-    Page<Product> findByStatus(ProductStatus status, Pageable pageable);
+    @Query("""
+            select p
+            from Product p
+            where p.status = :status
+              and (p.hidden = false or p.hidden is null)
+            order by p.id desc
+            """)
+    Page<Product> findByStatus(@Param("status") ProductStatus status, Pageable pageable);
 
-    Page<Product> findBySellerId(Integer sellerId, Pageable pageable);
+    @Query("""
+            select p
+            from Product p
+            where p.categoryId = :categoryId
+              and p.status = :status
+              and (p.hidden = false or p.hidden is null)
+            order by p.id desc
+            """)
+    Page<Product> findByCategoryIdAndStatus(@Param("categoryId") Integer categoryId,
+                                            @Param("status") ProductStatus status,
+                                            Pageable pageable);
 
-    Page<Product> findBySellerIdAndStatus(Integer sellerId, ProductStatus status, Pageable pageable);
+    @Query("""
+            select p
+            from Product p
+            where p.sellerId = :sellerId
+            order by p.id desc
+            """)
+    Page<Product> findBySellerId(@Param("sellerId") Integer sellerId, Pageable pageable);
 
-    List<Product> findTop8ByStatusOrderByAverageRatingDesc(ProductStatus status);
+    @Query("""
+            select p
+            from Product p
+            where p.sellerId = :sellerId
+              and (p.hidden = false or p.hidden is null)
+            order by p.id desc
+            """)
+    Page<Product> findBySellerIdAndHiddenFalse(@Param("sellerId") Integer sellerId, Pageable pageable);
 
-    Page<Product> findByCategoryIdAndStatus(Integer categoryId, ProductStatus status, Pageable pageable);
+    @Query("""
+            select p
+            from Product p
+            where p.status = :status
+              and (p.hidden = false or p.hidden is null)
+            order by coalesce(p.averageRating, 0) desc
+            """)
+    List<Product> findTop8ByStatusOrderByAverageRatingDesc(@Param("status") ProductStatus status);
 
-    @Query("SELECT p FROM Product p WHERE p.status = com.example.orgo_project.enums.ProductStatus.ACTIVE AND " +
-           "(:keyword IS NULL OR LOWER(p.productName) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
-           "(:categoryId IS NULL OR p.categoryId = :categoryId)")
+    @Query("""
+            select p
+            from Product p
+            where p.status = com.example.orgo_project.enums.ProductStatus.ACTIVE
+              and (p.hidden = false or p.hidden is null)
+              and (:keyword is null or lower(p.productName) like lower(concat('%', :keyword, '%')))
+              and (:categoryId is null or p.categoryId = :categoryId)
+            order by p.id desc
+            """)
     Page<Product> searchProducts(@Param("keyword") String keyword,
-                                  @Param("categoryId") Integer categoryId,
-                                  Pageable pageable);
+                                 @Param("categoryId") Integer categoryId,
+                                 Pageable pageable);
+
+    @Query("""
+            select count(p)
+            from Product p
+            where p.categoryId = :categoryId
+              and p.status = com.example.orgo_project.enums.ProductStatus.ACTIVE
+              and (p.hidden = false or p.hidden is null)
+            """)
+    long countActiveByCategoryId(@Param("categoryId") Integer categoryId);
+
+    @Query("""
+            select count(p)
+            from Product p
+            where p.status = com.example.orgo_project.enums.ProductStatus.ACTIVE
+              and (p.hidden = false or p.hidden is null)
+            """)
+    long countAllActive();
+
+    @Query("""
+            select distinct p.origin
+            from Product p
+            where p.status = com.example.orgo_project.enums.ProductStatus.ACTIVE
+              and (p.hidden = false or p.hidden is null)
+              and p.origin is not null
+              and p.origin <> ''
+            """)
+    List<String> findDistinctOrigins();
+
+    @Query(value = "SELECT TOP 4 p.* FROM SanPham p " +
+            "WHERE p.trang_thai = 'ACTIVE' " +
+            "ORDER BY NEWID()", nativeQuery = true)
+    List<Product> findRandomTop4ActiveProducts();
+
+    @Query(value = "SELECT TOP 4 p.* FROM SanPham p " +
+            "WHERE p.trang_thai = 'ACTIVE' AND p.id_san_pham NOT IN (:excludedIds) " +
+            "ORDER BY NEWID()", nativeQuery = true)
+    List<Product> findRandomTop4ActiveProductsExcluding(@Param("excludedIds") java.util.Set<Integer> excludedIds);
 
     @Query("SELECT p FROM Product p WHERE p.status = com.example.orgo_project.enums.ProductStatus.ACTIVE AND " +
-           "LOWER(p.productName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+            "LOWER(p.productName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Product> findTop5ByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query("""
+            select p
+            from Product p
+            where p.sellerId = :sellerId
+              and p.status = :status
+            order by p.id desc
+            """)
+    Page<Product> findBySellerIdAndStatus(@Param("sellerId") Integer sellerId,
+                                          @Param("status") ProductStatus status,
+                                          Pageable pageable);
+
+    @Query("""
+            select p
+            from Product p
+            where p.sellerId = :sellerId
+              and lower(p.productName) like lower(concat('%', :productName, '%'))
+            order by p.id desc
+            """)
+    Page<Product> findBySellerIdAndProductNameContainingIgnoreCase(@Param("sellerId") Integer sellerId,
+                                                                   @Param("productName") String productName,
+                                                                   Pageable pageable);
+
+    @Query("""
+            select p
+            from Product p
+            where p.sellerId = :sellerId
+              and lower(p.productName) like lower(concat('%', :productName, '%'))
+              and p.status = :status
+            order by p.id desc
+            """)
+    Page<Product> findBySellerIdAndProductNameContainingIgnoreCaseAndStatus(@Param("sellerId") Integer sellerId,
+                                                                            @Param("productName") String productName,
+                                                                            @Param("status") ProductStatus status,
+                                                                            Pageable pageable);
+
 }
