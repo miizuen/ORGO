@@ -5,6 +5,7 @@
     <style>
         .status-badge{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
         .status-paid{background:#dcfce7;color:#166534}.status-pending{background:#fef3c7;color:#92400e}.status-processing{background:#dbeafe;color:#1d4ed8}
+        .status-cancelled{background:#fee2e2;color:#991b1b}.status-refunded{background:#e0e7ff;color:#3730a3}
         .seller-badge{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#ede9fe;color:#6d28d9}
         .meta-chip{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#f3f4f6;color:#374151}
     </style>
@@ -24,14 +25,84 @@
             </div>
 
             <div class="row g-3 mb-4">
-                <div class="col-md-3"><div class="p-3 border rounded-3 bg-light"><div class="small text-muted">Payment</div><div class="fw-bold"><span class="status-badge" th:classappend="${order.paymentStatus == 'PAID' ? 'status-paid' : (order.paymentStatus == 'PENDING' ? 'status-pending' : '')}" th:text="${order.paymentStatus}">-</span></div></div></div>
-                <div class="col-md-3"><div class="p-3 border rounded-3 bg-light"><div class="small text-muted">Order status</div><div class="fw-bold"><span class="status-badge" th:classappend="${order.orderStatus == 'PROCESSING' ? 'status-processing' : (order.orderStatus == 'PENDING' ? 'status-pending' : '')}" th:text="${order.orderStatus}">-</span></div></div></div>
-                <div class="col-md-3"><div class="p-3 border rounded-3 bg-light"><div class="small text-muted">Tổng tiền</div><div class="fw-bold" th:text="${order.totalAmount}">0</div></div></div>
-                <div class="col-md-3"><div class="p-3 border rounded-3 bg-light"><div class="small text-muted">Ngày đặt</div><div class="fw-bold" th:text="${order.orderedAt}">-</div></div></div>
+                <div class="col-md-3">
+                    <div class="p-3 border rounded-3 bg-light">
+                        <div class="small text-muted">Trạng thái thanh toán</div>
+                        <div class="fw-bold">
+                            <span class="status-badge" th:classappend="${order.paymentStatus == 'PAID' ? 'status-paid' : (order.paymentStatus == 'PENDING' ? 'status-pending' : (order.paymentStatus == 'REFUNDED' ? 'status-refunded' : ''))}" th:text="${order.paymentStatus}">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 border rounded-3 bg-light">
+                        <div class="small text-muted">Trạng thái đơn hàng</div>
+                        <div class="fw-bold">
+                            <span class="status-badge" th:classappend="${order.orderStatus == 'PROCESSING' ? 'status-processing' : (order.orderStatus == 'PENDING' ? 'status-pending' : (order.orderStatus == 'CANCELLED' ? 'status-cancelled' : ''))}" th:text="${order.orderStatus}">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 border rounded-3 bg-light">
+                        <div class="small text-muted">Tổng tiền</div>
+                        <div class="fw-bold text-success">
+                            <span th:if="${order.totalAmount != null}" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' đ'}">0 đ</span>
+                            <span th:unless="${order.totalAmount != null}">0 đ</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 border rounded-3 bg-light">
+                        <div class="small text-muted">Ngày đặt</div>
+                        <div class="fw-bold text-secondary" style="font-size: 13.5px;">
+                            <span th:if="${order.orderedAt != null}" th:text="${#temporals.format(order.orderedAt, 'dd/MM/yyyy HH:mm')}">-</span>
+                            <span th:unless="${order.orderedAt != null}">-</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="mb-3">
-                <span class="meta-chip" th:text="${'Số seller khác nhau: ' + (order.items != null ? #lists.size(order.items.![sellerId].distinct()) : 0)}">Số seller khác nhau: 0</span>
+                <span class="meta-chip" th:text="${'Số seller khác nhau: ' + (order.items != null ? new java.util.HashSet(order.items.?[sellerId != null].![sellerId]).size() : 0)}">Số seller khác nhau: 0</span>
+            </div>
+
+            <!-- Thông tin Hủy & Hoàn tiền -->
+            <div th:if="${order.orderStatus == 'CANCELLED'}" class="p-4 rounded-3 border mb-4" style="background:#fff5f5; border-color:#f5c6cb !important;">
+                <h3 class="h6 fw-bold mb-3 text-danger"><i data-lucide="ban" class="d-inline-block align-middle me-1" style="width:18px;height:18px;"></i> Đơn hàng đã bị hủy</h3>
+                <p class="text-secondary small mb-3"><strong>Lý do hủy đơn:</strong> <span th:text="${order.cancellationReason}">—</span></p>
+
+                <!-- Nếu đã thanh toán và chờ hoàn tiền -->
+                <div th:if="${order.paymentStatus == 'PAID'}" class="p-3 bg-white rounded-3 border text-dark">
+                    <h4 class="fw-bold mb-2 text-danger" style="font-size: 14px;"><i data-lucide="info" class="d-inline-block align-middle me-1" style="width:16px;height:16px;"></i> Yêu cầu hoàn tiền từ khách hàng</h4>
+                    <div class="row g-2 mb-3">
+                        <div class="col-sm-4"><strong>Ngân hàng nhận:</strong> <span th:text="${order.refundBankName}">Vietcombank</span></div>
+                        <div class="col-sm-4"><strong>Số tài khoản:</strong> <span th:text="${order.refundAccountNumber}">123456789</span></div>
+                        <div class="col-sm-4"><strong>Chủ tài khoản:</strong> <span th:text="${order.refundAccountName}">NGUYEN VAN A</span></div>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-danger btn-sm rounded-3 fw-bold px-3 py-2" data-bs-toggle="modal" data-bs-target="#approveRefundModal">
+                            <i data-lucide="check-circle" class="d-inline-block align-middle me-1" style="width:14px;height:14px;"></i> Duyệt hoàn tiền
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Nếu đã hoàn tiền xong -->
+                <div th:if="${order.paymentStatus == 'REFUNDED'}" class="p-3 bg-white rounded-3 border text-dark">
+                    <h4 class="fw-bold mb-2 text-success" style="font-size: 14px;"><i data-lucide="check" class="d-inline-block align-middle me-1" style="width:16px;height:16px;"></i> Đã hoàn tiền thành công</h4>
+                    <div class="row g-2">
+                        <div class="col-sm-4">
+                            <strong>Tài khoản nhận:</strong>
+                            <span th:text="${order.refundBankName}">Vietcombank</span> - 
+                            <span th:text="${order.refundAccountNumber}">123456789</span> 
+                            (<span th:text="${order.refundAccountName}">NGUYEN VAN A</span>)
+                        </div>
+                        <div class="col-sm-4"><strong>Mã giao dịch hoàn:</strong> <span class="fw-bold text-success" th:text="${order.refundTransactionCode}">REF-123</span></div>
+                        <div class="col-sm-4">
+                            <strong>Thời gian duyệt:</strong>
+                            <span th:if="${order.refundApprovedAt != null}" th:text="${#temporals.format(order.refundApprovedAt, 'dd/MM/yyyy HH:mm')}">30/05/2026</span>
+                            <span th:unless="${order.refundApprovedAt != null}">—</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <h3 class="h5 fw-bold mb-3">Sản phẩm trong đơn</h3>
@@ -49,6 +120,33 @@
                 </tbody>
             </table>
         </section>
+
+        <!-- Modal duyệt hoàn tiền -->
+        <div class="modal fade" id="approveRefundModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <div class="modal-header border-0 pb-0">
+                        <div>
+                            <h5 class="modal-title fw-bold mb-0">Xác nhận hoàn tiền</h5>
+                            <p class="text-secondary small mb-0">Vui lòng nhập mã giao dịch để hoàn tất duyệt hoàn tiền</p>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body pt-2">
+                        <form th:action="@{/admin/orders/{id}/refund(id=${order.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <div class="mb-3">
+                                <label class="fw-semibold mb-1 small">Mã giao dịch hoàn tiền:</label>
+                                <input type="text" name="transactionCode" class="form-control rounded-3" placeholder="Nhập mã giao dịch MoMo/Ngân hàng hoàn tiền..." required />
+                            </div>
+                            <button type="submit" class="btn btn-danger fw-bold w-100 rounded-3 py-2">
+                                Duyệt & Gửi thông báo hoàn tiền
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 </div>
 </body>

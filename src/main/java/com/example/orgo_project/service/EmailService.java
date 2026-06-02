@@ -165,4 +165,48 @@ public class EmailService {
         helper.setText(htmlContent, true);
         mailSender.send(message);
     }
+
+    public void sendRefundEmail(String toEmail, String orderCode, java.math.BigDecimal amount, String transactionCode) throws jakarta.mail.MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setTo(toEmail);
+        helper.setSubject("Thông báo hoàn tiền đơn hàng " + orderCode + " - ORGO");
+        String htmlContent = """
+        <div style="font-family: Arial, sans-serif; background-color: #f6f8f6; padding: 30px;">
+            <div style="max-width: 620px; margin: auto; background: #ffffff; padding: 40px;
+                        border-radius: 12px; border-top: 5px solid #dc3545; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+                <h1 style="color: #dc3545; font-size: 28px; font-weight: 900; margin-bottom: 8px;">ORGO</h1>
+                <h2 style="color: #1a1a1a; font-size: 22px; margin-bottom: 18px;">Thông báo hoàn tiền thành công</h2>
+                <p style="font-size: 15px; color: #555; line-height: 1.7;">
+                    Xin chào,<br>
+                    Đơn hàng <b>%s</b> của bạn đã được hủy thành công và yêu cầu hoàn tiền đã được xử lý.
+                </p>
+                <div style="margin: 24px 0; padding: 16px; background: #f8f9fa; border-radius: 10px;">
+                    <p style="margin: 0; font-size: 15px; color: #1a1a1a;">
+                        Mã đơn hàng: <b>%s</b>
+                    </p>
+                    <p style="margin: 8px 0; font-size: 15px; color: #1a1a1a;">
+                        Số tiền hoàn trả: <b style="color: #dc3545;">%,.0f VNĐ</b>
+                    </p>
+                    <p style="margin: 8px 0; font-size: 15px; color: #1a1a1a;">
+                        Mã giao dịch hoàn tiền: <b style="color: #198754;">%s</b>
+                    </p>
+                    <p style="margin: 8px 0 0; font-size: 14px; color: #666;">
+                        Số tiền đã được hoàn trả về tài khoản ngân hàng bạn đã cung cấp khi yêu cầu hủy đơn.
+                    </p>
+                </div>
+                <p style="font-size: 14px; color: #666; line-height: 1.6;">
+                    Cảm ơn bạn đã tin tưởng sử dụng dịch vụ của ORGO.
+                </p>
+            </div>
+        </div>
+        """.formatted(
+                orderCode,
+                orderCode,
+                amount,
+                transactionCode
+        );
+        helper.setText(htmlContent, true);
+        mailSender.send(message);
+    }
 }

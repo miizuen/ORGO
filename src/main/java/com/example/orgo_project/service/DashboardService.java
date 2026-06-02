@@ -187,7 +187,7 @@ public class DashboardService {
                 .limit(5)
                 .map(order -> {
                     String customerName = "Khách hàng " + order.getUserId();
-                    com.example.orgo_project.entity.UserProfile profile = userRepository.findById(order.getUserId()).orElse(null);
+                    com.example.orgo_project.entity.UserProfile profile = userRepository.findByAccount_Id(order.getUserId()).orElse(null);
                     if (profile != null) {
                         customerName = profile.getFullName();
                     }

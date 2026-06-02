@@ -35,18 +35,20 @@ public class AdminOrderService implements IAdminOrderService {
     private final IProductVariantRepository productVariantRepository;
     private final IProductRepository productRepository;
     private final IUserRepository userRepository;
+    private final EmailService emailService;
 
     public AdminOrderService(ICustomerOrderRepository orderRepository,
                              ICustomerOrderItemRepository orderItemRepository,
                              IProductVariantRepository productVariantRepository,
                              IProductRepository productRepository,
                              IUserRepository userRepository,
-                             IRevenueDistributionService revenueDistributionService) {
+                             EmailService emailService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.productVariantRepository = productVariantRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -71,6 +73,11 @@ public class AdminOrderService implements IAdminOrderService {
                 .cancellationReason(order.getCancellationReason())
                 .orderedAt(order.getOrderedAt())
                 .items(items)
+                .refundBankName(order.getRefundBankName())
+                .refundAccountNumber(order.getRefundAccountNumber())
+                .refundAccountName(order.getRefundAccountName())
+                .refundTransactionCode(order.getRefundTransactionCode())
+                .refundApprovedAt(order.getRefundApprovedAt())
                 .build();
     }
 
@@ -90,7 +97,7 @@ public class AdminOrderService implements IAdminOrderService {
     private OrderSummaryDTO toSummary(CustomerOrder order) {
         UserProfile profile = null;
         if (order.getUserId() != null) {
-            profile = userRepository.findById(order.getUserId()).orElse(null);
+            profile = userRepository.findByAccount_Id(order.getUserId()).orElse(null);
         }
 
         List<CustomerOrderItem> items = order.getId() != null
@@ -132,6 +139,10 @@ public class AdminOrderService implements IAdminOrderService {
                 .itemSummary(itemSummary)
                 .customerName(profile != null ? profile.getFullName() : null)
                 .customerPhone(profile != null ? profile.getPhoneNumber() : null)
+                .cancellationReason(order.getCancellationReason())
+                .refundBankName(order.getRefundBankName())
+                .refundAccountNumber(order.getRefundAccountNumber())
+                .refundAccountName(order.getRefundAccountName())
                 .build();
     }
 
@@ -151,5 +162,46 @@ public class AdminOrderService implements IAdminOrderService {
                 .unitPrice(item.getUnitPrice())
                 .lineTotal(item.getLineTotal())
                 .build();
+    }
+
+    @Override
+    public List<OrderSummaryDTO> getRefundRequests() {
+        return orderRepository.findAll().stream()
+                .filter(o -> o.getOrderStatus() == OrderStatus.CANCELLED && 
+                             (o.getPaymentStatus() == PaymentStatus.PAID || o.getPaymentStatus() == PaymentStatus.REFUNDED))
+                .map(this::toSummary)
+                .sorted((o1, o2) -> o2.getOrderedAt().compareTo(o1.getOrderedAt()))
+                .toList();
+    }
+
+    @Override
+    public boolean approveRefund(Integer orderId, String transactionCode) {
+        CustomerOrder order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+        if (order.getOrderStatus() != OrderStatus.CANCELLED) {
+            throw new RuntimeException("Chỉ được hoàn tiền cho đơn hàng đã hủy.");
+        }
+        if (order.getPaymentStatus() != PaymentStatus.PAID) {
+            throw new RuntimeException("Đơn hàng chưa thanh toán hoặc đã được hoàn tiền.");
+        }
+        if (transactionCode == null || transactionCode.isBlank()) {
+            throw new RuntimeException("Mã giao dịch hoàn tiền không được để trống.");
+        }
+
+        order.setPaymentStatus(PaymentStatus.REFUNDED);
+        order.setRefundTransactionCode(transactionCode);
+        order.setRefundApprovedAt(LocalDateTime.now());
+        orderRepository.save(order);
+
+        // Gửi email
+        UserProfile profile = userRepository.findByAccount_Id(order.getUserId()).orElse(null);
+        if (profile != null && profile.getEmail() != null && !profile.getEmail().isBlank()) {
+            try {
+                emailService.sendRefundEmail(profile.getEmail(), order.getOrderCode(), order.getTotalAmount(), transactionCode);
+            } catch (Exception e) {
+                log.error("Failed to send refund email to: " + profile.getEmail(), e);
+            }
+        }
+        return true;
     }
 }

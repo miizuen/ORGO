@@ -36,14 +36,12 @@
                                 Đã nhận hàng
                             </button>
                         </form>
-                        <!-- Nút hủy đơn (chỉ khi PENDING hoặc PROCESSING) -->
-                        <form th:if="${order.orderStatus == 'PENDING' or order.orderStatus == 'PROCESSING'}"
-                            th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post">
-                            <button type="submit" class="btn btn-outline-danger rounded-3 fw-semibold px-4"
-                                onclick="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">
-                                Hủy đơn
-                            </button>
-                        </form>
+                        <!-- Nút hủy đơn (chỉ khi PENDING hoặc PENDING_PAYMENT) -->
+                        <button th:if="${order.orderStatus == 'PENDING' or order.orderStatus == 'PENDING_PAYMENT'}"
+                            type="button" class="btn btn-outline-danger rounded-3 fw-semibold px-4"
+                            data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+                            Hủy đơn
+                        </button>
                     </div>
                 </div>
             </div>
@@ -57,11 +55,22 @@
                         <h5 class="fw-bold mb-4">Trạng thái giao hàng</h5>
 
                         <!-- Đã hủy: hiện banner riêng -->
-                        <div th:if="${order.orderStatus == 'CANCELLED'}" class="p-3 rounded-3 border"
+                        <div th:if="${order.orderStatus == 'CANCELLED'}" class="p-3 rounded-3 border mb-4"
                             style="background:#fff5f5;border-color:#f5c6cb !important;">
                             <p class="mb-1 fw-semibold" style="color:#842029;">Đơn hàng đã bị hủy</p>
-                            <p th:if="${order.cancellationReason != null}" class="mb-0 text-secondary small"
+                            <p th:if="${order.cancellationReason != null}" class="mb-2 text-secondary small"
                                 th:text="'Lý do: ' + ${order.cancellationReason}"></p>
+                            
+                            <!-- Trạng thái hoàn tiền cho user -->
+                            <div th:if="${order.paymentStatus == 'PAID'}" class="mt-2 p-2 bg-white rounded border text-dark small">
+                                <strong class="text-danger">Trạng thái hoàn tiền:</strong> Đang chờ quản trị viên xử lý hoàn tiền.<br/>
+                                <strong>Tài khoản nhận:</strong> <span th:text="${order.refundBankName} + ' - ' + ${order.refundAccountNumber} + ' (' + ${order.refundAccountName} + ')'"></span>
+                            </div>
+                            <div th:if="${order.paymentStatus == 'REFUNDED'}" class="mt-2 p-2 bg-white rounded border text-dark small">
+                                <strong class="text-success">Trạng thái hoàn tiền:</strong> Đã hoàn tiền thành công.<br/>
+                                <strong>Mã giao dịch hoàn tiền:</strong> <span class="fw-bold text-success" th:text="${order.refundTransactionCode}"></span><br/>
+                                <strong>Thời gian duyệt hoàn:</strong> <span th:text="${order.refundApprovedAt != null ? #temporals.format(order.refundApprovedAt, 'dd/MM/yyyy HH:mm') : ''}"></span>
+                            </div>
                         </div>
 
                         <!-- Progress Steps (chỉ hiện khi không bị hủy) -->
@@ -326,6 +335,52 @@
                             </div>
                             <button type="submit" class="btn btn-success fw-bold w-100 rounded-3">
                                 Gửi đánh giá
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MODAL HỦY ĐƠN HÀNG ===== -->
+        <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <div class="modal-header border-0 pb-0">
+                        <div>
+                            <h5 class="modal-title fw-bold mb-0">Yêu cầu hủy đơn hàng</h5>
+                            <p class="text-secondary small mb-0">Vui lòng nhập lý do và thông tin hoàn tiền (nếu có)</p>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body pt-2">
+                        <form th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post" id="cancelOrderForm">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <div class="mb-3">
+                                <label class="fw-semibold mb-1 small">Lý do hủy đơn:</label>
+                                <textarea name="reason" rows="3" class="form-control rounded-3"
+                                    placeholder="Vui lòng cho chúng tôi biết lý do hủy đơn..." required></textarea>
+                            </div>
+                            
+                            <!-- Section Bank Details if PAID -->
+                            <div th:if="${order.paymentStatus == 'PAID'}" class="p-3 rounded-3 bg-light border mb-3">
+                                <p class="fw-bold text-success mb-2 small"><i class="bi bi-info-circle"></i> Đơn hàng đã được thanh toán. Vui lòng nhập thông tin ngân hàng để nhận hoàn tiền:</p>
+                                <div class="mb-2">
+                                    <label class="fw-semibold mb-1 small" style="font-size: 12px;">Tên ngân hàng:</label>
+                                    <input type="text" name="refundBankName" class="form-control form-control-sm rounded-3" placeholder="Ví dụ: Vietcombank, Techcombank..." required />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="fw-semibold mb-1 small" style="font-size: 12px;">Số tài khoản:</label>
+                                    <input type="text" name="refundAccountNumber" class="form-control form-control-sm rounded-3" placeholder="Số tài khoản ngân hàng của bạn..." required />
+                                </div>
+                                <div class="mb-0">
+                                    <label class="fw-semibold mb-1 small" style="font-size: 12px;">Tên chủ tài khoản:</label>
+                                    <input type="text" name="refundAccountName" class="form-control form-control-sm rounded-3" placeholder="Tên in nổi trên thẻ / viết hoa không dấu..." required />
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-danger fw-bold w-100 rounded-3 py-2.5">
+                                Xác nhận hủy đơn hàng
                             </button>
                         </form>
                     </div>

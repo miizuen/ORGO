@@ -9,4 +9,6 @@ public interface IUserRepository extends JpaRepository<UserProfile, Integer> {
     UserProfile findByEmail(String email);
 
     UserProfile findByPhoneNumber(String phoneNumber);
+
+    java.util.Optional<UserProfile> findByAccount_Id(Integer accountId);
 }

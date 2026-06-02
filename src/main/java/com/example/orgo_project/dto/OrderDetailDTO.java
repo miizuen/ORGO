@@ -37,4 +37,10 @@ public class OrderDetailDTO {
     private String recipientName;
     private String recipientPhone;
     private String recipientAddress;
+    
+    private String refundBankName;
+    private String refundAccountNumber;
+    private String refundAccountName;
+    private String refundTransactionCode;
+    private LocalDateTime refundApprovedAt;
 }

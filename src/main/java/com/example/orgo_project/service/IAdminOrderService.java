@@ -11,4 +11,8 @@ public interface IAdminOrderService {
     OrderDetailDTO getOrderDetail(Integer orderId);
 
     boolean approveOrder(Integer orderId);
+
+    java.util.List<com.example.orgo_project.dto.OrderSummaryDTO> getRefundRequests();
+
+    boolean approveRefund(Integer orderId, String transactionCode);
 }

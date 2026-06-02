@@ -460,6 +460,8 @@
                             data-lucide="file-text" class="icon"></i> Duyệt nội dung</a>
                     <a th:href="@{/admin/orders}" th:classappend="${activePage == 'orders'} ? 'active' : ''"
                         class="adm-nav-item"><i data-lucide="package" class="icon"></i> Đơn đặt hàng</a>
+                    <a th:href="@{/admin/orders/refunds}" th:classappend="${activePage == 'refunds'} ? 'active' : ''"
+                        class="adm-nav-item"><i data-lucide="rotate-ccw" class="icon"></i> Yêu cầu hoàn tiền</a>
                     <a th:href="@{/admin/payouts}" th:classappend="${activePage == 'payouts'} ? 'active' : ''"
                         class="adm-nav-item"><i data-lucide="credit-card" class="icon"></i> Đối soát & thanh toán</a>
                     <a th:href="@{/admin/reports}" th:classappend="${activePage == 'reports'} ? 'active' : ''"
