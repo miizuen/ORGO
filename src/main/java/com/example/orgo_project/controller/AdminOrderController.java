@@ -60,4 +60,25 @@ public class AdminOrderController {
         redirectAttributes.addFlashAttribute("successMessage", "Đã duyệt đơn hàng và kích hoạt chia tiền.");
         return "redirect:/admin/orders/" + orderId;
     }
+
+    @GetMapping("/refunds")
+    public String refundsPage(Model model) {
+        List<OrderSummaryDTO> refunds = adminOrderService.getRefundRequests();
+        model.addAttribute("activePage", "refunds");
+        model.addAttribute("orders", refunds);
+        return "pages/admin/refunds";
+    }
+
+    @PostMapping("/{orderId}/refund")
+    public String approveRefund(@PathVariable Integer orderId,
+                                @RequestParam String transactionCode,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            adminOrderService.approveRefund(orderId, transactionCode);
+            redirectAttributes.addFlashAttribute("successMessage", "Đã duyệt hoàn tiền thành công và gửi email thông báo!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/admin/orders/" + orderId;
+    }
 }

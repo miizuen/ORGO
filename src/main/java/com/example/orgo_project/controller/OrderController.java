@@ -76,16 +76,23 @@ public class OrderController {
     public String cancelOrder(@AuthenticationPrincipal CustomUserDetails userDetails,
                               @PathVariable Integer orderId,
                               @RequestParam(required = false) String reason,
+                              @RequestParam(required = false) String refundBankName,
+                              @RequestParam(required = false) String refundAccountNumber,
+                              @RequestParam(required = false) String refundAccountName,
                               RedirectAttributes redirectAttributes) {
         if (userDetails == null || userDetails.getAccount() == null) {
             return "redirect:/login";
         }
 
-        boolean success = orderService.cancelOrder(getUserId(userDetails), orderId, reason);
-        if (success) {
-            redirectAttributes.addFlashAttribute("successMessage", "Đã hủy đơn hàng thành công!");
-        } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không thể hủy đơn hàng.");
+        try {
+            boolean success = orderService.cancelOrder(getUserId(userDetails), orderId, reason, refundBankName, refundAccountNumber, refundAccountName);
+            if (success) {
+                redirectAttributes.addFlashAttribute("successMessage", "Đã hủy đơn hàng thành công!");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Không thể hủy đơn hàng.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
 
         return "redirect:/orders/" + orderId;

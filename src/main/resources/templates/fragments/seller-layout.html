@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
 </head>
 <body>
 
 <th:block th:fragment="sellerLayout(title, activePage, content)">
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -48,7 +48,7 @@
 <body>
 <aside class="seller-sidebar">
     <div class="seller-brand">
-        <h2>ORGO Seller</h2>
+        <h2 th:text="${#authentication.principal instanceof T(com.example.orgo_project.security.CustomUserDetails) ? @sellerService.findByAccountId(#authentication.principal.account.id)?.shopName : 'ORGO Seller'}">ORGO Seller</h2>
         <p>Khu vực người bán</p>
     </div>
     <div class="seller-profile">

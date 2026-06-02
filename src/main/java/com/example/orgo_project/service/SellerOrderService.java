@@ -229,12 +229,12 @@ public class SellerOrderService implements ISellerOrderService {
         String customerPhone = null;
         
         if (order.getUserId() != null) {
-            userProfileRepository.findById(order.getUserId()).ifPresent(user -> {
+            userProfileRepository.findByAccount_Id(order.getUserId()).ifPresent(user -> {
                 // Sử dụng biến tạm để gán giá trị
             });
             
             // Lấy thông tin từ repository
-            var userOpt = userProfileRepository.findById(order.getUserId());
+            var userOpt = userProfileRepository.findByAccount_Id(order.getUserId());
             if (userOpt.isPresent()) {
                 var user = userOpt.get();
                 customerName = user.getFullName();

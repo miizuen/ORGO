@@ -144,19 +144,37 @@ public class OrderService implements IOrderService {
                 .recipientName(recipientName)
                 .recipientPhone(recipientPhone)
                 .recipientAddress(recipientAddress)
+                .refundBankName(order.getRefundBankName())
+                .refundAccountNumber(order.getRefundAccountNumber())
+                .refundAccountName(order.getRefundAccountName())
+                .refundTransactionCode(order.getRefundTransactionCode())
+                .refundApprovedAt(order.getRefundApprovedAt())
                 .build();
     }
 
     @Override
-    public boolean cancelOrder(Integer accountId, Integer orderId, String reason) {
+    public boolean cancelOrder(Integer accountId, Integer orderId, String reason, String refundBankName, String refundAccountNumber, String refundAccountName) {
         CustomerOrder order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
         if (!order.getUserId().equals(accountId))
             throw new RuntimeException("Không có quyền hủy đơn này");
-        if (order.getOrderStatus() != OrderStatus.PENDING && order.getOrderStatus() != OrderStatus.PROCESSING)
-            throw new RuntimeException("Chỉ được hủy đơn ở trạng thái PENDING hoặc PROCESSING");
+        if (order.getOrderStatus() != OrderStatus.PENDING && order.getOrderStatus() != OrderStatus.PENDING_PAYMENT)
+            throw new RuntimeException("Chỉ được hủy đơn khi chưa được người bán duyệt.");
+        
         order.setOrderStatus(OrderStatus.CANCELLED);
         order.setCancellationReason(reason);
+
+        if (order.getPaymentStatus() == com.example.orgo_project.enums.PaymentStatus.PAID) {
+            if (refundBankName == null || refundBankName.isBlank() ||
+                refundAccountNumber == null || refundAccountNumber.isBlank() ||
+                refundAccountName == null || refundAccountName.isBlank()) {
+                throw new RuntimeException("Vui lòng cung cấp đầy đủ thông tin tài khoản ngân hàng để nhận tiền hoàn trả.");
+            }
+            order.setRefundBankName(refundBankName);
+            order.setRefundAccountNumber(refundAccountNumber);
+            order.setRefundAccountName(refundAccountName);
+        }
+
         orderRepository.save(order);
         return true;
     }
@@ -200,6 +218,10 @@ public class OrderService implements IOrderService {
                 .orderedAt(order.getOrderedAt())
                 .shopName(shopName)
                 .itemSummary(itemSummary)
+                .cancellationReason(order.getCancellationReason())
+                .refundBankName(order.getRefundBankName())
+                .refundAccountNumber(order.getRefundAccountNumber())
+                .refundAccountName(order.getRefundAccountName())
                 .build();
     }
 

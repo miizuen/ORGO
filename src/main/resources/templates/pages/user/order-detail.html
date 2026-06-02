@@ -1,386 +1,447 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout('Chi tiết đơn hàng - ORGO', ~{::#order-detail-content})}">
+    th:replace="~{fragments/layout :: layout('Chi tiết đơn hàng - ORGO', ~{::#order-detail-content})}">
+
 <body>
-<div id="order-detail-content">
-<main class="container py-5">
+    <div id="order-detail-content">
+        <main class="container py-5">
 
-    <!-- Flash messages -->
-    <div th:if="${successMessage}" class="alert alert-success rounded-3 mb-3" th:text="${successMessage}"></div>
-    <div th:if="${errorMessage}" class="alert alert-danger rounded-3 mb-3" th:text="${errorMessage}"></div>
+            <!-- Flash messages -->
+            <div th:if="${successMessage}" class="alert alert-success rounded-3 mb-3" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-danger rounded-3 mb-3" th:text="${errorMessage}"></div>
 
-    <!-- Back + Header -->
-    <div class="mb-4">
-        <a th:href="@{/orders}" class="text-secondary text-decoration-none small">← Quay lại lịch sử đơn hàng</a>
-        <div class="d-flex align-items-start justify-content-between mt-2 flex-wrap gap-3">
-            <div>
-                <h1 class="fw-bold fs-2 text-dark mb-1"
-                    th:text="'Đơn hàng #' + ${order.orderCode}">Đơn hàng</h1>
-                <p class="text-secondary mb-0">
-                    Đặt ngày
-                    <span th:text="${order.orderedAt != null ? #temporals.format(order.orderedAt, 'dd/MM/yyyy') : ''}"></span>
-                    <span th:if="${order.items != null}">
-                        &bull; <span th:text="${order.items.size()}"></span> sản phẩm
-                    </span>
-                </p>
-            </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <!-- Nút xác nhận nhận hàng (chỉ khi SHIPPED) -->
-                <form th:if="${order.orderStatus == 'SHIPPED'}"
-                      th:action="@{/orders/{id}/confirm-delivery(id=${order.id})}" method="post">
-                    <button type="submit"
-                            class="btn btn-primary rounded-3 fw-semibold px-4"
-                            onclick="return confirm('Xác nhận bạn đã nhận được hàng?')">
-                        Đã nhận hàng
-                    </button>
-                </form>
-                <!-- Nút hủy đơn (chỉ khi PENDING hoặc PROCESSING) -->
-                <form th:if="${order.orderStatus == 'PENDING' or order.orderStatus == 'PROCESSING'}"
-                      th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post">
-                    <button type="submit" class="btn btn-outline-danger rounded-3 fw-semibold px-4"
-                            onclick="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">
-                        Hủy đơn
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <!-- LEFT COLUMN -->
-        <div class="col-12 col-lg-8">
-
-            <!-- Trạng thái giao hàng -->
-            <div class="bg-white rounded-4 shadow-sm p-4 mb-4">
-                <h5 class="fw-bold mb-4">Trạng thái giao hàng</h5>
-
-                <!-- Đã hủy: hiện banner riêng -->
-                <div th:if="${order.orderStatus == 'CANCELLED'}"
-                     class="p-3 rounded-3 border"
-                     style="background:#fff5f5;border-color:#f5c6cb !important;">
-                    <p class="mb-1 fw-semibold" style="color:#842029;">Đơn hàng đã bị hủy</p>
-                    <p th:if="${order.cancellationReason != null}" class="mb-0 text-secondary small"
-                       th:text="'Lý do: ' + ${order.cancellationReason}"></p>
-                </div>
-
-                <!-- Progress Steps (chỉ hiện khi không bị hủy) -->
-                <div th:unless="${order.orderStatus == 'CANCELLED'}"
-                     class="position-relative">
-                    <!-- Line nền -->
-                    <div class="position-absolute"
-                         style="height:3px;background:#e9ecef;top:20px;left:10%;right:10%;z-index:0;"></div>
-                    <!-- Line tiến trình -->
-                    <div th:with="progressWidth=${order.orderStatus == 'PROCESSING'} ? '27%' : (${order.orderStatus == 'SHIPPED'} ? '54%' : (${order.orderStatus == 'DELIVERED'} ? '80%' : '0%'))"
-                         class="position-absolute"
-                         th:style="'height:3px;background:#198754;top:20px;left:10%;z-index:1;width:' + ${progressWidth}">
+            <!-- Back + Header -->
+            <div class="mb-4">
+                <a th:href="@{/orders}" class="text-secondary text-decoration-none small">← Quay lại lịch sử đơn
+                    hàng</a>
+                <div class="d-flex align-items-start justify-content-between mt-2 flex-wrap gap-3">
+                    <div>
+                        <h1 class="fw-bold fs-2 text-dark mb-1" th:text="'Đơn hàng #' + ${order.orderCode}">Đơn hàng
+                        </h1>
+                        <p class="text-secondary mb-0">
+                            Đặt ngày
+                            <span
+                                th:text="${order.orderedAt != null ? #temporals.format(order.orderedAt, 'dd/MM/yyyy') : ''}"></span>
+                            <span th:if="${order.items != null}">
+                                &bull; <span th:text="${order.items.size()}"></span> sản phẩm
+                            </span>
+                        </p>
                     </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <!-- Nút xác nhận nhận hàng (chỉ khi SHIPPED) -->
+                        <form th:if="${order.orderStatus == 'SHIPPED'}"
+                            th:action="@{/orders/{id}/confirm-delivery(id=${order.id})}" method="post">
+                            <button type="submit" class="btn btn-primary rounded-3 fw-semibold px-4"
+                                onclick="return confirm('Xác nhận bạn đã nhận được hàng?')">
+                                Đã nhận hàng
+                            </button>
+                        </form>
+                        <!-- Nút hủy đơn (chỉ khi PENDING hoặc PENDING_PAYMENT) -->
+                        <button th:if="${order.orderStatus == 'PENDING' or order.orderStatus == 'PENDING_PAYMENT'}"
+                            type="button" class="btn btn-outline-danger rounded-3 fw-semibold px-4"
+                            data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+                            Hủy đơn
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-                    <div th:with="
+            <div class="row g-4">
+                <!-- LEFT COLUMN -->
+                <div class="col-12 col-lg-8">
+
+                    <!-- Trạng thái giao hàng -->
+                    <div class="bg-white rounded-4 shadow-sm p-4 mb-4">
+                        <h5 class="fw-bold mb-4">Trạng thái giao hàng</h5>
+
+                        <!-- Đã hủy: hiện banner riêng -->
+                        <div th:if="${order.orderStatus == 'CANCELLED'}" class="p-3 rounded-3 border mb-4"
+                            style="background:#fff5f5;border-color:#f5c6cb !important;">
+                            <p class="mb-1 fw-semibold" style="color:#842029;">Đơn hàng đã bị hủy</p>
+                            <p th:if="${order.cancellationReason != null}" class="mb-2 text-secondary small"
+                                th:text="'Lý do: ' + ${order.cancellationReason}"></p>
+                            
+                            <!-- Trạng thái hoàn tiền cho user -->
+                            <div th:if="${order.paymentStatus == 'PAID'}" class="mt-2 p-2 bg-white rounded border text-dark small">
+                                <strong class="text-danger">Trạng thái hoàn tiền:</strong> Đang chờ quản trị viên xử lý hoàn tiền.<br/>
+                                <strong>Tài khoản nhận:</strong> <span th:text="${order.refundBankName} + ' - ' + ${order.refundAccountNumber} + ' (' + ${order.refundAccountName} + ')'"></span>
+                            </div>
+                            <div th:if="${order.paymentStatus == 'REFUNDED'}" class="mt-2 p-2 bg-white rounded border text-dark small">
+                                <strong class="text-success">Trạng thái hoàn tiền:</strong> Đã hoàn tiền thành công.<br/>
+                                <strong>Mã giao dịch hoàn tiền:</strong> <span class="fw-bold text-success" th:text="${order.refundTransactionCode}"></span><br/>
+                                <strong>Thời gian duyệt hoàn:</strong> <span th:text="${order.refundApprovedAt != null ? #temporals.format(order.refundApprovedAt, 'dd/MM/yyyy HH:mm') : ''}"></span>
+                            </div>
+                        </div>
+
+                        <!-- Progress Steps (chỉ hiện khi không bị hủy) -->
+                        <div th:unless="${order.orderStatus == 'CANCELLED'}" class="position-relative">
+                            <!-- Line nền -->
+                            <div class="position-absolute"
+                                style="height:3px;background:#e9ecef;top:20px;left:10%;right:10%;z-index:0;"></div>
+                            <!-- Line tiến trình -->
+                            <div th:with="progressWidth=${order.orderStatus == 'PROCESSING'} ? '27%' : (${order.orderStatus == 'SHIPPED'} ? '54%' : (${order.orderStatus == 'DELIVERED'} ? '80%' : '0%'))"
+                                class="position-absolute"
+                                th:style="'height:3px;background:#198754;top:20px;left:10%;z-index:1;width:' + ${progressWidth}">
+                            </div>
+
+                            <div th:with="
                         s1=${order.orderStatus == 'PENDING' or order.orderStatus == 'PROCESSING' or order.orderStatus == 'SHIPPED' or order.orderStatus == 'DELIVERED'},
                         s2=${order.orderStatus == 'PROCESSING' or order.orderStatus == 'SHIPPED' or order.orderStatus == 'DELIVERED'},
                         s3=${order.orderStatus == 'SHIPPED' or order.orderStatus == 'DELIVERED'},
                         s4=${order.orderStatus == 'DELIVERED'}"
-                         class="d-flex justify-content-between position-relative" style="z-index:2;">
+                                class="d-flex justify-content-between position-relative" style="z-index:2;">
 
-                        <!-- Bước 1: Đã đặt — màu vàng khi đang PENDING, xanh khi đã qua -->
-                        <div class="text-center" style="flex:1;">
-                            <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center fw-bold"
-                                 th:style="${order.orderStatus == 'PENDING'} ? 'width:40px;height:40px;background:#856404;color:white;' : (${s1} ? 'width:40px;height:40px;background:#198754;color:white;' : 'width:40px;height:40px;background:#e9ecef;color:#6c757d;')">
-                                <span th:if="${s1}">✓</span>
-                                <span th:unless="${s1}">1</span>
+                                <!-- Bước 1: Đã đặt — màu vàng khi đang PENDING, xanh khi đã qua -->
+                                <div class="text-center" style="flex:1;">
+                                    <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center fw-bold"
+                                        th:style="${order.orderStatus == 'PENDING'} ? 'width:40px;height:40px;background:#856404;color:white;' : (${s1} ? 'width:40px;height:40px;background:#198754;color:white;' : 'width:40px;height:40px;background:#e9ecef;color:#6c757d;')">
+                                        <span th:if="${s1}">✓</span>
+                                        <span th:unless="${s1}">1</span>
+                                    </div>
+                                    <div class="small fw-semibold"
+                                        th:style="${order.orderStatus == 'PENDING'} ? 'color:#856404;' : (${s1} ? 'color:#198754;' : 'color:#6c757d;')">
+                                        Đã đặt</div>
+                                </div>
+
+                                <!-- Bước 2: Đang xử lý — màu xanh dương khi đang PROCESSING -->
+                                <div class="text-center" style="flex:1;">
+                                    <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center fw-bold"
+                                        th:style="${order.orderStatus == 'PROCESSING'} ? 'width:40px;height:40px;background:#055160;color:white;' : (${s2} ? 'width:40px;height:40px;background:#198754;color:white;' : 'width:40px;height:40px;background:#e9ecef;color:#6c757d;')">
+                                        <span th:if="${s2}">✓</span>
+                                        <span th:unless="${s2}">2</span>
+                                    </div>
+                                    <div class="small fw-semibold"
+                                        th:style="${order.orderStatus == 'PROCESSING'} ? 'color:#055160;' : (${s2} ? 'color:#198754;' : 'color:#6c757d;')">
+                                        Đang xử lý</div>
+                                </div>
+
+                                <!-- Bước 3: Đang giao — màu xanh dương đậm khi đang SHIPPED -->
+                                <div class="text-center" style="flex:1;">
+                                    <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center fw-bold"
+                                        th:style="${order.orderStatus == 'SHIPPED'} ? 'width:40px;height:40px;background:#084298;color:white;' : (${s3} ? 'width:40px;height:40px;background:#198754;color:white;' : 'width:40px;height:40px;background:#e9ecef;color:#6c757d;')">
+                                        <span th:if="${s3}">✓</span>
+                                        <span th:unless="${s3}">3</span>
+                                    </div>
+                                    <div class="small fw-semibold"
+                                        th:style="${order.orderStatus == 'SHIPPED'} ? 'color:#084298;' : (${s3} ? 'color:#198754;' : 'color:#6c757d;')">
+                                        Đang giao</div>
+                                </div>
+
+                                <!-- Bước 4: Đã nhận — màu xanh lá khi DELIVERED -->
+                                <div class="text-center" style="flex:1;">
+                                    <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center fw-bold"
+                                        th:style="${s4} ? 'width:40px;height:40px;background:#198754;color:white;' : 'width:40px;height:40px;background:#e9ecef;color:#6c757d;'">
+                                        <span th:if="${s4}">✓</span>
+                                        <span th:unless="${s4}">4</span>
+                                    </div>
+                                    <div class="small fw-semibold"
+                                        th:style="${s4} ? 'color:#198754;' : 'color:#6c757d;'">Đã nhận</div>
+                                </div>
                             </div>
-                            <div class="small fw-semibold"
-                                 th:style="${order.orderStatus == 'PENDING'} ? 'color:#856404;' : (${s1} ? 'color:#198754;' : 'color:#6c757d;')">Đã đặt</div>
                         </div>
 
-                        <!-- Bước 2: Đang xử lý — màu xanh dương khi đang PROCESSING -->
-                        <div class="text-center" style="flex:1;">
-                            <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center fw-bold"
-                                 th:style="${order.orderStatus == 'PROCESSING'} ? 'width:40px;height:40px;background:#055160;color:white;' : (${s2} ? 'width:40px;height:40px;background:#198754;color:white;' : 'width:40px;height:40px;background:#e9ecef;color:#6c757d;')">
-                                <span th:if="${s2}">✓</span>
-                                <span th:unless="${s2}">2</span>
+                        <!-- Ghi chú -->
+                        <div th:if="${order.note != null and !order.note.isBlank()}"
+                            class="mt-3 p-3 rounded-3 bg-light">
+                            <p class="mb-0 text-secondary small">Ghi chú: <span th:text="${order.note}"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách sản phẩm -->
+                    <div class="bg-white rounded-4 shadow-sm p-4" id="review-section">
+                        <h5 class="fw-bold mb-4">Sản phẩm trong đơn</h5>
+
+                        <div th:if="${order.items != null and !order.items.isEmpty()}">
+                            <div th:each="item, stat : ${order.items}"
+                                th:classappend="${!stat.last} ? 'border-bottom pb-3 mb-3' : ''"
+                                class="d-flex align-items-center gap-3">
+                                <!-- Ảnh sản phẩm -->
+                                <div class="rounded-3 overflow-hidden flex-shrink-0 bg-light"
+                                    style="width:72px;height:72px;">
+                                    <img th:if="${item.sellerName != null}" th:src="${item.sellerName}"
+                                        th:alt="${item.productName}" class="w-100 h-100" style="object-fit:cover;" />
+                                    <div th:unless="${item.sellerName != null}"
+                                        class="w-100 h-100 d-flex align-items-center justify-content-center text-secondary"
+                                        style="font-size:1.5rem;">SP</div>
+                                </div>
+
+                                <!-- Thông tin sản phẩm -->
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold text-dark mb-1"
+                                        th:text="${item.productName != null ? item.productName : 'Sản phẩm'}"></div>
+                                    <div class="text-secondary small mb-1"
+                                        th:text="${item.variantName != null ? item.variantName : ''}"></div>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span class="text-secondary small">
+                                            Số lượng: <span th:text="${item.quantity}"></span>
+                                        </span>
+                                        <!-- Nút viết đánh giá (chỉ khi DELIVERED) -->
+                                        <button th:if="${order.orderStatus == 'DELIVERED'}" type="button"
+                                            class="btn btn-sm btn-outline-success rounded-3 fw-semibold"
+                                            th:attr="data-product-id=${item.productId}, data-product-name=${item.productName}"
+                                            onclick="openReviewModal(this)">
+                                            Viết đánh giá
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Giá -->
+                                <div class="text-end flex-shrink-0">
+                                    <div class="fw-bold text-dark"
+                                        th:text="${item.lineTotal != null ? #numbers.formatInteger(item.lineTotal.intValue(), 3, 'COMMA') + 'đ' : ''}">
+                                    </div>
+                                    <div class="text-secondary small"
+                                        th:text="${item.unitPrice != null ? #numbers.formatInteger(item.unitPrice.intValue(), 3, 'COMMA') + 'đ/sp' : ''}">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="small fw-semibold"
-                                 th:style="${order.orderStatus == 'PROCESSING'} ? 'color:#055160;' : (${s2} ? 'color:#198754;' : 'color:#6c757d;')">Đang xử lý</div>
                         </div>
 
-                        <!-- Bước 3: Đang giao — màu xanh dương đậm khi đang SHIPPED -->
-                        <div class="text-center" style="flex:1;">
-                            <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center fw-bold"
-                                 th:style="${order.orderStatus == 'SHIPPED'} ? 'width:40px;height:40px;background:#084298;color:white;' : (${s3} ? 'width:40px;height:40px;background:#198754;color:white;' : 'width:40px;height:40px;background:#e9ecef;color:#6c757d;')">
-                                <span th:if="${s3}">✓</span>
-                                <span th:unless="${s3}">3</span>
-                            </div>
-                            <div class="small fw-semibold"
-                                 th:style="${order.orderStatus == 'SHIPPED'} ? 'color:#084298;' : (${s3} ? 'color:#198754;' : 'color:#6c757d;')">Đang giao</div>
-                        </div>
-
-                        <!-- Bước 4: Đã nhận — màu xanh lá khi DELIVERED -->
-                        <div class="text-center" style="flex:1;">
-                            <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center fw-bold"
-                                 th:style="${s4} ? 'width:40px;height:40px;background:#198754;color:white;' : 'width:40px;height:40px;background:#e9ecef;color:#6c757d;'">
-                                <span th:if="${s4}">✓</span>
-                                <span th:unless="${s4}">4</span>
-                            </div>
-                            <div class="small fw-semibold"
-                                 th:style="${s4} ? 'color:#198754;' : 'color:#6c757d;'">Đã nhận</div>
-                        </div>
+                        <div th:if="${order.items == null or order.items.isEmpty()}"
+                            class="text-center text-secondary py-3">Không có sản phẩm</div>
                     </div>
                 </div>
 
-                <!-- Ghi chú -->
-                <div th:if="${order.note != null and !order.note.isBlank()}"
-                     class="mt-3 p-3 rounded-3 bg-light">
-                    <p class="mb-0 text-secondary small">Ghi chú: <span th:text="${order.note}"></span></p>
-                </div>
-            </div>
+                <!-- RIGHT COLUMN -->
+                <div class="col-12 col-lg-4">
 
-            <!-- Danh sách sản phẩm -->
-            <div class="bg-white rounded-4 shadow-sm p-4" id="review-section">
-                <h5 class="fw-bold mb-4">Sản phẩm trong đơn</h5>
-
-                <div th:if="${order.items != null and !order.items.isEmpty()}">
-                    <div th:each="item, stat : ${order.items}"
-                         th:classappend="${!stat.last} ? 'border-bottom pb-3 mb-3' : ''"
-                         class="d-flex align-items-center gap-3">
-                        <!-- Ảnh sản phẩm -->
-                        <div class="rounded-3 overflow-hidden flex-shrink-0 bg-light"
-                             style="width:72px;height:72px;">
-                            <img th:if="${item.sellerName != null}"
-                                 th:src="${item.sellerName}"
-                                 th:alt="${item.productName}"
-                                 class="w-100 h-100" style="object-fit:cover;"/>
-                            <div th:unless="${item.sellerName != null}"
-                                 class="w-100 h-100 d-flex align-items-center justify-content-center text-secondary"
-                                 style="font-size:1.5rem;">SP</div>
-                        </div>
-
-                        <!-- Thông tin sản phẩm -->
-                        <div class="flex-grow-1">
-                            <div class="fw-semibold text-dark mb-1"
-                                 th:text="${item.productName != null ? item.productName : 'Sản phẩm'}"></div>
-                            <div class="text-secondary small mb-1"
-                                 th:text="${item.variantName != null ? item.variantName : ''}"></div>
-                            <div class="d-flex align-items-center gap-2 flex-wrap">
-                                <span class="text-secondary small">
-                                    Số lượng: <span th:text="${item.quantity}"></span>
-                                </span>
-                                <!-- Nút viết đánh giá (chỉ khi DELIVERED) -->
-                                <button th:if="${order.orderStatus == 'DELIVERED'}"
-                                        type="button"
-                                        class="btn btn-sm btn-outline-success rounded-3 fw-semibold"
-                                        th:attr="data-product-id=${item.productId}, data-product-name=${item.productName}"
-                                        onclick="openReviewModal(this)">
-                                    Viết đánh giá
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Giá -->
-                        <div class="text-end flex-shrink-0">
-                            <div class="fw-bold text-dark"
-                                 th:text="${item.lineTotal != null ? #numbers.formatInteger(item.lineTotal.intValue(), 3, 'COMMA') + 'đ' : ''}"></div>
-                            <div class="text-secondary small"
-                                 th:text="${item.unitPrice != null ? #numbers.formatInteger(item.unitPrice.intValue(), 3, 'COMMA') + 'đ/sp' : ''}"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div th:if="${order.items == null or order.items.isEmpty()}"
-                     class="text-center text-secondary py-3">Không có sản phẩm</div>
-            </div>
-        </div>
-
-        <!-- RIGHT COLUMN -->
-        <div class="col-12 col-lg-4">
-
-            <!-- Tổng đơn hàng -->
-            <div class="bg-white rounded-4 shadow-sm p-4 mb-4">
-                <h5 class="fw-bold mb-3">Tổng đơn hàng</h5>
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-secondary">Tạm tính</span>
-                    <span th:text="${order.totalAmount != null and order.shippingFee != null ?
+                    <!-- Tổng đơn hàng -->
+                    <div class="bg-white rounded-4 shadow-sm p-4 mb-4">
+                        <h5 class="fw-bold mb-3">Tổng đơn hàng</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Tạm tính</span>
+                            <span
+                                th:text="${order.totalAmount != null and order.shippingFee != null ?
                         #numbers.formatInteger((order.totalAmount.subtract(order.shippingFee)).intValue(), 3, 'COMMA') + 'đ' :
                         (order.totalAmount != null ? #numbers.formatInteger(order.totalAmount.intValue(), 3, 'COMMA') + 'đ' : '—')}"></span>
-                </div>
-                <div class="d-flex justify-content-between mb-3">
-                    <span class="text-secondary">Phí giao hàng</span>
-                    <span th:text="${order.shippingFee != null ? #numbers.formatInteger(order.shippingFee.intValue(), 3, 'COMMA') + 'đ' : '0đ'}"></span>
-                </div>
-                <div class="border-top pt-3 d-flex justify-content-between">
-                    <span class="fw-bold fs-5">Tổng</span>
-                    <span class="fw-bold fs-5 text-success"
-                          th:text="${order.totalAmount != null ? #numbers.formatInteger(order.totalAmount.intValue(), 3, 'COMMA') + 'đ' : '—'}"></span>
-                </div>
-                <!-- Trạng thái thanh toán -->
-                <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
-                    <span class="text-secondary small">Thanh toán</span>
-                    <span th:switch="${order.paymentStatus}">
-                        <span th:case="'PAID'"
-                              class="badge rounded-pill px-3"
-                              style="background:#d1e7dd;color:#0a3622;">Đã thanh toán</span>
-                        <span th:case="'PENDING'"
-                              class="badge rounded-pill px-3"
-                              style="background:#fff3cd;color:#856404;">Chờ thanh toán</span>
-                        <span th:case="'FAILED'"
-                              class="badge rounded-pill px-3"
-                              style="background:#f8d7da;color:#842029;">Thất bại</span>
-                        <span th:case="*"
-                              class="badge bg-secondary rounded-pill px-3"
-                              th:text="${order.paymentStatus}"></span>
-                    </span>
-                </div>
-                <!-- Nút thanh toán nếu chưa thanh toán -->
-                <div th:if="${order.paymentStatus == 'PENDING'}" class="mt-3">
-                    <a th:href="@{/checkout/success(orderId=${order.id}, orderCode=${order.orderCode}, totalAmount=${order.totalAmount})}"
-                       class="btn btn-success fw-semibold w-100 rounded-3">
-                        Thanh toán ngay
-                    </a>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-secondary">Phí giao hàng</span>
+                            <span
+                                th:text="${order.shippingFee != null ? #numbers.formatInteger(order.shippingFee.intValue(), 3, 'COMMA') + 'đ' : '0đ'}"></span>
+                        </div>
+                        <div class="border-top pt-3 d-flex justify-content-between">
+                            <span class="fw-bold fs-5">Tổng</span>
+                            <span class="fw-bold fs-5 text-success"
+                                th:text="${order.totalAmount != null ? #numbers.formatInteger(order.totalAmount.intValue(), 3, 'COMMA') + 'đ' : '—'}"></span>
+                        </div>
+                        <!-- Trạng thái thanh toán -->
+                        <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
+                            <span class="text-secondary small">Thanh toán</span>
+                            <span th:switch="${order.paymentStatus}">
+                                <span th:case="'PAID'" class="badge rounded-pill px-3"
+                                    style="background:#d1e7dd;color:#0a3622;">Đã thanh toán</span>
+                                <span th:case="'PENDING'" class="badge rounded-pill px-3"
+                                    style="background:#fff3cd;color:#856404;">Chờ thanh toán</span>
+                                <span th:case="'FAILED'" class="badge rounded-pill px-3"
+                                    style="background:#f8d7da;color:#842029;">Thất bại</span>
+                                <span th:case="*" class="badge bg-secondary rounded-pill px-3"
+                                    th:text="${order.paymentStatus}"></span>
+                            </span>
+                        </div>
+                        <!-- Nút thanh toán nếu chưa thanh toán -->
+                        <div th:if="${order.paymentStatus == 'PENDING'}" class="mt-3">
+                            <a th:href="@{/checkout/success(orderId=${order.id}, orderCode=${order.orderCode}, totalAmount=${order.totalAmount})}"
+                                class="btn btn-success fw-semibold w-100 rounded-3">
+                                Thanh toán ngay
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Địa chỉ giao hàng -->
+                    <div class="bg-white rounded-4 shadow-sm p-4 mb-4"
+                        th:if="${order.recipientName != null or order.recipientAddress != null}">
+                        <h6 class="fw-semibold text-secondary small text-uppercase mb-3">Địa chỉ giao hàng</h6>
+                        <div class="fw-semibold mb-1" th:text="${order.recipientName}"></div>
+                        <div class="text-secondary small" th:text="${order.recipientAddress}"></div>
+                        <div class="text-success small mt-1" th:text="${order.recipientPhone}"></div>
+                    </div>
+
+                    <!-- Tên shop -->
+                    <div class="bg-white rounded-4 shadow-sm p-4 mb-4" th:if="${order.shopName != null}">
+                        <h6 class="fw-semibold text-secondary small text-uppercase mb-2">Người bán</h6>
+                        <div class="fw-semibold text-dark" th:text="${order.shopName}"></div>
+                    </div>
+
+                    <!-- Links -->
+                    <div class="bg-white rounded-4 shadow-sm p-4">
+                        <a href="/products" class="d-block text-success text-decoration-none small fw-semibold mb-2">
+                            Tiếp tục mua sắm
+                        </a>
+                        <a href="/orders" class="d-block text-success text-decoration-none small fw-semibold">
+                            Xem tất cả đơn hàng
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <!-- Địa chỉ giao hàng -->
-            <div class="bg-white rounded-4 shadow-sm p-4 mb-4"
-                 th:if="${order.recipientName != null or order.recipientAddress != null}">
-                <h6 class="fw-semibold text-secondary small text-uppercase mb-3">Địa chỉ giao hàng</h6>
-                <div class="fw-semibold mb-1" th:text="${order.recipientName}"></div>
-                <div class="text-secondary small" th:text="${order.recipientAddress}"></div>
-                <div class="text-success small mt-1" th:text="${order.recipientPhone}"></div>
-            </div>
+        </main>
 
-            <!-- Tên shop -->
-            <div class="bg-white rounded-4 shadow-sm p-4 mb-4" th:if="${order.shopName != null}">
-                <h6 class="fw-semibold text-secondary small text-uppercase mb-2">Người bán</h6>
-                <div class="fw-semibold text-dark" th:text="${order.shopName}"></div>
-            </div>
-
-            <!-- Links -->
-            <div class="bg-white rounded-4 shadow-sm p-4">
-                <a href="/products" class="d-block text-success text-decoration-none small fw-semibold mb-2">
-                    Tiếp tục mua sắm
-                </a>
-                <a href="/orders" class="d-block text-success text-decoration-none small fw-semibold">
-                    Xem tất cả đơn hàng
-                </a>
+        <!-- ===== MODAL ĐÁNH GIÁ ===== -->
+        <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <div class="modal-header border-0 pb-0">
+                        <div>
+                            <h5 class="modal-title fw-bold mb-0">Viết đánh giá</h5>
+                            <p class="text-secondary small mb-0" id="reviewProductName"></p>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body pt-2">
+                        <form id="reviewForm" th:action="@{/reviews/add}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="productId" id="reviewProductId" />
+                            <div class="mb-3">
+                                <label class="fw-semibold mb-2 small">Chọn số sao:</label>
+                                <div class="d-flex gap-1" id="starRating">
+                                    <label class="star-label" for="modalStar1"
+                                        style="cursor:pointer;font-size:1.8rem;color:#dee2e6;">★</label>
+                                    <input type="radio" name="stars" id="modalStar1" value="1" class="d-none"
+                                        required />
+                                    <label class="star-label" for="modalStar2"
+                                        style="cursor:pointer;font-size:1.8rem;color:#dee2e6;">★</label>
+                                    <input type="radio" name="stars" id="modalStar2" value="2" class="d-none" />
+                                    <label class="star-label" for="modalStar3"
+                                        style="cursor:pointer;font-size:1.8rem;color:#dee2e6;">★</label>
+                                    <input type="radio" name="stars" id="modalStar3" value="3" class="d-none" />
+                                    <label class="star-label" for="modalStar4"
+                                        style="cursor:pointer;font-size:1.8rem;color:#dee2e6;">★</label>
+                                    <input type="radio" name="stars" id="modalStar4" value="4" class="d-none" />
+                                    <label class="star-label" for="modalStar5"
+                                        style="cursor:pointer;font-size:1.8rem;color:#dee2e6;">★</label>
+                                    <input type="radio" name="stars" id="modalStar5" value="5" class="d-none" />
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-semibold mb-1 small">Nội dung đánh giá:</label>
+                                <textarea name="content" rows="3" class="form-control rounded-3"
+                                    placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..." required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-semibold mb-1 small">Ảnh đánh giá (tuỳ chọn):</label>
+                                <div class="border rounded-3 p-3 text-center bg-light"
+                                    style="border: 2px dashed #dee2e6 !important;">
+                                    <input type="file" name="reviewImage" accept="image/*"
+                                        class="form-control form-control-sm rounded-3"
+                                        onchange="previewModalImage(this)" />
+                                    <p class="text-secondary small mt-1 mb-0">PNG, JPG tối đa 5MB</p>
+                                </div>
+                                <div id="modalImagePreview" class="mt-2" style="display:none;">
+                                    <img id="modalPreviewImg" src="" alt="Preview" class="rounded-3"
+                                        style="max-height:120px;" />
+                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2 rounded-3"
+                                        onclick="clearModalImage()">Xóa ảnh</button>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success fw-bold w-100 rounded-3">
+                                Gửi đánh giá
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-</main>
-
-<!-- ===== MODAL ĐÁNH GIÁ ===== -->
-<div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow">
-            <div class="modal-header border-0 pb-0">
-                <div>
-                    <h5 class="modal-title fw-bold mb-0">Viết đánh giá</h5>
-                    <p class="text-secondary small mb-0" id="reviewProductName"></p>
+        <!-- ===== MODAL HỦY ĐƠN HÀNG ===== -->
+        <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <div class="modal-header border-0 pb-0">
+                        <div>
+                            <h5 class="modal-title fw-bold mb-0">Yêu cầu hủy đơn hàng</h5>
+                            <p class="text-secondary small mb-0">Vui lòng nhập lý do và thông tin hoàn tiền (nếu có)</p>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body pt-2">
+                        <form th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post" id="cancelOrderForm">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <div class="mb-3">
+                                <label class="fw-semibold mb-1 small">Lý do hủy đơn:</label>
+                                <textarea name="reason" rows="3" class="form-control rounded-3"
+                                    placeholder="Vui lòng cho chúng tôi biết lý do hủy đơn..." required></textarea>
+                            </div>
+                            
+                            <!-- Section Bank Details if PAID -->
+                            <div th:if="${order.paymentStatus == 'PAID'}" class="p-3 rounded-3 bg-light border mb-3">
+                                <p class="fw-bold text-success mb-2 small"><i class="bi bi-info-circle"></i> Đơn hàng đã được thanh toán. Vui lòng nhập thông tin ngân hàng để nhận hoàn tiền:</p>
+                                <div class="mb-2">
+                                    <label class="fw-semibold mb-1 small" style="font-size: 12px;">Tên ngân hàng:</label>
+                                    <input type="text" name="refundBankName" class="form-control form-control-sm rounded-3" placeholder="Ví dụ: Vietcombank, Techcombank..." required />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="fw-semibold mb-1 small" style="font-size: 12px;">Số tài khoản:</label>
+                                    <input type="text" name="refundAccountNumber" class="form-control form-control-sm rounded-3" placeholder="Số tài khoản ngân hàng của bạn..." required />
+                                </div>
+                                <div class="mb-0">
+                                    <label class="fw-semibold mb-1 small" style="font-size: 12px;">Tên chủ tài khoản:</label>
+                                    <input type="text" name="refundAccountName" class="form-control form-control-sm rounded-3" placeholder="Tên in nổi trên thẻ / viết hoa không dấu..." required />
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-danger fw-bold w-100 rounded-3 py-2.5">
+                                Xác nhận hủy đơn hàng
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body pt-2">
-                <form id="reviewForm" th:action="@{/reviews/add}" method="post" enctype="multipart/form-data">
-                    <input type="hidden" name="productId" id="reviewProductId"/>
-                    <div class="mb-3">
-                        <label class="fw-semibold mb-2 small">Chọn số sao:</label>
-                        <div class="d-flex gap-1" id="starRating">
-                            <label class="star-label" for="modalStar1" style="cursor:pointer;font-size:1.8rem;color:#dee2e6;">★</label>
-                            <input type="radio" name="stars" id="modalStar1" value="1" class="d-none" required/>
-                            <label class="star-label" for="modalStar2" style="cursor:pointer;font-size:1.8rem;color:#dee2e6;">★</label>
-                            <input type="radio" name="stars" id="modalStar2" value="2" class="d-none"/>
-                            <label class="star-label" for="modalStar3" style="cursor:pointer;font-size:1.8rem;color:#dee2e6;">★</label>
-                            <input type="radio" name="stars" id="modalStar3" value="3" class="d-none"/>
-                            <label class="star-label" for="modalStar4" style="cursor:pointer;font-size:1.8rem;color:#dee2e6;">★</label>
-                            <input type="radio" name="stars" id="modalStar4" value="4" class="d-none"/>
-                            <label class="star-label" for="modalStar5" style="cursor:pointer;font-size:1.8rem;color:#dee2e6;">★</label>
-                            <input type="radio" name="stars" id="modalStar5" value="5" class="d-none"/>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-semibold mb-1 small">Nội dung đánh giá:</label>
-                        <textarea name="content" rows="3" class="form-control rounded-3"
-                                  placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..." required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-semibold mb-1 small">Ảnh đánh giá (tuỳ chọn):</label>
-                        <div class="border rounded-3 p-3 text-center bg-light"
-                             style="border: 2px dashed #dee2e6 !important;">
-                            <input type="file" name="reviewImage" accept="image/*"
-                                   class="form-control form-control-sm rounded-3"
-                                   onchange="previewModalImage(this)"/>
-                            <p class="text-secondary small mt-1 mb-0">PNG, JPG tối đa 5MB</p>
-                        </div>
-                        <div id="modalImagePreview" class="mt-2" style="display:none;">
-                            <img id="modalPreviewImg" src="" alt="Preview"
-                                 class="rounded-3" style="max-height:120px;"/>
-                            <button type="button" class="btn btn-sm btn-outline-danger ms-2 rounded-3"
-                                    onclick="clearModalImage()">Xóa ảnh</button>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-success fw-bold w-100 rounded-3">
-                        Gửi đánh giá
-                    </button>
-                </form>
             </div>
         </div>
+
+        <script>
+            function openReviewModal(btn) {
+                var productId = btn.getAttribute('data-product-id');
+                var productName = btn.getAttribute('data-product-name');
+                document.getElementById('reviewProductId').value = productId;
+                document.getElementById('reviewProductName').textContent = productName || '';
+                document.getElementById('reviewForm').reset();
+                document.getElementById('modalImagePreview').style.display = 'none';
+                document.querySelectorAll('.star-label').forEach(function (l) { l.style.color = '#dee2e6'; });
+                var modal = new bootstrap.Modal(document.getElementById('reviewModal'));
+                modal.show();
+            }
+
+            window.addEventListener('DOMContentLoaded', function () {
+                var params = new URLSearchParams(window.location.search);
+                if (params.get('openReview') === '1') {
+                    var firstBtn = document.querySelector('button[data-product-id]');
+                    if (firstBtn) openReviewModal(firstBtn);
+                }
+            });
+
+            function previewModalImage(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        document.getElementById('modalPreviewImg').src = e.target.result;
+                        document.getElementById('modalImagePreview').style.display = 'block';
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            function clearModalImage() {
+                document.querySelector('#reviewForm input[name="reviewImage"]').value = '';
+                document.getElementById('modalPreviewImg').src = '';
+                document.getElementById('modalImagePreview').style.display = 'none';
+            }
+
+            var stars = document.querySelectorAll('.star-label');
+            stars.forEach(function (label, index) {
+                label.addEventListener('mouseover', function () {
+                    stars.forEach(function (l, i) { l.style.color = i <= index ? '#ffc107' : '#dee2e6'; });
+                });
+                label.addEventListener('mouseout', function () {
+                    var checked = document.querySelector('#starRating input[type=radio]:checked');
+                    var checkedIndex = checked ? parseInt(checked.value) - 1 : -1;
+                    stars.forEach(function (l, i) { l.style.color = i <= checkedIndex ? '#ffc107' : '#dee2e6'; });
+                });
+                label.addEventListener('click', function () {
+                    var radio = document.getElementById(label.getAttribute('for'));
+                    if (radio) radio.checked = true;
+                    stars.forEach(function (l, i) { l.style.color = i <= index ? '#ffc107' : '#dee2e6'; });
+                });
+            });
+        </script>
+
     </div>
-</div>
-
-<script>
-function openReviewModal(btn) {
-    var productId = btn.getAttribute('data-product-id');
-    var productName = btn.getAttribute('data-product-name');
-    document.getElementById('reviewProductId').value = productId;
-    document.getElementById('reviewProductName').textContent = productName || '';
-    document.getElementById('reviewForm').reset();
-    document.getElementById('modalImagePreview').style.display = 'none';
-    document.querySelectorAll('.star-label').forEach(function(l) { l.style.color = '#dee2e6'; });
-    var modal = new bootstrap.Modal(document.getElementById('reviewModal'));
-    modal.show();
-}
-
-window.addEventListener('DOMContentLoaded', function() {
-    var params = new URLSearchParams(window.location.search);
-    if (params.get('openReview') === '1') {
-        var firstBtn = document.querySelector('button[data-product-id]');
-        if (firstBtn) openReviewModal(firstBtn);
-    }
-});
-
-function previewModalImage(input) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('modalPreviewImg').src = e.target.result;
-            document.getElementById('modalImagePreview').style.display = 'block';
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-function clearModalImage() {
-    document.querySelector('#reviewForm input[name="reviewImage"]').value = '';
-    document.getElementById('modalPreviewImg').src = '';
-    document.getElementById('modalImagePreview').style.display = 'none';
-}
-
-var stars = document.querySelectorAll('.star-label');
-stars.forEach(function(label, index) {
-    label.addEventListener('mouseover', function() {
-        stars.forEach(function(l, i) { l.style.color = i <= index ? '#ffc107' : '#dee2e6'; });
-    });
-    label.addEventListener('mouseout', function() {
-        var checked = document.querySelector('#starRating input[type=radio]:checked');
-        var checkedIndex = checked ? parseInt(checked.value) - 1 : -1;
-        stars.forEach(function(l, i) { l.style.color = i <= checkedIndex ? '#ffc107' : '#dee2e6'; });
-    });
-    label.addEventListener('click', function() {
-        var radio = document.getElementById(label.getAttribute('for'));
-        if (radio) radio.checked = true;
-        stars.forEach(function(l, i) { l.style.color = i <= index ? '#ffc107' : '#dee2e6'; });
-    });
-});
-</script>
-
-</div>

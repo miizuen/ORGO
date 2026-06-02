@@ -27,4 +27,9 @@ public class OrderSummaryDTO {
     // Thông tin khách hàng
     private String customerName;
     private String customerPhone;
+
+    private String cancellationReason;
+    private String refundBankName;
+    private String refundAccountNumber;
+    private String refundAccountName;
 }

@@ -78,4 +78,20 @@ public class CustomerOrder {
 
     @Column(name = "id_bai_viet")
     private Integer articleId;
+
+    @Column(name = "ten_ngan_hang_hoan", columnDefinition = "NVARCHAR(255)")
+    private String refundBankName;
+
+    @Column(name = "so_tai_khoan_hoan", columnDefinition = "NVARCHAR(255)")
+    private String refundAccountNumber;
+
+    @Column(name = "ten_chu_tai_khoan_hoan", columnDefinition = "NVARCHAR(255)")
+    private String refundAccountName;
+
+    @Column(name = "ma_giao_dich_hoan", columnDefinition = "NVARCHAR(255)")
+    private String refundTransactionCode;
+
+    @Column(name = "ngay_hoan_tien")
+    private LocalDateTime refundApprovedAt;
 }
+
